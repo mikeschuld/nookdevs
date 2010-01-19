@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">nookBrowser</string>
+    <string-array name="webmenu">
+        <item>Address</item>
+        <item>Settings</item>
+        <item>Home</item>
+        <item>Keyboard</item>
+        <item>Text Size</item>
+        <item>Find</item>
+        <item>Save Page</item>
+         <item>Close</item>
+    </string-array>
+    <string-array name="submenu1">
+  	<item>Smallest</item>
+ 	<item>Smaller</item>
+  	<item>Normal</item>
+ 	<item>Larger</item>
+  	<item>Largest</item>
+    </string-array>
+    <string name="find">Enter String to Find:</string>
+    <string name="url">Enter the URL:</string>
+    <string name="open">Open</string>
+    <string name="homepage">Home URL:</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="download">Download</string>
+    <string name="downloadstart">File will be stored in </string>
+    <string name="downloadfailed">Download file failed!</string>
+    <string name="downloadsuccess">Download successful!</string>
+    <string name="internal_download_path">/system/media/sdcard/mydownloads</string>
+    <string name="network">Network Connection</string>
+    
+    
+</resources>
