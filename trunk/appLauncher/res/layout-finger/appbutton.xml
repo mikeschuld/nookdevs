@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageButton
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:id="@+id/appbutton"
+   android:background="#FFFFFF"
+   android:layout_width="96.0px"
+   android:layout_height="144.0px"
+   android:gravity="center_horizontal|center_vertical" />
