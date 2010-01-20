@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.content.pm.PackageManager;
 import android.content.Intent;
 import android.content.ComponentName;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -51,7 +52,7 @@ public class AppLauncher extends nookBaseActivity
 	final static String readingNowUri ="content://com.reader.android/last";
 	ImageButton m_LastButton = null;
 	
-	public final static int DB_VERSION=6; 
+	public final static int DB_VERSION=10; 
 	
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -144,10 +145,6 @@ public class AppLauncher extends nookBaseActivity
         boolean settings=false;
         if( appName.endsWith("LauncherSettings")) 
         	settings=true;
-        if( !settings)
-        intent.setFlags
-            (Intent.FLAG_ACTIVITY_NEW_TASK |
-             Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         boolean readingNow=false;
         if( appName.endsWith("ReaderActivity"))
         	readingNow=true;
@@ -160,7 +157,7 @@ public class AppLauncher extends nookBaseActivity
         		try {
         			b.setImageDrawable(manager.getActivityIcon(intent.getComponent()));
         		} catch(Exception ex) {
-        			ex.printStackTrace();
+        			Log.e(TAG, "Exception loading image -", ex);
         		}
         	} else {
 	        	Uri iconUri = Uri.parse(iconpath);
@@ -184,15 +181,22 @@ public class AppLauncher extends nookBaseActivity
         	v.setBackgroundColor(android.R.color.white);
         	m_LastButton = (ImageButton) v;
         	if( m_readingNow) {
-        		Intent intent = getReadingNowIntent();
-        		startActivity(intent); 
+        		try {
+        			Intent intent = getReadingNowIntent();
+        			startActivity(intent);
+        		} catch(Exception ex) {
+        			Log.e(TAG, "Exception starting reading now activity-", ex);
+        		}
         	}
         	else {
-        		
+        		try {
         		if( !m_Settings) 
         			startActivity(m_intent);
         		else
         			startActivityForResult(m_intent, 1);
+        		} catch(Exception ex) {
+        			Log.e(TAG, "Exception starting activity -", ex);
+        		}
         	}
         }
 
