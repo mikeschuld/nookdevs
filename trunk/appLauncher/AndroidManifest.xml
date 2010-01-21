@@ -9,6 +9,7 @@
         <activity android:name=".AppLauncher"
                   android:label="@string/app_name"
                   android:theme="@android:style/Theme.Light.NoTitleBar"
+                  android:launchMode="singleInstance"
 		>
              <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
