@@ -52,7 +52,8 @@ public class AppLauncher extends nookBaseActivity
 	final static String readingNowUri ="content://com.reader.android/last";
 	ImageButton m_LastButton = null;
 	
-	public final static int DB_VERSION=10; 
+	public final static int DB_VERSION=6; 
+	private boolean m_SettingsChanged=false;
 	
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -64,6 +65,9 @@ public class AppLauncher extends nookBaseActivity
     @Override
     public void onResume() {
     	super.onResume();
+    	if( m_SettingsChanged) {
+    		loadApps();
+    	}
         updateTitle(APP_TITLE);
         loadWallpaper();
         if( m_LastButton != null) {
@@ -145,6 +149,7 @@ public class AppLauncher extends nookBaseActivity
         boolean settings=false;
         if( appName.endsWith("LauncherSettings")) 
         	settings=true;
+
         boolean readingNow=false;
         if( appName.endsWith("ReaderActivity"))
         	readingNow=true;
@@ -169,7 +174,7 @@ public class AppLauncher extends nookBaseActivity
    @Override
    protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 	   //doesn't matter what happens. just reload the apps again.
-	   loadApps();
+	   //loadApps();
    }
     private final class L
         implements View.OnClickListener
@@ -192,8 +197,10 @@ public class AppLauncher extends nookBaseActivity
         		try {
         		if( !m_Settings) 
         			startActivity(m_intent);
-        		else
+        		else {
+        			m_SettingsChanged=true;
         			startActivityForResult(m_intent, 1);
+        		}
         		} catch(Exception ex) {
         			Log.e(TAG, "Exception starting activity -", ex);
         		}
