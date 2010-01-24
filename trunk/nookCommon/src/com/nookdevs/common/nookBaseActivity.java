@@ -32,6 +32,10 @@ public class nookBaseActivity extends Activity {
 	public  static final int SOFT_KEYBOARD_CLEAR=-13;
 	public static final int SOFT_KEYBOARD_SUBMIT=-8;
 	public static final int SOFT_KEYBOARD_CANCEL=-3;
+	protected static final int NOOK_PAGE_UP_KEY_RIGHT = 98;
+	protected static final int NOOK_PAGE_DOWN_KEY_RIGHT = 97;
+	protected static final int NOOK_PAGE_UP_KEY_LEFT = 96;
+	protected static final int NOOK_PAGE_DOWN_KEY_LEFT = 95;
 	
 	PowerManager.WakeLock screenLock = null;
 	boolean m_AirplaneMode=false;
