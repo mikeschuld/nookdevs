@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, customLibrary!</string>
+    <string name="app_name">customLibrary</string>
+    <string name="scanning">Scanning Folders</string>
+    <string name="sorting">Sorting</string>
+    <string name="searching">Searching Folders</string>
+    <string name="please_wait">Please Wait!</string>
+    <string name="search_results">Search Results</string>
+    <string name="my_documents">My Documents</string>
+    <string name="no_result">No Items Found</string>
+    <string name="error">Error</string>
+    <string name="not_implemented">Feature not implemented yet!</string>
+    <string name="search_lib">Search Library:</string>
+<string-array name="mainmenu">
+        <item>Sort By</item>
+        <item>Search</item>
+        <item>Show Covers</item>
+       <!-- <item>Quick Browse</item> -->
+        <item>Check for new contents</item>
+        <item>Close</item>
+    </string-array>
+    <string-array name="sortmenu">
+  	<item>Title</item>
+ 	<item>Author</item>
+  	<item>Most recent</item>
+ 	</string-array>
+
+</resources>
