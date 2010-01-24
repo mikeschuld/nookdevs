@@ -6,9 +6,12 @@
    android:orientation="vertical"
    >
   <!-- this Frame is used merely to block out the eink-display -->
-  <FrameLayout
+  <ImageView
      android:layout_width="fill_parent"
      android:layout_height="760px"
+     android:id="@+id/mainimage"
+     android:background="#FFFFFF"
+     android:scaleType="fitXY"
      />
   <!-- From here onwards is the real layout -->
   <!-- It's probably simplest to use a Frame that explicitly
@@ -19,7 +22,10 @@
      android:layout_width="480px"
      android:layout_height="144px"
      android:orientation="horizontal"
-     android:background="#313535"
+     android:background="#FFFFFF"
+     android:scrollbars="none"
+     android:scrollbarStyle="outsideOverlay"
+     android:fadingEdge="none"
      >
     <LinearLayout
        android:layout_width="fill_parent"
