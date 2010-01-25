@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ImageButton android:id="@+id/settingsbutton"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="86.0px" android:layout_height="138.0px"
-	android:paddingTop="5.0px" android:paddingRight="5.0px"
-	android:paddingLeft="5.0px" android:background="#808080"
-	android:cropToPadding="true" android:gravity="center" />
