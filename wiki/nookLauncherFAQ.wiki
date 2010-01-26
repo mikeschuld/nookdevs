@@ -3,7 +3,7 @@
 
 = Bugged by the nookLauncher selector menu? =
 
-At the moment, there are two ways to force your nookLauncher of choice to become the default selector (note to hazymind/hari -- do you think using   PackageManager.setPreferredActivity() via a settings menu might work?)
+At the moment, there are two ways to force your nookLauncher of choice to become the default selector:
 
 == Using vncserver ==
 
