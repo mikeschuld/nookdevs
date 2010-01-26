@@ -1,0 +1,51 @@
+#summary Making the nookLauncher your default Home
+#labels Featured,Phase-Deploy
+
+= Bugged by the nookLauncher selector menu? =
+
+At the moment, there are two ways to force your nookLauncher of choice to become the default selector (note to hazymind/hari -- do you think using   PackageManager.setPreferredActivity() via a settings menu might work?)
+
+== Using vncserver ==
+
+Download androidvncserver from http://code.google.com/p/android-vnc-server/
+
+In terminal run:
+{{{
+adb push androidvncserver /data
+adb shell chmod 755 /data/androidvncserver
+}}}
+In a ADB Shell session (NOT like previous commands, just run adb shell) run
+{{{
+/data/androidvncserver -k /dev/input/mice &
+}}}
+  Open your favorite VNC client and connect to NOOK_IP:5901 
+
+Now you can select the default home application.
+
+== By editing /data/system/packages.xml ==
+
+Android stores the preferences in the file
+{{{
+/data/system/packages.xml
+}}}
+
+You can directly edit this file to force the package of your choice to be preferred as the default Home app. Add this section
+{{{
+      <preferred-activities>
+      <item name="com.nookdevs.launcher/.NookLauncher" match="100000" set="2">
+      <set name="com.bravo.home/.HomeActivity" />
+      <set name="com.nookdevs.launcher/.NookLauncher" />
+      <filter>
+      <action name="android.intent.action.MAIN" />
+      <cat name="android.intent.category.HOME" />
+      <cat name="android.intent.category.DEFAULT" />
+      </filter>
+      </item>
+      </preferred-activities>
+}}}
+
+right after the <pre><preferred-packages /></pre> tag in packages.xml
+
+Please make careful note of the activity (com.nookdevs.launcher/.NookLauncher in the above example, and ensure it is the same as the package you actually want to use.)
+
+Make a backup copy just in case, edit, replace, and verify that the owner/group is system, and that the file is writeable. Then, reboot the nook.
