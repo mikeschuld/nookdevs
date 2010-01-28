@@ -8,12 +8,18 @@
 	android:layout_height="35.0px" >
 <TextView 
     android:id="@+id/ListTextView" 
-	android:layout_width="280.0px" 
+	android:layout_width="110.0px" 
+	android:layout_height="fill_parent"
+	android:textStyle="bold"
+	android:textColor="#000000"/>
+	<TextView 
+    android:id="@+id/ListSubTextView" 
+	android:layout_width="150.0px" 
 	android:layout_height="fill_parent"
 	android:textColor="#000000"/>
 <ImageView
 	android:id="@+id/ListImageView"
-	android:layout_width="42.0px"
+	android:layout_width="62.0px"
 	android:layout_height="fill_parent"
 	/>
 	</LinearLayout>

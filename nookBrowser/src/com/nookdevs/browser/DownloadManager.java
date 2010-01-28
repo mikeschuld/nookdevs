@@ -204,6 +204,9 @@ public class DownloadManager implements DownloadListener, AlertDialog.OnClickLis
         String fileName =URLUtil.guessFileName(url, contentDisposition, mimetype);
         if( fileName == null || fileName.equals("")) 
         	fileName="index.html";
+        if( fileName.endsWith(".bin")) {
+        	fileName = "index.txt";
+        }
         final File outputFile = new File(baseFolder.getAbsolutePath() + "/" + fileName);
         try {
         	InputStream in = OpenHttpConnection(uri.toURL(), cookies);

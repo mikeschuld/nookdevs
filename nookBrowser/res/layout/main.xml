@@ -27,7 +27,8 @@
 <WebView android:id="@+id/webview"        
 	android:layout_width="600.0px"        
 	android:layout_height="760.0px"
-	android:imeOptions="actionDone"
+	android:imeOptions="actionSend|flagNoEnterAction"
+	android:scrollbars="none"
 	/>
 
 <Button
