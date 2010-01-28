@@ -20,23 +20,34 @@ package com.nookdevs.browser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.nookdevs.common.IconArrayAdapter;
 import com.nookdevs.common.nookBaseActivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -67,11 +78,7 @@ public class nookBrowser extends nookBaseActivity
 {
 
     private static final String LOGTAG = "browser";
-    
-    private static final int NOOK_PAGE_UP_KEY_RIGHT = 98;
-    private static final int NOOK_PAGE_DOWN_KEY_RIGHT = 97;
-    private static final int NOOK_PAGE_UP_KEY_LEFT = 96;
-    private static final int NOOK_PAGE_DOWN_KEY_LEFT = 95;
+
 	private WebView webview;
 	private ListView lview, sublist;
 	public static ConnectivityManager.WakeLock lock=null;
@@ -87,24 +94,32 @@ public class nookBrowser extends nookBaseActivity
 	protected static final int LOAD_URL=0;
 	protected static final int SETTINGS=1;
 	protected static final int GO_HOME=2;
-	protected static final int SOFT_KEYBOARD=3;
-	protected static final int TEXT_SIZE=4;
+	protected static final int FAVS=3;
+	protected static final int ADDFAVS=0;
+	protected static final int SOFT_KEYBOARD=4;
 	protected static final int FIND_STRING=5;
 	protected static final int SAVE_PAGE=6;
 	protected static final int CLOSE=7;
-	protected  static final int SOFT_KEYBOARD_CLEAR=-13;
-	protected static final int SOFT_KEYBOARD_SUBMIT=-8;
-	protected static final int SOFT_KEYBOARD_CANCEL=-3;
+	protected static final int TEXT_SIZE=0;
+	protected static final int ZOOM_IN=1;
+	protected static final int ZOOM_OUT=2;
+	protected static final int HOME_PAGE=3;
 	private static final int WEB_SCROLL_PX = 700;
-	public static final int CONNECTION_TIMEOUT=120000; // lose connection if no n/w action for 2 minutes.
+	public static final int CONNECTION_TIMEOUT=240000;
 	private ViewAnimator m_ViewAnimator;
 	private String m_HomePage;
 	public static final String APP_TITLE="Web";
 	private ProgressBar m_ProgressBar ;
 	Handler m_Handler = new Handler();
-	int [] icons = { -1,-1,-1,-1,R.drawable.submenu,-1,-1,-1};
-	int [] subicons = { -1,-1,-1,-1,-1,-1,-1,-1};
-		
+	int [] icons = { -1,R.drawable.submenu,-1,R.drawable.submenu, -1,-1,-1,-1};
+	int [] subicons = { R.drawable.submenu,-1,-1,-1,-1,-1};
+	int [] subicons2 = { -1,-1,-1,-1,-1,-1};
+    IconArrayAdapter<CharSequence> m_SubListAdapter1=null;
+    IconArrayAdapter<CharSequence> m_SubListAdapter2=null;
+    int m_SubMenuType=0;
+    CharSequence[] m_TextSizes=null;
+    int m_TextSize=2; //normal
+   	
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,16 +137,27 @@ public class nookBrowser extends nookBaseActivity
         lview.setOnItemClickListener(this);
         
         sublist = (ListView) findViewById(R.id.sublist);
-        menuitems = getResources().getTextArray(R.array.submenu1);
-        menuitemsList = Arrays.asList(menuitems);
-        adapter = new IconArrayAdapter<CharSequence>( this, R.layout.listitem, menuitemsList, subicons);
-        adapter.setImageField(R.id.ListImageView);
-        adapter.setTextField(R.id.ListTextView);
-        sublist.setAdapter(adapter);
         sublist.setOnItemClickListener(this);
         webview = (WebView) findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
         webview.setClickable(false);
+       
+        menuitems = getResources().getTextArray(R.array.submenu1);
+        menuitemsList = Arrays.asList(menuitems);
+        m_SubListAdapter1 = 
+        	new IconArrayAdapter<CharSequence>( this, R.layout.listitem, menuitemsList, subicons);
+        m_SubListAdapter1.setImageField(R.id.ListImageView);
+        m_SubListAdapter1.setTextField(R.id.ListTextView);
+        m_SubListAdapter1.setSubTextField(R.id.ListSubTextView);
+        sublist.setAdapter(m_SubListAdapter1);
+        
+        m_TextSizes = getResources().getTextArray(R.array.submenu2);
+        menuitemsList = Arrays.asList(m_TextSizes);
+        m_SubListAdapter2 = 
+        	new IconArrayAdapter<CharSequence>( this, R.layout.listitem, menuitemsList, subicons2);
+        m_SubListAdapter2.setImageField(R.id.ListImageView);
+        m_SubListAdapter2.setTextField(R.id.ListTextView);
+    	
         m_ViewAnimator = (ViewAnimator)findViewById(R.id.listviewanim);
         m_ViewAnimator.setInAnimation(this, R.anim.fromright);
 	    m_ViewAnimator.setAnimateFirstView(true);
@@ -143,6 +169,7 @@ public class nookBrowser extends nookBaseActivity
        	m_ProgressBar.setVisibility(View.INVISIBLE);
        	final Activity activity = this;
            webview.setWebChromeClient(new WebChromeClient() {
+        	 @Override
              public void onProgressChanged(WebView view, int progress) {
                m_ProgressBar.setProgress(progress);
                if( progress ==100) {
@@ -152,7 +179,7 @@ public class nookBrowser extends nookBaseActivity
             	   m_ProgressBar.setVisibility(View.VISIBLE);
             	   m_ProgressBar.setProgress(progress);
                }
-             }
+              }
         });
         goButton = (Button)findViewById(R.id.go);
         backButton = (Button)findViewById(R.id.back);
@@ -161,12 +188,21 @@ public class nookBrowser extends nookBaseActivity
         rightButton = (Button)findViewById(R.id.right);
         leftButton = (Button)findViewById(R.id.left);
         addListeners();
-
+        updateTextSize(m_TextSize, true);
         Uri data = getIntent().getData();
         if( data != null)
-        	m_HomePage = data.toString();
-        else
-        	m_HomePage=null;
+        	lastNavigatedUrl = data.toString();
+        try {
+   			String url=null;
+   			if( lastNavigatedUrl != null && !lastNavigatedUrl.equals(""))
+   				url = lastNavigatedUrl;
+   			else
+   				url=m_HomePage;
+   			waitForConnection(url);
+    	} catch(Exception ex) {
+    		Log.e(this.LOGTAG, "exception on Resume " , ex);
+    	}
+        
     }
 
     private void addListeners() {
@@ -195,6 +231,7 @@ public class nookBrowser extends nookBaseActivity
         try {
         	if( m_HomePage ==null)
         		m_HomePage = getPreferences(MODE_PRIVATE).getString("HOME_PAGE", DEFAULT_HOME_PAGE);
+        	m_TextSize = getPreferences(MODE_PRIVATE).getInt("TEXT_SIZE", m_TextSize);
         } catch(Exception ex) {
         	Log.e(this.LOGTAG, "preference exception: ", ex);
         	m_HomePage = DEFAULT_HOME_PAGE;
@@ -212,7 +249,50 @@ public class nookBrowser extends nookBaseActivity
     		
     	}
     }
-
+    @Override
+    public void onRestoreInstanceState(Bundle bundle) {
+    	super.onRestoreInstanceState(bundle);
+    	webview.restoreState(bundle);
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+    	super.onSaveInstanceState(bundle);
+    	webview.saveState(bundle);
+    }
+    boolean m_CloseButtonDisplayed =false;
+    private boolean m_UserClicked=false;
+    
+    public String getPackageName() {
+    	//This is done to determine if a javascript listbox alert is displayed.
+    	//we don't have a callback from webview for this in 1.5 and the nook specific 
+    	// alert dialog code blocks touchscreen if there are no buttons.
+    	// I'm exiting the app when this happens. This will have to do until I figure out a
+    	// way to close that alert dialog.
+    	if( !m_UserClicked) {
+    		return super.getPackageName();
+    	}
+    	StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+       	for( StackTraceElement item:trace) {
+    		String classname = item.getClassName();
+    		if(classname != null && classname.contains("InvokeListBox")) {
+    			m_UserClicked=false;
+    			m_Handler.post( new Runnable() {
+    				public void run() {
+    					DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface v, int which) {
+								nookBrowser.this.finish();
+							}
+	    				};
+    		    		displayAlert(getString(R.string.app_name),
+    		    				getString(R.string.not_supported), 2,
+    		    				listener, -1);
+    				}});
+    			break;
+    		}
+    	}
+       	return super.getPackageName();
+    }
     @Override
     public void onResume() {
     	super.onResume();
@@ -221,64 +301,43 @@ public class nookBrowser extends nookBaseActivity
         m_Processing=false;
         try {
         	if( m_Dialog != null) m_Dialog.dismiss();
-        } catch(Exception ex) {};
-        CookieManager.getInstance().removeExpiredCookie();
-    	try {
-    		if( lock != null) {
-    			lock.acquire(CONNECTION_TIMEOUT);
-    			if(waitForConnection()) {
-    				if( lastNavigatedUrl != null && !lastNavigatedUrl.equals(""))
-    					webview.loadUrl(lastNavigatedUrl);
-    				else if( m_HomePage != null) 
-    					webview.loadUrl(m_HomePage);
-    			}
-    			else {
-    					// load a local file with error. - later
-    			}
-    		}
-    	} catch(Exception ex) {
-    		Log.e(this.LOGTAG, "exception on Resume " , ex);
-    	}
+        	CookieManager.getInstance().removeExpiredCookie();
+        } catch(Exception ex) {
+        	Log.e(LOGTAG, "exception in resume ...", ex);
+        };
      }
     
-    private boolean waitForConnection() {
+    protected void waitForConnection(String url) {
  
     	try {
+    		if( url != null && url.startsWith("file://")) {
+    			webview.loadUrl(url);
+    			return;
+    		}
     		if( getAirplaneMode()) {
-    			return false;
+    			if( url == null)
+    				webview.goBack();
+    			return;
     		}
     		ConnectivityManager cmgr = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+    		if( lock != null)
+    			lock.acquire(CONNECTION_TIMEOUT);
     		NetworkInfo info = cmgr.getActiveNetworkInfo();
             boolean connection =(info ==null)?false:info.isConnected();
-            int attempts=0;
-            while ( !connection &&  attempts < 10) {
-            	Thread.sleep(2000);
-            	info = cmgr.getActiveNetworkInfo();
-            	connection =(info ==null)?false:info.isConnected();
-            	attempts++;
-            }
-            return connection;
-    	} catch(Exception ex) {
+            if( !connection) {
+            	WifiTask wifi = new WifiTask();
+            	wifi.execute(url);
+   		    }else {
+   		    	if( url == null)
+   		    		webview.goBack();
+   		    	else
+   		    		webview.loadUrl(url);
+   		    }
+       	} catch(Exception ex) {
     		Log.e(this.LOGTAG, "Exception while checking the connection " , ex);
     	}
-    	return false;
     }
-    protected void connectionLock() {
-    	if( lock != null) {
-    		lock.acquire(CONNECTION_TIMEOUT);
-    		m_Handler.post(new Runnable() {
-    			public void run() {
-    				try {
-    					m_ProgressBar.setProgress(5);
-    					m_ProgressBar.setVisibility(View.VISIBLE);
-    				} catch(Exception ex) {
-    					Log.e(LOGTAG, "Exception in connectionLock ", ex);
-    				}
-    				}
-    		});
-    		waitForConnection();
-    	}
-    }
+
     public boolean onLongClick(View v) {
    		processKey(v);
    		processKey(v);
@@ -289,30 +348,31 @@ public class nookBrowser extends nookBaseActivity
 		processKey(v);
 		
 	};
-	private void updateTextSize(int size) {
+	private void updateTextSize(int size, boolean init) {
         WebSettings.TextSize textSize;
-        int fontsize=8;
+        if( !init && size == m_TextSize) {
+        	sublist.setAdapter(m_SubListAdapter1);
+        	m_ViewAnimator.showNext();
+        	m_ViewAnimator.showNext();
+        	m_SubMenuType=1;
+        	return;
+        }
         switch(size) {
         //smallest to largest
         	case 0:
         		textSize = WebSettings.TextSize.SMALLEST;
-        		fontsize=8;
         		break;
         	case 1:
         		textSize = WebSettings.TextSize.SMALLER;
-        		fontsize=10;
         		break;
         	case 2:
         		textSize = WebSettings.TextSize.NORMAL;
-        		fontsize=12;
         		break;
         	case 3:
         		textSize = WebSettings.TextSize.LARGER;
-        		fontsize=14;
         		break;
         	case 4:
         		textSize = WebSettings.TextSize.LARGEST;
-        		fontsize=16;
         		break;
         	default:
         		textSize = WebSettings.TextSize.NORMAL;
@@ -320,16 +380,26 @@ public class nookBrowser extends nookBaseActivity
         }
         
         webview.getSettings().setTextSize(textSize);
-        WebSettings settings = webview.getSettings();
-        settings.setTextSize(textSize);
-        m_ViewAnimator.showPrevious();
+        if( init) return;
+        subicons2[m_TextSize] = -1;
+        m_TextSize=size;
+        Editor e = getPreferences(this.MODE_PRIVATE).edit();
+        e.putInt("TEXT_SIZE", m_TextSize);
+        e.commit();
+        m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
+        sublist.setAdapter(m_SubListAdapter1);
+    	m_ViewAnimator.showNext();
+    	m_ViewAnimator.showNext();
+    	m_SubMenuType=1;
       //  sublist.setVisibility(View.INVISIBLE);
       //  lview.setVisibility(View.VISIBLE);
 	}
 	
 	private void processKey(View v) {
 		KeyEvent event;
+		m_UserClicked=false;
 		if( v.equals(goButton)) {
+			m_UserClicked=true;
 			event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER);
 			webview.onKeyDown(event.KEYCODE_DPAD_CENTER, event);
 			event = new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER);
@@ -345,13 +415,7 @@ public class nookBrowser extends nookBaseActivity
 				m_ProgressBar.setVisibility(View.INVISIBLE);
 			}
 			else if( webview.canGoBack()) {
-				Runnable run1 = new Runnable() {
-					public void run() {
-						connectionLock();
-						webview.goBack();
-					}
-				};
-				(new Thread(run1)).start();
+					waitForConnection(null);
 			} else {
 				goBack();
 				
@@ -430,10 +494,9 @@ public class nookBrowser extends nookBaseActivity
 		url.requestFocus();
 		url.setOnKeyListener( m_TextListener);
 		m_Cmd=cmd;
-		// This hack for displaying soft keyboard - not working if I use dialog/url. - don't know why
 		InputMethodManager imm =
         	(InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-		imm.showSoftInput(webview,InputMethodManager.SHOW_FORCED);
+		imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
 		m_Dialog.show();
 		
 	}
@@ -442,13 +505,7 @@ public class nookBrowser extends nookBaseActivity
 			m_Dialog.dismiss();
 			if( text == null) return;
 			if( m_Cmd ==LOAD_URL) {
-				Runnable run1 = new Runnable() {
-					public void run() {
-						connectionLock();
-						webview.loadUrl(text);
-					}
-				};
-				(new Thread(run1)).start();
+				waitForConnection(text);
 				this.lastNavigatedUrl = text;
 			} else if( m_Cmd == FIND_STRING){
 				webview.findAll(text);
@@ -467,26 +524,45 @@ public class nookBrowser extends nookBaseActivity
 	
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		Log.i(LOGTAG, "onItemClick: item click: " + position);
+		m_UserClicked=false;
 		if( parent.equals(sublist)) {
-			updateTextSize(position);
+			if( m_SubMenuType ==2) {
+				updateTextSize(position,false);
+				m_SubMenuType=0;
+				return;
+			}
+			// check submenu items
+			switch(position) {
+				case TEXT_SIZE:
+					subicons2[m_TextSize]= R.drawable.check;
+					m_SubListAdapter2.setIcons(subicons2);
+					sublist.setAdapter(m_SubListAdapter2);
+					subicons2[m_TextSize] = R.drawable.submenu;
+					m_ViewAnimator.showNext();
+					m_ViewAnimator.showNext();
+					m_SubMenuType=2;
+					break;
+				case ZOOM_IN:
+					webview.zoomIn();
+					break;
+				case ZOOM_OUT:
+					webview.zoomOut();
+					break;
+				case HOME_PAGE:
+					displayDialog(SETTINGS);
+			}
 			return;
 		}
 		if (position >= LOAD_URL & !m_Processing) {            
 			m_Processing=true;
 			if( position ==GO_HOME) {
 				lastNavigatedUrl = m_HomePage;
-				Runnable run1 = new Runnable() {
-					public void run() {
-						connectionLock();
-						webview.loadUrl(m_HomePage);
-					}
-				};
-				(new Thread(run1)).start();
+				waitForConnection(m_HomePage);
 				m_Processing=false;
 			} else if( position == SOFT_KEYBOARD){
 				InputMethodManager imm =
-			        	(InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-			   imm.showSoftInput(webview,InputMethodManager.SHOW_FORCED);
+		        	(InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
 			   m_Processing=false;
 			} else if( position == CLOSE) {
 				m_Processing=false;
@@ -494,10 +570,11 @@ public class nookBrowser extends nookBaseActivity
 			} else if( position == SAVE_PAGE) {
 				downloadLink(webview.getUrl());
 				m_Processing=false;
-			} else if( position == TEXT_SIZE) {
-				//sublist.setVisibility(View.VISIBLE);
-				//lview.setVisibility(View.INVISIBLE);
+			} else if( position == SETTINGS) {
+		        sublist.setAdapter(m_SubListAdapter1);
+		        m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
 				m_ViewAnimator.showNext();
+				m_SubMenuType=1;
 				m_Processing=false;
 			} else {
 				displayDialog(position);
@@ -528,7 +605,7 @@ public class nookBrowser extends nookBaseActivity
 	{
 		if (webview != null) {
 			int cury = webview.getScrollY();
-			int hmax = webview.getContentHeight() - WEB_SCROLL_PX;
+			int hmax = webview.getContentHeight()-200; // - WEB_SCROLL_PX; - account for text size/zoom.
 			if (hmax < 0) { hmax = 0; }
 			int newy = cury + WEB_SCROLL_PX;
 			if (newy > hmax) { newy = hmax; }
@@ -550,7 +627,7 @@ public class nookBrowser extends nookBaseActivity
 	                break;
 	                
 	            case KeyEvent.KEYCODE_S:
-	                getTopWindow().zoomOut();
+                	getTopWindow().zoomOut();
 	                handled = true;
 	                break;
             	case NOOK_PAGE_UP_KEY_LEFT:
@@ -572,6 +649,41 @@ public class nookBrowser extends nookBaseActivity
         
         return handled ;
 	}
+	class WifiTask extends AsyncTask<String, Integer, String> {
+	    @Override
+	    protected void onPreExecute() {
+	        displayAlert(getString(R.string.start_wifi), getString(R.string.please_wait), 5, null, -1);
+	    }
+	    
+	    @Override
+	    protected String doInBackground(String... params) {
+  	    	ConnectivityManager cmgr = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+	    	NetworkInfo info = cmgr.getActiveNetworkInfo();
+	    	boolean connection = ( info == null)?false:info.isConnected();
+	    	int attempts=1;
+	           while ( !connection &&  attempts < 10) {
+	           	try {
+	           		Thread.sleep(3000);
+	           	} catch(Exception ex) {
+	           		
+	           	}
+	           	info = cmgr.getActiveNetworkInfo();
+	           	connection =(info ==null)?false:info.isConnected();
+	           	attempts++;
+	           }
+           return params[0];
+	    }
+	    
+	    @Override
+	    protected void onPostExecute(String result) {
+	        closeAlert();
+	        if( result == null) {
+	        	webview.goBack();
+	        } else {
+	        	webview.loadUrl(result);
+	        }
+	    }
+	}
 }
 class HelloWebViewClient extends WebViewClient {
 	nookBrowser browser;
@@ -581,26 +693,10 @@ class HelloWebViewClient extends WebViewClient {
 	}
 	@Override    
 	public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-		
-		if( url ==null || (url.indexOf("/") == -1 && url.indexOf(".") ==-1)) {
+		if( url ==null || (url.indexOf("//") == -1 && url.indexOf("javascript") ==-1)) {
 			return false;
 		}
-		Runnable run1 = new Runnable() {
-			public void run() {
-				browser.connectionLock();
-				view.loadUrl(url);
-			}
-		};
-		(new Thread(run1)).start();
-//		browser.displayAlert("Loading", browser.getString(R.string.please_wait),1,
-//					new AlertDialog.OnClickListener() {
-//
-//						public void onClick(DialogInterface dialog, int which) {
-//							view.stopLoading();
-//							browser.closeAlert();
-//						}
-//		},-1);
-//		view.loadUrl(url);
+		browser.waitForConnection(url);
 		return true;
 	}
 }
@@ -629,5 +725,6 @@ class TextListener implements OnKeyListener {
 		return false;
 	}
 }
+
 
 
