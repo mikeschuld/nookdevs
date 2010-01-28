@@ -81,7 +81,10 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
 		if( m_SubTextFieldId != -1) {
 			TextView sub = (TextView) row.findViewById(m_SubTextFieldId);
 			String val = m_SubTextValues[position];
-			sub.setText(val);
+			if( val != null)
+				sub.setText(val);
+			else
+				sub.setText("");
 			m_SubTextFields[position]=sub;
 		}
 
