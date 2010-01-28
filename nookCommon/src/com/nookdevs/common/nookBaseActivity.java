@@ -71,7 +71,7 @@ public class nookBaseActivity extends Activity {
         PowerManager power = (PowerManager) getSystemService(POWER_SERVICE);
         screenLock = power.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "nookactivity" + hashCode());
         screenLock.setReferenceCounted(false);
-        
+        readSettings();
     }
     
     @Override
@@ -89,10 +89,10 @@ public class nookBaseActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        readSettings();
         if (screenLock != null) {
             screenLock.acquire(m_ScreenSaverDelay);
         }
+        closeAlert();
         
     }
     
@@ -145,7 +145,7 @@ public class nookBaseActivity extends Activity {
                 builder.setIcon(drawable);
             }
         } else if (type == 2 || type == 3) {
-            builder.setPositiveButton(android.R.string.ok, null);
+            builder.setPositiveButton(android.R.string.ok, listener);
             if (drawable != -1) {
                 builder.setIcon(drawable);
             }
