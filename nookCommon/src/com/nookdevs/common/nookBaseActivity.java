@@ -49,6 +49,7 @@ public class nookBaseActivity extends Activity {
     
     public final static String STATUSBAR_ICON = "Statusbar.icon";
     public final static String STATUSBAR_ACTION = "Statusbar.action";
+    private boolean m_FirstTime=true;
     
     protected String getWallpaperFile() {
         return m_WallPaper;
@@ -92,7 +93,8 @@ public class nookBaseActivity extends Activity {
         if (screenLock != null) {
             screenLock.acquire(m_ScreenSaverDelay);
         }
-        closeAlert();
+        if(!m_FirstTime) closeAlert();
+        m_FirstTime=true;
         
     }
     
