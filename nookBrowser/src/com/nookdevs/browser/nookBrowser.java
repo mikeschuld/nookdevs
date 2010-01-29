@@ -25,11 +25,11 @@ import java.util.List;
 
 import com.nookdevs.common.IconArrayAdapter;
 import com.nookdevs.common.nookBaseActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
@@ -72,9 +72,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 public class nookBrowser extends nookBaseActivity 
-			 implements OnClickListener , OnLongClickListener , OnItemClickListener, OnKeyListener 
+			 implements OnClickListener , OnLongClickListener , OnItemClickListener, OnKeyListener, 
+			 OnItemLongClickListener
 {
 
     private static final String LOGTAG = "browser";
@@ -93,10 +95,10 @@ public class nookBrowser extends nookBaseActivity
 	private DownloadManager m_DownloadManager = new DownloadManager(this);
 	protected static final int LOAD_URL=0;
 	protected static final int SETTINGS=1;
-	protected static final int GO_HOME=2;
-	protected static final int FAVS=3;
-	protected static final int ADDFAVS=0;
-	protected static final int SOFT_KEYBOARD=4;
+	protected static final int GO_HOME=4;
+	protected static final int FAVS=2;
+	protected static final int ADDFAVS=10;
+	protected static final int SOFT_KEYBOARD=3;
 	protected static final int FIND_STRING=5;
 	protected static final int SAVE_PAGE=6;
 	protected static final int CLOSE=7;
@@ -104,21 +106,23 @@ public class nookBrowser extends nookBaseActivity
 	protected static final int ZOOM_IN=1;
 	protected static final int ZOOM_OUT=2;
 	protected static final int HOME_PAGE=3;
-	private static final int WEB_SCROLL_PX = 700;
+	private static final int WEB_SCROLL_PX = 750;
 	public static final int CONNECTION_TIMEOUT=240000;
 	private ViewAnimator m_ViewAnimator;
 	private String m_HomePage;
 	public static final String APP_TITLE="Web";
 	private ProgressBar m_ProgressBar ;
 	Handler m_Handler = new Handler();
-	int [] icons = { -1,R.drawable.submenu,-1,R.drawable.submenu, -1,-1,-1,-1};
+	int [] icons = { -1,R.drawable.submenu,R.drawable.submenu, -1,-1,-1,-1,-1};
 	int [] subicons = { R.drawable.submenu,-1,-1,-1,-1,-1};
 	int [] subicons2 = { -1,-1,-1,-1,-1,-1};
     IconArrayAdapter<CharSequence> m_SubListAdapter1=null;
     IconArrayAdapter<CharSequence> m_SubListAdapter2=null;
+    ArrayAdapter<CharSequence> m_SubListAdapter3=null;
     int m_SubMenuType=0;
     CharSequence[] m_TextSizes=null;
-    int m_TextSize=2; //normal
+    int m_TextSize=3; //larger
+    FavsDB m_FavsDB = null;
    	
 	/** Called when the activity is first created. */
     @Override
@@ -157,6 +161,10 @@ public class nookBrowser extends nookBaseActivity
         	new IconArrayAdapter<CharSequence>( this, R.layout.listitem, menuitemsList, subicons2);
         m_SubListAdapter2.setImageField(R.id.ListImageView);
         m_SubListAdapter2.setTextField(R.id.ListTextView);
+        
+        m_SubListAdapter3 = 
+        	new ArrayAdapter<CharSequence>( this, R.layout.listitem2, m_FavsDB.getNames());
+        sublist.setOnItemLongClickListener(this);
     	
         m_ViewAnimator = (ViewAnimator)findViewById(R.id.listviewanim);
         m_ViewAnimator.setInAnimation(this, R.anim.fromright);
@@ -229,14 +237,20 @@ public class nookBrowser extends nookBaseActivity
  
     protected void readSettings() {
         try {
+        	SharedPreferences p = getPreferences(MODE_PRIVATE);
         	if( m_HomePage ==null)
-        		m_HomePage = getPreferences(MODE_PRIVATE).getString("HOME_PAGE", DEFAULT_HOME_PAGE);
-        	m_TextSize = getPreferences(MODE_PRIVATE).getInt("TEXT_SIZE", m_TextSize);
+        		m_HomePage = p.getString("HOME_PAGE", DEFAULT_HOME_PAGE);
+        	m_TextSize = p.getInt("TEXT_SIZE", m_TextSize);
+        	m_FavsDB = new FavsDB(this, null,1);
         } catch(Exception ex) {
         	Log.e(this.LOGTAG, "preference exception: ", ex);
         	m_HomePage = DEFAULT_HOME_PAGE;
         }
         super.readSettings();
+    }
+    @Override
+    public void onDestroy() {
+    	m_FavsDB.close();
     }
     @Override
     public void onPause() {
@@ -490,7 +504,7 @@ public class nookBrowser extends nookBaseActivity
 		} else if( cmd == SETTINGS) {
 			txt.setText(R.string.homepage);
 			url.setText(m_HomePage);
-		}
+		} 
 		url.requestFocus();
 		url.setOnKeyListener( m_TextListener);
 		m_Cmd=cmd;
@@ -514,21 +528,45 @@ public class nookBrowser extends nookBaseActivity
 				e.putString("HOME_PAGE", text);
 				e.commit();
 				m_HomePage=text;
-			}
+			} 
 		} catch(Exception ex) {
 			Log.e(this.LOGTAG, "process Cmd exception", ex);
 		} finally {
 			m_Processing=false;
 		}
 	}
-	
+	public boolean onItemLongClick(AdapterView<?> parent, View v, int position,
+			long id) {
+		if( parent.equals(sublist) && m_SubMenuType==3) {
+			if( position >0) {
+				m_FavsDB.deleteFav(position);
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 		Log.i(LOGTAG, "onItemClick: item click: " + position);
 		m_UserClicked=false;
 		if( parent.equals(sublist)) {
 			if( m_SubMenuType ==2) {
 				updateTextSize(position,false);
-				m_SubMenuType=0;
+				m_SubMenuType=1;
+				return;
+			} else if( m_SubMenuType ==3) { //FAVS
+				if( position ==0) { //Add
+					m_FavsDB.addFav(webview.getTitle(), webview.getUrl());
+					 m_SubListAdapter3 = 
+				       	new ArrayAdapter<CharSequence>( this, R.layout.listitem2, m_FavsDB.getNames());
+				}
+				else {
+					String url = (String)m_FavsDB.getValues().get(position-1);
+					webview.loadUrl(url);
+				}
+				m_SubMenuType=1;
+				m_ViewAnimator.showNext();
 				return;
 			}
 			// check submenu items
@@ -537,7 +575,6 @@ public class nookBrowser extends nookBaseActivity
 					subicons2[m_TextSize]= R.drawable.check;
 					m_SubListAdapter2.setIcons(subicons2);
 					sublist.setAdapter(m_SubListAdapter2);
-					subicons2[m_TextSize] = R.drawable.submenu;
 					m_ViewAnimator.showNext();
 					m_ViewAnimator.showNext();
 					m_SubMenuType=2;
@@ -575,6 +612,11 @@ public class nookBrowser extends nookBaseActivity
 		        m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
 				m_ViewAnimator.showNext();
 				m_SubMenuType=1;
+				m_Processing=false;
+			} else if( position == FAVS) {
+				sublist.setAdapter(m_SubListAdapter3);
+				m_ViewAnimator.showNext();
+				m_SubMenuType=3;
 				m_Processing=false;
 			} else {
 				displayDialog(position);
@@ -621,15 +663,6 @@ public class nookBrowser extends nookBaseActivity
         {
         	Log.i(LOGTAG, "key code: " + keyCode);
             switch (keyCode) {
-	        	case KeyEvent.KEYCODE_B:
-	                getTopWindow().zoomIn();
-	                handled = true;
-	                break;
-	                
-	            case KeyEvent.KEYCODE_S:
-                	getTopWindow().zoomOut();
-	                handled = true;
-	                break;
             	case NOOK_PAGE_UP_KEY_LEFT:
             	case NOOK_PAGE_UP_KEY_RIGHT:
                     pageUp();
