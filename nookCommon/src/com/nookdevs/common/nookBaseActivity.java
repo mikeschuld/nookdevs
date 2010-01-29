@@ -1,18 +1,18 @@
 /**
- *     This file is part of nookBrowser.
+ *     This file is part of nookCommon.
 
-    nookBrowser is free software: you can redistribute it and/or modify
+    nookCommon is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    nookBrowser is distributed in the hope that it will be useful,
+    nookCommon is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with nookBrowser.  If not, see <http://www.gnu.org/licenses/>.
+    along with nookCommon.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -49,7 +49,7 @@ public class nookBaseActivity extends Activity {
     
     public final static String STATUSBAR_ICON = "Statusbar.icon";
     public final static String STATUSBAR_ACTION = "Statusbar.action";
-    private boolean m_FirstTime=true;
+    private boolean m_FirstTime = true;
     
     protected String getWallpaperFile() {
         return m_WallPaper;
@@ -93,8 +93,10 @@ public class nookBaseActivity extends Activity {
         if (screenLock != null) {
             screenLock.acquire(m_ScreenSaverDelay);
         }
-        if(!m_FirstTime) closeAlert();
-        m_FirstTime=true;
+        if (!m_FirstTime) {
+            closeAlert();
+        }
+        m_FirstTime = true;
         
     }
     
