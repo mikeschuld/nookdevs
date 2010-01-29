@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <id>http://nookdevs.googlecode.com/svn/trunk/updatesfeed.xml</id>
-  <title>Nookdevs</title>
-  <author><name>Nookdevs</name></author>
+  <title>nookDevs</title>
+  <author><name>nookDevs</name></author>
   <entry>
     <title>HOWTO</title>
     <link type="text/html" href="http://nookapps.googlecode.com/svn/trunk/feed/howto.html"/>
@@ -20,9 +20,9 @@
   <entry>
     <title>nookBrowser</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookapps.googlecode.com/files/NookBrowser.apk"/>
-    <id>http://nookapps.googlecode.com/files/NookBrowser.apk</id>
-    <content type="text">Version 0.0.2 of Hari Swaminathan's nook-tweaked browser (this is mirrored from Nookdevs.)</content>
+          href="http://nookapps.googlecode.com/files/nookBrowser.apk"/>
+    <id>http://nookapps.googlecode.com/files/nookBrowser.apk</id>
+    <content type="text">Hari Swaminathan's nook-tweaked browser</content>
   </entry>
 
   <entry>
