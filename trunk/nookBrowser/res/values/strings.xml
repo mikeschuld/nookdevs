@@ -4,9 +4,9 @@
     <string-array name="webmenu">
         <item>Address</item>
         <item>Settings</item>
-        <item>Home</item>
         <item>Favorites</item>
         <item>Keyboard</item>
+        <item>Home</item>
         <item>Find</item>
         <item>Save Page</item>
          <item>Close</item>
@@ -25,7 +25,7 @@
  	<item>Larger</item>
   	<item>Largest</item>
     </string-array>
-
+ 	<string name="add_fav">Add current</string>
     <string name="find">Enter String to Find:</string>
     <string name="url">Enter the URL:</string>
     <string name="open">Open</string>
