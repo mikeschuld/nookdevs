@@ -1,19 +1,16 @@
-/**
- *     This file is part of nookLauncher.
-
-    nookLauncher is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    nookLauncher is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with nookLauncher.  If not, see <http://www.gnu.org/licenses/>.
-
+/* 
+ * Copyright 2010 nookDevs
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * 		http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. 
  */
 package com.nookdevs.launcher;
 
@@ -25,6 +22,7 @@ import java.util.Vector;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
@@ -51,7 +49,6 @@ import com.nookdevs.common.ImageAdapter;
 import com.nookdevs.common.nookBaseActivity;
 
 public class LauncherSettings extends nookBaseActivity implements Gallery.OnItemClickListener {
-    
     private ClickListener m_ClickListener;
     private HashMap<ImageButton, AppDetail> m_IntentsList;
     private HashMap<String, Integer> m_SystemIcons = new HashMap<String, Integer>();
@@ -72,6 +69,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     boolean m_AddAppsInitDone = false;
     boolean m_IconsLoaded = false;
     ImageAdapter m_IconAdapter = null;
+    
     String[] apps = {
         "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
         "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
@@ -82,7 +80,6 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
         R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
         R.drawable.select_home_bnhome
-    
     };
     
     WebView m_WebView;
@@ -114,7 +111,23 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
             }
         };
         (new Thread(thrd)).start();
+    }
+    
+    private void addPreferredActivity() {
+        PackageManager packages = getPackageManager();
         
+        IntentFilter filter = new IntentFilter("android.intent.action.MAIN");
+        filter.addCategory("android.intent.category.HOME");
+        filter.addCategory("android.intent.category.DEFAULT");
+        
+        ComponentName[] components = new ComponentName[] {
+            new ComponentName("com.bravo.home", ".HomeActivity"),
+            new ComponentName("com.nookdevs.launcher", ".NookLauncher")
+        };
+        
+        ComponentName activity = new ComponentName("com.nookdevs.launcher", ".NookLauncher");
+        
+        packages.addPreferredActivity(filter, IntentFilter.MATCH_CATEGORY_EMPTY, components, activity);
     }
     
     private void loadIcons() {
@@ -476,16 +489,17 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 m_WebView.loadUrl("file:///android_asset/settings_changeicons.htm");
                 
             }
-
+            
             else if (button.equals(m_Current)) {
                 // removed
                 AppDetail app = m_IntentsList.get(m_CurrentButton);
-                if ("com.bravo.home.HomeActivity".equals(app.appName)
-                    || "com.apps4nook.nooklauncher.LauncherSettings".equals(app.appName)) { return;// can't
-                // delete
-                // these
-                // 2.
+                if (
+                    "com.bravo.home.HomeActivity".equals(app.appName) ||
+                    "com.nookdevs.launcher.LauncherSettings".equals(app.appName)) { 
+                    return;
+                    // can't delete these 2.
                 }
+                
                 setMainImage(null);
                 m_LauncherApps.remove(app.appName);
                 addAppToAvailable(app.appName, app.id, app.uri);

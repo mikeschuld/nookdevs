@@ -1,19 +1,16 @@
-/**
- *     This file is part of nookLauncher.
-
-    nookLauncher is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    nookLauncher is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with nookLauncher.  If not, see <http://www.gnu.org/licenses/>.
-
+/* 
+ * Copyright 2010 nookDevs
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * 		http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. 
  */
 package com.nookdevs.launcher;
 
@@ -40,6 +37,8 @@ import com.nookdevs.common.nookBaseActivity;
 
 public class NookLauncher extends nookBaseActivity {
     private String APP_TITLE = "Home";
+    private String m_WallPaperFile = null;
+
     String[] apps = {
         "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
         "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
@@ -62,6 +61,8 @@ public class NookLauncher extends nookBaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        LOGTAG = "nookLauncher";
+        
         loadApps();
     }
     
@@ -94,7 +95,6 @@ public class NookLauncher extends nookBaseActivity {
     }
     
     private final synchronized void loadApps() {
-        
         LinearLayout ll = (LinearLayout) (findViewById(R.id.appcontainer));
         ll.removeAllViews();
         
@@ -146,7 +146,7 @@ public class NookLauncher extends nookBaseActivity {
             readingNow = true;
         }
         
-        b.setOnClickListener(new L(intent, readingNow, settings));
+        b.setOnClickListener(new ClickListener(intent, readingNow, settings));
         if (!systemApp) {
             b.setBackgroundColor(R.color.nookRed);
             if (iconpath == null) {
@@ -154,7 +154,7 @@ public class NookLauncher extends nookBaseActivity {
                 try {
                     b.setImageDrawable(manager.getActivityIcon(intent.getComponent()));
                 } catch (Exception ex) {
-                    Log.e(TAG, "Exception loading image -", ex);
+                    Log.e(LOGTAG, "Exception loading image -", ex);
                 }
             } else {
                 Uri iconUri = Uri.parse(iconpath);
@@ -169,8 +169,8 @@ public class NookLauncher extends nookBaseActivity {
         // loadApps();
     }
     
-    private final class L implements View.OnClickListener {
-        private L(Intent i, boolean readingNow, boolean settings) {
+    private final class ClickListener implements View.OnClickListener {
+        private ClickListener(Intent i, boolean readingNow, boolean settings) {
             m_intent = i;
             m_readingNow = readingNow;
             m_Settings = settings;
@@ -184,7 +184,7 @@ public class NookLauncher extends nookBaseActivity {
                     Intent intent = getReadingNowIntent();
                     startActivity(intent);
                 } catch (Exception ex) {
-                    Log.e(TAG, "Exception starting reading now activity-", ex);
+                    Log.e(LOGTAG, "Exception starting reading now activity-", ex);
                 }
             } else {
                 try {
@@ -195,7 +195,7 @@ public class NookLauncher extends nookBaseActivity {
                         startActivityForResult(m_intent, 1);
                     }
                 } catch (Exception ex) {
-                    Log.e(TAG, "Exception starting activity -", ex);
+                    Log.e(LOGTAG, "Exception starting activity -", ex);
                 }
             }
         }
@@ -248,12 +248,4 @@ public class NookLauncher extends nookBaseActivity {
         }
         return intent;
     }
-    
-    private String m_WallPaperFile = null;
-    
-    // private final ApplicationsIntentReceiver m_app_receiver =
-    // new ApplicationsIntentReceiver();
-    
-    private final static String TAG = "app-launcher";
-    
 }
