@@ -633,7 +633,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     m_SubListAdapter3 = new ArrayAdapter<CharSequence>(this, R.layout.listitem2, m_FavsDB.getNames());
                 } else {
                     String url = (String) m_FavsDB.getValues().get(position - 1);
-                    webview.loadUrl(url);
+                    waitForConnection(url);
                 }
                 m_SubMenuType = 1;
                 m_ViewAnimator.showPrevious();
