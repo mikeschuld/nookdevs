@@ -35,10 +35,9 @@
 
   <entry>
     <title>Trook</title>
-    <link type="application/vnd.android.package-archive"
-          href="http://nookapps.googlecode.com/files/Trook-debug.apk"/>
-    <id>http://nookapps.googlecode.com/files/Trook-debug.apk</id>
-    <content type="text">The latest version (rev 32) of Trook. This version can browse your local book folders, save feeds as bookmarks, and search catalogs, a UI cleanup and some minor bug fixes.</content>
+    <link type="application/atom+xml"
+          href="http://nookapps.googlecode.com/svn/trunk/feed/trook.xml"/>
+    <id>http://nookapps.googlecode.com/svn/trunk/feed/trook.xml</id>
+    <content type="text">Get the latest news, documentation and updates about Trook, a Stanza/OPDS catalog reader, feed reader and local book browser app.</content>
   </entry>
-
 </feed>
