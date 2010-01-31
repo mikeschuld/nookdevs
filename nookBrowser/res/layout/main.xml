@@ -46,6 +46,7 @@
     android:layout_width="322.0px"
 	android:layout_height="144.0px"
 	android:layout_toRightOf="@id/back"
+	android:background="#000000"
 	android:layout_below="@id/webview">
 	
 <ListView 
@@ -81,8 +82,44 @@
 	android:fadingEdge="none"
 	android:listSelector="@drawable/list_selector_background">
 </ListView>
+<RelativeLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		>
+<LinearLayout android:layout_width="280.0px"
+	android:layout_height="144.0px"
+	android:id="@+id/video"
+	>
+<VideoView android:id="@+id/surface"
+        android:layout_width="fill_parent"
+        android:layout_height="144.0px"
+        android:layout_gravity="center"
+        android:minHeight="144.0px"
+        android:minWidth="144.0px"
+        >
+</VideoView>
+</LinearLayout>
+<Button android:layout_width="40.0px"
+	android:layout_height="40.0px"
+	android:background="@drawable/close_button"
+	android:id="@+id/closemedia"
+	android:layout_toRightOf="@id/video"
+	/>
+<Button android:layout_width="40.0px"
+	android:layout_height="40.0px"
+	android:background="@drawable/volume_up_button"
+	android:layout_toRightOf="@id/video"
+	android:layout_below="@id/closemedia"
+	android:id="@+id/volumeup"
+	/>
+<Button android:layout_width="40.0px"
+	android:layout_height="40.0px"
+	android:background="@drawable/volume_down_button"
+	android:layout_toRightOf="@id/video"
+	android:layout_below="@id/volumeup"
+	android:id="@+id/volumedown"
+	/>
+</RelativeLayout>
 </ViewAnimator>
-
 <ProgressBar android:id="@+id/progress_horizontal"
 		style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="322.0px"

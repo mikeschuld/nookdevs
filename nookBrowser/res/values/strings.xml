@@ -7,6 +7,7 @@
         <item>Favorites</item>
         <item>Keyboard</item>
         <item>Home</item>
+        <item>Media Player</item>
         <item>Find</item>
         <item>Save Page</item>
          <item>Close</item>
@@ -17,6 +18,11 @@
  	<item>Zoom In</item>
   	<item>Zoom Out</item>
  	<item>Home Page</item>
+ 	<item>User Agent</item>
+    </string-array>
+    <string-array name="useragent">
+    <item>Default</item>
+    <item>Desktop</item>
     </string-array>
     <string-array name="submenu2">
   	<item>Smallest</item>
@@ -32,7 +38,9 @@
     <string name="homepage">Home URL:</string>
     <string name="please_wait">Please wait...</string>
     <string name="download">Download</string>
-    <string name="downloadstart">File will be stored in </string>
+    <string name="downloadstart">Download Started</string>
+    <string name="playback_error">Media Playback failed...</string>
+    <string name="media_started">Media Player initialized. Will start playing automatically.</string>
     <string name="downloadfailed">Download file failed!</string>
     <string name="downloadsuccess">Download successful!</string>
     <string name="internal_download_path">/system/media/sdcard/my downloads</string>

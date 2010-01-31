@@ -37,8 +37,9 @@ import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
+import android.widget.Toast;
 
-public class DownloadManager implements DownloadListener, AlertDialog.OnClickListener {
+public class DownloadManager implements DownloadListener {
     private nookBrowser m_Browser;
     private boolean m_StopDownload = false;
     Handler m_Handler = new Handler();
@@ -156,9 +157,7 @@ public class DownloadManager implements DownloadListener, AlertDialog.OnClickLis
         Runnable thrd = new Runnable() {
             public void run() {
                 
-                m_Browser.displayAlert(m_Browser.getString(R.string.download), m_Browser
-                    .getString(R.string.downloadstart)
-                    + " " + fpath.toString(), 1, DownloadManager.this, R.drawable.wait);
+                Toast.makeText(m_Browser, R.string.downloadstart, Toast.LENGTH_LONG).show();
             }
         };
         m_Handler.postAtFrontOfQueue(thrd);
@@ -268,9 +267,4 @@ public class DownloadManager implements DownloadListener, AlertDialog.OnClickLis
         in = conn.getInputStream();
         return in;
     }
-    
-    public void onClick(DialogInterface dialog, int buttonPosition) {
-        m_StopDownload = true;
-    }
-    
 }
