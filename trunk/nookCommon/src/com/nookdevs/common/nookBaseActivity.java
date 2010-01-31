@@ -151,9 +151,6 @@ public class nookBaseActivity extends Activity {
                 builder.setIcon(drawable);
             }
         }
-        if (type == 3 && drawable != -1) {
-            builder.setIcon(drawable);
-        }
         m_AlertDialog = builder.show();
     }
     
