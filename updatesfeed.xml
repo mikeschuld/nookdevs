@@ -20,7 +20,7 @@
   <entry>
     <title>nookBrowser</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookapps.googlecode.com/files/nookBrowser.apk"/>
+          href="http://nookdevs.googlecode.com/files/nookBrowser.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookBrowser.apk</id>
     <content type="text">nook-tweaked browser</content>
   </entry>
