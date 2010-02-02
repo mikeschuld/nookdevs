@@ -548,28 +548,27 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         }
         if (button.equals(backButton)) {
             try {
-                // check for submenus
-                // check for search results display
-                if (m_SearchView) {
+                if( m_SubMenuType==VIEW_DETAILS) {
+                    lview.setVisibility(View.VISIBLE);
+                    backButton.setVisibility(View.VISIBLE);
+                    upButton.setVisibility(View.VISIBLE);
+                    downButton.setVisibility(View.VISIBLE);
+                    goButton.setVisibility(View.VISIBLE);
+                    divider.setVisibility(View.VISIBLE);
+                    m_CoverBtn.setVisibility(View.INVISIBLE);
+                    m_Details.setVisibility(View.INVISIBLE);
+                    m_DetailsScroll.setVisibility(View.INVISIBLE);
+                    m_PageViewAnimator.showNext();
+                    m_SubMenuType = -1;
+                    return;
+               } else if (m_SearchView) {
                     pageViewHelper.setFiles(m_Files);
                     m_SearchView = false;
                     pageViewHelper.setTitle(R.string.my_documents);
                     m_ListAdapter.setSubText(SEARCH," ");
                     return;
                 } else if (m_SubMenuType >= 0) {
-                    if( m_SubMenuType==VIEW_DETAILS) {
-                        lview.setVisibility(View.VISIBLE);
-                        backButton.setVisibility(View.VISIBLE);
-                        upButton.setVisibility(View.VISIBLE);
-                        downButton.setVisibility(View.VISIBLE);
-                        goButton.setVisibility(View.VISIBLE);
-                        divider.setVisibility(View.VISIBLE);
-                        m_CoverBtn.setVisibility(View.INVISIBLE);
-                        m_Details.setVisibility(View.INVISIBLE);
-                        m_DetailsScroll.setVisibility(View.INVISIBLE);
-                        m_PageViewAnimator.showNext();
-                    } else
-                    	animator.showNext();
+                   	animator.showNext();
                     m_SubMenuType = -1;
                     return;
                 }
