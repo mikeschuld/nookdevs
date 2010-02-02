@@ -44,12 +44,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -89,9 +92,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     protected static final int SCAN_FOLDERS = 5;
     protected static final int CLOSE = 6;
     private ConditionVariable m_LocalScanDone=new ConditionVariable();
+    private static final int WEB_SCROLL_PX = 750;
     
     private int[] icons = {
-        -1,R.drawable.submenu, R.drawable.search, R.drawable.covers, -1,-1,-1, -1, -1, -1, -1, -1, -1, -1
+        -1,R.drawable.submenu, R.drawable.search, R.drawable.covers, R.drawable.submenu,-1,-1, -1, -1, -1, -1, -1, -1, -1
     };
     
     private int[] subicons = {
@@ -118,6 +122,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     ImageButton m_CoverBtn=null;
     TextView m_Details = null;
     ScrollView m_DetailsScroll=null;
+    ViewAnimator m_PageViewAnimator=null;
+    TextView m_DetailsPage= null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -175,8 +181,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_Details = (TextView)findViewById(R.id.details);
         m_DetailsScroll = (ScrollView)findViewById(R.id.detailsscroll);
         m_CoverBtn.setVisibility(View.INVISIBLE);
+        m_CoverBtn.setOnClickListener(this);
         m_Details.setVisibility(View.INVISIBLE);
         m_DetailsScroll.setVisibility(View.INVISIBLE);
+        m_PageViewAnimator = (ViewAnimator) findViewById(R.id.pageview);
+        m_DetailsPage=(TextView) findViewById(R.id.pageview2);
         queryFolders();
     }
     
@@ -220,9 +229,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         super.onResume();
         updateTitle("my books");
         ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-//    	m_Lock = cmgr.newWakeLock(1, "bookBrowser" + hashCode());
-//    	m_Lock.setReferenceCounted(true);
-//    	m_Lock.acquire();
+    	//m_Lock = cmgr.newWakeLock(1, "bookBrowser" + hashCode());
+    	//m_Lock.setReferenceCounted(true);
+    	//m_Lock.acquire();
     }
     private void getOtherFiles() {
         try {
@@ -287,7 +296,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             Runnable thrd = new Runnable() {
                 public void run() {
                     closeAlert();
-                    LinearLayout pageview = (LinearLayout) NookLibrary.this.findViewById(R.id.pageview);
+                    LinearLayout pageview = (LinearLayout) NookLibrary.this.findViewById(R.id.pageview1);
                     pageViewHelper = new PageViewHelper(NookLibrary.this, pageview, m_Files);
                     m_ListAdapter.setSubText(SORT_BY,m_SortMenuValues.get(ScannedFile.getSortType()).toString());
                     m_ListAdapter.setSubText(SHOW,m_ShowValues.get(m_ShowIndex).toString());
@@ -353,16 +362,12 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     
     private void queryFolders() {
         displayAlert(getString(R.string.scanning), getString(R.string.please_wait), 1, null, -1);
-        System.out.println("Remote call made " + System.currentTimeMillis());
         m_Files.clear();
         bindService(new Intent("SCAN_ECM"), m_Conn, Context.BIND_AUTO_CREATE);
         m_LocalScanDone.close();
-        System.out.println("Local call made " + System.currentTimeMillis());
         Runnable thrd = new Runnable() {
         	public void run() {
         		getOtherFiles();
-        		System.out.println("Local call returned " + System.currentTimeMillis());
-                
         	}
         };
         (new Thread(thrd)).start();
@@ -371,7 +376,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     @Override
     public void onPause() {
         super.onPause();
-  //      m_Lock.release();
+        //m_Lock.release();
     }
     
     private Dialog m_Dialog = null;
@@ -386,9 +391,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     } else if (keyCode == SOFT_KEYBOARD_SUBMIT) {
                         String text = editTxt.getText().toString();
                         m_Dialog.cancel();
-                        SearchTask task = new SearchTask();
-                        m_ListAdapter.setSubText(SEARCH,text);
-                        task.execute(text);
+                        if( !text.trim().equals("")) {
+                        	SearchTask task = new SearchTask();
+                        	m_ListAdapter.setSubText(SEARCH,text);
+                        	task.execute(text);
+                        }
                     } else if (keyCode == SOFT_KEYBOARD_CANCEL) {
                         m_Dialog.cancel();
                     }
@@ -455,7 +462,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             		m_ShowIndex = position;
             	}
             }
-            animator.setInAnimation(this, R.anim.fromright);
             animator.showNext();
             m_SubMenuType = -1;
             return;
@@ -463,6 +469,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         // main menu actions here.
         switch (position) {
         	case VIEW_DETAILS:
+        	    m_PageViewAnimator.showNext();
                 m_Details.setVisibility(View.VISIBLE);
                 m_DetailsScroll.setVisibility(View.VISIBLE);
                 m_CoverBtn.setVisibility(View.VISIBLE);
@@ -473,7 +480,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 } else {
                 	m_CoverBtn.setImageURI(Uri.parse(tmp));
                 }
-                m_Details.setText(Html.fromHtml(file.getDetails()));
+                Spanned txt = Html.fromHtml(file.getDetails());
+                m_Details.setText(txt);
+                m_DetailsPage.setText(txt);
                 lview.setVisibility(View.INVISIBLE);
                 upButton.setVisibility(View.INVISIBLE);
                 downButton.setVisibility(View.INVISIBLE);
@@ -489,13 +498,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 subicons[currvalue] = R.drawable.check;
                 m_SortAdapter.setIcons(subicons);
                 submenu.setAdapter(m_SortAdapter);
-                animator.setInAnimation(this, R.anim.fromright);
                 animator.showNext();
                 m_SubMenuType = SORT_BY;
                 break;
             case SHOW:
             	submenu.setAdapter(m_ShowAdapter);
-            	animator.setInAnimation(this, R.anim.fromright);
             	animator.showNext();
             	m_SubMenuType = SHOW;
             	break;
@@ -510,9 +517,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 queryFolders();
                 break;
             case SHOW_COVERS:
-                // displayAlert(getString(R.string.error),
-                // getString(R.string.not_implemented)
-                // , 2, null, -1);
                 Vector<String> images = loadImages();
                 m_IconAdapter.setImageUrls(images);
                 m_IconGallery.setAdapter(m_IconAdapter);
@@ -527,12 +531,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 m_IconGallery.setSelection(pageViewHelper.getCurrentIndex() - 1, true);
                 
                 break;
-            // case QUICK_BROWSE:
-            // displayAlert(getString(R.string.error),
-            // getString(R.string.not_implemented)
-            // , 2, null, -1);
-            // break;
-            
         }
         
     }
@@ -556,7 +554,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     pageViewHelper.setFiles(m_Files);
                     m_SearchView = false;
                     pageViewHelper.setTitle(R.string.my_documents);
-                    m_ListAdapter.setSubText(SEARCH,"");
+                    m_ListAdapter.setSubText(SEARCH," ");
                     return;
                 } else if (m_SubMenuType >= 0) {
                     if( m_SubMenuType==VIEW_DETAILS) {
@@ -569,9 +567,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                         m_CoverBtn.setVisibility(View.INVISIBLE);
                         m_Details.setVisibility(View.INVISIBLE);
                         m_DetailsScroll.setVisibility(View.INVISIBLE);
+                        m_PageViewAnimator.showNext();
                     } else
-                    // animator.setInAnimation(this, R.anim.fromright);
-                    animator.showNext();
+                    	animator.showNext();
                     m_SubMenuType = -1;
                     return;
                 }
@@ -583,7 +581,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             pageViewHelper.selectPrev();
         } else if (button.equals(downButton)) {
             pageViewHelper.selectNext();
-        } else if (button.equals(goButton)) {
+        } else if (button.equals(goButton) || button.equals(m_CoverBtn)) {
             ScannedFile file = pageViewHelper.getCurrent();
             String path = file.getPathName();
             Intent intent = new Intent("com.bravo.intent.action.VIEW");
@@ -637,20 +635,54 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
 	    	Log.e(LOGTAG, "Exception while updating reading now data - ", ex);
 	    }
     }
+    // from kbs - trook.projectsource code.
+    private final void pageUp() {
+        if (m_DetailsPage != null) {
+            int cury = m_DetailsPage.getScrollY();
+            if (cury == 0) { return; }
+            int newy = cury - WEB_SCROLL_PX;
+            if (newy < 0) {
+                newy = 0;
+            }
+            m_DetailsPage.scrollTo(0, newy);
+        }
+    }
     
+    private final void pageDown() {
+        if (m_DetailsPage != null) {
+            int cury = m_DetailsPage.getScrollY();
+            int hmax = m_DetailsPage.getMeasuredHeight() - 100;
+            if (hmax < 0) {
+                hmax = 0;
+            }
+            int newy = cury + WEB_SCROLL_PX;
+            if (newy > hmax) {
+                return;//newy = hmax;
+            }
+            if (cury != newy) {
+            	m_DetailsPage.scrollTo(0, newy);
+            }
+        }
+    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         boolean handled = false;
         switch (keyCode) {
             case NOOK_PAGE_UP_KEY_LEFT:
             case NOOK_PAGE_UP_KEY_RIGHT:
-                pageViewHelper.pageUp();
+            	if( m_SubMenuType == VIEW_DETAILS) {
+            		pageUp();
+            	} else
+            		pageViewHelper.pageUp();
                 handled = true;
                 break;
             
             case NOOK_PAGE_DOWN_KEY_LEFT:
             case NOOK_PAGE_DOWN_KEY_RIGHT:
-                pageViewHelper.pageDown();
+                if( m_SubMenuType == VIEW_DETAILS)
+                	pageDown();
+                else
+                	pageViewHelper.pageDown();
                 handled = true;
                 break;
             

@@ -1,5 +1,3 @@
-package com.nookdevs.library;
-
 /* 
  * Copyright 2010 nookDevs
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +12,13 @@ package com.nookdevs.library;
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
+package com.nookdevs.library;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 

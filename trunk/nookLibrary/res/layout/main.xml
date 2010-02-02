@@ -6,12 +6,25 @@
 	android:background="#BA5915"
 	>
 	
-<LinearLayout android:id="@+id/pageview"        
+<ViewAnimator android:id="@+id/pageview"        
 	android:layout_width="600.0px"        
 	android:layout_height="760.0px"
 	android:background="#FFFFFF"
-	android:orientation="vertical"
-	/>
+	>
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:orientation="vertical"
+		android:id="@+id/pageview1">
+	</LinearLayout>
+	<TextView 	android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		  android:textColor="#000000"
+		  android:textSize="22.0px"
+		  android:padding="10.0px"
+		android:id="@+id/pageview2">
+	</TextView>
+	</ViewAnimator>
 
 <Button
 		android:id="@+id/back"
@@ -68,6 +81,7 @@
     android:layout_width="322.0px"
 	android:layout_height="144.0px"
 	android:layout_toRightOf="@id/back"
+	android:inAnimation="@anim/fromright"
 	android:layout_below="@id/pageview">
 	
 <ListView 

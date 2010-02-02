@@ -335,7 +335,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         text.append("<br/>");
         String tmp = getPublisher();
         if( tmp != null && !tmp.trim().equals("")) {
-        	text.append("Published By:");
+        	text.append("Publisher:");
         	text.append(tmp);
         	text.append("<br/>");
         }
@@ -343,16 +343,20 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if( keywords.size() >1) {
         	text.append("<br/>Keyword(s):");
         }
+        boolean tmpFlag=false;
         for(int i=1; i< keywords.size(); i++) {
         	if( i >1) text.append(',');
         	text.append(keywords.get(i));
+        	tmpFlag=true;
         }
-        text.append("<br/>");
+        if( tmpFlag) text.append("<br/><br/>");
         tmp = getDescription();
         if( tmp != null && !tmp.trim().equals("")) {
-        	text.append("<br/>Overview:<br/>");
         	text.append(tmp);
+        	text.append("<br/><br/>");
         }
+        text.append("<b>File Path:</b>&nbsp;");
+        text.append(pathname);
         m_Details = text.toString();
         return m_Details;
     }
