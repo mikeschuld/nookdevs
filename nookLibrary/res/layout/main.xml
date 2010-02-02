@@ -22,7 +22,32 @@
 		android:background="@drawable/back_button"
 		>
 </Button>
-    <com.nookdevs.common.CustomGallery android:id="@+id/icongallery"
+  <ImageButton android:id="@+id/cover"
+  		android:layout_width="80.0px"
+  		android:layout_height="144.0px"
+  		android:layout_below="@id/pageview"
+  		android:layout_toRightOf="@id/back"
+  		android:scaleType="centerInside"
+  		android:background="@drawable/cover_button"
+  		/>
+   <ScrollView 
+      android:layout_width="wrap_content" 
+      android:layout_height="fill_parent"
+      android:id="@+id/detailsscroll"
+      android:layout_below="@id/pageview"
+      android:layout_toRightOf="@id/cover"
+      android:background="#FFFFFF"
+      android:scrollbars="vertical"
+      > 
+ 	 <TextView android:id ="@+id/details"
+  		android:layout_width="365.0px"
+  		android:layout_height="fill_parent"
+  		android:textColor="#000000"
+  		android:background="#FFFFFF"
+  		android:padding="5.0px"
+  		/>
+ </ScrollView>
+  <com.nookdevs.common.CustomGallery android:id="@+id/icongallery"
     	android:layout_below="@id/pageview"
     		 android:layout_width="480px"
     		 android:layout_height="144px"
