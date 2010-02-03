@@ -507,11 +507,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             	m_SubMenuType = SHOW;
             	break;
             case CLOSE:
-                try {
-                    goBack();
-                } catch (Exception ex) {
-                    goHome();
-                }
+            	goHome();
                 break;
             case SCAN_FOLDERS:
                 queryFolders();
@@ -547,35 +543,31 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             divider.setVisibility(View.VISIBLE);
         }
         if (button.equals(backButton)) {
-            try {
-                if( m_SubMenuType==VIEW_DETAILS) {
-                    lview.setVisibility(View.VISIBLE);
-                    backButton.setVisibility(View.VISIBLE);
-                    upButton.setVisibility(View.VISIBLE);
-                    downButton.setVisibility(View.VISIBLE);
-                    goButton.setVisibility(View.VISIBLE);
-                    divider.setVisibility(View.VISIBLE);
-                    m_CoverBtn.setVisibility(View.INVISIBLE);
-                    m_Details.setVisibility(View.INVISIBLE);
-                    m_DetailsScroll.setVisibility(View.INVISIBLE);
-                    m_PageViewAnimator.showNext();
-                    m_SubMenuType = -1;
-                    return;
-               } else if (m_SearchView) {
-                    pageViewHelper.setFiles(m_Files);
-                    m_SearchView = false;
-                    pageViewHelper.setTitle(R.string.my_documents);
-                    m_ListAdapter.setSubText(SEARCH," ");
-                    return;
-                } else if (m_SubMenuType >= 0) {
-                   	animator.showNext();
-                    m_SubMenuType = -1;
-                    return;
-                }
-                goBack();
-            } catch (Exception ex) {
-                goHome();
+           if( m_SubMenuType==VIEW_DETAILS) {
+                lview.setVisibility(View.VISIBLE);
+                backButton.setVisibility(View.VISIBLE);
+                upButton.setVisibility(View.VISIBLE);
+                downButton.setVisibility(View.VISIBLE);
+                goButton.setVisibility(View.VISIBLE);
+                divider.setVisibility(View.VISIBLE);
+                m_CoverBtn.setVisibility(View.INVISIBLE);
+                m_Details.setVisibility(View.INVISIBLE);
+                m_DetailsScroll.setVisibility(View.INVISIBLE);
+                m_PageViewAnimator.showNext();
+                m_SubMenuType = -1;
+                return;
+           } else if (m_SearchView) {
+                pageViewHelper.setFiles(m_Files);
+                m_SearchView = false;
+                pageViewHelper.setTitle(R.string.my_documents);
+                m_ListAdapter.setSubText(SEARCH," ");
+                return;
+            } else if (m_SubMenuType >= 0) {
+               	animator.showNext();
+                m_SubMenuType = -1;
+                return;
             }
+            goHome();
         } else if (button.equals(upButton)) {
             pageViewHelper.selectPrev();
         } else if (button.equals(downButton)) {
