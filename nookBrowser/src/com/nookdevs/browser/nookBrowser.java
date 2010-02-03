@@ -124,6 +124,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     Button closeBtn;
     Button volumeUp;
     Button volumeDown;
+    private boolean m_paramPassed=false;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -213,6 +214,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         Uri data = getIntent().getData();
         if (data != null) {
             lastNavigatedUrl = data.toString();
+            m_paramPassed=true;
         }
         try {
             String url = null;
@@ -367,7 +369,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (lock != null) {
                 lock.acquire(CONNECTION_TIMEOUT);
             }
-            NetworkInfo info = cmgr.getActiveNetworkInfo();
+            NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             boolean connection = (info == null) ? false : info.isConnected();
             if (!connection) {
                 WifiTask wifi = new WifiTask();
@@ -481,8 +483,11 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             } else if (webview.canGoBack()) {
                 waitForConnection(null);
             } else {
-                goBack();
-                
+            	if( m_paramPassed) {
+            		finish();
+            	} else {
+            		goHome();
+            	}
             }
         } else if (v.equals(upButton)) {
             event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP);
@@ -689,7 +694,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 m_Processing = false;
             } else if (position == CLOSE) {
                 m_Processing = false;
-                goBack();
+                finish();
             } else if (position == SAVE_PAGE) {
                 downloadLink(webview.getUrl());
                 m_Processing = false;
@@ -787,7 +792,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         @Override
         protected String doInBackground(String... params) {
             ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            NetworkInfo info = cmgr.getActiveNetworkInfo();
+            NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             boolean connection = (info == null) ? false : info.isConnected();
             int attempts = 1;
             while (!connection && attempts < 10) {
@@ -796,7 +801,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 } catch (Exception ex) {
                     
                 }
-                info = cmgr.getActiveNetworkInfo();
+                info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                 connection = (info == null) ? false : info.isConnected();
                 attempts++;
             }
