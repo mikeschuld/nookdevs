@@ -75,7 +75,7 @@ public class NookLauncher extends nookBaseActivity {
         updateTitle(APP_TITLE);
         loadWallpaper();
         if (m_LastButton != null) {
-            m_LastButton.setBackgroundColor(R.color.nookRed);
+            m_LastButton.setBackgroundResource(android.R.color.darker_gray);
         }
     }
     
@@ -148,7 +148,6 @@ public class NookLauncher extends nookBaseActivity {
         
         b.setOnClickListener(new ClickListener(intent, readingNow, settings));
         if (!systemApp) {
-            b.setBackgroundColor(R.color.nookRed);
             if (iconpath == null) {
                 PackageManager manager = getPackageManager();
                 try {
@@ -160,6 +159,7 @@ public class NookLauncher extends nookBaseActivity {
                 Uri iconUri = Uri.parse(iconpath);
                 b.setImageURI(iconUri);
             }
+            b.setBackgroundResource(android.R.color.darker_gray);
         }
     }
     
@@ -177,7 +177,7 @@ public class NookLauncher extends nookBaseActivity {
         }
         
         public void onClick(View v) {
-            v.setBackgroundColor(android.R.color.white);
+            v.setBackgroundResource(android.R.color.background_light);
             m_LastButton = (ImageButton) v;
             if (m_readingNow) {
                 try {
@@ -189,7 +189,7 @@ public class NookLauncher extends nookBaseActivity {
             } else {
                 try {
                     if (!m_Settings) {
-                        startActivity(m_intent);
+                    	startActivity(m_intent);
                     } else {
                         m_SettingsChanged = true;
                         startActivityForResult(m_intent, 1);
