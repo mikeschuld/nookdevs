@@ -38,19 +38,21 @@ import com.nookdevs.common.nookBaseActivity;
 public class NookLauncher extends nookBaseActivity {
     private String APP_TITLE = "Home";
     private String m_WallPaperFile = null;
-
-    String[] apps = {
-        "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
-        "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
-        "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity"
-    };
     
-    int[] appIcons = {
-        R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
-        R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
-        R.drawable.select_home_bnhome
+    String[] apps =
+        {
+            "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
+            "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
+            "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity"
+        };
     
-    };
+    int[] appIcons =
+        {
+            R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
+            R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
+            R.drawable.select_home_bnhome
+        
+        };
     final static String readingNowUri = "content://com.reader.android/last";
     ImageButton m_LastButton = null;
     
@@ -189,7 +191,7 @@ public class NookLauncher extends nookBaseActivity {
             } else {
                 try {
                     if (!m_Settings) {
-                    	startActivity(m_intent);
+                        startActivity(m_intent);
                     } else {
                         m_SettingsChanged = true;
                         startActivityForResult(m_intent, 1);
@@ -210,8 +212,8 @@ public class NookLauncher extends nookBaseActivity {
     private Intent getReadingNowIntent() {
         Intent intent = null;
         try {
-            Cursor c = getContentResolver().query(Uri.parse("content://com.ereader.android/last"), null, null, null,
-                null);
+            Cursor c =
+                getContentResolver().query(Uri.parse("content://com.ereader.android/last"), null, null, null, null);
             if (c != null) {
                 c.moveToFirst();
                 byte[] data = c.getBlob(0);

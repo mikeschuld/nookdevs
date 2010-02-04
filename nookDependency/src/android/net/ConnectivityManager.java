@@ -106,7 +106,8 @@ public class ConnectivityManager {
      * false.
      */
     
-    public static final String ACTION_BACKGROUND_DATA_SETTING_CHANGED = "android.net.conn.BACKGROUND_DATA_SETTING_CHANGED";
+    public static final String ACTION_BACKGROUND_DATA_SETTING_CHANGED =
+        "android.net.conn.BACKGROUND_DATA_SETTING_CHANGED";
     
     public static final int TYPE_MOBILE = 0;
     public static final int TYPE_WIFI = 1;

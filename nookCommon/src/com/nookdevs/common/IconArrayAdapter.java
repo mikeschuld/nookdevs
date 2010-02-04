@@ -59,8 +59,8 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
     }
     
     public void setSubText(int idx, String val) {
-    	if (m_SubTextFields[idx] != null) {
-   			m_SubTextFields[idx].setText(val);
+        if (m_SubTextFields[idx] != null) {
+            m_SubTextFields[idx].setText(val);
         }
         m_SubTextValues[idx] = val;
     }
@@ -91,9 +91,9 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
                 sub.setText(" ");
             }
             try {
-            	int oldidx = Integer.valueOf((String)sub.getHint());
-            	m_SubTextFields[oldidx] = null;
-            } catch(Exception ex) {
+                int oldidx = Integer.valueOf((String) sub.getHint());
+                m_SubTextFields[oldidx] = null;
+            } catch (Exception ex) {
             }
             sub.setHint(String.valueOf(position));
             m_SubTextFields[position] = sub;

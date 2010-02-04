@@ -31,8 +31,9 @@ class FavsDB extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "BROWSER";
     private static final String TABLE_NAME = "FAVS";
     private static final String DROP_TABLE = " DROP TABLE IF EXISTS " + TABLE_NAME;
-    private static final String CREATE_TABLE = " CREATE TABLE " + TABLE_NAME
-        + " ( id integer primary key autoincrement, name text not null," + " value text not null)";
+    private static final String CREATE_TABLE =
+        " CREATE TABLE " + TABLE_NAME + " ( id integer primary key autoincrement, name text not null,"
+            + " value text not null)";
     private static String TAG = "FavsDB";
     private boolean m_DataLoaded = false;
     private ArrayList<CharSequence> m_Names = new ArrayList<CharSequence>();
