@@ -49,8 +49,9 @@ public class DBHelper extends SQLiteOpenHelper {
             if (m_ReadDb == null) {
                 m_ReadDb = getReadableDatabase();
             }
-            cursor = m_ReadDb.rawQuery("SELECT NAME, resources, iconpath, keyboard FROM " + TABLE_NAME
-                + " ORDER BY ORDERNUM", null);
+            cursor =
+                m_ReadDb.rawQuery("SELECT NAME, resources, iconpath, keyboard FROM " + TABLE_NAME
+                    + " ORDER BY ORDERNUM", null);
             
             if (cursor != null) {
                 cursor.moveToFirst();
@@ -197,8 +198,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static String DATABASE_NAME = "LAUNCH_SETTINGS";
     private String TABLE_NAME = "APPS";
     private String DROP_TABLE = " DROP TABLE IF EXISTS " + TABLE_NAME;
-    private String CREATE_TABLE = " CREATE TABLE " + TABLE_NAME
-        + " ( _id integer primary key autoincrement, name text not null,"
-        + "ordernum integer not null, resources int , iconpath string, keyboard integer not null)";
+    private String CREATE_TABLE =
+        " CREATE TABLE " + TABLE_NAME + " ( _id integer primary key autoincrement, name text not null,"
+            + "ordernum integer not null, resources int , iconpath string, keyboard integer not null)";
     
 }

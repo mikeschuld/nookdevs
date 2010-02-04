@@ -22,10 +22,8 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -153,7 +151,7 @@ public class DownloadManager implements DownloadListener {
                 baseFolder.mkdir();
             }
         }
-        final String fpath = baseFolder.toString();
+        baseFolder.toString();
         Runnable thrd = new Runnable() {
             public void run() {
                 

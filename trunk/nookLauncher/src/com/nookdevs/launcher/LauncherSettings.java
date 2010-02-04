@@ -70,17 +70,19 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     boolean m_IconsLoaded = false;
     ImageAdapter m_IconAdapter = null;
     
-    String[] apps = {
-        "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
-        "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
-        "com.nookapps.launcher.LauncherSettings", "com.bravo.home.HomeActivity"
-    };
+    String[] apps =
+        {
+            "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
+            "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
+            "com.nookapps.launcher.LauncherSettings", "com.bravo.home.HomeActivity"
+        };
     
-    int[] appIcons = {
-        R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
-        R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
-        R.drawable.select_home_bnhome
-    };
+    int[] appIcons =
+        {
+            R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
+            R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
+            R.drawable.select_home_bnhome
+        };
     
     WebView m_WebView;
     public static final String NAME = "Launcher Settings";
@@ -120,10 +122,11 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         filter.addCategory("android.intent.category.HOME");
         filter.addCategory("android.intent.category.DEFAULT");
         
-        ComponentName[] components = new ComponentName[] {
-            new ComponentName("com.bravo.home", ".HomeActivity"),
-            new ComponentName("com.nookdevs.launcher", ".NookLauncher")
-        };
+        ComponentName[] components =
+            new ComponentName[] {
+                new ComponentName("com.bravo.home", ".HomeActivity"),
+                new ComponentName("com.nookdevs.launcher", ".NookLauncher")
+            };
         
         ComponentName activity = new ComponentName("com.nookdevs.launcher", ".NookLauncher");
         
@@ -345,8 +348,8 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 RelativeLayout addApp = (RelativeLayout) inflater.inflate(R.layout.addapp, m_AddAppLayout, false);
                 AppImageButton btn = (AppImageButton) addApp.getChildAt(0);
                 TextView txt = (TextView) addApp.getChildAt(1);
-                ComponentName comp = new ComponentName(ri.activityInfo.applicationInfo.packageName,
-                    ri.activityInfo.name);
+                ComponentName comp =
+                    new ComponentName(ri.activityInfo.applicationInfo.packageName, ri.activityInfo.name);
                 if (m_SystemIcons.get(ri.activityInfo.name) != null) {
                     btn.setImageResource(m_SystemIcons.get(ri.activityInfo.name));
                 } else {
@@ -489,15 +492,13 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 m_WebView.loadUrl("file:///android_asset/settings_changeicons.htm");
                 
             }
-            
+
             else if (button.equals(m_Current)) {
                 // removed
                 AppDetail app = m_IntentsList.get(m_CurrentButton);
-                if (
-                    "com.bravo.home.HomeActivity".equals(app.appName) ||
-                    "com.nookdevs.launcher.LauncherSettings".equals(app.appName)) { 
-                    return;
-                    // can't delete these 2.
+                if ("com.bravo.home.HomeActivity".equals(app.appName)
+                    || "com.nookdevs.launcher.LauncherSettings".equals(app.appName)) { return;
+                // can't delete these 2.
                 }
                 
                 setMainImage(null);
