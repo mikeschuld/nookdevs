@@ -32,23 +32,50 @@
 	/>
 
 <Button
-		android:id="@+id/back"
+		android:id="@+id/switchdata"
 		android:layout_width="30.0px"
-		android:layout_height="144.0px"
+		android:layout_height="35.0px"
 		android:soundEffectsEnabled="true"
 		android:layout_below="@id/webview"
+		android:background="@drawable/switchdata_button"
+		>
+</Button>
+<Button
+		android:id="@+id/switchview"
+		android:layout_width="30.0px"
+		android:layout_height="35.0px"
+		android:soundEffectsEnabled="true"
+		android:layout_below="@id/switchdata"
+		android:background="@drawable/switchview_button"
+		>
+</Button>
+
+<Button
+		android:id="@+id/back"
+		android:layout_width="30.0px"
+		android:layout_height="74.0px"
+		android:soundEffectsEnabled="true"
+		android:layout_below="@id/switchview"
 		android:background="@drawable/back_button"
 		>
 </Button>
 
+<ViewAnimator android:id="@+id/webviewanim"
+	android:layout_width="450.0px"
+	android:layout_height="144.0px"
+	android:layout_below="@id/webview"
+	android:layout_toRightOf="@id/back"
+	android:inAnimation="@anim/fromright"
+	>
+<RelativeLayout android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	>
 <ViewAnimator
 	android:id="@+id/listviewanim" 	
     android:layout_width="322.0px"
 	android:layout_height="144.0px"
-	android:layout_toRightOf="@id/back"
 	android:background="#000000"
-	android:layout_below="@id/webview">
-	
+>
 <ListView 
 	android:id="@+id/list"
 	android:background="#C8C8C8"
@@ -65,7 +92,6 @@
 	android:fadingEdge="none"
 	android:listSelector="@drawable/list_selector_background">
 </ListView>
-
 <ListView 
 	android:id="@+id/sublist"
 	android:background="#C8C8C8"
@@ -120,20 +146,10 @@
 	/>
 </RelativeLayout>
 </ViewAnimator>
-<ProgressBar android:id="@+id/progress_horizontal"
-		style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="322.0px"
-        android:layout_height="20dip"
-        android:max="100"
-        android:progress="0"
-        android:layout_toRightOf="@id/back"
-        android:layout_below="@id/webview"
-        android:progressDrawable="@drawable/progressbar"
-
-        />
 <AbsoluteLayout 
 	xmlns:android="http://schemas.android.com/apk/res/android"    
-	android:layout_width="wrap_content" 
+	android:layout_width="wrap_content"
+	android:id="@+id/dpad"
 	android:paddingTop="10.0px"
 	android:layout_height="144.0px"
 	android:orientation="vertical"
@@ -197,6 +213,20 @@
 				>
 </Button>
 </AbsoluteLayout>
+</RelativeLayout>
+  <WebView android:id="@+id/webview2"
+  	android:layout_height="fill_parent"
+  	android:layout_width="450.0px"/>
+</ViewAnimator>
+<ProgressBar android:id="@+id/progress_horizontal"
+		style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="322.0px"
+        android:layout_height="20dip"
+        android:max="100"
+        android:progress="0"
+        android:layout_toRightOf="@id/back"
+        android:layout_below="@id/webview"
+        android:progressDrawable="@drawable/progressbar"
 
-
+        />
 </RelativeLayout>
