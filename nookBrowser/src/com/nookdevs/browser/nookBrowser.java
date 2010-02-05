@@ -84,7 +84,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     protected static final int FAVS = 2;
     protected static final int ADDFAVS = 10;
     protected static final int SOFT_KEYBOARD = 3;
-    protected static final int MEDIA=5;
+    protected static final int MEDIA = 5;
     protected static final int FIND_STRING = 6;
     protected static final int SAVE_PAGE = 7;
     protected static final int CLOSE = 8;
@@ -101,21 +101,21 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     public static final String APP_TITLE = "Web";
     private ProgressBar m_ProgressBar;
     Handler m_Handler = new Handler();
-    String m_UserAgentStr =null;
-    private static final String DESKTOP_USER_AGENT="Mozilla/6.0";
-    private static String m_DefaultUserAgentStr="";
+    String m_UserAgentStr = null;
+    private static final String DESKTOP_USER_AGENT = "Mozilla/6.0";
+    private static String m_DefaultUserAgentStr = "";
     int[] icons = {
-        -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1, -1, -1,-1,-1,-1
+        -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1, -1, -1, -1, -1, -1
     };
     int[] subicons = {
-        R.drawable.submenu, -1, -1, -1, R.drawable.submenu, R.drawable.submenu, -1,-1,-1
+        R.drawable.submenu, -1, -1, -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1
     };
     int[] subicons2 = {
-        -1, -1, -1, -1, -1, -1,-1
+        -1, -1, -1, -1, -1, -1, -1
     };
     int[] subicons3 = {
-            -1, -1
-        };
+        -1, -1
+    };
     IconArrayAdapter<CharSequence> m_SubListAdapter1 = null;
     IconArrayAdapter<CharSequence> m_SubListAdapter2 = null;
     ArrayAdapter<CharSequence> m_SubListAdapter3 = null;
@@ -131,14 +131,14 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     Button closeBtn;
     Button volumeUp;
     Button volumeDown;
-    private boolean m_paramPassed=false;
+    private boolean m_paramPassed = false;
     private WebView webview_eink;
     private WebView webview_touchscreen;
-    private int m_ScreenChoice=0;
+    private int m_ScreenChoice = 0;
     private ViewAnimator m_WebViewAnimator;
     Button switchView;
     Button switchData;
- 
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,8 +147,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         lview = (ListView) findViewById(R.id.list);
         CharSequence[] menuitems = getResources().getTextArray(R.array.webmenu);
         List<CharSequence> menuitemsList = Arrays.asList(menuitems);
-        IconArrayAdapter<CharSequence> adapter = new IconArrayAdapter<CharSequence>(lview.getContext(),
-            R.layout.listitem, menuitemsList, icons);
+        IconArrayAdapter<CharSequence> adapter =
+            new IconArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem, menuitemsList, icons);
         adapter.setImageField(R.id.ListImageView);
         adapter.setTextField(R.id.ListTextView);
         lview.setAdapter(adapter);
@@ -181,16 +181,14 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         
         menuitems = getResources().getTextArray(R.array.useragent);
         menuitemsList = Arrays.asList(menuitems);
-        m_SubListAdapter4 = 
-        	new IconArrayAdapter<CharSequence>(this,R.layout.listitem, menuitemsList, subicons2);  
+        m_SubListAdapter4 = new IconArrayAdapter<CharSequence>(this, R.layout.listitem, menuitemsList, subicons2);
         m_SubListAdapter4.setImageField(R.id.ListImageView);
         m_SubListAdapter4.setTextField(R.id.ListTextView);
         sublist.setOnItemLongClickListener(this);
         
         menuitems = getResources().getTextArray(R.array.screen);
         menuitemsList = Arrays.asList(menuitems);
-        m_SubListAdapter5 = 
-        	new IconArrayAdapter<CharSequence>(this,R.layout.listitem, menuitemsList, subicons3);  
+        m_SubListAdapter5 = new IconArrayAdapter<CharSequence>(this, R.layout.listitem, menuitemsList, subicons3);
         m_SubListAdapter5.setImageField(R.id.ListImageView);
         m_SubListAdapter5.setTextField(R.id.ListTextView);
         
@@ -202,7 +200,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         webview.setWebViewClient(new HelloWebViewClient(this));
         m_ProgressBar = (ProgressBar) findViewById(R.id.progress_horizontal);
         m_ProgressBar.setVisibility(View.INVISIBLE);
-        m_Player = (VideoView)findViewById(R.id.surface);
+        m_Player = (VideoView) findViewById(R.id.surface);
         webview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int progress) {
@@ -231,8 +229,10 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             }
         });
         m_Player.setMediaController(new MediaController(this, true));
-        m_DefaultUserAgentStr =webview.getSettings().getUserAgentString();
-        if( m_UserAgentStr ==null) m_UserAgentStr = m_DefaultUserAgentStr;
+        m_DefaultUserAgentStr = webview.getSettings().getUserAgentString();
+        if (m_UserAgentStr == null) {
+            m_UserAgentStr = m_DefaultUserAgentStr;
+        }
         webview.getSettings().setUserAgentString(m_UserAgentStr);
         m_MediaListener = new MediaListener();
         m_Player.setOnErrorListener(m_MediaListener);
@@ -253,15 +253,17 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         updateTextSize(m_TextSize, true);
         Uri data = getIntent().getData();
         m_WebViewAnimator = (ViewAnimator) findViewById(R.id.webviewanim);
-
+        
         if (data != null) {
             lastNavigatedUrl = data.toString();
-            m_paramPassed=true;
+            m_paramPassed = true;
         }
-        if( m_paramPassed) m_ScreenChoice =0;
-        if( m_ScreenChoice ==1) {
-        	webview = webview_touchscreen;
-        	m_WebViewAnimator.showNext();
+        if (m_paramPassed) {
+            m_ScreenChoice = 0;
+        }
+        if (m_ScreenChoice == 1) {
+            webview = webview_touchscreen;
+            m_WebViewAnimator.showNext();
         }
         try {
             String url = null;
@@ -294,36 +296,38 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         volumeUp.setOnClickListener(this);
         volumeDown.setOnClickListener(this);
         webview_touchscreen.setOnTouchListener(new OnTouchListener() {
-
-			public boolean onTouch(View v, MotionEvent event) {
-				m_UserClicked=true;
-				return false;
-			}
-        	
+            
+            public boolean onTouch(View v, MotionEvent event) {
+                m_UserClicked = true;
+                return false;
+            }
+            
         });
         switchData.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if( m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
-			     	if( webview_touchscreen.getUrl() != null) 
-						webview_eink.loadUrl( webview_touchscreen.getUrl());
-					else
-						webview_eink.clearView();
-			        
-				} else {
-					if( webview_eink.getUrl() != null)
-						webview_touchscreen.loadUrl( webview_eink.getUrl());
-					else
-						webview_touchscreen.clearView();
-			    	m_WebViewAnimator.showNext();
-				}
-				
-			}
+            public void onClick(View v) {
+                if (m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
+                    if (webview_touchscreen.getUrl() != null) {
+                        webview_eink.loadUrl(webview_touchscreen.getUrl());
+                    } else {
+                        webview_eink.clearView();
+                    }
+                    
+                } else {
+                    if (webview_eink.getUrl() != null) {
+                        webview_touchscreen.loadUrl(webview_eink.getUrl());
+                    } else {
+                        webview_touchscreen.clearView();
+                    }
+                    m_WebViewAnimator.showNext();
+                }
+                
+            }
         });
         switchView.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				m_WebViewAnimator.showNext();
-				
-			}
+            public void onClick(View v) {
+                m_WebViewAnimator.showNext();
+                
+            }
         });
         webview_eink.setDownloadListener(m_DownloadManager);
         webview_touchscreen.setDownloadListener(m_DownloadManager);
@@ -344,7 +348,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             }
             m_TextSize = p.getInt("TEXT_SIZE", m_TextSize);
             m_FavsDB = new FavsDB(this, null, 1);
-            m_UserAgentStr =p.getString("USER_AGENT", null);
+            m_UserAgentStr = p.getString("USER_AGENT", null);
             m_ScreenChoice = p.getInt("SCREEN", 0);
         } catch (Exception ex) {
             Log.e(LOGTAG, "preference exception: ", ex);
@@ -355,7 +359,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     
     @Override
     public void onDestroy() {
-    	super.onDestroy();
+        super.onDestroy();
         m_FavsDB.close();
     }
     
@@ -451,8 +455,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (lock != null) {
                 lock.acquire(CONNECTION_TIMEOUT);
             }
-            //NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            NetworkInfo info = cmgr.getActiveNetworkInfo();
+            NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            // NetworkInfo info = cmgr.getActiveNetworkInfo();
             boolean connection = (info == null) ? false : info.isConnected();
             if (!connection) {
                 WifiTask wifi = new WifiTask();
@@ -460,9 +464,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             } else {
                 if (url == null) {
                     webview.goBack();
-                } else if( url.startsWith("rtsp://") || url.startsWith("RTSP://") ||
-                		url.endsWith(".mp3") || url.endsWith(".mp4")) {
-                	m_MediaListener.playMedia(url);
+                } else if (url.startsWith("rtsp://") || url.startsWith("RTSP://") || url.endsWith(".mp3")
+                    || url.endsWith(".mp4")) {
+                    m_MediaListener.playMedia(url);
                 } else {
                     webview.loadUrl(url);
                 }
@@ -534,19 +538,19 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     private void processKey(View v) {
         KeyEvent event;
         m_UserClicked = false;
-        if( v.equals(closeBtn)) {
-        	m_MediaListener.stop();
-        	m_ViewAnimator.showNext();
-        	m_SubMenuType=0;
-        	return;
+        if (v.equals(closeBtn)) {
+            m_MediaListener.stop();
+            m_ViewAnimator.showNext();
+            m_SubMenuType = 0;
+            return;
         }
-        if( v.equals(volumeUp)) {
-        	AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
-        	amgr.adjustVolume(AudioManager.ADJUST_RAISE, 0);
+        if (v.equals(volumeUp)) {
+            AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
+            amgr.adjustVolume(AudioManager.ADJUST_RAISE, 0);
         }
-        if( v.equals(volumeDown)) {
-        	AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
-        	amgr.adjustVolume(AudioManager.ADJUST_LOWER, 0);
+        if (v.equals(volumeDown)) {
+            AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
+            amgr.adjustVolume(AudioManager.ADJUST_LOWER, 0);
         }
         if (v.equals(goButton)) {
             m_UserClicked = true;
@@ -558,25 +562,25 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         } else if (v.equals(backButton)) {
             if (m_ViewAnimator.getCurrentView().equals(sublist)) {
                 m_ViewAnimator.showPrevious();
-            } else if ( m_SubMenuType ==4 && !m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
-            	m_ViewAnimator.showNext();
-            	m_SubMenuType=1;
-            }else if (webview.getProgress() != 100) {
-               webview.stopLoading();
-               m_ProgressBar.setVisibility(View.INVISIBLE);
+            } else if (m_SubMenuType == 4 && !m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
+                m_ViewAnimator.showNext();
+                m_SubMenuType = 1;
+            } else if (webview.getProgress() != 100) {
+                webview.stopLoading();
+                m_ProgressBar.setVisibility(View.INVISIBLE);
             } else if (webview.canGoBack()) {
                 waitForConnection(null);
-            } else if( m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
-        		m_WebViewAnimator.showNext();
-            } else if( m_SubMenuType ==4) {
-            	m_ViewAnimator.showNext();
-            	m_SubMenuType=1;
+            } else if (m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
+                m_WebViewAnimator.showNext();
+            } else if (m_SubMenuType == 4) {
+                m_ViewAnimator.showNext();
+                m_SubMenuType = 1;
             } else {
-            	if( m_paramPassed) {
-            		finish();
-            	} else {
-            		goHome();
-            	}
+                if (m_paramPassed) {
+                    finish();
+                } else {
+                    goHome();
+                }
             }
         } else if (v.equals(upButton)) {
             event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP);
@@ -666,8 +670,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (m_Cmd == LOAD_URL) {
                 waitForConnection(text);
                 lastNavigatedUrl = text;
-                if( webview.equals(webview_touchscreen))
-                	m_WebViewAnimator.showNext();
+                if (webview.equals(webview_touchscreen)) {
+                    m_WebViewAnimator.showNext();
+                }
             } else if (m_Cmd == FIND_STRING) {
                 webview_eink.findAll(text);
             } else if (m_Cmd == SETTINGS) {
@@ -697,47 +702,47 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
         m_UserClicked = false;
         if (parent.equals(sublist)) {
-        	if( m_SubMenuType == 6) {
-        		subicons3[m_ScreenChoice] = -1;
-        		if( m_ScreenChoice != position) {
-        			m_ScreenChoice=position;
-        			Editor e = getPreferences(MODE_PRIVATE).edit();
-        			e.putInt("SCREEN", m_ScreenChoice);
-        			e.commit();
-        			if( m_ScreenChoice == 0) {
-        				webview = webview_eink;
-        			} else {
-        				webview = webview_touchscreen;
-        			}
-        		}
-        		sublist.setAdapter(m_SubListAdapter1);
-        	    m_ViewAnimator.showPrevious();
+            if (m_SubMenuType == 6) {
+                subicons3[m_ScreenChoice] = -1;
+                if (m_ScreenChoice != position) {
+                    m_ScreenChoice = position;
+                    Editor e = getPreferences(MODE_PRIVATE).edit();
+                    e.putInt("SCREEN", m_ScreenChoice);
+                    e.commit();
+                    if (m_ScreenChoice == 0) {
+                        webview = webview_eink;
+                    } else {
+                        webview = webview_touchscreen;
+                    }
+                }
+                sublist.setAdapter(m_SubListAdapter1);
+                m_ViewAnimator.showPrevious();
                 m_ViewAnimator.showNext();
                 m_SubMenuType = 1;
                 return;
-                 
-        	}
-        	if( m_SubMenuType ==5) {
-        		if( position ==0) {
-        			webview.getSettings().setUserAgentString(m_DefaultUserAgentStr);
-        			m_UserAgentStr=m_DefaultUserAgentStr;
-        			
-        		} else {
-        			webview.getSettings().setUserAgentString(DESKTOP_USER_AGENT);
-        			m_UserAgentStr = DESKTOP_USER_AGENT;
-        		}
-        		subicons2[0]=-1;
-    			subicons2[1]=-1;
+                
+            }
+            if (m_SubMenuType == 5) {
+                if (position == 0) {
+                    webview.getSettings().setUserAgentString(m_DefaultUserAgentStr);
+                    m_UserAgentStr = m_DefaultUserAgentStr;
+                    
+                } else {
+                    webview.getSettings().setUserAgentString(DESKTOP_USER_AGENT);
+                    m_UserAgentStr = DESKTOP_USER_AGENT;
+                }
+                subicons2[0] = -1;
+                subicons2[1] = -1;
                 Editor e = getPreferences(MODE_PRIVATE).edit();
                 e.putString("USER_AGENT", m_UserAgentStr);
                 e.commit();
-        		sublist.setAdapter(m_SubListAdapter1);
-        	    m_ViewAnimator.showPrevious();
+                sublist.setAdapter(m_SubListAdapter1);
+                m_ViewAnimator.showPrevious();
                 m_ViewAnimator.showNext();
                 m_SubMenuType = 1;
                 return;
-        		
-        	}
+                
+            }
             if (m_SubMenuType == 2) {
                 updateTextSize(position, false);
                 m_SubMenuType = 1;
@@ -749,8 +754,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 } else {
                     String url = (String) m_FavsDB.getValues().get(position - 1);
                     waitForConnection(url);
-                    if( webview.equals(webview_touchscreen))
-                    	m_WebViewAnimator.showNext();
+                    if (webview.equals(webview_touchscreen)) {
+                        m_WebViewAnimator.showNext();
+                    }
                 }
                 m_SubMenuType = 1;
                 m_ViewAnimator.showPrevious();
@@ -759,8 +765,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             // check submenu items
             switch (position) {
                 case TEXT_SIZE:
-                	subicons2[0]=-1;
-                	subicons2[1]=-1;
+                    subicons2[0] = -1;
+                    subicons2[1] = -1;
                     subicons2[m_TextSize] = R.drawable.check;
                     sublist.setAdapter(m_SubListAdapter2);
                     m_ViewAnimator.showPrevious();
@@ -779,36 +785,38 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     displayDialog(SETTINGS);
                     break;
                 case USER_AGENT:
-                	if( m_UserAgentStr == null || m_UserAgentStr.equals(m_DefaultUserAgentStr))
-                		subicons2[0] = R.drawable.check;
-                	else
-                		subicons2[1] = R.drawable.check;
-                	sublist.setAdapter(m_SubListAdapter4);
-                	m_ViewAnimator.showPrevious();
-                	m_ViewAnimator.showNext();
-                	m_SubMenuType=5;
-                	break;
+                    if (m_UserAgentStr == null || m_UserAgentStr.equals(m_DefaultUserAgentStr)) {
+                        subicons2[0] = R.drawable.check;
+                    } else {
+                        subicons2[1] = R.drawable.check;
+                    }
+                    sublist.setAdapter(m_SubListAdapter4);
+                    m_ViewAnimator.showPrevious();
+                    m_ViewAnimator.showNext();
+                    m_SubMenuType = 5;
+                    break;
                 case SCREEN:
-                	subicons3[m_ScreenChoice] = R.drawable.check;
-                	sublist.setAdapter(m_SubListAdapter5);
-                	m_ViewAnimator.showPrevious();
-                	m_ViewAnimator.showNext();
-                	m_SubMenuType=6;
+                    subicons3[m_ScreenChoice] = R.drawable.check;
+                    sublist.setAdapter(m_SubListAdapter5);
+                    m_ViewAnimator.showPrevious();
+                    m_ViewAnimator.showNext();
+                    m_SubMenuType = 6;
             }
             return;
         }
-        if( position== MEDIA) {
-        	m_ViewAnimator.showPrevious();
-        	m_SubMenuType=4;
-        	return;
+        if (position == MEDIA) {
+            m_ViewAnimator.showPrevious();
+            m_SubMenuType = 4;
+            return;
         }
         if (position >= LOAD_URL & !m_Processing) {
             m_Processing = true;
             if (position == GO_HOME) {
                 lastNavigatedUrl = m_HomePage;
                 waitForConnection(m_HomePage);
-                if( webview.equals(webview_touchscreen))
-                	m_WebViewAnimator.showNext();
+                if (webview.equals(webview_touchscreen)) {
+                    m_WebViewAnimator.showNext();
+                }
                 m_Processing = false;
             } else if (position == SOFT_KEYBOARD) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -837,7 +845,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         }
         
     }
-
+    
     public void downloadLink(final String url) {
         Runnable thrd = new Runnable() {
             public void run() {
@@ -863,7 +871,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     private final void pageDown() {
         if (webview_eink != null) {
             int cury = webview_eink.getScrollY();
-            int hmax = webview_eink.getContentHeight() - 200; // - WEB_SCROLL_PX; -
+            int hmax = webview_eink.getContentHeight() - 200; // -
+            // WEB_SCROLL_PX;
+            // -
             // account for text
             // size/zoom.
             if (hmax < 0) {
@@ -874,7 +884,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 newy = hmax;
             }
             if (cury != newy) {
-            	webview_eink.scrollTo(0, newy);
+                webview_eink.scrollTo(0, newy);
             }
         }
     }
@@ -906,15 +916,14 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     class WifiTask extends AsyncTask<String, Integer, String> {
         @Override
         protected void onPreExecute() {
-            displayAlert(getString(R.string.start_wifi), 
-            		getString(R.string.please_wait), 1, null, -1);
+            displayAlert(getString(R.string.start_wifi), getString(R.string.please_wait), 1, null, -1);
         }
         
         @Override
         protected String doInBackground(String... params) {
             ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-           // NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            NetworkInfo info = cmgr.getActiveNetworkInfo();
+            NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            // NetworkInfo info = cmgr.getActiveNetworkInfo();
             boolean connection = (info == null) ? false : info.isConnected();
             int attempts = 1;
             while (!connection && attempts < 10) {
@@ -923,8 +932,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 } catch (Exception ex) {
                     
                 }
-                //info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                info = cmgr.getActiveNetworkInfo();
+                info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                // info = cmgr.getActiveNetworkInfo();
                 connection = (info == null) ? false : info.isConnected();
                 attempts++;
             }
@@ -937,71 +946,76 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (result == null) {
                 webview.goBack();
             } else {
-            	if( result.startsWith("rtsp://") || result.startsWith("RTSP://") ) {
-                	m_MediaListener.playMedia(result);
-                	return;
+                if (result.startsWith("rtsp://") || result.startsWith("RTSP://") || result.endsWith(".mp3")
+                    || result.endsWith("mp4")) {
+                    m_MediaListener.playMedia(result);
+                    return;
                 }
                 webview.loadUrl(result);
             }
         }
     }
-    class MediaListener implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener
-    {
-    	public boolean onError(MediaPlayer mp, int what, int extra) {
-    		Log.e(LOGTAG, "Error playing Media - " + " what = " + what + "  extra =" + extra);
-    		//m_Player.stopPlayback();
-    		Toast.makeText(nookBrowser.this, R.string.playback_error, Toast.LENGTH_LONG);
-    		onCompletion(mp);
-    		return true;
-    	}
- 
-    	public void onCompletion(MediaPlayer mp) {
-    		if( m_SubMenuType ==4) {
-    			m_ViewAnimator.showNext();
-    			m_SubMenuType=1;
-    			webview.requestFocus();
-    		}
-    		AudioManager amgr = (AudioManager)getSystemService(AUDIO_SERVICE);
-    		amgr.setStreamSolo(AudioManager.STREAM_MUSIC, false);
-    		try {
-    			if( lock.isHeld()) lock.release();
-    			lock.acquire(nookBrowser.CONNECTION_TIMEOUT);
-    		} catch(Exception ex) {
-    			Log.e(LOGTAG, "Exception in onCompletion - Media", ex);
-    		}
-    	}
-    	protected void stop() {
-    		if( m_Player.isPlaying()) {
-    			m_Player.stopPlayback();
-    			if( lock.isHeld()) {
-    				lock.release();
-    			}
-    			AudioManager amgr = (AudioManager)getSystemService(AUDIO_SERVICE);
-    			amgr.setStreamSolo(AudioManager.STREAM_MUSIC, false);
-    			lock.acquire(CONNECTION_TIMEOUT);
-    		}
-    	}
-        protected void playMedia(String url) {
-        	if( m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
-        		m_WebViewAnimator.showNext();
-        	}
-        	if (m_ViewAnimator.getCurrentView().equals(sublist)) {
-                m_ViewAnimator.showNext();
-        	} else if( m_SubMenuType !=4) {
-        		m_ViewAnimator.showPrevious();
-        	}
-   			m_SubMenuType=4;
-    		m_Player.bringToFront();
-    		if( m_Player.isPlaying()) {
-        		m_Player.stopPlayback();
-        	}
-    		lock.acquire();
-    		m_Player.setVideoPath(url);
-    		AudioManager amgr = (AudioManager)getSystemService(AUDIO_SERVICE);
-    		amgr.setStreamSolo(AudioManager.STREAM_MUSIC, true);
-    		m_Player.start();
+    
+    class MediaListener implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            Log.e(LOGTAG, "Error playing Media - " + " what = " + what + "  extra =" + extra);
+            // m_Player.stopPlayback();
+            Toast.makeText(nookBrowser.this, R.string.playback_error, Toast.LENGTH_LONG);
+            onCompletion(mp);
+            return true;
         }
-  	
+        
+        public void onCompletion(MediaPlayer mp) {
+            if (m_SubMenuType == 4) {
+                m_ViewAnimator.showNext();
+                m_SubMenuType = 1;
+                webview.requestFocus();
+            }
+            AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
+            amgr.setStreamSolo(AudioManager.STREAM_MUSIC, false);
+            try {
+                if (lock.isHeld()) {
+                    lock.release();
+                }
+                lock.acquire(nookBrowser.CONNECTION_TIMEOUT);
+            } catch (Exception ex) {
+                Log.e(LOGTAG, "Exception in onCompletion - Media", ex);
+            }
+        }
+        
+        protected void stop() {
+            if (m_Player.isPlaying()) {
+                m_Player.stopPlayback();
+                if (lock.isHeld()) {
+                    lock.release();
+                }
+                AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
+                amgr.setStreamSolo(AudioManager.STREAM_MUSIC, false);
+                lock.acquire(CONNECTION_TIMEOUT);
+            }
+        }
+        
+        protected void playMedia(String url) {
+            if (m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
+                m_WebViewAnimator.showNext();
+            }
+            if (m_ViewAnimator.getCurrentView().equals(sublist)) {
+                m_ViewAnimator.showNext();
+            } else if (m_SubMenuType != 4) {
+                m_ViewAnimator.showPrevious();
+            }
+            m_SubMenuType = 4;
+            m_Player.bringToFront();
+            if (m_Player.isPlaying()) {
+                m_Player.stopPlayback();
+            }
+            lock.acquire();
+            m_Player.setVideoPath(url);
+            AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
+            amgr.setStreamSolo(AudioManager.STREAM_MUSIC, true);
+            m_Player.start();
+        }
+        
     }
 }
 
