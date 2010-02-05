@@ -10,7 +10,7 @@
         <item>Media Player</item>
         <item>Find</item>
         <item>Save Page</item>
-         <item>Close</item>
+        <item>Close</item>
     </string-array>
     
     <string-array name="submenu1">
@@ -19,6 +19,11 @@
   	<item>Zoom Out</item>
  	<item>Home Page</item>
  	<item>User Agent</item>
+ 	<item>Screen</item>
+    </string-array>
+    <string-array name="screen">
+    <item>E-ink</item>
+    <item>touchscreen</item>
     </string-array>
     <string-array name="useragent">
     <item>Default</item>
