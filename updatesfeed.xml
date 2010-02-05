@@ -22,7 +22,7 @@
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookBrowser.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookBrowser.apk</id>
-    <content type="text">nook-tweaked browser</content>
+    <content type="text">nook-tweaked browser version 0.0.7</content>
   </entry>
 
   <entry>
@@ -30,7 +30,15 @@
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookLibrary.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookLibrary.apk</id>
-    <content type="text">Browse, sort and search books on the Nook</content>
+    <content type="text">Browse, sort and search books on the Nook - version 0.0.3</content>
+  </entry>
+
+  <entry>
+    <title>nookWifiLocker</title>
+    <link type="application/vnd.android.package-archive"
+          href="http://nookdevs.googlecode.com/files/nookWifiLocker.apk"/>
+    <id>http://nookdevs.googlecode.com/files/nookWifiLocker.apk</id>
+    <content type="text">Simple app to keep Wifi locked. Useful for running apps like pandora, debugging, vnc</content>
   </entry>
 
   <entry>
