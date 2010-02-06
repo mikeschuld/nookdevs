@@ -95,6 +95,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     protected static final int USER_AGENT = 4;
     protected static final int SCREEN = 5;
     protected static final int ZOOM = 6;
+    protected static final int OFFLINE = 7;
     private static final int WEB_SCROLL_PX = 750;
     public static final int CONNECTION_TIMEOUT = 240000;
     private ViewAnimator m_ViewAnimator;
@@ -105,6 +106,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     String m_UserAgentStr = null;
     private static final String DESKTOP_USER_AGENT = "Mozilla/6.0";
     private static String m_DefaultUserAgentStr = "";
+    private boolean m_OfflineBrowsing=false;
     int[] icons = {
         -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1, -1, -1, -1, -1, -1
     };
@@ -166,6 +168,10 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         webview_touchscreen.setClickable(true);
         webview_touchscreen.getSettings().setJavaScriptEnabled(true);
         webview_touchscreen.getSettings().setBuiltInZoomControls(m_BuiltInZoom);
+        if( m_OfflineBrowsing) {
+            webview_touchscreen.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+            webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+        }
         menuitems = getResources().getTextArray(R.array.submenu1);
         menuitemsList = Arrays.asList(menuitems);
         m_SubListAdapter1 = new IconArrayAdapter<CharSequence>(this, R.layout.listitem, menuitemsList, subicons);
@@ -358,6 +364,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             m_UserAgentStr = p.getString("USER_AGENT", null);
             m_ScreenChoice = p.getInt("SCREEN", 0);
             m_BuiltInZoom = p.getBoolean("ZOOM", m_BuiltInZoom);
+            m_OfflineBrowsing = p.getBoolean("OFFLINE", m_OfflineBrowsing);
         } catch (Exception ex) {
             Log.e(LOGTAG, "preference exception: ", ex);
             m_HomePage = DEFAULT_HOME_PAGE;
@@ -471,12 +478,12 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             }
             ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
             if (lock != null) {
-                lock.acquire(CONNECTION_TIMEOUT);
+                if( !m_OfflineBrowsing) lock.acquire(CONNECTION_TIMEOUT);
             }
             NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             // NetworkInfo info = cmgr.getActiveNetworkInfo();
             boolean connection = (info == null) ? false : info.isConnected();
-            if (!connection) {
+            if (!m_OfflineBrowsing && !connection) {
                 WifiTask wifi = new WifiTask();
                 wifi.execute(url);
             } else {
@@ -551,7 +558,6 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 textSize = WebSettings.TextSize.NORMAL;
                 
         }
-        
         webview_eink.getSettings().setTextSize(textSize);
         webview_touchscreen.getSettings().setTextSize(textSize);
         if (init) { return; }
@@ -562,6 +568,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         e.commit();
         m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
         m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
+        m_SubListAdapter1.setSubText(OFFLINE, m_OfflineBrowsing ? "Enabled" : "Disabled");
         sublist.setAdapter(m_SubListAdapter1);
         m_ViewAnimator.showPrevious();
         m_ViewAnimator.showNext();
@@ -695,14 +702,14 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         m_Dialog.show();
-        
     }
     
-    protected void processCmd(final String text) {
+    protected void processCmd(String text) {
         try {
             m_Dialog.dismiss();
             if (text == null) { return; }
             if (m_Cmd == LOAD_URL) {
+                if( text.indexOf("://") ==-1) text = "http://" + text;
                 waitForConnection(text);
                 lastNavigatedUrl = text;
                 if (webview.equals(webview_touchscreen)) {
@@ -711,6 +718,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             } else if (m_Cmd == FIND_STRING) {
                 webview_eink.findAll(text);
             } else if (m_Cmd == SETTINGS) {
+                if( text.indexOf("://") ==-1) text = "http://" + text;
                 Editor e = getPreferences(MODE_PRIVATE).edit();
                 e.putString("HOME_PAGE", text);
                 e.commit();
@@ -843,6 +851,20 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     Editor e = getPreferences(MODE_PRIVATE).edit();
                     e.putBoolean("ZOOM", m_BuiltInZoom);
                     e.commit();
+                    break;
+                case OFFLINE:
+                    m_OfflineBrowsing = !m_OfflineBrowsing;
+                    m_SubListAdapter1.setSubText(OFFLINE, m_OfflineBrowsing ? "Enabled" : "Disabled");
+                    if (m_OfflineBrowsing) {
+                        webview_touchscreen.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                        webview_eink.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                    } else {
+                        webview_touchscreen.getSettings().setCacheMode(WebSettings.LOAD_NORMAL);
+                        webview_eink.getSettings().setCacheMode(WebSettings.LOAD_NORMAL);
+                    }
+                    e = getPreferences(MODE_PRIVATE).edit();
+                    e.putBoolean("OFFLINE", m_OfflineBrowsing);
+                    e.commit();
             }
             return;
         }
@@ -874,6 +896,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 sublist.setAdapter(m_SubListAdapter1);
                 m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
                 m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
+                m_SubListAdapter1.setSubText(OFFLINE, m_OfflineBrowsing? "Enabled" : "Disabled");
                 m_ViewAnimator.showNext();
                 m_SubMenuType = 1;
                 m_Processing = false;
@@ -1037,7 +1060,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 if (lock.isHeld()) {
                     lock.release();
                 }
-                lock.acquire(nookBrowser.CONNECTION_TIMEOUT);
+                if( !m_OfflineBrowsing) lock.acquire(nookBrowser.CONNECTION_TIMEOUT);
             } catch (Exception ex) {
                 Log.e(LOGTAG, "Exception in onCompletion - Media", ex);
             }
@@ -1051,7 +1074,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 }
                 AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
                 amgr.setStreamSolo(AudioManager.STREAM_MUSIC, false);
-                lock.acquire(CONNECTION_TIMEOUT);
+                if( !m_OfflineBrowsing) lock.acquire(CONNECTION_TIMEOUT);
             }
         }
         
@@ -1069,7 +1092,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (m_Player.isPlaying()) {
                 m_Player.stopPlayback();
             }
-            lock.acquire();
+            if( !m_OfflineBrowsing) lock.acquire();
             m_Player.setVideoPath(url);
             AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
             amgr.setStreamSolo(AudioManager.STREAM_MUSIC, true);
