@@ -106,7 +106,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     String m_UserAgentStr = null;
     private static final String DESKTOP_USER_AGENT = "Mozilla/6.0";
     private static String m_DefaultUserAgentStr = "";
-    private boolean m_OfflineBrowsing=false;
+    private boolean m_OfflineBrowsing = false;
     int[] icons = {
         -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1, -1, -1, -1, -1, -1
     };
@@ -168,7 +168,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         webview_touchscreen.setClickable(true);
         webview_touchscreen.getSettings().setJavaScriptEnabled(true);
         webview_touchscreen.getSettings().setBuiltInZoomControls(m_BuiltInZoom);
-        if( m_OfflineBrowsing) {
+        if (m_OfflineBrowsing) {
             webview_touchscreen.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
             webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         }
@@ -478,7 +478,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             }
             ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
             if (lock != null) {
-                if( !m_OfflineBrowsing) lock.acquire(CONNECTION_TIMEOUT);
+                if (!m_OfflineBrowsing) {
+                    lock.acquire(CONNECTION_TIMEOUT);
+                }
             }
             NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             // NetworkInfo info = cmgr.getActiveNetworkInfo();
@@ -709,7 +711,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             m_Dialog.dismiss();
             if (text == null) { return; }
             if (m_Cmd == LOAD_URL) {
-                if( text.indexOf("://") ==-1) text = "http://" + text;
+                if (text.indexOf("://") == -1) {
+                    text = "http://" + text;
+                }
                 waitForConnection(text);
                 lastNavigatedUrl = text;
                 if (webview.equals(webview_touchscreen)) {
@@ -718,7 +722,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             } else if (m_Cmd == FIND_STRING) {
                 webview_eink.findAll(text);
             } else if (m_Cmd == SETTINGS) {
-                if( text.indexOf("://") ==-1) text = "http://" + text;
+                if (text.indexOf("://") == -1) {
+                    text = "http://" + text;
+                }
                 Editor e = getPreferences(MODE_PRIVATE).edit();
                 e.putString("HOME_PAGE", text);
                 e.commit();
@@ -896,7 +902,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 sublist.setAdapter(m_SubListAdapter1);
                 m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
                 m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
-                m_SubListAdapter1.setSubText(OFFLINE, m_OfflineBrowsing? "Enabled" : "Disabled");
+                m_SubListAdapter1.setSubText(OFFLINE, m_OfflineBrowsing ? "Enabled" : "Disabled");
                 m_ViewAnimator.showNext();
                 m_SubMenuType = 1;
                 m_Processing = false;
@@ -1060,7 +1066,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 if (lock.isHeld()) {
                     lock.release();
                 }
-                if( !m_OfflineBrowsing) lock.acquire(nookBrowser.CONNECTION_TIMEOUT);
+                if (!m_OfflineBrowsing) {
+                    lock.acquire(nookBrowser.CONNECTION_TIMEOUT);
+                }
             } catch (Exception ex) {
                 Log.e(LOGTAG, "Exception in onCompletion - Media", ex);
             }
@@ -1074,7 +1082,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 }
                 AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
                 amgr.setStreamSolo(AudioManager.STREAM_MUSIC, false);
-                if( !m_OfflineBrowsing) lock.acquire(CONNECTION_TIMEOUT);
+                if (!m_OfflineBrowsing) {
+                    lock.acquire(CONNECTION_TIMEOUT);
+                }
             }
         }
         
@@ -1092,7 +1102,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (m_Player.isPlaying()) {
                 m_Player.stopPlayback();
             }
-            if( !m_OfflineBrowsing) lock.acquire();
+            if (!m_OfflineBrowsing) {
+                lock.acquire();
+            }
             m_Player.setVideoPath(url);
             AudioManager amgr = (AudioManager) getSystemService(AUDIO_SERVICE);
             amgr.setStreamSolo(AudioManager.STREAM_MUSIC, true);
