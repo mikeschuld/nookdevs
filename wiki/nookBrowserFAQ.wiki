@@ -47,10 +47,10 @@ This file can be edited to add a whole bunch of favorites instead of doing it th
 <h2>3.Playing rtsp streams in nookBrowser </h2>
 Just click on the stream link and the media player window will open and audio/video will start. <br>
 I tested this with www.npr.org, which has a lot of audio streams. It should work as long as the url starts with rtsp://.<br>
-For youtube videos, the User-Agent string in Settings has to be set to desktop, since youtube is sending an android specific URL which we cannot use in nook.
+For youtube videos, the User-Agent string in Settings has to be set to desktop, since youtube is sending an android specific URL which we cannot use in nook.<br>
 I did not test the video part a lot since it was not that useful and was done just for curiosity.
 <h2>4. Dual screen browsing </h2>
 In Settings, there is an option to select the primary screen. This will determine where the pages will be loaded normally. This is used for loading URL entered in address, from favorites, back button and Home page links.But any clicks on links will be loaded into the page where is was done.<br>
-Sync button at the left top can be used to sync up the 2 screens. If it is clicked from the touchscreen browser view, data will be loaded into the eink.
+Sync button at the left top can be used to sync up the 2 screens. If it is clicked from the touchscreen browser view, data will be loaded into the eink.<br>
 If it is done from the main menu page, data will be loaded into the touchscreen browser.
-Touchscreen browser doesn't allow text input. So, any forms, login, search etc has to be done in the eink. Once the result page is loaded, it can be synced back to touchscreen and the same login credentials/cookies will be used there. 
+Touchscreen browser doesn't allow text input. <br>So, any forms, login, search etc has to be done in the eink. Once the result page is loaded, it can be synced back to touchscreen and the same login credentials/cookies will be used there. 
