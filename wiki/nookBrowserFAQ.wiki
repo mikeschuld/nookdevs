@@ -1,3 +1,4 @@
+#labels Featured
 nookBrowser - some useful info
 <h2>1. Steps for exporting Favorites</h2>
 <pre>
