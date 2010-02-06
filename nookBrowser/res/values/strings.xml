@@ -21,6 +21,7 @@
  	<item>User Agent</item>
  	<item>Screen</item>
  	<item>Built In Zoom</item>
+ 	<item>Offline</item>
     </string-array>
     <string-array name="screen">
     <item>E-ink</item>
