@@ -94,6 +94,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     protected static final int HOME_PAGE = 3;
     protected static final int USER_AGENT = 4;
     protected static final int SCREEN = 5;
+    protected static final int ZOOM = 6;
     private static final int WEB_SCROLL_PX = 750;
     public static final int CONNECTION_TIMEOUT = 240000;
     private ViewAnimator m_ViewAnimator;
@@ -114,7 +115,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         -1, -1, -1, -1, -1, -1, -1
     };
     int[] subicons3 = {
-        -1, -1
+        -1, -1, -1
     };
     IconArrayAdapter<CharSequence> m_SubListAdapter1 = null;
     IconArrayAdapter<CharSequence> m_SubListAdapter2 = null;
@@ -122,6 +123,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     IconArrayAdapter<CharSequence> m_SubListAdapter4 = null;
     IconArrayAdapter<CharSequence> m_SubListAdapter5 = null;
     
+    boolean m_BuiltInZoom = true;
     int m_SubMenuType = 0;
     CharSequence[] m_TextSizes = null;
     int m_TextSize = 3; // larger
@@ -138,6 +140,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     private ViewAnimator m_WebViewAnimator;
     Button switchView;
     Button switchData;
+    boolean m_einkToTouchscreen = false;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -162,7 +165,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         webview.setClickable(false);
         webview_touchscreen.setClickable(true);
         webview_touchscreen.getSettings().setJavaScriptEnabled(true);
-        
+        webview_touchscreen.getSettings().setBuiltInZoomControls(m_BuiltInZoom);
         menuitems = getResources().getTextArray(R.array.submenu1);
         menuitemsList = Arrays.asList(menuitems);
         m_SubListAdapter1 = new IconArrayAdapter<CharSequence>(this, R.layout.listitem, menuitemsList, subicons);
@@ -261,7 +264,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         if (m_paramPassed) {
             m_ScreenChoice = 0;
         }
-        if (m_ScreenChoice == 1) {
+        if (m_ScreenChoice >= 1) {
             webview = webview_touchscreen;
             m_WebViewAnimator.showNext();
         }
@@ -307,14 +310,18 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             public void onClick(View v) {
                 if (m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
                     if (webview_touchscreen.getUrl() != null) {
-                        webview_eink.loadUrl(webview_touchscreen.getUrl());
+                        m_einkToTouchscreen = false;
+                        waitForConnection("");
+                        // webview_eink.loadUrl(webview_touchscreen.getUrl());
                     } else {
                         webview_eink.clearView();
                     }
                     
                 } else {
                     if (webview_eink.getUrl() != null) {
-                        webview_touchscreen.loadUrl(webview_eink.getUrl());
+                        m_einkToTouchscreen = true;
+                        waitForConnection("");
+                        // webview_touchscreen.loadUrl(webview_eink.getUrl());
                     } else {
                         webview_touchscreen.clearView();
                     }
@@ -350,6 +357,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             m_FavsDB = new FavsDB(this, null, 1);
             m_UserAgentStr = p.getString("USER_AGENT", null);
             m_ScreenChoice = p.getInt("SCREEN", 0);
+            m_BuiltInZoom = p.getBoolean("ZOOM", m_BuiltInZoom);
         } catch (Exception ex) {
             Log.e(LOGTAG, "preference exception: ", ex);
             m_HomePage = DEFAULT_HOME_PAGE;
@@ -442,12 +450,22 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         
         try {
             if (url != null && url.startsWith("file://")) {
-                webview.loadUrl(url);
+                if (m_ScreenChoice == 2) {
+                    webview_eink.loadUrl(url);
+                    webview_touchscreen.loadUrl(url);
+                } else {
+                    webview.loadUrl(url);
+                }
                 return;
             }
             if (getAirplaneMode()) {
                 if (url == null) {
-                    webview.goBack();
+                    if (m_ScreenChoice == 2) {
+                        webview_eink.goBack();
+                        webview_touchscreen.goBack();
+                    } else {
+                        webview.goBack();
+                    }
                 }
                 return;
             }
@@ -463,12 +481,28 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 wifi.execute(url);
             } else {
                 if (url == null) {
-                    webview.goBack();
+                    if (m_ScreenChoice == 2) {
+                        webview_eink.goBack();
+                        webview_touchscreen.goBack();
+                    } else {
+                        webview.goBack();
+                    }
+                } else if (url.equals("")) {
+                    if (m_einkToTouchscreen) {
+                        webview_touchscreen.loadUrl(webview_eink.getUrl());
+                    } else {
+                        webview_eink.loadUrl(webview_touchscreen.getUrl());
+                    }
                 } else if (url.startsWith("rtsp://") || url.startsWith("RTSP://") || url.endsWith(".mp3")
                     || url.endsWith(".mp4")) {
                     m_MediaListener.playMedia(url);
                 } else {
-                    webview.loadUrl(url);
+                    if (m_ScreenChoice == 2) {
+                        webview_eink.loadUrl(url);
+                        webview_touchscreen.loadUrl(url);
+                    } else {
+                        webview.loadUrl(url);
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -527,6 +561,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         e.putInt("TEXT_SIZE", m_TextSize);
         e.commit();
         m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
+        m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
         sublist.setAdapter(m_SubListAdapter1);
         m_ViewAnimator.showPrevious();
         m_ViewAnimator.showNext();
@@ -801,6 +836,13 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     m_ViewAnimator.showPrevious();
                     m_ViewAnimator.showNext();
                     m_SubMenuType = 6;
+                case ZOOM:
+                    m_BuiltInZoom = !m_BuiltInZoom;
+                    m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
+                    webview_touchscreen.getSettings().setBuiltInZoomControls(m_BuiltInZoom);
+                    Editor e = getPreferences(MODE_PRIVATE).edit();
+                    e.putBoolean("ZOOM", m_BuiltInZoom);
+                    e.commit();
             }
             return;
         }
@@ -831,6 +873,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             } else if (position == SETTINGS) {
                 sublist.setAdapter(m_SubListAdapter1);
                 m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
+                m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
                 m_ViewAnimator.showNext();
                 m_SubMenuType = 1;
                 m_Processing = false;
@@ -944,14 +987,31 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         protected void onPostExecute(String result) {
             closeAlert();
             if (result == null) {
-                webview.goBack();
+                if (m_ScreenChoice == 2) {
+                    webview_eink.goBack();
+                    webview_touchscreen.goBack();
+                } else {
+                    webview.goBack();
+                }
+            } else if (result.equals("")) {
+                if (m_einkToTouchscreen) {
+                    webview_touchscreen.loadUrl(webview_eink.getUrl());
+                } else {
+                    webview_eink.loadUrl(webview_touchscreen.getUrl());
+                }
+                return;
             } else {
                 if (result.startsWith("rtsp://") || result.startsWith("RTSP://") || result.endsWith(".mp3")
                     || result.endsWith("mp4")) {
                     m_MediaListener.playMedia(result);
                     return;
                 }
-                webview.loadUrl(result);
+                if (m_ScreenChoice == 2) {
+                    webview_eink.loadUrl(result);
+                    webview_touchscreen.loadUrl(result);
+                } else {
+                    webview.loadUrl(result);
+                }
             }
         }
     }
