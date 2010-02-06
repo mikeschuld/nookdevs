@@ -40,6 +40,7 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
+import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -688,7 +689,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (lastNavigatedUrl != null && !lastNavigatedUrl.equalsIgnoreCase("")) {
                 url.setText(lastNavigatedUrl);
             } else {
-                url.setText("http://");
+                url.setText("");
             }
         } else if (cmd == FIND_STRING) {
             txt.setText(R.string.find);
@@ -712,7 +713,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             if (text == null) { return; }
             if (m_Cmd == LOAD_URL) {
                 if (text.indexOf("://") == -1) {
-                    text = "http://" + text;
+                    text = URLUtil.guessUrl(text);
                 }
                 waitForConnection(text);
                 lastNavigatedUrl = text;
@@ -723,7 +724,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 webview_eink.findAll(text);
             } else if (m_Cmd == SETTINGS) {
                 if (text.indexOf("://") == -1) {
-                    text = "http://" + text;
+                    text = URLUtil.guessUrl(text);
                 }
                 Editor e = getPreferences(MODE_PRIVATE).edit();
                 e.putString("HOME_PAGE", text);
