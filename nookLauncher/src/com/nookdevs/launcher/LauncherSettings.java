@@ -22,7 +22,6 @@ import java.util.Vector;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
@@ -71,18 +70,18 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     ImageAdapter m_IconAdapter = null;
     
     String[] apps =
-        {
-            "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
-            "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
-            "com.nookapps.launcher.LauncherSettings", "com.bravo.home.HomeActivity"
-        };
+    {
+        "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
+        "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
+        "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity", "com.nookdevs.launcher.LauncherSelector"
+    };
     
     int[] appIcons =
-        {
-            R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
-            R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
-            R.drawable.select_home_bnhome
-        };
+    {
+        R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
+        R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
+        R.drawable.select_home_bnhome, R.drawable.select_default_launcher
+    };
     
     WebView m_WebView;
     public static final String NAME = "Launcher Settings";
@@ -113,24 +112,6 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
             }
         };
         (new Thread(thrd)).start();
-    }
-    
-    private void addPreferredActivity() {
-        PackageManager packages = getPackageManager();
-        
-        IntentFilter filter = new IntentFilter("android.intent.action.MAIN");
-        filter.addCategory("android.intent.category.HOME");
-        filter.addCategory("android.intent.category.DEFAULT");
-        
-        ComponentName[] components =
-            new ComponentName[] {
-                new ComponentName("com.bravo.home", ".HomeActivity"),
-                new ComponentName("com.nookdevs.launcher", ".NookLauncher")
-            };
-        
-        ComponentName activity = new ComponentName("com.nookdevs.launcher", ".NookLauncher");
-        
-        packages.addPreferredActivity(filter, IntentFilter.MATCH_CATEGORY_EMPTY, components, activity);
     }
     
     private void loadIcons() {
@@ -492,13 +473,13 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 m_WebView.loadUrl("file:///android_asset/settings_changeicons.htm");
                 
             }
-
+            
             else if (button.equals(m_Current)) {
                 // removed
                 AppDetail app = m_IntentsList.get(m_CurrentButton);
                 if ("com.bravo.home.HomeActivity".equals(app.appName)
                     || "com.nookdevs.launcher.LauncherSettings".equals(app.appName)) { return;
-                // can't delete these 2.
+                    // can't delete these 2.
                 }
                 
                 setMainImage(null);
