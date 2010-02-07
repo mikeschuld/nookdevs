@@ -55,3 +55,6 @@ In Settings, there is an option to select the primary screen. This will determin
 Sync button at the left top can be used to sync up the 2 screens. If it is clicked from the touchscreen browser view, data will be loaded into the eink.<br>
 If it is done from the main menu page, data will be loaded into the touchscreen browser.
 Touchscreen browser doesn't allow text input. <br>So, any forms, login, search etc has to be done in the eink. <br>Once the result page is loaded, it can be synced back to touchscreen and the same login credentials/cookies will be used there. 
+<h2>5. Entering URL in address field</h2>
+This field is modified to take keywords. No need for http://. <br>
+Typing just google will convert into http://www.google.com
