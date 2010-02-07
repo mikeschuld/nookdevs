@@ -14,7 +14,7 @@
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookLauncher.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookLauncher.apk</id>
-    <content type="text">A replacement app launcher for the Nook</content>
+    <content type="text">A replacement app launcher for the Nook. Version 0.0.3</content>
   </entry>
 
   <entry>
@@ -22,7 +22,7 @@
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookBrowser.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookBrowser.apk</id>
-    <content type="text">nook-tweaked browser version 0.0.7</content>
+    <content type="text">nook-tweaked browser version 0.0.8</content>
   </entry>
 
   <entry>
