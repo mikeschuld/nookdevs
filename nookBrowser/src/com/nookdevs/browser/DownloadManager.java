@@ -22,8 +22,10 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -97,13 +99,22 @@ public class DownloadManager implements DownloadListener {
         final String fcontentDisposition = contentDisposition;
         final String fmimetype = mimetype;
         final long flength = contentLength;
-        Runnable thrd = new Runnable() {
-            public void run() {
-                onDownloadStartNoStream(furl, fuserAgent, fcontentDisposition, fmimetype, flength);
+        AlertDialog.Builder builder = new AlertDialog.Builder(m_Browser);
+        builder.setTitle(R.string.download);
+        builder.setMessage(m_Browser.getString(R.string.no_viewer) + " " + mimetype);
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setPositiveButton(R.string.download, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Runnable thrd = new Runnable() {
+                    public void run() {
+                        onDownloadStartNoStream(furl, fuserAgent, fcontentDisposition, fmimetype, flength);
+                    }
+                };
+                Thread t = new Thread(thrd);
+                t.start();
             }
-        };
-        Thread t = new Thread(thrd);
-        t.start();
+        });
+        builder.create().show();
     }
     
     /**
@@ -136,7 +147,7 @@ public class DownloadManager implements DownloadListener {
             File tmp = new File(sdcardFolder.getPath() + "/nookBrowser_tmp.log");
             try {
                 if (tmp.exists() || tmp.createNewFile()) {
-                    baseFolder = sdcardFolder;
+                    baseFolder = new File(sdcardFolder.getAbsolutePath()+"/my downloads");
                     tmp.delete();
                 } else {
                     useInternalFolder = true;
@@ -147,9 +158,9 @@ public class DownloadManager implements DownloadListener {
         }
         if (useInternalFolder) {
             baseFolder = new File(m_Browser.getString(R.string.internal_download_path));
-            if (!baseFolder.exists()) {
-                baseFolder.mkdir();
-            }
+        }
+        if (!baseFolder.exists()) {
+            baseFolder.mkdir();
         }
         baseFolder.toString();
         Runnable thrd = new Runnable() {
