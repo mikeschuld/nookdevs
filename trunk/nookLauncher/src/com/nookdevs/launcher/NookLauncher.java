@@ -40,19 +40,19 @@ public class NookLauncher extends nookBaseActivity {
     private String m_WallPaperFile = null;
     
     String[] apps =
-        {
-            "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
-            "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
-            "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity"
-        };
+    {
+        "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
+        "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
+        "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity", "com.nookdevs.launcher.LauncherSelector"
+    };
     
     int[] appIcons =
-        {
-            R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
-            R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
-            R.drawable.select_home_bnhome
-        
-        };
+    {
+        R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
+        R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
+        R.drawable.select_home_bnhome, R.drawable.select_default_launcher
+    };
+    
     final static String readingNowUri = "content://com.reader.android/last";
     ImageButton m_LastButton = null;
     
