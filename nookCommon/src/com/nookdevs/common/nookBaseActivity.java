@@ -63,6 +63,7 @@ public class nookBaseActivity extends Activity {
     
     protected static String LOGTAG = "nookActivity";
     
+   
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,14 +89,14 @@ public class nookBaseActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
+        if (!m_FirstTime) {
+            readSettings();
+            closeAlert();
+        }
         if (screenLock != null) {
             screenLock.acquire(m_ScreenSaverDelay);
         }
-        if (!m_FirstTime) {
-            closeAlert();
-        }
-        m_FirstTime = true;
-        
+        m_FirstTime = false;
     }
     
     @Override
