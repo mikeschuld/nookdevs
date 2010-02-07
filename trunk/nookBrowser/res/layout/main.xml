@@ -34,7 +34,7 @@
 <Button
 		android:id="@+id/switchdata"
 		android:layout_width="30.0px"
-		android:layout_height="35.0px"
+		android:layout_height="45.0px"
 		android:soundEffectsEnabled="true"
 		android:layout_below="@id/webview"
 		android:background="@drawable/switchdata_button"
@@ -43,7 +43,7 @@
 <Button
 		android:id="@+id/switchview"
 		android:layout_width="30.0px"
-		android:layout_height="35.0px"
+		android:layout_height="45.0px"
 		android:soundEffectsEnabled="true"
 		android:layout_below="@id/switchdata"
 		android:background="@drawable/switchview_button"
@@ -53,7 +53,7 @@
 <Button
 		android:id="@+id/back"
 		android:layout_width="30.0px"
-		android:layout_height="74.0px"
+		android:layout_height="54.0px"
 		android:soundEffectsEnabled="true"
 		android:layout_below="@id/switchview"
 		android:background="@drawable/back_button"

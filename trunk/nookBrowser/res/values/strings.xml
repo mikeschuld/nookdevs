@@ -55,6 +55,7 @@
     <string name="network">Network Connection</string>
     <string name="start_wifi">Starting wifi</string>
     <string name="not_supported">Javascript listboxes not supported. Click Ok to close the browser.</string>
+    <string name="no_viewer">No Viewer found for</string>
     
     
 </resources>
