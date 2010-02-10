@@ -9,11 +9,12 @@ import android.webkit.WebView;
 import com.nookdevs.common.nookBaseActivity;
 
 public class LauncherSelector extends nookBaseActivity {
-    public void onCreate(Bundle savedInstanceState){
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.eink_display);
         
-        WebView wv = (WebView)findViewById(R.id.webview);
+        WebView wv = (WebView) findViewById(R.id.webview);
         wv.loadUrl("file:///android_asset/selector_main.htm");
         
         addPreferredActivity();

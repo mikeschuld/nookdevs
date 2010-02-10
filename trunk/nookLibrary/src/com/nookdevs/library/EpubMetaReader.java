@@ -57,7 +57,7 @@ public class EpubMetaReader {
         try {
             zip = new ZipFile(m_File.getPathName());
             ZipEntry entry;
-            Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
+            Enumeration<? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
                 entry = entries.nextElement();
                 if (!entry.isDirectory()) {

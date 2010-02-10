@@ -63,7 +63,6 @@ public class nookBaseActivity extends Activity {
     
     protected static String LOGTAG = "nookActivity";
     
-   
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -176,18 +175,6 @@ public class nookBaseActivity extends Activity {
         sendBroadcast(msg);
     }
     
-    private void printCursor(Cursor c) {
-        c.moveToFirst();
-        int columns = c.getColumnCount();
-        String[] names = c.getColumnNames();
-        while (!c.isAfterLast()) {
-            for (int i = 0; i < columns; i++) {
-                System.out.println(names[i] + " = " + c.getString(i));
-            }
-            c.moveToNext();
-        }
-    }
-    
     protected void readSettings() {
         String[] values = {
             "value"
@@ -198,7 +185,7 @@ public class nookBaseActivity extends Activity {
         };
         
         try {
-            for (String field : fields) {
+            for (@SuppressWarnings("unused") String field : fields) {
                 if (name == null) {
                     name = "name=?";
                 } else {
@@ -206,7 +193,6 @@ public class nookBaseActivity extends Activity {
                 }
             }
             Cursor c = getContentResolver().query(Uri.parse("content://settings/system"), values, name, fields, "name");
-            // printCursor(c);
             if (c != null) {
                 c.moveToFirst();
                 int value = c.getInt(0);

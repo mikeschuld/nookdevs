@@ -286,9 +286,6 @@ public class ConnectivityManager {
     /**
      * Don't allow use of default constructor.
      */
-    @SuppressWarnings( {
-        "UnusedDeclaration"
-    })
     private ConnectivityManager() {
     }
     
