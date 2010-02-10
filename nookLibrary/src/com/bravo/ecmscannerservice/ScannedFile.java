@@ -117,11 +117,9 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 }
             }
             if (!"epub".equals(type) || !epub.loadCover()) {
-                Log.e("nookLibrary", "Load Cover failed for " + pathname);
                 return false;
             }
         } catch (Exception ex) {
-            Log.e("nookLibrary", "Load Cover failed for " + pathname);
             return false;
         }
         return true;
