@@ -147,7 +147,7 @@ public class DownloadManager implements DownloadListener {
             File tmp = new File(sdcardFolder.getPath() + "/nookBrowser_tmp.log");
             try {
                 if (tmp.exists() || tmp.createNewFile()) {
-                    baseFolder = new File(sdcardFolder.getAbsolutePath()+"/my downloads");
+                    baseFolder = new File(sdcardFolder.getAbsolutePath() + "/my downloads");
                     tmp.delete();
                 } else {
                     useInternalFolder = true;

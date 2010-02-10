@@ -29,7 +29,6 @@ import java.util.List;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.nookdevs.library.EpubMetaReader;
 
@@ -116,9 +115,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                     attempt++;
                 }
             }
-            if (!"epub".equals(type) || !epub.loadCover()) {
-                return false;
-            }
+            if (!"epub".equals(type) || !epub.loadCover()) { return false; }
         } catch (Exception ex) {
             return false;
         }

@@ -361,7 +361,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 m_HomePage = p.getString("HOME_PAGE", DEFAULT_HOME_PAGE);
             }
             m_TextSize = p.getInt("TEXT_SIZE", m_TextSize);
-            if( m_FavsDB == null) m_FavsDB = new FavsDB(this, null, 1);
+            if (m_FavsDB == null) {
+                m_FavsDB = new FavsDB(this, null, 1);
+            }
             m_UserAgentStr = p.getString("USER_AGENT", null);
             m_ScreenChoice = p.getInt("SCREEN", m_ScreenChoice);
             m_BuiltInZoom = p.getBoolean("ZOOM", m_BuiltInZoom);
