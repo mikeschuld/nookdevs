@@ -89,7 +89,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     protected static final int CLOSE = 6;
     private ConditionVariable m_LocalScanDone = new ConditionVariable();
     private static final int WEB_SCROLL_PX = 750;
-    
+    private Toast m_Toast=null;
     private int[] icons =
         {
             -1, R.drawable.submenu, R.drawable.search, R.drawable.covers, R.drawable.submenu, -1, -1, -1, -1, -1, -1,
@@ -276,7 +276,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         }
         
         public void getBatchList(final List<ScannedFile> files) throws RemoteException {
-            System.out.println("Remote call returned " + System.currentTimeMillis());
             m_LocalScanDone.block();
             m_Files.addAll(files);
             unbindService(m_Conn);
@@ -530,6 +529,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     
     public void onClick(View button) {
         if (button.equals(m_CloseBtn)) {
+            if( m_Toast != null) {
+                m_Toast.cancel();
+                m_Toast.getView().setVisibility(View.INVISIBLE);
+            }
             m_CloseBtn.setVisibility(View.INVISIBLE);
             m_IconGallery.setVisibility(View.INVISIBLE);
             lview.setVisibility(View.VISIBLE);
@@ -582,10 +585,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             if ("txt".equals(ext) || "html".equals(ext) || "htm".equals(ext)) {
                 // try nookBrowser first
                 try {
+                    File tfile = new File( path);
                     intent = new Intent(Intent.ACTION_MAIN);
                     intent.addCategory(Intent.ACTION_DEFAULT);
                     intent.setComponent(new ComponentName("com.nookdevs.browser", "com.nookdevs.browser.nookBrowser"));
-                    intent.setData(Uri.parse("file://" + path));
+                    intent.setData(Uri.fromFile(tfile));
                     startActivity(intent);
                     return;
                 } catch (Exception ex) {
@@ -603,6 +607,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 return;
             } catch (ActivityNotFoundException ex) {
                 Log.i(LOGTAG, "Error while attempting to start reader App", ex);
+                Toast.makeText(this,R.string.reader_not_found, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -781,7 +786,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
         }
     }
-    
     class GalleryClickListener implements OnItemClickListener, OnItemSelectedListener {
         public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
             View selected = ((Gallery) arg0).getSelectedView();
@@ -789,14 +793,21 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 onClick(goButton);
             }
         }
-        
         public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long arg3) {
-            pageViewHelper.gotoItem(position + 1);
-            Toast.makeText(NookLibrary.this, pageViewHelper.getCurrent().getTitle(), Toast.LENGTH_SHORT).show();
+            if( m_IconGallery.getVisibility() == View.VISIBLE) {
+                pageViewHelper.gotoItem(position + 1);
+                if( m_Toast != null) {
+                    m_Toast.cancel();
+                    m_Toast.getView().setVisibility(View.INVISIBLE);
+                }
+                m_Toast =Toast.makeText(NookLibrary.this, pageViewHelper.getCurrent().getTitle(), Toast.LENGTH_SHORT);
+                m_Toast.show();
+            }
         }
         
         public void onNothingSelected(AdapterView<?> arg0) {
             // TODO Auto-generated method stub
+
         }
     }
 }

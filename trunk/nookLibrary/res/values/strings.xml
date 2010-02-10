@@ -11,6 +11,7 @@
     <string name="no_result">No Items Found</string>
     <string name="error">Error</string>
     <string name="not_implemented">Feature not implemented yet!</string>
+    <string name="reader_not_found">No Reader found for this file type.</string>
     <string name="search_lib">Search Library:</string>
 <string-array name="mainmenu">
 		<item>View Details</item>
