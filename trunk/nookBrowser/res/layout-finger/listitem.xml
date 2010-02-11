@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:background="#FFFFFF"
+	android:background="@drawable/list_item_normal"
 	android:paddingTop="6.0px"
 	android:paddingLeft="10.0px"
 	android:paddingBottom="8.0px"

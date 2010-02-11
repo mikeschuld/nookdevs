@@ -94,6 +94,10 @@ public class DownloadManager implements DownloadListener {
                 }
             }
         }
+        boolean tryPlay=false;
+        if (mimetype.contains("audio") || mimetype.contains("video")) {
+            tryPlay=true;
+        }
         final String furl = url;
         final String fuserAgent = userAgent;
         final String fcontentDisposition = contentDisposition;
@@ -103,6 +107,14 @@ public class DownloadManager implements DownloadListener {
         builder.setTitle(R.string.download);
         builder.setMessage(m_Browser.getString(R.string.no_viewer) + " " + mimetype);
         builder.setNegativeButton(android.R.string.cancel, null);
+        if( tryPlay) {
+            builder.setNeutralButton(R.string.try_play, new DialogInterface.OnClickListener() {
+            
+                public void onClick(DialogInterface dialog, int which) {
+                    m_Browser.playMedia(furl);
+                }
+            });
+        }
         builder.setPositiveButton(R.string.download, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Runnable thrd = new Runnable() {

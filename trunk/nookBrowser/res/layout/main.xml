@@ -148,12 +148,12 @@
 </ViewAnimator>
 <AbsoluteLayout 
 	xmlns:android="http://schemas.android.com/apk/res/android"    
-	android:layout_width="wrap_content"
+	android:layout_width="fill_parent"
 	android:id="@+id/dpad"
 	android:paddingTop="10.0px"
 	android:layout_height="144.0px"
 	android:orientation="vertical"
-	android:background="#800000"
+	android:background="#C8C8C8"
 	android:layout_below="@id/webview"
 	android:layout_toRightOf="@id/listviewanim"
 		
@@ -163,7 +163,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:soundEffectsEnabled="true"
-		android:layout_y="22.0px"	
+		android:layout_x="1.0px"
+		android:layout_y="19.0px"	
 		android:background="@drawable/left_button"
 		android:longClickable="true"
 	>
@@ -174,7 +175,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:soundEffectsEnabled="true"
-		android:layout_x="22.0px"
+		android:layout_x="18.0px"
+		android:layout_y="1.0px"
 		android:background="@drawable/up_button"
 		android:longClickable="true"
 				>
@@ -184,8 +186,8 @@
 		android:layout_width="25.0px"
 		android:layout_height="25.0px"
 		android:soundEffectsEnabled="true"
-		android:layout_x="52.0px"
-		android:layout_y="52.0px"
+		android:layout_x="50.0px"
+		android:layout_y="50.0px"
 		
 		android:background="@drawable/go_button"
 >
@@ -195,8 +197,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:soundEffectsEnabled="true"
-		android:layout_y="83.0px"
-		android:layout_x="22.0px"
+		android:layout_y="80.0px"
+		android:layout_x="18.0px"
 		android:background="@drawable/down_button"
 		android:longClickable="true"
 				>
@@ -206,8 +208,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:soundEffectsEnabled="true"
-		android:layout_x="83.0px"
-		android:layout_y="22.0px"
+		android:layout_x="80.0px"
+		android:layout_y="19.0px"
 		android:background="@drawable/right_button"
 		android:longClickable="true"
 				>

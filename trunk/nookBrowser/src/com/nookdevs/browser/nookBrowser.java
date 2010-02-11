@@ -31,13 +31,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.URLUtil;
@@ -72,7 +70,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     public static ConnectivityManager.WakeLock lock = null;
     private Button goButton, backButton, upButton, downButton, rightButton, leftButton;
     private boolean m_Processing = false;
-    protected static final String DEFAULT_HOME_PAGE = "http://www.npr.org";
+    protected static final String DEFAULT_HOME_PAGE = "http://m.npr.org";
     // stores the last url navigated
     private String lastNavigatedUrl = null;
     private int m_Cmd = -1;
@@ -89,14 +87,15 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     protected static final int FIND_STRING = 6;
     protected static final int SAVE_PAGE = 7;
     protected static final int CLOSE = 8;
-    protected static final int TEXT_SIZE = 0;
-    protected static final int ZOOM_IN = 1;
-    protected static final int ZOOM_OUT = 2;
-    protected static final int HOME_PAGE = 3;
-    protected static final int USER_AGENT = 4;
-    protected static final int SCREEN = 5;
-    protected static final int ZOOM = 6;
-    protected static final int OFFLINE = 7;
+    protected static final int READABILITY = 0;
+    protected static final int TEXT_SIZE = 1;
+    protected static final int ZOOM_IN = 2;
+    protected static final int ZOOM_OUT = 3;
+    protected static final int HOME_PAGE = 4;
+    protected static final int USER_AGENT = 5;
+    protected static final int SCREEN = 6;
+    protected static final int ZOOM = 7;
+    protected static final int OFFLINE = 8;
     private static final int WEB_SCROLL_PX = 750;
     public static final int CONNECTION_TIMEOUT = 240000;
     private ViewAnimator m_ViewAnimator;
@@ -112,7 +111,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1, -1, -1, -1, -1, -1
     };
     int[] subicons = {
-        R.drawable.submenu, -1, -1, -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1
+        -1, R.drawable.submenu, -1, -1, -1, R.drawable.submenu, R.drawable.submenu, -1, -1, -1
     };
     int[] subicons2 = {
         -1, -1, -1, -1, -1, -1, -1
@@ -144,6 +143,10 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     Button switchView;
     Button switchData;
     boolean m_einkToTouchscreen = false;
+    boolean m_Readability = false;
+    private String m_ReadabilityUrl =
+        "javascript:(function(){readStyle='style-ebook';readSize='size-medium';readMargin='margin-x-narrow';_readability_script=document.createElement('SCRIPT');_readability_script.type='text/javascript';_readability_script.src='http://lab.arc90.com/experiments/readability/js/readability.js?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(_readability_script);_readability_css=document.createElement('LINK');_readability_css.rel='stylesheet';_readability_css.href='http://lab.arc90.com/experiments/readability/css/readability.css';_readability_css.type='text/css';_readability_css.media='all';document.getElementsByTagName('head')[0].appendChild(_readability_css);_readability_print_css=document.createElement('LINK');_readability_print_css.rel='stylesheet';_readability_print_css.href='http://lab.arc90.com/experiments/readability/css/readability-print.css';_readability_print_css.media='print';_readability_print_css.type='text/css';document.getElementsByTagName('head')[0].appendChild(_readability_print_css);})();";
+    private String m_ReadabilityOrgUrl = null;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -188,7 +191,6 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         m_SubListAdapter2.setTextField(R.id.ListTextView);
         
         m_SubListAdapter3 = new ArrayAdapter<CharSequence>(this, R.layout.listitem2, m_FavsDB.getNames());
-        
         menuitems = getResources().getTextArray(R.array.useragent);
         menuitemsList = Arrays.asList(menuitems);
         m_SubListAdapter4 = new IconArrayAdapter<CharSequence>(this, R.layout.listitem, menuitemsList, subicons2);
@@ -237,6 +239,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     m_ProgressBar.setProgress(progress);
                 }
             }
+            
         });
         m_Player.setMediaController(new MediaController(this, true));
         m_DefaultUserAgentStr = webview.getSettings().getUserAgentString();
@@ -305,20 +308,12 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         closeBtn.setOnClickListener(this);
         volumeUp.setOnClickListener(this);
         volumeDown.setOnClickListener(this);
-        webview_touchscreen.setOnTouchListener(new OnTouchListener() {
-            
-            public boolean onTouch(View v, MotionEvent event) {
-                m_UserClicked = true;
-                return false;
-            }
-            
-        });
         switchData.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (m_WebViewAnimator.getCurrentView().equals(webview_touchscreen)) {
                     if (webview_touchscreen.getUrl() != null) {
                         m_einkToTouchscreen = false;
-                        waitForConnection("");
+                        waitForConnection("sync");
                         // webview_eink.loadUrl(webview_touchscreen.getUrl());
                     } else {
                         webview_eink.clearView();
@@ -327,7 +322,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 } else {
                     if (webview_eink.getUrl() != null) {
                         m_einkToTouchscreen = true;
-                        waitForConnection("");
+                        waitForConnection("sync");
                         // webview_touchscreen.loadUrl(webview_eink.getUrl());
                     } else {
                         webview_touchscreen.clearView();
@@ -340,7 +335,6 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         switchView.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 m_WebViewAnimator.showNext();
-                
             }
         });
         webview_eink.setDownloadListener(m_DownloadManager);
@@ -356,21 +350,22 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     @Override
     protected void readSettings() {
         try {
+            if (!m_FirstTime) { return; }
             SharedPreferences p = getPreferences(MODE_PRIVATE);
-            if (m_HomePage == null) {
-                m_HomePage = p.getString("HOME_PAGE", DEFAULT_HOME_PAGE);
-            }
             m_TextSize = p.getInt("TEXT_SIZE", m_TextSize);
-            if (m_FavsDB == null) {
-                m_FavsDB = new FavsDB(this, null, 1);
-            }
             m_UserAgentStr = p.getString("USER_AGENT", null);
             m_ScreenChoice = p.getInt("SCREEN", m_ScreenChoice);
             m_BuiltInZoom = p.getBoolean("ZOOM", m_BuiltInZoom);
             m_OfflineBrowsing = p.getBoolean("OFFLINE", m_OfflineBrowsing);
+            if (m_HomePage == null) {
+                m_HomePage = p.getString("HOME_PAGE", DEFAULT_HOME_PAGE);
+            }
         } catch (Exception ex) {
             Log.e(LOGTAG, "preference exception: ", ex);
             m_HomePage = DEFAULT_HOME_PAGE;
+        }
+        if (m_FavsDB == null) {
+            m_FavsDB = new FavsDB(this, null, 1);
         }
         super.readSettings();
     }
@@ -417,7 +412,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         // I'm exiting the app when this happens. This will have to do until I
         // figure out a
         // way to close that alert dialog.
-        if (!m_UserClicked) { return super.getPackageName(); }
+        if (!m_UserClicked
+            && (m_WebViewAnimator == null || !m_WebViewAnimator.getCurrentView().equals(webview_touchscreen))) { return super
+            .getPackageName(); }
         StackTraceElement[] trace = Thread.currentThread().getStackTrace();
         for (StackTraceElement item : trace) {
             String classname = item.getClassName();
@@ -459,10 +456,16 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     protected void waitForConnection(String url) {
         
         try {
+            if (webview.equals(webview_eink)) {
+                m_Readability = false;
+                m_SubListAdapter1.setSubText(READABILITY, "Off");
+            }
             if (url != null && url.startsWith("file://")) {
                 if (m_ScreenChoice == 2) {
                     webview_eink.loadUrl(url);
                     webview_touchscreen.loadUrl(url);
+                    m_Readability = false;
+                    m_SubListAdapter1.setSubText(READABILITY, "Off");
                 } else {
                     webview.loadUrl(url);
                 }
@@ -499,11 +502,13 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     } else {
                         webview.goBack();
                     }
-                } else if (url.equals("")) {
+                } else if (url.equals("sync")) {
                     if (m_einkToTouchscreen) {
                         webview_touchscreen.loadUrl(webview_eink.getUrl());
                     } else {
                         webview_eink.loadUrl(webview_touchscreen.getUrl());
+                        m_Readability = false;
+                        m_SubListAdapter1.setSubText(READABILITY, "Off");
                     }
                 } else if (url.startsWith("rtsp://") || url.startsWith("RTSP://") || url.endsWith(".mp3")
                     || url.endsWith(".mp4")) {
@@ -571,8 +576,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         Editor e = getPreferences(MODE_PRIVATE).edit();
         e.putInt("TEXT_SIZE", m_TextSize);
         e.commit();
-        m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
-        m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
+        m_SubListAdapter1.setSubText(TEXT_SIZE, m_TextSizes[m_TextSize].toString());
+        m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "On" : "Off");
+        m_SubListAdapter1.setSubText(READABILITY, m_Readability ? "On" : "Off");
         m_SubListAdapter1.setSubText(OFFLINE, m_OfflineBrowsing ? "Enabled" : "Disabled");
         sublist.setAdapter(m_SubListAdapter1);
         m_ViewAnimator.showPrevious();
@@ -725,7 +731,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             } else if (m_Cmd == FIND_STRING) {
                 webview_eink.findAll(text);
             } else if (m_Cmd == SETTINGS) {
-                if (text.indexOf("://") == -1) {
+                if (text.indexOf("://") == -1 && !text.trim().equals("")) {
                     text = URLUtil.guessUrl(text);
                 }
                 Editor e = getPreferences(MODE_PRIVATE).edit();
@@ -742,13 +748,17 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     
     public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
         if (parent.equals(sublist) && m_SubMenuType == 3) {
-            if (position > 0) {
-                m_FavsDB.deleteFav(position);
-                return true;
+            try {
+                if (position > 0) {
+                    m_FavsDB.deleteFav(position);
+                }
+            } catch (Exception ex) {
             }
+            m_SubListAdapter3 = new ArrayAdapter<CharSequence>(this, R.layout.listitem2, m_FavsDB.getNames());
+            m_SubMenuType = 1;
+            m_ViewAnimator.showPrevious();
         }
-        
-        return false;
+        return true;
     }
     
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -801,8 +811,11 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 return;
             } else if (m_SubMenuType == 3) { // FAVS
                 if (position == 0) { // Add
-                    m_FavsDB.addFav(webview.getTitle(), webview.getUrl());
-                    m_SubListAdapter3 = new ArrayAdapter<CharSequence>(this, R.layout.listitem2, m_FavsDB.getNames());
+                    if (webview.getUrl() != null && !webview.getUrl().trim().equals("")) {
+                        m_FavsDB.addFav(webview.getTitle(), webview.getUrl());
+                        m_SubListAdapter3 =
+                            new ArrayAdapter<CharSequence>(this, R.layout.listitem2, m_FavsDB.getNames());
+                    }
                 } else {
                     String url = (String) m_FavsDB.getValues().get(position - 1);
                     waitForConnection(url);
@@ -855,11 +868,24 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     m_SubMenuType = 6;
                 case ZOOM:
                     m_BuiltInZoom = !m_BuiltInZoom;
-                    m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
+                    m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "On" : "Off");
                     webview_touchscreen.getSettings().setBuiltInZoomControls(m_BuiltInZoom);
                     Editor e = getPreferences(MODE_PRIVATE).edit();
                     e.putBoolean("ZOOM", m_BuiltInZoom);
                     e.commit();
+                    break;
+                case READABILITY:
+                    m_Readability = !m_Readability;
+                    m_SubListAdapter1.setSubText(READABILITY, m_Readability ? "On" : "Off");
+                    if (!m_Readability) {
+                        if (m_ReadabilityOrgUrl != null) {
+                            webview_eink.loadUrl(m_ReadabilityOrgUrl);
+                        }
+                    } else {
+                        m_ReadabilityOrgUrl = webview_eink.getUrl();
+                        webview_eink.loadUrl(m_ReadabilityUrl);
+                    }
+                    // webview_eink.loadUrl("javascript:readable()");
                     break;
                 case OFFLINE:
                     m_OfflineBrowsing = !m_OfflineBrowsing;
@@ -903,9 +929,10 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 m_Processing = false;
             } else if (position == SETTINGS) {
                 sublist.setAdapter(m_SubListAdapter1);
-                m_SubListAdapter1.setSubText(0, m_TextSizes[m_TextSize].toString());
-                m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "Enabled" : "Disabled");
+                m_SubListAdapter1.setSubText(TEXT_SIZE, m_TextSizes[m_TextSize].toString());
+                m_SubListAdapter1.setSubText(ZOOM, m_BuiltInZoom ? "On" : "Off");
                 m_SubListAdapter1.setSubText(OFFLINE, m_OfflineBrowsing ? "Enabled" : "Disabled");
+                m_SubListAdapter1.setSubText(READABILITY, m_Readability ? "On" : "Off");
                 m_ViewAnimator.showNext();
                 m_SubMenuType = 1;
                 m_Processing = false;
@@ -928,6 +955,12 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             }
         };
         (new Thread(thrd)).start();
+    }
+    
+    public void playMedia(String url) {
+        if (url != null) {
+            m_MediaListener.playMedia(url);
+        }
     }
     
     // from kbs - trook.projectsource code.
@@ -1022,6 +1055,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 if (m_ScreenChoice == 2) {
                     webview_eink.goBack();
                     webview_touchscreen.goBack();
+                    m_Readability = false;
+                    m_SubListAdapter1.setSubText(READABILITY, "Off");
                 } else {
                     webview.goBack();
                 }
@@ -1030,6 +1065,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     webview_touchscreen.loadUrl(webview_eink.getUrl());
                 } else {
                     webview_eink.loadUrl(webview_touchscreen.getUrl());
+                    m_Readability = false;
+                    m_SubListAdapter1.setSubText(READABILITY, "Off");
                 }
                 return;
             } else {
@@ -1041,6 +1078,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 if (m_ScreenChoice == 2) {
                     webview_eink.loadUrl(result);
                     webview_touchscreen.loadUrl(result);
+                    m_Readability = false;
+                    m_SubListAdapter1.setSubText(READABILITY, "Off");
                 } else {
                     webview.loadUrl(result);
                 }
