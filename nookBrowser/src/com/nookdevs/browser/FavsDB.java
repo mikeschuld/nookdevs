@@ -133,6 +133,14 @@ class FavsDB extends SQLiteOpenHelper {
             m_WriteDb.insert(TABLE_NAME, null, values);
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
+            String[] columns = {
+                "id"
+            };
+            Cursor cursor = m_ReadDb.query(TABLE_NAME, columns, null, null, null, null, "id");
+            cursor.moveToFirst();
+            m_Ids.add(cursor.getInt(0));
+            cursor.close();
+            
         } catch (Exception ex) {
             Log.e(TAG, "Exception adding favs ... ", ex);
             m_WriteDb.endTransaction();
