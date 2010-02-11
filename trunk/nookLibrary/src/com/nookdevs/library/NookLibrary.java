@@ -55,7 +55,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -109,7 +108,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     private ImageAdapter m_IconAdapter = null;
     private CustomGallery m_IconGallery = null;
     private Button m_CloseBtn = null;
-    private ImageView divider = null;
     IconArrayAdapter<CharSequence> m_ListAdapter = null;
     IconArrayAdapter<CharSequence> m_SortAdapter = null;
     ArrayAdapter<CharSequence> m_ShowAdapter = null;
@@ -173,7 +171,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_IconAdapter.setBackgroundStyle(backid);
         m_IconAdapter.setDefault(R.drawable.no_cover);
         m_IconGallery.setOnItemSelectedListener(galleryListener);
-        divider = (ImageView) findViewById(R.id.divider);
         m_CoverBtn = (ImageButton) findViewById(R.id.cover);
         m_Details = (TextView) findViewById(R.id.details);
         m_DetailsScroll = (ScrollView) findViewById(R.id.detailsscroll);
@@ -212,7 +209,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         int sortType = ScannedFile.SORT_BY_NAME;
         try {
             sortType = getPreferences(MODE_PRIVATE).getInt("SORT_BY", sortType);
-            m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(sortType).toString());
         } catch (Exception ex) {
             Log.e(LOGTAG, "preference exception: ", ex);
             
@@ -290,6 +286,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             Runnable thrd = new Runnable() {
                 public void run() {
                     closeAlert();
+                    m_ListAdapter.setSubText(SCAN_FOLDERS, " ");
                     LinearLayout pageview = (LinearLayout) NookLibrary.this.findViewById(R.id.pageview1);
                     pageViewHelper = new PageViewHelper(NookLibrary.this, pageview, m_Files);
                     m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(ScannedFile.getSortType()).toString());
@@ -356,6 +353,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     
     private void queryFolders() {
         displayAlert(getString(R.string.scanning), getString(R.string.please_wait), 1, null, -1);
+        m_ListAdapter.setSubText(SCAN_FOLDERS, getString(R.string.in_progress));
         m_Files.clear();
         bindService(new Intent("SCAN_ECM"), m_Conn, Context.BIND_AUTO_CREATE);
         m_LocalScanDone.close();
@@ -458,6 +456,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     m_ShowIndex = position;
                 }
             }
+            animator.setInAnimation(this, R.anim.fromleft);
             animator.showNext();
             m_SubMenuType = -1;
             return;
@@ -483,7 +482,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 upButton.setVisibility(View.INVISIBLE);
                 downButton.setVisibility(View.INVISIBLE);
                 goButton.setVisibility(View.INVISIBLE);
-                divider.setVisibility(View.INVISIBLE);
                 m_SubMenuType = VIEW_DETAILS;
                 break;
             case SEARCH:
@@ -494,11 +492,13 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 subicons[currvalue] = R.drawable.check;
                 m_SortAdapter.setIcons(subicons);
                 submenu.setAdapter(m_SortAdapter);
+                animator.setInAnimation(this, R.anim.fromright);
                 animator.showNext();
                 m_SubMenuType = SORT_BY;
                 break;
             case SHOW:
                 submenu.setAdapter(m_ShowAdapter);
+                animator.setInAnimation(this, R.anim.fromright);
                 animator.showNext();
                 m_SubMenuType = SHOW;
                 break;
@@ -519,7 +519,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 upButton.setVisibility(View.INVISIBLE);
                 downButton.setVisibility(View.INVISIBLE);
                 goButton.setVisibility(View.INVISIBLE);
-                divider.setVisibility(View.INVISIBLE);
                 m_IconGallery.setSelection(pageViewHelper.getCurrentIndex() - 1, true);
                 
                 break;
@@ -540,7 +539,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             upButton.setVisibility(View.VISIBLE);
             downButton.setVisibility(View.VISIBLE);
             goButton.setVisibility(View.VISIBLE);
-            divider.setVisibility(View.VISIBLE);
         }
         if (button.equals(backButton)) {
             if (m_SubMenuType == VIEW_DETAILS) {
@@ -549,11 +547,15 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 upButton.setVisibility(View.VISIBLE);
                 downButton.setVisibility(View.VISIBLE);
                 goButton.setVisibility(View.VISIBLE);
-                divider.setVisibility(View.VISIBLE);
                 m_CoverBtn.setVisibility(View.INVISIBLE);
                 m_Details.setVisibility(View.INVISIBLE);
                 m_DetailsScroll.setVisibility(View.INVISIBLE);
                 m_PageViewAnimator.showNext();
+                m_SubMenuType = -1;
+                return;
+            } else if (m_SubMenuType >= 0) {
+                animator.setInAnimation(this, R.anim.fromleft);
+                animator.showNext();
                 m_SubMenuType = -1;
                 return;
             } else if (m_SearchView) {
@@ -561,10 +563,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 m_SearchView = false;
                 pageViewHelper.setTitle(R.string.my_documents);
                 m_ListAdapter.setSubText(SEARCH, " ");
-                return;
-            } else if (m_SubMenuType >= 0) {
-                animator.showNext();
-                m_SubMenuType = -1;
                 return;
             }
             goHome();
@@ -697,7 +695,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     class ShowTask extends AsyncTask<String, Integer, List<ScannedFile>> {
         @Override
         protected void onPreExecute() {
-            displayAlert(getString(R.string.searching), getString(R.string.please_wait), 1, null, -1);
+            m_ListAdapter.setSubText(SHOW, getString(R.string.in_progress));
         }
         
         @Override
@@ -717,7 +715,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         
         @Override
         protected void onPostExecute(List<ScannedFile> result) {
-            closeAlert();
+            m_ListAdapter.setSubText(SHOW, m_ShowValues.get(m_ShowIndex).toString());
             if (result != null) {
                 // pageViewHelper.setTitle(getString(R.string.search_results));
                 pageViewHelper.setFiles(result);
@@ -727,15 +725,18 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     }
     
     class SearchTask extends AsyncTask<String, Integer, List<ScannedFile>> {
+        private String m_Text;
+        
         @Override
         protected void onPreExecute() {
-            displayAlert(getString(R.string.searching), getString(R.string.please_wait), 1, null, -1);
+            m_ListAdapter.setSubText(SEARCH, getString(R.string.in_progress));
         }
         
         @Override
         protected List<ScannedFile> doInBackground(String... keyword) {
             try {
                 String text = keyword[0];
+                m_Text = text;
                 List<ScannedFile> list = m_Files;
                 return searchFiles(text, list);
             } catch (Exception ex) {
@@ -745,7 +746,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         
         @Override
         protected void onPostExecute(List<ScannedFile> result) {
-            closeAlert();
+            m_ListAdapter.setSubText(SEARCH, m_Text);
             if (result != null) {
                 pageViewHelper.setTitle(getString(R.string.search_results));
                 pageViewHelper.setFiles(result);
@@ -758,7 +759,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     class SortTask extends AsyncTask<Integer, Integer, List<ScannedFile>> {
         @Override
         protected void onPreExecute() {
-            displayAlert(getString(R.string.sorting), getString(R.string.please_wait), 1, null, -1);
+            m_ListAdapter.setSubText(SORT_BY, getString(R.string.in_progress));
         }
         
         @Override
@@ -768,6 +769,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             try {
                 List<ScannedFile> list = pageViewHelper.getFiles();
                 Collections.sort(list);
+                if (m_SearchView) {
+                    Collections.sort(m_Files);
+                }
                 return list;
             } catch (Exception ex) {
                 Log.e(LOGTAG, "Sorting failed...", ex);
@@ -777,7 +781,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         
         @Override
         protected void onPostExecute(List<ScannedFile> result) {
-            closeAlert();
+            m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(ScannedFile.getSortType()).toString());
             if (result != null) {
                 if (!m_SearchView) {
                     m_Files = result;
