@@ -29,6 +29,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebView;
@@ -248,10 +249,13 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         PackageManager manager = getPackageManager();
         LayoutInflater inflater = getLayoutInflater();
         RelativeLayout addApp = (RelativeLayout) inflater.inflate(R.layout.addapp, m_AddAppLayout, false);
-        ImageButton btn = (ImageButton) addApp.getChildAt(0);
+        AppImageButton btn = (AppImageButton) addApp.getChildAt(0);
         TextView txt = (TextView) addApp.getChildAt(1);
         int idx = name.lastIndexOf('.');
         String pkgName = name.substring(0, idx);
+        String tmp = name.substring(idx + 1);
+        btn.setName(tmp);
+        btn.setPackage(pkgName);
         ComponentName comp = new ComponentName(pkgName, name);
         try {
             if (id > 0) {
@@ -287,19 +291,14 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 String pkg = btn.getPackage();
                 m_AddAppLayout.removeView(layout);
                 int resid = -1;
-                if (imageUri == null) {
-                    // use app icon
-                } else if (imageUri.startsWith("file://")) {
-                    // image from my images folder.
-                } else {
-                    try {
-                        resid = Integer.valueOf(imageUri);
-                        imageUri = null;
-                    } catch (Exception ex) {
-                        resid = -1;
-                    }
+                String appName = pkg + "." + name;
+                Log.w(LOGTAG, "adding " + name + " back to launcher");
+                if (m_SystemIcons.get(appName) != null) {
+                    resid = m_SystemIcons.get(appName);
+                    Log.w(LOGTAG, "system app " + name + " back to launcher");
+                    
                 }
-                m_DBHelper.addData(pkg + "." + name, resid, imageUri, "0");
+                m_DBHelper.addData(appName, resid, imageUri, "0");
                 LayoutInflater inflater = getLayoutInflater();
                 ImageButton btn1 = (ImageButton) inflater.inflate(R.layout.settingsbutton, m_LinearLayout, false);
                 fillButton(btn1, pkg + "." + name, resid, imageUri);
