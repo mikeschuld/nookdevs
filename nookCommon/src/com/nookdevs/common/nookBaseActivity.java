@@ -47,7 +47,7 @@ public class nookBaseActivity extends Activity {
     public final static String STATUSBAR_ICON = "Statusbar.icon";
     public final static String STATUSBAR_ACTION = "Statusbar.action";
     public static final String READING_NOW_URL = "content://com.ereader.android/last";
-    private boolean m_FirstTime = true;
+    protected boolean m_FirstTime = true;
     
     protected String getWallpaperFile() {
         return m_WallPaper;
