@@ -441,7 +441,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         super.onResume();
         m_ProgressBar.setVisibility(View.INVISIBLE);
         m_Player.bringToFront();
-        updateTitle(APP_TITLE);
+        updateTitle(APP_TITLE + " " + m_Version);
         m_Processing = false;
         try {
             if (m_Dialog != null) {
