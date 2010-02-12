@@ -488,8 +488,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                     lock.acquire(CONNECTION_TIMEOUT);
                 }
             }
-            NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            // NetworkInfo info = cmgr.getActiveNetworkInfo();
+            // NetworkInfo info =
+            // cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo info = cmgr.getActiveNetworkInfo();
             boolean connection = (info == null) ? false : info.isConnected();
             if (!m_OfflineBrowsing && !connection) {
                 WifiTask wifi = new WifiTask();
@@ -1030,8 +1031,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         @Override
         protected String doInBackground(String... params) {
             ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            // NetworkInfo info = cmgr.getActiveNetworkInfo();
+            // NetworkInfo info =
+            // cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo info = cmgr.getActiveNetworkInfo();
             boolean connection = (info == null) ? false : info.isConnected();
             int attempts = 1;
             while (!connection && attempts < 10) {
@@ -1040,8 +1042,8 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 } catch (Exception ex) {
                     
                 }
-                info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                // info = cmgr.getActiveNetworkInfo();
+                // info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                info = cmgr.getActiveNetworkInfo();
                 connection = (info == null) ? false : info.isConnected();
                 attempts++;
             }
