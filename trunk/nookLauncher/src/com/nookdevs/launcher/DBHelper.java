@@ -37,9 +37,21 @@ public class DBHelper extends SQLiteOpenHelper {
     
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(TAG, "Upgrading db from " + oldVersion + " to " + newVersion + ". All data will be lost");
-        db.execSQL(DROP_TABLE);
-        onCreate(db);
+        try {
+            int i = 0;
+            db.beginTransaction();
+            for (String apps : LauncherSettings.apps) {
+                db.execSQL("update " + TABLE_NAME + " set resources = " + LauncherSettings.appIcons[i++]
+                    + " WHERE name=\'" + apps + "\'");
+            }
+            db.setTransactionSuccessful();
+            db.endTransaction();
+        } catch (Exception ex) {
+            Log.w(TAG, "Upgrading db from " + oldVersion + " to " + newVersion + ". All data will be lost");
+            db.endTransaction();
+            db.execSQL(DROP_TABLE);
+            onCreate(db);
+        }
         
     }
     

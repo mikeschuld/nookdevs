@@ -57,7 +57,7 @@ public class NookLauncher extends nookBaseActivity {
     final static String readingNowUri = "content://com.reader.android/last";
     ImageButton m_LastButton = null;
     
-    public final static int DB_VERSION = 7;
+    public final static int DB_VERSION = 10;
     private boolean m_SettingsChanged = false;
     
     @Override

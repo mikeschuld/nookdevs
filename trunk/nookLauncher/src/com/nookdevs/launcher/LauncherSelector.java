@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.nookdevs.common.nookBaseActivity;
@@ -15,6 +16,7 @@ public class LauncherSelector extends nookBaseActivity {
         setContentView(R.layout.eink_display);
         
         WebView wv = (WebView) findViewById(R.id.webview);
+        wv.getSettings().setTextSize(WebSettings.TextSize.LARGER);
         wv.loadUrl("file:///android_asset/selector_main.htm");
         
         addPreferredActivity();
