@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -70,7 +71,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     boolean m_IconsLoaded = false;
     ImageAdapter m_IconAdapter = null;
     
-    String[] apps =
+    public static String[] apps =
         {
             "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
             "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
@@ -78,7 +79,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
             "com.nookdevs.launcher.LauncherSelector"
         };
     
-    int[] appIcons =
+    public static int[] appIcons =
         {
             R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
             R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
@@ -101,7 +102,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     @Override
     public void onResume() {
         super.onResume();
-        updateTitle(NAME);
+        updateTitle(NAME + " " + m_Version);
         m_ClickListener = new ClickListener();
         m_IntentsList = new HashMap<ImageButton, AppDetail>();
         loadApps();
@@ -206,6 +207,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         m_LinearLayout.addView(view);
         m_EmptyView = view;
         m_WebView = (WebView) findViewById(R.id.webview);
+        m_WebView.getSettings().setTextSize(WebSettings.TextSize.LARGER);
         m_WebView.loadUrl("file:///android_asset/settings_main.htm");
         
     }
