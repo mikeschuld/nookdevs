@@ -220,7 +220,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     @Override
     public void onResume() {
         super.onResume();
-        updateTitle("my books");
+        updateTitle("my books" + " " + m_Version);
         getSystemService(CONNECTIVITY_SERVICE);
     }
     
