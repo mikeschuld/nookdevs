@@ -18,6 +18,9 @@ package com.nookdevs.common;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,6 +51,7 @@ public class nookBaseActivity extends Activity {
     public final static String STATUSBAR_ACTION = "Statusbar.action";
     public static final String READING_NOW_URL = "content://com.ereader.android/last";
     protected boolean m_FirstTime = true;
+    protected String m_Version;
     
     protected String getWallpaperFile() {
         return m_WallPaper;
@@ -71,6 +75,17 @@ public class nookBaseActivity extends Activity {
         screenLock = power.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "nookactivity" + hashCode());
         screenLock.setReferenceCounted(false);
         readSettings();
+        PackageManager manager = getPackageManager();
+        PackageInfo info;
+        try {
+            info = manager.getPackageInfo(getPackageName(), 0);
+            m_Version = info.versionName;
+        } catch (NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            m_Version = "";
+        }
+        
     }
     
     @Override
@@ -185,7 +200,8 @@ public class nookBaseActivity extends Activity {
         };
         
         try {
-            for (@SuppressWarnings("unused") String field : fields) {
+            for (@SuppressWarnings("unused")
+            String field : fields) {
                 if (name == null) {
                     name = "name=?";
                 } else {
