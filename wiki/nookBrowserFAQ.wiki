@@ -58,8 +58,6 @@ Touchscreen browser doesn't allow text input. <br>So, any forms, login, search e
 <h2>5. Entering URL in address field</h2>
 This field is modified to take keywords. No need for http://. <br>
 Typing just google will convert into http://www.google.com
-
 <h2>6. Readability filter in Settings</h2>
-This applies the filter from http://lab.arc90.com/experiments/readability/ to remove images and ads in the current page and to make it suitable for the eink.
-This has to be applied for each page separately. 
-Got this idea from Trook - thanks to kbs :).
+This applies the filter from http://lab.arc90.com/experiments/readability/<br> to remove images and ads in the current page and <br>to make it suitable for the eink.
+This has to be applied for each page separately. Got this idea from Trook - thanks kbs :).
