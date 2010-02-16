@@ -46,12 +46,13 @@
 	android:id="@+id/EditText02"
 	android:text=""
 	android:singleLine="true"
-	android:editable="true"
 	android:layout_below="@id/TextView02"
 	android:shadowColor="#000000"
 	android:inputType="textWebEditText"
 	android:imeOptions="actionDone|flagNoEnterAction"
 	android:enabled="false"
+	android:editable="false"
+	android:focusable="false"
   /> 
   <TextView android:layout_width="fill_parent"
   	android:layout_height="30.0px"
@@ -71,11 +72,12 @@
 	android:id="@+id/EditText03"
 	android:text=""
 	android:singleLine="true"
-	android:editable="true"
 	android:layout_below="@id/TextView03"
 	android:shadowColor="#000000"
 	android:inputType="textPassword"
 	android:imeOptions="actionDone|flagNoEnterAction"
 	android:enabled="false"
+	android:editable="false"
+	android:focusable="false"
   /> 
 </RelativeLayout>

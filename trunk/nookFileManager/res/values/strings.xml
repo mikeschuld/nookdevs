@@ -26,6 +26,7 @@
     <string name="failed">Failed</string>
     <string name="in_progress">In Progress</string>
     <string name="status">Copy/Download Status</string>
+    <string name="no_viewer">No Viewer found.</string>
      
     <string-array name="localmenu">
 	    <item>Cut</item>
