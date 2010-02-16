@@ -13,9 +13,14 @@ import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -33,6 +38,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -98,6 +104,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     private File m_MyDownloads = new File(SDFOLDER + "/my downloads");
     private ConnectivityManager.WakeLock m_Lock = null;
     private StatusUpdater m_StatusUpdater = null;
+    ImageView m_ImageView = null;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,6 +133,14 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         m_RemoteAdapter.setTextField(R.id.ListTextView);
         m_RemoteAdapter.setSubTextField(R.id.ListSubTextView);
         m_FileIcon = (ImageButton) findViewById(R.id.fileicon);
+        m_ImageView = (ImageView) findViewById(R.id.mainimage);
+        m_FileIcon.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+                if (m_Current != null && !m_Current.isDirectory()) {
+                    startViewer(m_Current);
+                }
+            }
+        });
         m_List.setOnItemClickListener(this);
         m_PasteButton = (ImageButton) findViewById(R.id.paste);
         m_PasteButton.setVisibility(View.INVISIBLE);
@@ -201,6 +216,52 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             }
         } catch (Exception ex) {
             
+        }
+    }
+    
+    private void startViewer(File file) {
+        String path = file.getAbsolutePath();
+        Intent intent;
+        String mimetype = "application/";
+        int idx = path.lastIndexOf('.');
+        String ext = path.substring(idx + 1);
+        if ("txt".equals(ext) || "html".equals(ext) || "htm".equals(ext)) {
+            try {
+                intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.ACTION_DEFAULT);
+                intent.setComponent(new ComponentName("com.nookdevs.browser", "com.nookdevs.browser.nookBrowser"));
+                intent.setData(Uri.fromFile(file));
+                startActivity(intent);
+                return;
+            } catch (Exception ex) {
+            }
+        }
+        intent = new Intent("com.bravo.intent.action.VIEW");
+        mimetype += ext;
+        path = "file://" + path;
+        intent.setDataAndType(Uri.parse(path), mimetype);
+        try {
+            if ("epub".equals(ext) || "pdf".equals(ext) || "pdb".equals(ext)) {
+                updateReadingNow(intent);
+            }
+            startActivity(intent);
+            return;
+        } catch (ActivityNotFoundException ex) {
+            
+        }
+        intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), mimetype);
+        try {
+            startActivity(intent);
+        } catch (Exception ex) {
+            int id = getResource(ext);
+            if (id == -1) {
+                Bitmap bMap = BitmapFactory.decodeFile(path.substring(7));
+                m_ImageView.setImageBitmap(bMap);
+                
+            } else {
+                Toast.makeText(this, R.string.no_viewer, Toast.LENGTH_SHORT).show();
+            }
         }
     }
     
@@ -281,8 +342,11 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
                 TextView text = (TextView) filedetails.findViewById(R.id.text);
                 String name = f.getName();
-                text.setText(name);
                 String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
+                if (!f.isDirectory()) {
+                    name += "\nSize: " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
+                }
+                text.setText(name);
                 int id = getResource(type);
                 if (id != -1) {
                     icon.setImageResource(id);
@@ -335,8 +399,11 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
             TextView text = (TextView) filedetails.findViewById(R.id.text);
             String name = f.getName();
-            text.setText(name);
             String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
+            if (!f.isDirectory()) {
+                name += "\nSize: " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
+            }
+            text.setText(name);
             int id = getResource(type);
             if (id != -1) {
                 icon.setImageResource(id);
@@ -443,6 +510,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     
     private void clickAction(View v) {
         m_Current = null;
+        m_ImageView.setImageBitmap(null);
         m_CurrentRemote = null;
         if (v.getTag() == null) {
             if (m_DirDetails) {
