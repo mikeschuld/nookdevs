@@ -67,7 +67,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     
     protected WebView webview;
     private ListView lview, sublist;
-    public static ConnectivityManager.WakeLock lock = null;
+    private ConnectivityManager.WakeLock lock = null;
     private Button goButton, backButton, upButton, downButton, rightButton, leftButton;
     private boolean m_Processing = false;
     protected static final String DEFAULT_HOME_PAGE = "http://m.npr.org";
@@ -97,7 +97,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     protected static final int ZOOM = 7;
     protected static final int OFFLINE = 8;
     private static final int WEB_SCROLL_PX = 750;
-    public static final int CONNECTION_TIMEOUT = 240000;
+    public static final int CONNECTION_TIMEOUT = 600000;
     private ViewAnimator m_ViewAnimator;
     private String m_HomePage;
     public static final String APP_TITLE = "Web";
