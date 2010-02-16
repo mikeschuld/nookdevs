@@ -610,24 +610,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         }
     }
     
-    private void updateReadingNow(Intent intent) {
-        try {
-            ContentValues values = new ContentValues();
-            ByteArrayOutputStream aout = new ByteArrayOutputStream();
-            DataOutputStream dout = new DataOutputStream(aout);
-            dout.writeUTF(intent.getAction());
-            dout.writeUTF(intent.getDataString());
-            dout.writeUTF(intent.getType());
-            dout.writeByte(0);
-            byte[] data = aout.toByteArray();
-            dout.close();
-            values.put("data", data);
-            getContentResolver().insert(Uri.parse(READING_NOW_URL), values);
-        } catch (Exception ex) {
-            Log.e(LOGTAG, "Exception while updating reading now data - ", ex);
-        }
-    }
-    
     // from kbs - trook.projectsource code.
     private final void pageUp() {
         if (m_DetailsPage != null) {
