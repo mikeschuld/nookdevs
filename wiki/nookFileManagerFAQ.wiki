@@ -6,3 +6,6 @@ User name and password fields are disabled for now.
 <h2>2. Copying directories</h2>
 Longpress on a directory icon will display the file copy/delete menu. Just pressing it will open the files and sub folders in it.
 You can also longpress on a network share icon and delete it. 
+<h2>2. Closing the application</h2>
+Longpress on the Back button will call finish on the activity and close the app.
+Just pressing Back will put the app into background and let android decide whether to close it or not.
