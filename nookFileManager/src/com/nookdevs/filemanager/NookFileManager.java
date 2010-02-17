@@ -619,7 +619,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         m_PasteButton.setVisibility(View.INVISIBLE);
         if( v.getTag() instanceof Integer) {
             int idx = (Integer)v.getTag();
-            if( m_Current != null) {
+            if( m_CurrentFolder != null) {
                 loadLocalFiles(idx);
             }else {
                 loadNetworkFiles(idx);
