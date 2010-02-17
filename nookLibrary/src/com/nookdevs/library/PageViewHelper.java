@@ -286,6 +286,16 @@ public class PageViewHelper {
         m_Header2.setText(m_CurrentPage + "|" + m_NumPages);
     }
     
+    public void gotoTop() {
+        int item = (m_CurrentPage - 1) * ITEMS_PER_PAGE + 1;
+        gotoItem(item);
+    }
+    
+    public void gotoBottom() {
+        int item = (m_CurrentPage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
+        gotoItem(item);
+    }
+    
     public int getCurrentIndex() {
         return (m_CurrentPage - 1) * ITEMS_PER_PAGE + m_CurrentItem;
     }
