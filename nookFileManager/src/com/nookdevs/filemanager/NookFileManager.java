@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -74,6 +75,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     public static final int BROWSE = 1;
     public static final int OPEN = 2;
     public static final int SAVE = 3;
+    public static final int MAX_FILES_PER_VIEW=15;
     
     private int m_Type = BROWSE;
     private FileSelectListener m_FileSelectListener = new FileSelectListener();
@@ -119,6 +121,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     private ConnectivityManager.WakeLock m_Lock = null;
     private StatusUpdater m_StatusUpdater = null;
     ImageView m_ImageView = null;
+    SmbFile [] m_CurrentSmbFiles;
+    File[] m_CurrentFiles;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -354,7 +358,35 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             smb = folder;
             m_Content.removeAllViews();
             SmbFile[] files = smb.listFiles();
-            for (SmbFile f : files) {
+            Arrays.sort(files, new Comparator<SmbFile>() {
+                public int compare(SmbFile object1, SmbFile object2) {
+                    return object1.getName().compareTo( object2.getName());
+                }
+            });
+            m_CurrentSmbFiles = files;
+            loadNetworkFiles(0);
+        } catch (Exception ex) {
+            Log.e(LOGTAG, "Exception in loadNetwork", ex);
+        }
+    }
+    private void loadNetworkFiles(int index) {
+        try {
+            m_Content.removeAllViews();
+            LayoutInflater inflater = getLayoutInflater();
+            int i;
+            if( index >0) {
+                // add prev
+                RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
+                ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
+                TextView text = (TextView) filedetails.findViewById(R.id.text);
+                text.setText(R.string.prev);
+                icon.setImageResource(R.drawable.prev);
+                icon.setTag( new Integer(index - MAX_FILES_PER_VIEW));
+                icon.setOnClickListener(m_FileSelectListener);
+                m_Content.addView(filedetails);
+            }
+            for (i=index; i< m_CurrentSmbFiles.length && i < index+ MAX_FILES_PER_VIEW; i++) {
+                SmbFile f = m_CurrentSmbFiles[i];
                 RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
                 ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
                 TextView text = (TextView) filedetails.findViewById(R.id.text);
@@ -378,8 +410,75 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 }
                 m_Content.addView(filedetails);
             }
-        } catch (Exception ex) {
-            Log.e(LOGTAG, "Exception in loadNetwork", ex);
+            if( i == m_CurrentSmbFiles.length) 
+                return;
+            //add More
+            RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
+            ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
+            TextView text = (TextView) filedetails.findViewById(R.id.text);
+            text.setText(R.string.next);
+            icon.setImageResource(R.drawable.next);
+            icon.setTag( new Integer(index + MAX_FILES_PER_VIEW));
+            icon.setOnClickListener(m_FileSelectListener);
+            m_Content.addView(filedetails);
+        } catch(Exception ex) {
+            
+        }
+    }
+    private void loadLocalFiles(int index) {
+        try {
+            m_Content.removeAllViews();
+            LayoutInflater inflater = getLayoutInflater();
+            int i;
+            if( index >0) {
+                // add prev
+                RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
+                ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
+                TextView text = (TextView) filedetails.findViewById(R.id.text);
+                text.setText(R.string.prev);
+                icon.setImageResource(R.drawable.prev);
+                icon.setTag( new Integer(index - MAX_FILES_PER_VIEW));
+                icon.setOnClickListener(m_FileSelectListener);
+                m_Content.addView(filedetails);
+            }
+            for (i=index; i< m_CurrentFiles.length && i < index+ MAX_FILES_PER_VIEW; i++) {
+                File f = m_CurrentFiles[i];
+                RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
+                ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
+                TextView text = (TextView) filedetails.findViewById(R.id.text);
+                String name = f.getName();
+                String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
+                if (!f.isDirectory()) {
+                    name += "\nSize: " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
+                }
+                text.setText(name);
+                int id = getResource(type);
+                if (id != -1) {
+                    icon.setImageResource(id);
+                } else {
+                    icon.setImageURI(Uri.parse(f.getAbsolutePath()));
+                }
+                icon.setTag(f);
+                icon.setOnClickListener(m_FileSelectListener);
+                if (f.isDirectory()) {
+                    icon.setOnLongClickListener(m_FileSelectListener);
+                    
+                }
+                m_Content.addView(filedetails);
+            }
+            if( i == m_CurrentFiles.length) 
+                return;
+            //add More
+            RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
+            ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
+            TextView text = (TextView) filedetails.findViewById(R.id.text);
+            text.setText(R.string.next);
+            icon.setImageResource(R.drawable.next);
+            icon.setTag( new Integer(index + MAX_FILES_PER_VIEW));
+            icon.setOnClickListener(m_FileSelectListener);
+            m_Content.addView(filedetails);
+        } catch(Exception ex) {
+            
         }
     }
     
@@ -411,31 +510,13 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         }
         String folder = folders[0];
         File[] files = (new File(folder)).listFiles();
-        for (final File f : files) {
-            RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
-            ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
-            TextView text = (TextView) filedetails.findViewById(R.id.text);
-            String name = f.getName();
-            String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
-            if (!f.isDirectory()) {
-                name += "\nSize: " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
+        Arrays.sort(files, new Comparator<File>() {
+            public int compare(File object1, File object2) {
+                return object1.getName().compareTo( object2.getName());
             }
-            text.setText(name);
-            int id = getResource(type);
-            if (id != -1) {
-                icon.setImageResource(id);
-            } else {
-                icon.setImageURI(Uri.parse(f.getAbsolutePath()));
-            }
-            icon.setTag(f);
-            icon.setOnClickListener(m_FileSelectListener);
-            if (f.isDirectory()) {
-                icon.setOnLongClickListener(m_FileSelectListener);
-                
-            }
-            m_Content.addView(filedetails);
-        }
-        
+        });
+        m_CurrentFiles = files;
+        loadLocalFiles(0);
     }
     
     private int getResource(String type) {
@@ -526,9 +607,6 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     private boolean m_StatusView = false;
     
     private void clickAction(View v) {
-        m_Current = null;
-        m_ImageView.setImageBitmap(null);
-        m_CurrentRemote = null;
         if (v.getTag() == null) {
             if (m_DirDetails) {
                 finish();
@@ -537,7 +615,20 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             }
             return;
         }
+        m_ImageView.setImageBitmap(null);
         m_PasteButton.setVisibility(View.INVISIBLE);
+        if( v.getTag() instanceof Integer) {
+            int idx = (Integer)v.getTag();
+            if( m_Current != null) {
+                loadLocalFiles(idx);
+            }else {
+                loadNetworkFiles(idx);
+            }
+            return;
+        }
+        m_Current = null;
+        m_CurrentRemote = null;
+        
         if (v.getTag() instanceof StatusUpdater) {
             m_Back.setText(" < ");
             m_Back.setTag(new File("/"));
