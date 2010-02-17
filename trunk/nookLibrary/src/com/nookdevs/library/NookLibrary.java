@@ -14,8 +14,6 @@
  */
 package com.nookdevs.library;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ import java.util.Vector;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -48,6 +45,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.View.OnLongClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -72,7 +70,7 @@ import com.nookdevs.common.IconArrayAdapter;
 import com.nookdevs.common.ImageAdapter;
 import com.nookdevs.common.nookBaseActivity;
 
-public class NookLibrary extends nookBaseActivity implements OnItemClickListener, OnClickListener {
+public class NookLibrary extends nookBaseActivity implements OnItemClickListener, OnLongClickListener, OnClickListener {
     private List<ScannedFile> m_Files = new ArrayList<ScannedFile>(200);
     public static final int MAX_FILES_PER_BATCH = 99999;
     private boolean m_SearchView = false;
@@ -155,6 +153,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         backButton.setOnClickListener(this);
         upButton.setOnClickListener(this);
         downButton.setOnClickListener(this);
+        upButton.setOnLongClickListener(this);
+        downButton.setOnLongClickListener(this);
         m_IconGallery = ((CustomGallery) findViewById(R.id.icongallery));
         TypedArray a = this.obtainStyledAttributes(R.styleable.default_gallery);
         int backid = a.getResourceId(R.styleable.default_gallery_android_galleryItemBackground, 0);
@@ -797,5 +797,14 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             // TODO Auto-generated method stub
             
         }
+    }
+    
+    public boolean onLongClick(View view) {
+        if (view.equals(upButton)) {
+            pageViewHelper.gotoTop();
+        } else {
+            pageViewHelper.gotoBottom();
+        }
+        return true;
     }
 }
