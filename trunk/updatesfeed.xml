@@ -36,7 +36,7 @@
   <entry>
     <title>nookWifiLocker</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookdevs.googlecode.com/files/nookWifiLocker.apk"/>
+     href="http://nookdevs.googlecode.com/files/nookWifiLocker.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookWifiLocker.apk</id>
     <content type="text">Simple app to keep Wifi locked. Useful for running apps like pandora, debugging, vnc. Version 0.0.1</content>
   </entry>
@@ -47,7 +47,7 @@
        href="http://nookdevs.googlecode.com/files/nookFileManager.apk"/>
     	 <id>http://nookdevs.googlecode.com/files/nookFileManager.apk</id>
        <content type="text">File manager app - access sdcard folders and network shares. Version 0.0.1 - added on 02/17/2010.</content>
-  <entry>
+  </entry>
     <title>Trook</title>
     <link type="application/atom+xml"
           href="http://nookapps.googlecode.com/svn/trunk/feed/trook.xml"/>
