@@ -264,6 +264,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             
         }
         intent = new Intent(Intent.ACTION_VIEW);
+        if ("apk".equals(ext)) {
+            mimetype = "application/vnd.android.package-archive";
+        }
         intent.setDataAndType(Uri.fromFile(file), mimetype);
         try {
             startActivity(intent);
