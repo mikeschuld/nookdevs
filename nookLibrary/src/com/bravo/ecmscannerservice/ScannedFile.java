@@ -133,7 +133,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (pathname != null) {
             m_DataBuffer.append(pathname);
             int idx = pathname.lastIndexOf('.');
-            type = pathname.substring(idx + 1);
+            type = pathname.substring(idx + 1).toLowerCase();
             addKeywords(type);
             updateMetaData();
         }
@@ -194,7 +194,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             createdDate = null;
         }
         int idx = pathname.lastIndexOf('.');
-        String ext = pathname.substring(idx + 1);
+        String ext = pathname.substring(idx + 1).toLowerCase();
         addKeywords(ext);
     }
     
