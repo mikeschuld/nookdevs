@@ -36,12 +36,22 @@
 		android:layout_height="144.0px"
 		android:background="#C0C0C0"
 		android:layout_toRightOf="@id/back"
+		android:orientation="vertical"
 		>
     <Button android:id="@+id/wifi"
     	android:layout_width="fill_parent"
     	android:layout_height="30.0px"
-    	android:background="@drawable/list_button"
+    	android:background="@drawable/list_selector_background"
     />	
+    <Button android:id="@+id/touchscreen"
+    	android:layout_width="fill_parent"
+    	android:layout_height="30.0px"
+    	android:background="@drawable/list_selector_background"
+    />
+        <Button android:id="@+id/screensaver"
+    	android:layout_width="fill_parent"
+    	android:layout_height="30.0px"
+    	android:background="@drawable/list_selector_background" />
     </LinearLayout>
 	</RelativeLayout>
 </LinearLayout>
