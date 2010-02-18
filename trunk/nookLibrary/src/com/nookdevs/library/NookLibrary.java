@@ -250,12 +250,16 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     }
     
     private void retrieveFiles(File base, FileFilter filter) {
+        File skipFile = new File( base, ".skip");
+        if( skipFile.exists()) return;
+        
         File[] files = base.listFiles(filter);
         if (files == null) { return; }
         for (File file : files) {
             if (file.isDirectory()) {
                 retrieveFiles(file, filter);
             } else {
+                if( file.getName().startsWith(".")) continue;
                 ScannedFile file1 = new ScannedFile(file.getAbsolutePath());
                 file1.setLastAccessedDate(new Date(file.lastModified()));
                 m_Files.add(file1);
