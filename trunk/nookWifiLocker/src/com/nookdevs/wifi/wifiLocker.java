@@ -15,9 +15,12 @@
 package com.nookdevs.wifi;
 
 import android.net.ConnectivityManager;
+//import android.net.MobileDataStateTracker;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.PowerManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,9 +31,16 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
     
     ConnectivityManager cmgr;
     ConnectivityManager.WakeLock lock;
+    PowerManager.WakeLock touchscreenLock = null;
+    PowerManager.WakeLock screensaverLock = null;
     Button back;
     Button wifi;
+    Button touchscreen;
+    Button screensaver;
     boolean locked = false;
+    Handler m_Handler = new Handler();
+    //MobileDataStateTracker tracker = null; -for 3G locking
+
     
     /** Called when the activity is first created. */
     @Override
@@ -39,35 +49,87 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
         setContentView(R.layout.main);
         cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         lock = cmgr.newWakeLock(1, "wifiLocker" + hashCode());
+        PowerManager power = (PowerManager) getSystemService(POWER_SERVICE);
+        screensaverLock = power.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "wifiLocker" + hashCode());
+        touchscreenLock = power.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "wifiLocker" + hashCode());
         back = (Button) findViewById(R.id.back);
+        back.setOnClickListener( new OnClickListener() {
+            public void onClick(View arg0) {
+                goBack();
+            }
+        }
+        );
         wifi = (Button) findViewById(R.id.wifi);
-        wifi.setText(R.string.lock);
-        wifi.setOnClickListener(this);
-        back.setOnClickListener(this);
-        locked = false;
+        wifi.setText(R.string.wifilock);
+        wifi.setOnClickListener( new OnClickListener() {
+            public void onClick(View arg0) {
+                if (lock.isHeld()) {
+                    lock.release();
+                    wifi.setText(R.string.wifilock);
+                } else {
+                    lock.acquire();
+                    WifiTask task = new WifiTask();
+                    task.execute();
+                } 
+            }
+        }
+        );
+        touchscreen = (Button) findViewById(R.id.touchscreen);
+        touchscreen.setText(R.string.touchscreenlock);
+        screensaver = (Button) findViewById(R.id.screensaver);
+        screensaver.setText(R.string.screensaverlock);
+        touchscreen.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+                if (touchscreenLock.isHeld()) {
+                    touchscreenLock.release();
+                    touchscreen.setText(R.string.touchscreenlock);
+                } else {
+                    touchscreenLock.acquire();
+                    touchscreen.setText(R.string.touchscreenunlock);
+                } 
+            }
+        }
+        );
+        screensaver.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+                if (screensaverLock.isHeld()) {
+                    screensaverLock.release();
+                    screensaver.setText(R.string.screensaverlock);
+                } else {
+                    screensaverLock.acquire();
+                    screensaver.setText(R.string.screensaverunlock);
+                } 
+            }
+        }
+        );
+      //  tracker = new MobileDataStateTracker(this, m_Handler);
     }
     
     public void onClick(View v) {
-        if (v.equals(back)) {
-            goHome();
-        } else {
-            if (locked && lock.isHeld()) {
-                lock.release();
-                wifi.setText(R.string.lock);
-                locked = false;
+            /*
+            if( !locked) {
+                tracker.reconnect();
+                tracker.setRadio(true);
+                locked=true;
+                wifi.setText(R.string.unlock);
             } else {
-                lock.acquire();
-                WifiTask task = new WifiTask();
-                task.execute();
-            }
-        }
-        
+                tracker.setRadio(false);
+                locked=false;
+                wifi.setText(R.string.lock);
+            } */
     }
     
     @Override
     public void onDestroy() {
+        super.onDestroy();
         if (lock.isHeld()) {
             lock.release();
+        }
+        if( screensaverLock.isHeld()) {
+            screensaverLock.release();
+        }
+        if( touchscreenLock.isHeld()) {
+            touchscreenLock.release();
         }
     }
     
@@ -102,8 +164,7 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
             if (!result) {
                 displayAlert(getString(R.string.wifi_timeout), "", 2, null, -1);
             } else {
-                wifi.setText(R.string.unlock);
-                locked = true;
+                wifi.setText(R.string.wifiunlock);
             }
         }
     }
