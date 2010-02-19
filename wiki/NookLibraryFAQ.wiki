@@ -1,5 +1,5 @@
-Following changes are included -
-1. Show menu keywords -
+Following changes are included in 0.0.5 version-
+<h2>1. Show menu keywords</h2>
 Added option to read standard keywords from mybooks.xml file from sdcard root folder. 
 Here is a sample file:
 <pre>
@@ -18,15 +18,12 @@ Here is a sample file:
 
 </pre>
 If this file is present, Keywords listed in the file will be included in the Show menu before the other keywords automatically read from books.
-
-2. Skipping folders
+<h2>2. Skipping folders</h2>
 if you want to exclude a folder from the listing, create a file named .skip in the folder. 
 Any folder with this file & all it's sub folders will be excluded from the scan.
 Also, Files starting with . will be excluded from the listing.
-
-3. longpress on up/down arrow keys -
+<h2>3. longpress on up/down arrow keys</h2>
 Pressing on these buttons for 3-4 secs will move the cursor to the top/bottom of the page.
-
-4. Sorting -
+<h2>4. Sorting</h2>
 Fixed a problem with most_recent sort option. pdf files are sorted properly now. 
 Also, books opened last will be listed at the top. This will not work if the file is opened from my library or other apps. 
