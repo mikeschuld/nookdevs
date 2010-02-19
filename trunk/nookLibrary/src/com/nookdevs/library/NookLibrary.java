@@ -221,7 +221,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     public void onResume() {
         super.onResume();
         updateTitle("my books" + " " + m_Version);
-        getSystemService(CONNECTIVITY_SERVICE);
+        if (!m_FirstTime && ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {
+            SortTask task = new SortTask(true);
+            task.execute(ScannedFile.SORT_BY_LATEST);
+        }
     }
     
     private void getOtherFiles() {
@@ -250,8 +253,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     }
     
     private void retrieveFiles(File base, FileFilter filter) {
-        File skipFile = new File( base, ".skip");
-        if( skipFile.exists()) return;
+        File skipFile = new File(base, ".skip");
+        if (skipFile.exists()) { return; }
         
         File[] files = base.listFiles(filter);
         if (files == null) { return; }
@@ -259,8 +262,13 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             if (file.isDirectory()) {
                 retrieveFiles(file, filter);
             } else {
-                if( file.getName().startsWith(".")) continue;
+                if (file.getName().startsWith(".")) {
+                    continue;
+                }
                 ScannedFile file1 = new ScannedFile(file.getAbsolutePath());
+                // Log.w("nookLibrary", "last access date for " + file.getName()
+                // + " is " +
+                // new Date(file.lastModified()));
                 file1.setLastAccessedDate(new Date(file.lastModified()));
                 m_Files.add(file1);
             }
@@ -285,6 +293,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             Collections.sort(tmpList);
             m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
             m_ShowValues.add("All");
+            ScannedFile.loadStandardKeywords();
+            if (ScannedFile.m_StandardKeywords != null) {
+                m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
+            }
             m_ShowValues.addAll(tmpList);
             m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
             Runnable thrd = new Runnable() {
@@ -295,6 +307,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     pageViewHelper = new PageViewHelper(NookLibrary.this, pageview, m_Files);
                     m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(ScannedFile.getSortType()).toString());
                     m_ListAdapter.setSubText(SHOW, m_ShowValues.get(m_ShowIndex).toString());
+                    m_ListAdapter.setSubText(SEARCH, " ");
                 }
             };
             m_Handler.post(thrd);
@@ -389,7 +402,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                         m_Dialog.cancel();
                         if (!text.trim().equals("")) {
                             SearchTask task = new SearchTask();
-                            m_ListAdapter.setSubText(SEARCH, text);
                             task.execute(text);
                         }
                     } else if (keyCode == SOFT_KEYBOARD_CANCEL) {
@@ -563,10 +575,15 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 m_SubMenuType = -1;
                 return;
             } else if (m_SearchView) {
-                pageViewHelper.setFiles(m_Files);
                 m_SearchView = false;
                 pageViewHelper.setTitle(R.string.my_documents);
                 m_ListAdapter.setSubText(SEARCH, " ");
+                if (m_ShowIndex != 0) {
+                    ShowTask task = new ShowTask();
+                    task.execute(m_ShowValues.get(m_ShowIndex).toString());
+                } else {
+                    pageViewHelper.setFiles(m_Files);
+                }
                 return;
             }
             goHome();
@@ -576,6 +593,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             pageViewHelper.selectNext();
         } else if (button.equals(goButton) || button.equals(m_CoverBtn)) {
             ScannedFile file = pageViewHelper.getCurrent();
+            // file.setLastAccessedDate(new Date(f.lastModified()));
+            // if( ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {
+            // SortTask task = new SortTask();
+            // task.execute(ScannedFile.SORT_BY_LATEST);
+            // }
             String path = file.getPathName();
             Intent intent = new Intent("com.bravo.intent.action.VIEW");
             
@@ -649,6 +671,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         switch (keyCode) {
             case NOOK_PAGE_UP_KEY_LEFT:
             case NOOK_PAGE_UP_KEY_RIGHT:
+            case NOOK_PAGE_UP_SWIPE:
                 if (m_SubMenuType == VIEW_DETAILS) {
                     pageUp();
                 } else {
@@ -659,6 +682,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             
             case NOOK_PAGE_DOWN_KEY_LEFT:
             case NOOK_PAGE_DOWN_KEY_RIGHT:
+            case NOOK_PAGE_DOWN_SWIPE:
                 if (m_SubMenuType == VIEW_DETAILS) {
                     pageDown();
                 } else {
@@ -688,10 +712,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         protected List<ScannedFile> doInBackground(String... keyword) {
             try {
                 String text = keyword[0];
+                List<ScannedFile> list = m_Files;
                 if ("All".equals(text)) {
-                    return m_Files;
+                    return list;
                 } else {
-                    List<ScannedFile> list = m_Files;
                     return filterFiles(text, list);
                 }
             } catch (Exception ex) {
@@ -702,8 +726,12 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         @Override
         protected void onPostExecute(List<ScannedFile> result) {
             m_ListAdapter.setSubText(SHOW, m_ShowValues.get(m_ShowIndex).toString());
-            if (result != null) {
-                // pageViewHelper.setTitle(getString(R.string.search_results));
+            if (m_SearchView) {
+                SearchTask task = new SearchTask(result);
+                String txt = m_ListAdapter.getSubText(SEARCH);
+                m_ListAdapter.setSubText(SEARCH, " ");
+                task.execute(txt);
+            } else if (result != null) {
                 pageViewHelper.setFiles(result);
             }
         }
@@ -712,9 +740,25 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     
     class SearchTask extends AsyncTask<String, Integer, List<ScannedFile>> {
         private String m_Text;
+        List<ScannedFile> m_SubList;
+        
+        public SearchTask() {
+            super();
+            m_SubList = null;
+        }
+        
+        public SearchTask(List<ScannedFile> list) {
+            super();
+            m_SubList = list;
+        }
         
         @Override
         protected void onPreExecute() {
+            if (m_SearchView) {
+                m_Text = m_ListAdapter.getSubText(SEARCH);
+            } else {
+                m_Text = null;
+            }
             m_ListAdapter.setSubText(SEARCH, getString(R.string.in_progress));
         }
         
@@ -722,8 +766,17 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         protected List<ScannedFile> doInBackground(String... keyword) {
             try {
                 String text = keyword[0];
-                m_Text = text;
-                List<ScannedFile> list = m_Files;
+                List<ScannedFile> list;
+                if (m_SubList != null) {
+                    list = m_SubList;
+                } else {
+                    list = pageViewHelper.getFiles();
+                }
+                if (m_Text == null || m_Text.trim().equals("")) {
+                    m_Text = text;
+                } else {
+                    m_Text = text + " & " + m_Text;
+                }
                 return searchFiles(text, list);
             } catch (Exception ex) {
                 return null;
@@ -743,6 +796,16 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     }
     
     class SortTask extends AsyncTask<Integer, Integer, List<ScannedFile>> {
+        private boolean m_Refresh;
+        
+        public SortTask() {
+            this(false);
+        }
+        
+        public SortTask(boolean refresh) {
+            m_Refresh = refresh;
+        }
+        
         @Override
         protected void onPreExecute() {
             m_ListAdapter.setSubText(SORT_BY, getString(R.string.in_progress));
@@ -753,9 +816,15 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             int type = params[0];
             ScannedFile.setSortType(type);
             try {
+                if (m_Refresh) {
+                    for (ScannedFile file : m_Files) {
+                        File f = new File(file.getPathName());
+                        file.setLastAccessedDate(new Date(f.lastModified()));
+                    }
+                }
                 List<ScannedFile> list = pageViewHelper.getFiles();
                 Collections.sort(list);
-                if (m_SearchView) {
+                if (m_SearchView || m_ShowIndex != 0) {
                     Collections.sort(m_Files);
                 }
                 return list;
@@ -769,7 +838,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         protected void onPostExecute(List<ScannedFile> result) {
             m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(ScannedFile.getSortType()).toString());
             if (result != null) {
-                if (!m_SearchView) {
+                if (!m_SearchView && m_ShowIndex == 0) {
                     m_Files = result;
                 }
                 pageViewHelper.setFiles(result);
