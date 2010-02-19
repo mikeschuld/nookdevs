@@ -663,7 +663,6 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.i(LOGTAG, "onKeyDown: key: " + keyCode);
         boolean handled = false;
         if (!handled) {
             switch (keyCode) {
@@ -980,11 +979,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     private final void pageDown() {
         if (webview_eink != null) {
             int cury = webview_eink.getScrollY();
-            int hmax = webview_eink.getContentHeight() - 200; // -
-            // WEB_SCROLL_PX;
-            // -
-            // account for text
-            // size/zoom.
+            int hmax = webview_eink.getContentHeight() - 200;
             if (hmax < 0) {
                 hmax = 0;
             }
@@ -1004,12 +999,14 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
             switch (keyCode) {
                 case NOOK_PAGE_UP_KEY_LEFT:
                 case NOOK_PAGE_UP_KEY_RIGHT:
+                case NOOK_PAGE_UP_SWIPE:
                     pageUp();
                     handled = true;
                     break;
                 
                 case NOOK_PAGE_DOWN_KEY_LEFT:
                 case NOOK_PAGE_DOWN_KEY_RIGHT:
+                case NOOK_PAGE_DOWN_SWIPE:
                     pageDown();
                     handled = true;
                     break;
@@ -1017,8 +1014,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 default:
                     break;
             }
-        } // ACTION down
-        
+        }        
         return handled;
     }
     
