@@ -17,6 +17,7 @@ package com.nookdevs.common;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,6 +41,9 @@ public class nookBaseActivity extends Activity {
     protected static final int NOOK_PAGE_DOWN_KEY_RIGHT = 97;
     protected static final int NOOK_PAGE_UP_KEY_LEFT = 96;
     protected static final int NOOK_PAGE_DOWN_KEY_LEFT = 95;
+    protected static final int NOOK_PAGE_DOWN_SWIPE= 100;
+    protected static final int NOOK_PAGE_UP_SWIPE = 101;
+    
     
     PowerManager.WakeLock screenLock = null;
     boolean m_AirplaneMode = false;
@@ -161,6 +165,8 @@ public class nookBaseActivity extends Activity {
             DataOutputStream dout = new DataOutputStream(aout);
             dout.writeUTF(intent.getAction());
             dout.writeUTF(intent.getDataString());
+            File f = new File(intent.getDataString().substring(6));
+            boolean val = f.setLastModified(System.currentTimeMillis());
             dout.writeUTF(intent.getType());
             dout.writeByte(0);
             byte[] data = aout.toByteArray();
