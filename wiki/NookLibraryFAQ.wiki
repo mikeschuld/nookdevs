@@ -1,3 +1,4 @@
+#labels Featured
 Following changes are included in 0.0.5 version-
 <h2>1. Show menu keywords</h2>
 Added option to read standard keywords from mybooks.xml file from sdcard root folder. 
@@ -17,7 +18,7 @@ Here is a sample file:
 </keywords>
 
 </pre>
-If this file is present, Keywords listed in the file will be included in the Show menu before the other keywords automatically read from books.
+If this file is present, Keywords listed in the file will be included in the Show menu before other keywords automatically read from books.
 <h2>2. Skipping folders</h2>
 if you want to exclude a folder from the listing, create a file named .skip in the folder. 
 Any folder with this file & all it's sub folders will be excluded from the scan.
