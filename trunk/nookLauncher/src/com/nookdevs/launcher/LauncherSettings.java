@@ -87,11 +87,13 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         };
     
     WebView m_WebView;
-    public static final String NAME = "Launcher Settings";
     Vector<String> m_IconFiles = new Vector<String>();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LOGTAG = "nookLauncher";
+        NAME = "Launcher Settings";
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         for (int i = 0; i < apps.length; i++) {
@@ -102,7 +104,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     @Override
     public void onResume() {
         super.onResume();
-        updateTitle(NAME + " " + m_Version);
+        
         m_ClickListener = new ClickListener();
         m_IntentsList = new HashMap<ImageButton, AppDetail>();
         loadApps();

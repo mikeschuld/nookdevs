@@ -63,8 +63,6 @@ import com.nookdevs.common.nookBaseActivity;
 public class nookBrowser extends nookBaseActivity implements OnClickListener, OnLongClickListener, OnItemClickListener,
     OnKeyListener, OnItemLongClickListener {
     
-    private static final String LOGTAG = "browser";
-    
     protected WebView webview;
     private ListView lview, sublist;
     private ConnectivityManager.WakeLock lock = null;
@@ -100,7 +98,6 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     public static final int CONNECTION_TIMEOUT = 600000;
     private ViewAnimator m_ViewAnimator;
     private String m_HomePage;
-    public static final String APP_TITLE = "Web";
     private ProgressBar m_ProgressBar;
     Handler m_Handler = new Handler();
     String m_UserAgentStr = null;
@@ -150,6 +147,9 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LOGTAG = "nookBrowser";
+        NAME = "Web";
+        
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_PROGRESS);
         setContentView(R.layout.main);
@@ -441,7 +441,6 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
         super.onResume();
         m_ProgressBar.setVisibility(View.INVISIBLE);
         m_Player.bringToFront();
-        updateTitle(APP_TITLE + " " + m_Version);
         m_Processing = false;
         try {
             if (m_Dialog != null) {
@@ -1014,7 +1013,7 @@ public class nookBrowser extends nookBaseActivity implements OnClickListener, On
                 default:
                     break;
             }
-        }        
+        }
         return handled;
     }
     

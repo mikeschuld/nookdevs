@@ -41,9 +41,8 @@ public class nookBaseActivity extends Activity {
     protected static final int NOOK_PAGE_DOWN_KEY_RIGHT = 97;
     protected static final int NOOK_PAGE_UP_KEY_LEFT = 96;
     protected static final int NOOK_PAGE_DOWN_KEY_LEFT = 95;
-    protected static final int NOOK_PAGE_DOWN_SWIPE= 100;
+    protected static final int NOOK_PAGE_DOWN_SWIPE = 100;
     protected static final int NOOK_PAGE_UP_SWIPE = 101;
-    
     
     PowerManager.WakeLock screenLock = null;
     boolean m_AirplaneMode = false;
@@ -74,6 +73,7 @@ public class nookBaseActivity extends Activity {
     }
     
     protected static String LOGTAG = "nookActivity";
+    protected static String NAME = "nookActivity";
     
     /** Called when the activity is first created. */
     @Override
@@ -89,11 +89,11 @@ public class nookBaseActivity extends Activity {
             info = manager.getPackageInfo(getPackageName(), 0);
             m_Version = info.versionName;
         } catch (NameNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             m_Version = "";
         }
         
+        updateTitle(NAME);
     }
     
     @Override
@@ -119,6 +119,8 @@ public class nookBaseActivity extends Activity {
             screenLock.acquire(m_ScreenSaverDelay);
         }
         m_FirstTime = false;
+        
+        updateTitle(NAME + " " + m_Version);
     }
     
     @Override
@@ -166,7 +168,7 @@ public class nookBaseActivity extends Activity {
             dout.writeUTF(intent.getAction());
             dout.writeUTF(intent.getDataString());
             File f = new File(intent.getDataString().substring(6));
-            boolean val = f.setLastModified(System.currentTimeMillis());
+            f.setLastModified(System.currentTimeMillis());
             dout.writeUTF(intent.getType());
             dout.writeByte(0);
             byte[] data = aout.toByteArray();
@@ -228,8 +230,7 @@ public class nookBaseActivity extends Activity {
         };
         
         try {
-            for (@SuppressWarnings("unused")
-            String field : fields) {
+            for (@SuppressWarnings("unused") String field : fields) {
                 if (name == null) {
                     name = "name=?";
                 } else {

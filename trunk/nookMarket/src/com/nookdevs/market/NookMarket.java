@@ -1,12 +1,16 @@
 package com.nookdevs.market;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class NookMarket extends Activity {
+import com.nookdevs.common.nookBaseActivity;
+
+public class NookMarket extends nookBaseActivity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LOGTAG = "nookMarket";
+        NAME = "nook Marketplace";
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
     }

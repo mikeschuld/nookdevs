@@ -36,7 +36,6 @@ import android.widget.Toast;
 import com.nookdevs.common.nookBaseActivity;
 
 public class NookLauncher extends nookBaseActivity {
-    private String APP_TITLE = "Home";
     private String m_WallPaperFile = null;
     
     String[] apps =
@@ -62,9 +61,11 @@ public class NookLauncher extends nookBaseActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LOGTAG = "nookLauncher";
+        NAME = "Home";
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        LOGTAG = "nookLauncher";
         
         loadApps();
     }
@@ -75,7 +76,6 @@ public class NookLauncher extends nookBaseActivity {
         if (m_SettingsChanged) {
             loadApps();
         }
-        updateTitle(APP_TITLE);
         loadWallpaper();
         if (m_LastButton != null) {
             m_LastButton.setBackgroundResource(android.R.color.darker_gray);

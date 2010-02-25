@@ -64,6 +64,7 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
         }
         m_SubTextValues[idx] = val;
     }
+    
     public String getSubText(int id) {
         return m_SubTextValues[id];
     }

@@ -15,7 +15,6 @@
 package com.nookdevs.wifi;
 
 import android.net.ConnectivityManager;
-//import android.net.MobileDataStateTracker;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,12 +38,15 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
     Button screensaver;
     boolean locked = false;
     Handler m_Handler = new Handler();
-    //MobileDataStateTracker tracker = null; -for 3G locking
-
+    
+    // MobileDataStateTracker tracker = null; -for 3G locking
     
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LOGTAG = "wifiLocker";
+        NAME = "Lock Wi-fi";
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -53,15 +55,14 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
         screensaverLock = power.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "wifiLocker" + hashCode());
         touchscreenLock = power.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "wifiLocker" + hashCode());
         back = (Button) findViewById(R.id.back);
-        back.setOnClickListener( new OnClickListener() {
+        back.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 goBack();
             }
-        }
-        );
+        });
         wifi = (Button) findViewById(R.id.wifi);
         wifi.setText(R.string.wifilock);
-        wifi.setOnClickListener( new OnClickListener() {
+        wifi.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 if (lock.isHeld()) {
                     lock.release();
@@ -70,10 +71,9 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
                     lock.acquire();
                     WifiTask task = new WifiTask();
                     task.execute();
-                } 
+                }
             }
-        }
-        );
+        });
         touchscreen = (Button) findViewById(R.id.touchscreen);
         touchscreen.setText(R.string.touchscreenlock);
         screensaver = (Button) findViewById(R.id.screensaver);
@@ -86,10 +86,9 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
                 } else {
                     touchscreenLock.acquire();
                     touchscreen.setText(R.string.touchscreenunlock);
-                } 
+                }
             }
-        }
-        );
+        });
         screensaver.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 if (screensaverLock.isHeld()) {
@@ -98,25 +97,18 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
                 } else {
                     screensaverLock.acquire();
                     screensaver.setText(R.string.screensaverunlock);
-                } 
+                }
             }
-        }
-        );
-      //  tracker = new MobileDataStateTracker(this, m_Handler);
+        });
+        // tracker = new MobileDataStateTracker(this, m_Handler);
     }
     
     public void onClick(View v) {
-            /*
-            if( !locked) {
-                tracker.reconnect();
-                tracker.setRadio(true);
-                locked=true;
-                wifi.setText(R.string.unlock);
-            } else {
-                tracker.setRadio(false);
-                locked=false;
-                wifi.setText(R.string.lock);
-            } */
+        /*
+         * if( !locked) { tracker.reconnect(); tracker.setRadio(true);
+         * locked=true; wifi.setText(R.string.unlock); } else {
+         * tracker.setRadio(false); locked=false; wifi.setText(R.string.lock); }
+         */
     }
     
     @Override
@@ -125,10 +117,10 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
         if (lock.isHeld()) {
             lock.release();
         }
-        if( screensaverLock.isHeld()) {
+        if (screensaverLock.isHeld()) {
             screensaverLock.release();
         }
-        if( touchscreenLock.isHeld()) {
+        if (touchscreenLock.isHeld()) {
             touchscreenLock.release();
         }
     }
