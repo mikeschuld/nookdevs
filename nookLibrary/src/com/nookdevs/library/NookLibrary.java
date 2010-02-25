@@ -121,10 +121,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LOGTAG = "nookLibrary";
+        NAME = "My Books";
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
-        LOGTAG = "nookLibrary";
         
         goButton = (ImageButton) findViewById(R.id.go);
         backButton = (Button) findViewById(R.id.back);
