@@ -673,8 +673,6 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     smUrl += pc.user;
                     smUrl += ":";
                     smUrl += pc.pass + "@";
-                } else {
-                    m_Auth = null;
                 }
                 SmbFile sf = new SmbFile(smUrl + pc.ip + "/");
                 loadNetwork(sf);
