@@ -221,12 +221,12 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     
     @Override
     public void onResume() {
-        super.onResume();
-        updateTitle("my books" + " " + m_Version);
         if (!m_FirstTime && ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {
             SortTask task = new SortTask(true);
             task.execute(ScannedFile.SORT_BY_LATEST);
         }
+        super.onResume();
+        updateTitle("my books" + " " + m_Version);
     }
     
     private void getOtherFiles() {
