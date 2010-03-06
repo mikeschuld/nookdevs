@@ -36,6 +36,7 @@ import android.os.Parcelable;
 
 import com.nookdevs.common.nookBaseActivity;
 import com.nookdevs.library.EpubMetaReader;
+import com.nookdevs.library.PdfMetaReader;
 
 public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Serializable {
     private static final long serialVersionUID = -1908968223219359322L;
@@ -137,6 +138,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private List<String> m_Keywords;
     private String type;
     private EpubMetaReader epub;
+    private PdfMetaReader pdf;
     
     public ScannedFile() {
         super();
@@ -185,6 +187,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public void updateMetaData() {
         if ("epub".equals(type)) {
             epub = new EpubMetaReader(this);
+        } else if( "pdf".equalsIgnoreCase(type)) {
+            pdf = new PdfMetaReader(this);
         }
     }
     
@@ -260,7 +264,11 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (ext.equals("html")) {
             ext = "htm";
         }
+        type=ext;
         addKeywords(ext);
+    }
+    public String getType() {
+        return type;
     }
     
     public int compareTo(ScannedFile file1) {
