@@ -1,4 +1,10 @@
 #labels Featured
+Following changes are included in 0.0.6 version-
+<h2>1.Tags in pdf files </h2>
+Added ability to read description and keyword tags from pdf files. Now, both epub and pdf files can have tags. pdb files still won't work.
+<h2>2.Issue 34:</h2> Handling unexpected failures from IECMScannerService
+<h2>3.Issue 38:</h2> Tags sort based on upper/lower case<br>
+
 Following changes are included in 0.0.5 version-
 <h2>1. Show menu keywords</h2>
 Added option to read standard keywords from mybooks.xml file from sdcard root folder. 
