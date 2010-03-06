@@ -19,6 +19,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -286,12 +287,21 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         
         public void getBatchList(final List<ScannedFile> files) throws RemoteException {
             m_LocalScanDone.block();
-            m_Files.addAll(files);
+            if( files != null)
+                m_Files.addAll(files);
             unbindService(m_Conn);
             Collections.sort(m_Files);
             List<String> tmpList = ScannedFile.getAvailableKeywords();
             m_ShowIndex = 0;
-            Collections.sort(tmpList);
+            Collections.sort(tmpList, new Comparator<String>() {
+                public int compare(String object1, String object2) {
+                    if( object1 != null)
+                        return object1.compareToIgnoreCase(object2);
+                    else
+                        return 1;
+                }   
+                
+            });
             m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
             m_ShowValues.add("All");
             ScannedFile.loadStandardKeywords();
@@ -338,11 +348,17 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 "my documents", "Digital Editions", "mydownloads", "my downloads", "my B&N Downloads"
             };
             String[] exts = {
-                "pdf", "pdb"
+                "pdb","pdf"
             };
             m_Service.scanDirectoriesBatch(1, folders, exts, MAX_FILES_PER_BATCH, m_Callback);
         } catch (Exception ex) {
             Log.e(LOGTAG, "Exception calling scanDirectoriesBatch ...", ex);
+            try {
+                displayAlert(getString(R.string.scanning), getString(R.string.scan_error), 2, null, -1);
+                m_Callback.getBatchList(null);
+            } catch(Exception ex1) {
+                
+            }
         }
         
     }
@@ -440,7 +456,27 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         List<ScannedFile> list = m_Files;
         for (ScannedFile file : list) {
             file.loadCover();
+            if( file.getType().equals("pdf")) {
+                file.updateMetaData();
+            }
         }
+        List<String> tmpList = ScannedFile.getAvailableKeywords();
+        Collections.sort(tmpList, new Comparator<String>() {
+            public int compare(String object1, String object2) {
+                if( object1 != null)
+                    return object1.compareToIgnoreCase(object2);
+                else
+                    return 1;
+            }   
+            
+        });
+        m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
+        m_ShowValues.add("All");
+        if (ScannedFile.m_StandardKeywords != null) {
+            m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
+        }
+        m_ShowValues.addAll(tmpList);
+        m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
     }
     
     private Vector<String> loadImages() {
@@ -623,8 +659,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
             mimetype += ext;
             path = "file://" + path;
-            Log.i(LOGTAG, "mimetype = " + mimetype);
-            Log.i(LOGTAG, "URI =" + path);
             intent.setDataAndType(Uri.parse(path), mimetype);
             updateReadingNow(intent);
             try {

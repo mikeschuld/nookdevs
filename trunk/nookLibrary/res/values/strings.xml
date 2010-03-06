@@ -14,6 +14,7 @@
     <string name="reader_not_found">No Reader found for this file type.</string>
     <string name="search_lib">Search Library:</string>
     <string name="in_progress">In Progress...</string>
+    <string name="scan_error">Scanning failed to complete. Try again later.</string>
 <string-array name="mainmenu">
 		<item>View Details</item>
         <item>Sort By</item>
