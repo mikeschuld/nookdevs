@@ -187,7 +187,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public void updateMetaData() {
         if ("epub".equals(type)) {
             epub = new EpubMetaReader(this);
-        } else if( "pdf".equalsIgnoreCase(type)) {
+        } else if ("pdf".equalsIgnoreCase(type)) {
             pdf = new PdfMetaReader(this);
         }
     }
@@ -264,9 +264,10 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (ext.equals("html")) {
             ext = "htm";
         }
-        type=ext;
+        type = ext;
         addKeywords(ext);
     }
+    
     public String getType() {
         return type;
     }

@@ -16,12 +16,12 @@ package com.nookdevs.library;
 
 import java.util.StringTokenizer;
 
+import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.PInfo;
+
 import android.util.Log;
 
 import com.bravo.ecmscannerservice.ScannedFile;
-
-import org.icepdf.core.pobjects.Document;
-import org.icepdf.core.pobjects.PInfo;
 
 public class PdfMetaReader {
     ScannedFile m_File;
@@ -30,20 +30,21 @@ public class PdfMetaReader {
         m_File = file;
         readMetadata();
     }
+    
     private boolean readMetadata() {
         try {
             Document doc = new Document();
             try {
                 doc.setFile(m_File.getPathName());
-            } catch(Throwable er) {
+            } catch (Throwable er) {
                 
             }
             PInfo info = doc.getInfo();
-       //     m_File.addContributor(info.getAuthor(), "");
-       //     m_File.setTitle( info.getTitle());
+            // m_File.addContributor(info.getAuthor(), "");
+            // m_File.setTitle( info.getTitle());
             m_File.setDescription(info.getSubject());
-            StringTokenizer token = new StringTokenizer(info.getKeywords(),",; ");
-            while( token.hasMoreTokens()) {
+            StringTokenizer token = new StringTokenizer(info.getKeywords(), ",; ");
+            while (token.hasMoreTokens()) {
                 m_File.addKeywords(token.nextToken());
             }
         } catch (Throwable e) {
@@ -51,8 +52,7 @@ public class PdfMetaReader {
             Log.w("PdfMetaReader", "No Metadata for " + m_File.getPathName());
             return false;
         }
-   
+        
         return true;
     }
 }
-
