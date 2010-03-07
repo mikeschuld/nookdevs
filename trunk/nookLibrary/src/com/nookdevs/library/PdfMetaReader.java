@@ -33,7 +33,11 @@ public class PdfMetaReader {
     private boolean readMetadata() {
         try {
             Document doc = new Document();
-            doc.setFile(m_File.getPathName());
+            try {
+                doc.setFile(m_File.getPathName());
+            } catch(Throwable er) {
+                
+            }
             PInfo info = doc.getInfo();
        //     m_File.addContributor(info.getAuthor(), "");
        //     m_File.setTitle( info.getTitle());
