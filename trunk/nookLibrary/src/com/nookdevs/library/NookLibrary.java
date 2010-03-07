@@ -456,6 +456,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         List<ScannedFile> list = m_Files;
         for (ScannedFile file : list) {
             file.loadCover();
+        }
+        for( ScannedFile file:list) {
             if( file.getType().equals("pdf")) {
                 file.updateMetaData();
             }
