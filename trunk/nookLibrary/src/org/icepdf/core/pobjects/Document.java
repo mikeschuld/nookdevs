@@ -453,8 +453,8 @@ public class Document {
             if( catalog != null) catalog.init();
 
             // create new instance of state manager and add it to the library
-            stateManager = new StateManager(pTrailer);
-            library.setStateManager(stateManager);
+       //     stateManager = new StateManager(pTrailer);
+       //     library.setStateManager(stateManager);
         }
         catch (PDFException e) {
             logger.log(Level.FINE, "Error loading PDF file during linear parse.", e);
@@ -524,11 +524,11 @@ public class Document {
         library.setLazyObjectLoader(lol);
 
         pTrailer = documentTrailer;
-        catalog = documentTrailer.getRootCatalog();
-        library.setCatalog(catalog);
+     //   catalog = documentTrailer.getRootCatalog();
+     //   library.setCatalog(catalog);
 
-        if (catalog == null)
-            throw new NullPointerException("Loading via xref failed to find catalog");
+     //   if (catalog == null)
+     //       throw new NullPointerException("Loading via xref failed to find catalog");
 
         boolean madeSecurityManager = makeSecurityManager(documentTrailer);
         if (madeSecurityManager)
