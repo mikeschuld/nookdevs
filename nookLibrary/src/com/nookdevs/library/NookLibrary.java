@@ -287,19 +287,21 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         
         public void getBatchList(final List<ScannedFile> files) throws RemoteException {
             m_LocalScanDone.block();
-            if( files != null)
+            if (files != null) {
                 m_Files.addAll(files);
+            }
             unbindService(m_Conn);
             Collections.sort(m_Files);
             List<String> tmpList = ScannedFile.getAvailableKeywords();
             m_ShowIndex = 0;
             Collections.sort(tmpList, new Comparator<String>() {
                 public int compare(String object1, String object2) {
-                    if( object1 != null)
+                    if (object1 != null) {
                         return object1.compareToIgnoreCase(object2);
-                    else
+                    } else {
                         return 1;
-                }   
+                    }
+                }
                 
             });
             m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
@@ -348,7 +350,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 "my documents", "Digital Editions", "mydownloads", "my downloads", "my B&N Downloads"
             };
             String[] exts = {
-                "pdb","pdf"
+                "pdb", "pdf"
             };
             m_Service.scanDirectoriesBatch(1, folders, exts, MAX_FILES_PER_BATCH, m_Callback);
         } catch (Exception ex) {
@@ -356,7 +358,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             try {
                 displayAlert(getString(R.string.scanning), getString(R.string.scan_error), 2, null, -1);
                 m_Callback.getBatchList(null);
-            } catch(Exception ex1) {
+            } catch (Exception ex1) {
                 
             }
         }
@@ -457,19 +459,20 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         for (ScannedFile file : list) {
             file.loadCover();
         }
-        for( ScannedFile file:list) {
-            if( file.getType().equals("pdf")) {
+        for (ScannedFile file : list) {
+            if (file.getType().equals("pdf")) {
                 file.updateMetaData();
             }
         }
         List<String> tmpList = ScannedFile.getAvailableKeywords();
         Collections.sort(tmpList, new Comparator<String>() {
             public int compare(String object1, String object2) {
-                if( object1 != null)
+                if (object1 != null) {
                     return object1.compareToIgnoreCase(object2);
-                else
+                } else {
                     return 1;
-            }   
+                }
+            }
             
         });
         m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
