@@ -429,19 +429,19 @@ public class Parser {
 //System.out.println("Parser.getObject()  >>  Name: " + n);
                             if (n.equals("Catalog")) {
                                 stack.push(new Catalog(library, hashTable));
-                            } else if (n.equals("Pages")) {
-                                stack.push(new PageTree(library, hashTable));
-                            } else if (n.equals("Page")) {
-                                stack.push(new Page(library, hashTable));
-                            } else if (n.equals("Font")) {
-                                stack.push(FontFactory.getInstance()
-                                        .getFont(library, hashTable));
-                            } else if (n.equals("FontDescriptor")) {
-                                stack.push(new FontDescriptor(library, hashTable));
-                            } else if (n.equals("CMap")) {
-                                stack.push(hashTable);
-                            } else if (n.equals("Annot")) {
-                                stack.push(Annotation.buildAnnotation(library, hashTable));
+                        //    } else if (n.equals("Pages")) {
+                        //        stack.push(new PageTree(library, hashTable));
+                        //    } else if (n.equals("Page")) {
+                        //        stack.push(new Page(library, hashTable));
+                        //    } else if (n.equals("Font")) {
+                        //        stack.push(FontFactory.getInstance()
+                        //                .getFont(library, hashTable));
+                        //    } else if (n.equals("FontDescriptor")) {
+                        //        stack.push(new FontDescriptor(library, hashTable));
+                        //    } else if (n.equals("CMap")) {
+                        //        stack.push(hashTable);
+                         //   } else if (n.equals("Annot")) {
+                         //       stack.push(Annotation.buildAnnotation(library, hashTable));
                             } else
                                 stack.push(hashTable);
                         }
