@@ -42,7 +42,7 @@ public class PdfMetaReader {
             while( token.hasMoreTokens()) {
                 m_File.addKeywords(token.nextToken());
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // TODO Auto-generated catch block
             Log.w("PdfMetaReader", "No Metadata for " + m_File.getPathName());
             return false;

@@ -406,14 +406,14 @@ public class Library {
      */
     public ICCBased getICCBased(Reference ref) {
         ICCBased cs = lookupReference2ICCBased.get(ref);
-        if (cs == null) {
-            Object obj = getObject(ref);
-            if (obj instanceof Stream) {
-                Stream stream = (Stream) obj;
-                cs = new ICCBased(this, stream);
-                lookupReference2ICCBased.put(ref, cs);
-            }
-        }
+//        if (cs == null) {
+//            Object obj = getObject(ref);
+//            if (obj instanceof Stream) {
+//                Stream stream = (Stream) obj;
+//                cs = new ICCBased(this, stream);
+//                lookupReference2ICCBased.put(ref, cs);
+//            }
+//        }
         return cs;
     }
 
