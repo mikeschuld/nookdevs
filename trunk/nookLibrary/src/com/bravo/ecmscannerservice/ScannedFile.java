@@ -139,6 +139,14 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private String type;
     private EpubMetaReader epub;
     private PdfMetaReader pdf;
+    private String m_Series;
+    
+    public void setSeries(String s) {
+        m_Series=s;
+    }
+    public String getSeries() {
+        return m_Series;
+    }
     
     public ScannedFile() {
         super();
@@ -368,12 +376,14 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public String getTitle() {
+        String title=m_Series == null?"":m_Series+" ";
         if (titles == null || titles.size() == 0) {
             int idx = pathname.lastIndexOf("/");
-            return pathname.substring(idx + 1);
+            title += pathname.substring(idx + 1);
         } else {
-            return titles.get(0).trim();
+            title += titles.get(0).trim();
         }
+        return title;
     }
     
     public String getDescription() {
@@ -462,7 +472,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         } else {
             StringBuffer auth = new StringBuffer();
             auth.append(contributors.get(0).lastName);
-            return auth.toString();
+            return auth.toString().trim();
         }
     }
     
@@ -476,7 +486,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 auth.append(contributors.get(i).toString());
                 auth.append(" ");
             }
-            return auth.toString();
+            return auth.toString().trim();
         }
     }
     
