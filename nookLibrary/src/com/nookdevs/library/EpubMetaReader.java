@@ -128,6 +128,9 @@ public class EpubMetaReader {
             }
             // parse opf file here
             boolean valid = false;
+            String idx = "";
+            boolean seriesTag = false;
+            boolean seriesIdx = false;
             String name = "";
             while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
                 if (type == XmlPullParser.END_TAG) {
@@ -142,6 +145,30 @@ public class EpubMetaReader {
                         valid = true;
                     } else {
                         valid = false;
+                    }
+                    
+                    if (name.equals("meta") && !(seriesTag && seriesIdx)) {
+                        int count = parser.getAttributeCount();
+                        for (int i = 0; i < count; i++) {
+                            String attr = parser.getAttributeName(i);
+                            String val = parser.getAttributeValue(i);
+                            if (attr.equals("name") && val.equals("calibre:series")) {
+                                seriesTag = true;
+                                i++;
+                                attr = parser.getAttributeName(i);
+                                val = parser.getAttributeValue(i);
+                                m_File.setSeries(val);
+                            } else if (attr.equals("name") && val.equals("calibre:series_index")) {
+                                i++;
+                                attr = parser.getAttributeName(i);
+                                idx = parser.getAttributeValue(i);
+                                int dot = idx.indexOf('.');
+                                if (dot != -1) {
+                                    idx = idx.substring(0, dot);
+                                }
+                                seriesIdx = true;
+                            }
+                        }
                     }
                     // int count = parser.getAttributeCount();
                     // for(int i=0; i<count; i++) {
@@ -168,6 +195,9 @@ public class EpubMetaReader {
                     }
                     valid = false;
                 }
+            }
+            if (seriesTag) {
+                m_File.setSeries(m_File.getSeries() + " " + idx + "-");
             }
         } catch (Exception ex) {
             return false;
