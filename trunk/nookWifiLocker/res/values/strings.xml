@@ -11,7 +11,11 @@
     <string name="touchscreenlock">Keep Touchscreen On</string>
     <string name="touchscreenunlock">Let Touchscreen Sleep</string>
     
+    <string name="adbstart">Start ADB</string>
+    <string name="adbstop">Stop ADB</string>
+    
     <string name="start_wifi">Locking Wi-Fi</string>
     <string name="please_wait">Please Wait</string>
     <string name="wifi_timeout">Timed out waiting for Wi-Fi lock.</string>
+    
 </resources>
