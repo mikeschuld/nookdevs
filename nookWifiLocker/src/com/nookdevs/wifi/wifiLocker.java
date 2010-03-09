@@ -122,19 +122,6 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
                     Log.e(LOGTAG, "Error stopping/starting adbd", ex);
                     ex.printStackTrace();
                 }
-                // try {
-                // Settings.Secure.putString(getContentResolver(),
-                // Settings.Secure.ADB_ENABLED,"1");
-                // ContentValues values = new ContentValues();
-                // values.put("VALUE","0");
-                // getContentResolver().update(Uri.parse("content://settings/secure"),values,"name='adb_enabled'",
-                // null);
-                // } catch(Exception ex) {
-                // Log.e(LOGTAG, "Error starting adbd", ex);
-                // ex.printStackTrace();
-                // }
-                // adbstarted=true;
-                // }
             }
         });
     }
