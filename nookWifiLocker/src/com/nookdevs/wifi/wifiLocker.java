@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -36,8 +37,10 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
     Button wifi;
     Button touchscreen;
     Button screensaver;
+    Button adb;
     boolean locked = false;
     Handler m_Handler = new Handler();
+    boolean adbstarted = true;
     
     // MobileDataStateTracker tracker = null; -for 3G locking
     
@@ -100,7 +103,40 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
                 }
             }
         });
-        // tracker = new MobileDataStateTracker(this, m_Handler);
+        adb = (Button) findViewById(R.id.adb);
+        adbstarted = true;
+        adb.setText(R.string.adbstop);
+        adb.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+                try {
+                    if (adbstarted) {
+                        Runtime.getRuntime().exec("/system/bin/stop adbd");
+                        adbstarted = false;
+                        adb.setText(R.string.adbstart);
+                    } else {
+                        Runtime.getRuntime().exec("/system/bin/start adbd");
+                        adbstarted = true;
+                        adb.setText(R.string.adbstop);
+                    }
+                } catch (Exception ex) {
+                    Log.e(LOGTAG, "Error stopping/starting adbd", ex);
+                    ex.printStackTrace();
+                }
+                // try {
+                // Settings.Secure.putString(getContentResolver(),
+                // Settings.Secure.ADB_ENABLED,"1");
+                // ContentValues values = new ContentValues();
+                // values.put("VALUE","0");
+                // getContentResolver().update(Uri.parse("content://settings/secure"),values,"name='adb_enabled'",
+                // null);
+                // } catch(Exception ex) {
+                // Log.e(LOGTAG, "Error starting adbd", ex);
+                // ex.printStackTrace();
+                // }
+                // adbstarted=true;
+                // }
+            }
+        });
     }
     
     public void onClick(View v) {
