@@ -153,6 +153,13 @@ public class PageViewHelper {
         updateHeader();
     }
     
+    public void update() {
+        if (m_CurrentItem > 0) {
+            ScannedFile file = getCurrent();
+            m_BookNames[m_CurrentItem - 1].setText(file.getTitle());
+        }
+    }
+    
     private void clearData() {
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
             m_Dividers[i].setVisibility(View.INVISIBLE);

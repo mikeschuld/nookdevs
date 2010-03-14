@@ -21,18 +21,30 @@
 //
 package com.bravo.ecmscannerservice;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.nookdevs.common.nookBaseActivity;
 import com.nookdevs.library.EpubMetaReader;
@@ -46,6 +58,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public static final int SORT_BY_AUTHOR_LAST = 2;
     public static final int SORT_BY_LATEST = 3;
     public static List<String> m_StandardKeywords = null;
+    private String lendState="";
     // private static String[] m_StdKeywords =
     // { "Fiction", "Nonfiction", "Adventure","Classics", "Crime","Mystery",
     // "Science Fiction", "Romance",
@@ -140,10 +153,20 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private EpubMetaReader epub;
     private PdfMetaReader pdf;
     private String m_Series;
+    private String m_Status;
+    
+    public void setStatus(String status) {
+        m_Status = status;
+    }
+    public String getStatus() {
+        return m_Status;
+    }
     
     public void setSeries(String s) {
-        m_Series=s;
+        m_Series = s;
+        addKeywords(m_Series);
     }
+    
     public String getSeries() {
         return m_Series;
     }
@@ -151,19 +174,65 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public ScannedFile() {
         super();
     }
+    public void setPathName(String path) {
+        pathname = path;
+        if( m_Details != null) {
+            m_Details +="<b>File Path:</b>&nbsp;"+pathname;
+        }
+    }
     
     public boolean loadCover() {
         try {
+            if( getCover() != null) {
+                if( getCover().startsWith("http://")) {
+                    URL aURL = new URL(getCover());
+                    String name = "/system/media/sdcard/my B&N downloads/" + titles.get(0) + ".jpg";
+                    try {
+                        if( (new File(name)).exists()) {
+                            setCover(name);
+                            return true;
+                        }
+                        DefaultHttpClient httpClient = new DefaultHttpClient();
+                        HttpGet request = new HttpGet(getCover());
+                        HttpResponse response = httpClient.execute(request);
+                        BufferedInputStream bis = new BufferedInputStream(response.getEntity().getContent(), 1024);   
+                        FileOutputStream fout = new FileOutputStream(new File(name));
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = bis.read(buffer)) >= 0) {
+                            fout.write(buffer, 0, len);
+                        }
+                        bis.close();
+                        fout.close();
+                        setCover( name);
+                        return true;
+                    } catch(Exception ex) {
+                        File tmp = new File(name);
+                        tmp.delete();
+                        ex.printStackTrace();
+                    }
+                } else {
+                    return true;
+                }
+            } 
             String[] fileTypes = {
-                ".jpg", ".png", ".jpeg", ".gif", ".JPG", ".JPEG", ".PNG", ".GIF"
+                ".jpg", ".jpeg", ".PNG", ".png",".gif", ".JPG", ".JPEG", ".GIF"
             };
             boolean found = false;
             String cover = "";
-            int idx = pathname.lastIndexOf('.');
-            String path1 = pathname.substring(0, idx);
+            int idx;
+            String path1;
+            if( pathname != null && !pathname.trim().equals("")) {
+                idx = pathname.lastIndexOf('.');
+                if( idx == -1) {
+                    path1 = pathname;
+                } else
+                    path1=pathname.substring(0, idx);
+            } else {
+                path1 = "/system/media/sdcard/my B&N downloads/" + titles.get(0);
+            }
             int attempt = 1;
             while (!found && attempt < 4) {
-                
                 for (String s : fileTypes) {
                     File f = new File(path1 + s);
                     if (f.exists()) {
@@ -191,16 +260,20 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         }
         return true;
     }
-    
     public void updateMetaData() {
+        updateMetaData(true);
+    }
+    public void updateMetaData(boolean quick) {
         if ("epub".equals(type)) {
             epub = new EpubMetaReader(this);
         } else if ("pdf".equalsIgnoreCase(type)) {
-            pdf = new PdfMetaReader(this);
+            pdf = new PdfMetaReader(this,quick);
         }
     }
-    
     public ScannedFile(String pathName) {
+        this(pathName, true);
+    }
+    public ScannedFile(String pathName, boolean update) {
         pathname = pathName;
         if (pathname != null) {
             m_DataBuffer.append(pathname);
@@ -210,7 +283,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 type = "htm";
             }
             addKeywords(type);
-            updateMetaData();
+            if( update) updateMetaData();
         }
     }
     
@@ -275,9 +348,24 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         type = ext;
         addKeywords(ext);
     }
-    
+    public void updateLastAccessDate() {
+        try {
+            if( pathname != null && !pathname.trim().equals(""))
+                lastAccessedDate = new Date((new File(pathname)).lastModified());
+            
+        } catch(Exception ex) {
+            
+        }
+        
+    }
     public String getType() {
         return type;
+    }
+    public void setLendState( String state) {
+        lendState = state;
+    }
+    public String getLendState () {
+        return lendState;
     }
     
     public int compareTo(ScannedFile file1) {
@@ -330,13 +418,22 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public Date getCreatedDate() {
         return createdDate;
     }
+    public void setCreatedDate(Date date) {
+        createdDate=date;
+    }
     
     public Date getPublishedDate() {
         return publishedDate;
     }
+    public void setPublishedDate(Date date) {
+        publishedDate = date;
+    }
     
     public String getEan() {
         return ean;
+    }
+    public void setEan(String ean) {
+        this.ean=ean;
     }
     
     public Date getLastAccessedDate() {
@@ -370,18 +467,34 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (titles == null) {
             titles = new ArrayList<String>();
         }
+        if( val == null || val.trim().equals(""))
+            return;
         titles.add(val);
         m_DataBuffer.append(" ");
         m_DataBuffer.append(val);
     }
+    public void setTitles(List<String>titles) {
+        this.titles = titles;
+    }
     
     public String getTitle() {
-        String title=m_Series == null?"":m_Series+" ";
+        String title = m_Series == null ? "" : m_Series + " ";
         if (titles == null || titles.size() == 0) {
             int idx = pathname.lastIndexOf("/");
             title += pathname.substring(idx + 1);
         } else {
-            title += titles.get(0).trim();
+            for( int i=0; i<titles.size(); i++) {
+                String tmp = titles.get(i).trim();
+                if( !title.contains(tmp)) {
+                    if( i!=0) {
+                        tmp ="," + tmp;
+                    }
+                    title += tmp;
+                }
+            }
+        }
+        if( m_Status != null) {
+            title += "-" + m_Status;
         }
         return title;
     }
@@ -397,7 +510,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public void addKeywords(String keyword) {
-        if (keyword == null) { return; }
+        if (keyword == null || keyword.trim().equals("")) { return; }
         if (m_Keywords == null) {
             m_Keywords = new ArrayList<String>(10);
         }
@@ -410,7 +523,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public boolean matchSubject(String subject) {
-        return m_Keywords.contains(subject);
+        return m_Keywords != null && m_Keywords.contains(subject);
     }
     
     public static List<String> getAvailableKeywords() {
@@ -424,10 +537,9 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private String m_Details = null;
     
     public String getDetails() {
-        if (m_Details != null) { return m_Details; }
-        StringBuffer text = new StringBuffer("<b>");
-        text.append(getTitle());
-        text.append("</b><br/><br/>");
+        String text1 = "<b>"+getTitle()+"</b><br/><br/>";
+        if (m_Details != null) { return text1 + m_Details; }
+        StringBuffer text= new StringBuffer();
         if (contributors.size() > 0) {
             text.append("&nbsp;&nbsp;&nbsp;&nbsp;by " + getAuthor() + "<br/>");
         } else {
@@ -441,16 +553,16 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             text.append("<br/>");
         }
         List<String> keywords = getKeywords();
-        if (keywords.size() > 1) {
-            text.append("<br/>Keyword(s):");
-        }
         boolean tmpFlag = false;
-        for (int i = 1; i < keywords.size(); i++) {
-            if (i > 1) {
-                text.append(',');
+        if (keywords != null && keywords.size() > 1) {
+            text.append("<br/>Keyword(s):");
+            for (int i = 1; i < keywords.size(); i++) {
+                if (i > 1) {
+                    text.append(',');
+                }
+                text.append(keywords.get(i));
+                tmpFlag = true;
             }
-            text.append(keywords.get(i));
-            tmpFlag = true;
         }
         if (tmpFlag) {
             text.append("<br/><br/>");
@@ -460,10 +572,12 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             text.append(tmp);
             text.append("<br/><br/>");
         }
-        text.append("<b>File Path:</b>&nbsp;");
-        text.append(pathname);
+        if ( pathname != null && !pathname.equals("")) {
+            text.append("<b>File Path:</b>&nbsp;");
+            text.append(pathname);
+        }
         m_Details = text.toString();
-        return m_Details;
+        return text1+m_Details;
     }
     
     public String getAuthorLast() {
@@ -483,8 +597,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             StringBuffer auth = new StringBuffer();
             int count = contributors.size();
             for (int i = 0; i < count; i++) {
+                if( i !=0) auth.append(",");
                 auth.append(contributors.get(i).toString());
-                auth.append(" ");
             }
             return auth.toString().trim();
         }
@@ -572,4 +686,12 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         }
         return m_Data;
     }
+    private boolean m_BookInDB=true;
+    public void setBookInDB(boolean val) {
+        m_BookInDB=val;
+    }
+    public boolean getBookInDB() {
+        return m_BookInDB;
+    }
+    
 }

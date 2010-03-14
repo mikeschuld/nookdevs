@@ -15,7 +15,6 @@
 package com.nookdevs.library;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +31,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences.Editor;
 import android.content.res.TypedArray;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -86,8 +86,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     protected static final int SCAN_FOLDERS = 5;
     protected static final int CLOSE = 6;
     private ConditionVariable m_LocalScanDone = new ConditionVariable();
+    private ConditionVariable m_BNBooks = new ConditionVariable();
     private static final int WEB_SCROLL_PX = 750;
     private Toast m_Toast = null;
+    public static final String PREF_FILE = "NookLibrary";
     private int[] icons =
         {
             -1, R.drawable.submenu, R.drawable.search, R.drawable.covers, R.drawable.submenu, -1, -1, -1, -1, -1, -1,
@@ -111,7 +113,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     IconArrayAdapter<CharSequence> m_SortAdapter = null;
     ArrayAdapter<CharSequence> m_ShowAdapter = null;
     List<CharSequence> m_SortMenuValues = null;
-    // ConnectivityManager.WakeLock m_Lock;
+    ConnectivityManager.WakeLock m_Lock;
     protected List<CharSequence> m_ShowValues = null;
     int m_ShowIndex = 0;
     ImageButton m_CoverBtn = null;
@@ -119,6 +121,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     ScrollView m_DetailsScroll = null;
     ViewAnimator m_PageViewAnimator = null;
     TextView m_DetailsPage = null;
+    private boolean m_ScanInProgress = false;
+    private boolean m_RemoteScanDone = false;
+    private OtherBooks m_OtherBooks;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -182,6 +187,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_DetailsScroll.setVisibility(View.INVISIBLE);
         m_PageViewAnimator = (ViewAnimator) findViewById(R.id.pageview);
         m_DetailsPage = (TextView) findViewById(R.id.pageview2);
+        m_OtherBooks = new OtherBooks(this);
+        ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        m_Lock = cmgr.newWakeLock(1, "NookLibrary.scanTask" + hashCode());
         queryFolders();
     }
     
@@ -210,7 +218,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     public void readSettings() {
         int sortType = ScannedFile.SORT_BY_NAME;
         try {
-            sortType = getPreferences(MODE_PRIVATE).getInt("SORT_BY", sortType);
+            sortType = getSharedPreferences(PREF_FILE, MODE_PRIVATE).getInt("SORT_BY", sortType);
         } catch (Exception ex) {
             Log.e(LOGTAG, "preference exception: ", ex);
             
@@ -226,56 +234,60 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             task.execute(ScannedFile.SORT_BY_LATEST);
         }
         super.onResume();
-        updateTitle("my books" + " " + m_Version);
     }
     
-    private void getOtherFiles() {
-        try {
-            File file = new File(SDFOLDER);
-            File external = new File(EXTERNAL_SDFOLDER);
-            FileFilter filter = new FileFilter() {
-                public boolean accept(File f) {
-                    if (f.isDirectory()) { return true; }
-                    String extension = f.getName().toLowerCase();
-                    if (extension.endsWith("epub") || extension.endsWith("htm") || extension.endsWith("txt")
-                        || extension.endsWith("html")) {
-                        return true;
+    void updatePageView(List<ScannedFile> files) {
+        if (files != null && files.size() > 0) {
+            synchronized (m_Files) {
+                m_Files.addAll(files);
+            }
+            updatePageView(false);
+        }
+    }
+    
+    private void updatePageView(boolean last) {
+        List<String> tmpList = null;
+        if (last) {
+            Collections.sort(m_Files);
+            tmpList = ScannedFile.getAvailableKeywords();
+            m_ShowIndex = 0;
+            Collections.sort(tmpList, new Comparator<String>() {
+                public int compare(String object1, String object2) {
+                    if (object1 != null) {
+                        return object1.compareToIgnoreCase(object2);
                     } else {
-                        return false;
+                        return 1;
                     }
                 }
-                
-            };
-            retrieveFiles(file, filter);
-            retrieveFiles(external, filter);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            });
+            m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
+        } else {
+            m_ShowValues = new ArrayList<CharSequence>(50);
         }
-        m_LocalScanDone.open();
-    }
-    
-    private void retrieveFiles(File base, FileFilter filter) {
-        File skipFile = new File(base, ".skip");
-        if (skipFile.exists()) { return; }
-        
-        File[] files = base.listFiles(filter);
-        if (files == null) { return; }
-        for (File file : files) {
-            if (file.isDirectory()) {
-                retrieveFiles(file, filter);
-            } else {
-                if (file.getName().startsWith(".")) {
-                    continue;
+        m_ShowValues.add("All");
+        if (ScannedFile.m_StandardKeywords != null) {
+            m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
+        }
+        if (last) {
+            m_ShowValues.addAll(tmpList);
+        }
+        m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
+        Runnable thrd = new Runnable() {
+            public void run() {
+                closeAlert();
+                LinearLayout pageview = (LinearLayout) NookLibrary.this.findViewById(R.id.pageview1);
+                if (pageViewHelper == null) {
+                    pageViewHelper = new PageViewHelper(NookLibrary.this, pageview, m_Files);
+                } else {
+                    pageViewHelper.setFiles(m_Files);
                 }
-                ScannedFile file1 = new ScannedFile(file.getAbsolutePath());
-                // Log.w("nookLibrary", "last access date for " + file.getName()
-                // + " is " +
-                // new Date(file.lastModified()));
-                file1.setLastAccessedDate(new Date(file.lastModified()));
-                m_Files.add(file1);
+                m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(ScannedFile.getSortType()).toString());
+                m_ListAdapter.setSubText(SHOW, m_ShowValues.get(m_ShowIndex).toString());
+                m_ListAdapter.setSubText(SEARCH, " ");
             }
-        }
-        return;
+        };
+        m_Handler.post(thrd);
+        
     }
     
     private IECMScannerService m_Service = null;
@@ -286,54 +298,27 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         }
         
         public void getBatchList(final List<ScannedFile> files) throws RemoteException {
-            m_LocalScanDone.block();
-            if (files != null) {
-                m_Files.addAll(files);
-            }
+            m_RemoteScanDone = true;
+            updatePageView(files);
             unbindService(m_Conn);
-            Collections.sort(m_Files);
-            List<String> tmpList = ScannedFile.getAvailableKeywords();
-            m_ShowIndex = 0;
-            Collections.sort(tmpList, new Comparator<String>() {
-                public int compare(String object1, String object2) {
-                    if (object1 != null) {
-                        return object1.compareToIgnoreCase(object2);
-                    } else {
-                        return 1;
-                    }
-                }
-                
-            });
-            m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
-            m_ShowValues.add("All");
-            ScannedFile.loadStandardKeywords();
-            if (ScannedFile.m_StandardKeywords != null) {
-                m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
-            }
-            m_ShowValues.addAll(tmpList);
-            m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
-            Runnable thrd = new Runnable() {
-                public void run() {
-                    closeAlert();
-                    m_ListAdapter.setSubText(SCAN_FOLDERS, " ");
-                    LinearLayout pageview = (LinearLayout) NookLibrary.this.findViewById(R.id.pageview1);
-                    pageViewHelper = new PageViewHelper(NookLibrary.this, pageview, m_Files);
-                    m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(ScannedFile.getSortType()).toString());
-                    m_ListAdapter.setSubText(SHOW, m_ShowValues.get(m_ShowIndex).toString());
-                    m_ListAdapter.setSubText(SEARCH, " ");
-                }
-            };
-            m_Handler.post(thrd);
+            m_RemoteScanDone = false;
+            m_BNBooks.block();
+            m_LocalScanDone.block();
+            updatePageView(true);
             Runnable thrd1 = new Runnable() {
                 public void run() {
                     loadCovers();
                 }
             };
             (new Thread(thrd1)).start();
+            
         }
         
         public void getFileFound(ScannedFile file) throws RemoteException {
             Log.i(LOGTAG, "getFileFound called ...");
+            if (file != null) {
+                Log.w(LOGTAG, file.toString());
+            }
         }
         
         public void getList(List<ScannedFile> list) throws RemoteException {
@@ -347,10 +332,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     private void loadBookData() {
         try {
             String[] folders = {
-                "my documents", "Digital Editions", "mydownloads", "my downloads", "my B&N Downloads"
+                "my documents", "Digital Editions", "mydownloads", "my downloads"
             };
             String[] exts = {
-                "pdb", "pdf"
+                "pdb"
             };
             m_Service.scanDirectoriesBatch(1, folders, exts, MAX_FILES_PER_BATCH, m_Callback);
         } catch (Exception ex) {
@@ -388,23 +373,38 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     };
     
     private void queryFolders() {
+        if (m_ScanInProgress) { return; }
+        m_ScanInProgress = true;
+        ScannedFile.loadStandardKeywords();
         displayAlert(getString(R.string.scanning), getString(R.string.please_wait), 1, null, -1);
         m_ListAdapter.setSubText(SCAN_FOLDERS, getString(R.string.in_progress));
         m_Files.clear();
+        m_Lock.acquire();
         bindService(new Intent("SCAN_ECM"), m_Conn, Context.BIND_AUTO_CREATE);
         m_LocalScanDone.close();
+        Runnable thrd1 = new Runnable() {
+            public void run() {
+                m_BNBooks.close();
+                BNBooks books = new BNBooks(NookLibrary.this);
+                List<ScannedFile> files = books.getBooks();
+                updatePageView(files);
+                m_BNBooks.open();
+            }
+        };
+        (new Thread(thrd1)).start();
         Runnable thrd = new Runnable() {
             public void run() {
-                getOtherFiles();
+                m_OtherBooks.getOtherBooks();
+                m_LocalScanDone.open();
             }
         };
         (new Thread(thrd)).start();
+        
     }
     
     @Override
     public void onPause() {
         super.onPause();
-        // m_Lock.release();
     }
     
     private Dialog m_Dialog = null;
@@ -460,11 +460,16 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             file.loadCover();
         }
         for (ScannedFile file : list) {
-            if (file.getType().equals("pdf")) {
-                file.updateMetaData();
+            if (!file.getBookInDB() && "pdf".equals(file.getType())) {
+                file.updateMetaData(false);
+            }
+            if (!file.getBookInDB()) {
+                m_OtherBooks.addBookToDB(file);
+                file.setBookInDB(true);
             }
         }
-        List<String> tmpList = ScannedFile.getAvailableKeywords();
+        m_Lock.release();
+        final List<String> tmpList = ScannedFile.getAvailableKeywords();
         Collections.sort(tmpList, new Comparator<String>() {
             public int compare(String object1, String object2) {
                 if (object1 != null) {
@@ -475,13 +480,20 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
             
         });
-        m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
-        m_ShowValues.add("All");
-        if (ScannedFile.m_StandardKeywords != null) {
-            m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
-        }
-        m_ShowValues.addAll(tmpList);
-        m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
+        Runnable thrd = new Runnable() {
+            public void run() {
+                m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
+                m_ShowValues.add("All");
+                if (ScannedFile.m_StandardKeywords != null) {
+                    m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
+                }
+                m_ShowValues.addAll(tmpList);
+                m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
+                m_ListAdapter.setSubText(SCAN_FOLDERS, " ");
+                m_ScanInProgress = false;
+            }
+        };
+        m_Handler.post(thrd);
     }
     
     private Vector<String> loadImages() {
@@ -502,7 +514,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(position).toString());
                     SortTask task = new SortTask();
                     task.execute(position);
-                    Editor e = getPreferences(MODE_PRIVATE).edit();
+                    Editor e = getSharedPreferences(PREF_FILE, MODE_PRIVATE).edit();
                     e.putInt("SORT_BY", position);
                     e.commit();
                 }
@@ -634,13 +646,41 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         } else if (button.equals(downButton)) {
             pageViewHelper.selectNext();
         } else if (button.equals(goButton) || button.equals(m_CoverBtn)) {
-            ScannedFile file = pageViewHelper.getCurrent();
+            final ScannedFile file = pageViewHelper.getCurrent();
             // file.setLastAccessedDate(new Date(f.lastModified()));
             // if( ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {
             // SortTask task = new SortTask();
             // task.execute(ScannedFile.SORT_BY_LATEST);
             // }
+            if (file.getStatus() != null && !file.getStatus().equals(BNBooks.BORROWED)
+                && !file.getStatus().equals(BNBooks.SAMPLE)) {
+                int msgId;
+                if (file.getStatus().equals(BNBooks.DOWNLOAD)) {
+                    file.setStatus(BNBooks.DOWNLOAD_IN_PROGRESS);
+                    Runnable thrd = new Runnable() {
+                        public void run() {
+                            BNBooks downloader = new BNBooks(NookLibrary.this);
+                            downloader.getBook(file);
+                            m_Handler.post(new Runnable() {
+                                public void run() {
+                                    pageViewHelper.update();
+                                }
+                            });
+                        }
+                    };
+                    (new Thread(thrd)).start();
+                    msgId = R.string.download_started;
+                    pageViewHelper.update();
+                } else if (file.getStatus().startsWith(BNBooks.DOWNLOAD_IN_PROGRESS)) {
+                    msgId = R.string.download_in_progress;
+                } else {
+                    msgId = R.string.on_loan;
+                }
+                Toast.makeText(this, msgId, Toast.LENGTH_LONG).show();
+                return;
+            }
             String path = file.getPathName();
+            if (path == null) { return; }
             Intent intent = new Intent("com.bravo.intent.action.VIEW");
             
             String mimetype = "application/";
@@ -664,6 +704,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
             mimetype += ext;
             path = "file://" + path;
+            if (file.getEan() != null) {
+                path += "?EAN=" + file.getEan();
+            }
             intent.setDataAndType(Uri.parse(path), mimetype);
             updateReadingNow(intent);
             try {
@@ -869,7 +912,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 }
                 return list;
             } catch (Exception ex) {
-                Log.e(LOGTAG, "Sorting failed...", ex);
+                Log.e(LOGTAG, "Sorting failed...");
                 return null;
             }
         }
