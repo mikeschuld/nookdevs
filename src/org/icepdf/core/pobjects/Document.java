@@ -427,11 +427,7 @@ public class Document {
                 throw e;
             }
             catch (Exception e) {
-                if (logger.isLoggable(Level.WARNING)) {
-                    logger.warning("Cross reference deferred loading failed, will fall back to linear reading.");
-                }
             }
-
             if (!loaded) {
                 // Cleanup any bits left behind by the failed xref loading
                 if (catalog != null) {
@@ -442,19 +438,10 @@ public class Document {
                     library.dispose();
                     library = null;
                 }
-                library = new Library();
-                pTrailer = null;
-
-                in.seekAbsolute(0L);
-                loadDocumentViaLinearTraversal(in.getInputStream());
-            }
+          }
 
             // initiate the catalog, build the outline for the document
             if( catalog != null) catalog.init();
-
-            // create new instance of state manager and add it to the library
-       //     stateManager = new StateManager(pTrailer);
-       //     library.setStateManager(stateManager);
         }
         catch (PDFException e) {
             logger.log(Level.FINE, "Error loading PDF file during linear parse.", e);
@@ -462,10 +449,6 @@ public class Document {
             throw e;
         }
         catch (PDFSecurityException e) {
-            dispose();
-            throw e;
-        }
-        catch (IOException e) {
             dispose();
             throw e;
         }
