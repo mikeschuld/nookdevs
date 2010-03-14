@@ -1,4 +1,12 @@
 #labels Featured
+Following changes are included in 0.0.7 version-
+<h2>1.Series info included in title.</h2>
+Series name/nbr from calibre tags included in title. Sorting by title/author will keep series books together.
+<h2>2.B&N books & covers</h2>
+All B&N books are included in the listing. Covers for them are downloaded automatically and there is an option to download these books now.
+<h2>3.Scanning logic optimizations</h2>
+Moved some of the scanning parsing to background and also added a db to store more details about the books.
+
 Following changes are included in 0.0.6 version-
 <h2>1.Tags in pdf files </h2>
 Added ability to read description and keyword tags from pdf files. Now, both epub and pdf files can have tags. pdb files still won't work.
