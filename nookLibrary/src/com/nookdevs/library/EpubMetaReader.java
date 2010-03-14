@@ -192,6 +192,8 @@ public class EpubMetaReader {
                         m_File.setDescription(text);
                     } else if (name.equals(SUBJECT)) {
                         m_File.addKeywords(text);
+                    } else if (name.equals(ISBN)) {
+                        m_File.setEan(text);
                     }
                     valid = false;
                 }

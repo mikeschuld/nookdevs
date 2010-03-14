@@ -22,30 +22,35 @@ import org.icepdf.core.pobjects.PInfo;
 import android.util.Log;
 
 import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.util.AdobeNativeInterface;
 
 public class PdfMetaReader {
     ScannedFile m_File;
     
-    public PdfMetaReader(ScannedFile file) {
+    public PdfMetaReader(ScannedFile file, boolean quick) {
         m_File = file;
-        readMetadata();
+        readMetadata(quick);
     }
     
-    private boolean readMetadata() {
+    private boolean readMetadata(boolean quick) {
         try {
-            Document doc = new Document();
-            try {
-                doc.setFile(m_File.getPathName());
-            } catch (Throwable er) {
-                
-            }
-            PInfo info = doc.getInfo();
-            // m_File.addContributor(info.getAuthor(), "");
-            // m_File.setTitle( info.getTitle());
-            m_File.setDescription(info.getSubject());
-            StringTokenizer token = new StringTokenizer(info.getKeywords(), ",; ");
-            while (token.hasMoreTokens()) {
-                m_File.addKeywords(token.nextToken());
+            if (quick) {
+                AdobeNativeInterface.openPDF(m_File.getPathName());
+                m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
+                m_File.addContributor(AdobeNativeInterface.getMetaData("DC.creator"), "");
+            } else {
+                Document doc = new Document();
+                try {
+                    doc.setFile(m_File.getPathName());
+                } catch (Throwable er) {
+                    
+                }
+                PInfo info = doc.getInfo();
+                m_File.setDescription(info.getSubject());
+                StringTokenizer token = new StringTokenizer(info.getKeywords(), ",; ");
+                while (token.hasMoreTokens()) {
+                    m_File.addKeywords(token.nextToken());
+                }
             }
         } catch (Throwable e) {
             // TODO Auto-generated catch block
