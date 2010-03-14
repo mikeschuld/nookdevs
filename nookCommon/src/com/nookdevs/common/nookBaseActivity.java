@@ -167,10 +167,16 @@ public class nookBaseActivity extends Activity {
             DataOutputStream dout = new DataOutputStream(aout);
             dout.writeUTF(intent.getAction());
             dout.writeUTF(intent.getDataString());
-            File f = new File(intent.getDataString().substring(6));
+            String tmp = intent.getDataString();
+            int idx = tmp.indexOf('?');
+            if( idx !=-1)
+                tmp = tmp.substring(0,idx);
+            File f = new File(tmp.substring(6));
             f.setLastModified(System.currentTimeMillis());
             dout.writeUTF(intent.getType());
-            dout.writeByte(0);
+            dout.writeByte(1);
+            dout.writeUTF("BN/Bravo_PATH");
+            dout.writeUTF(tmp);
             byte[] data = aout.toByteArray();
             dout.close();
             values.put("data", data);
