@@ -176,8 +176,17 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     public void setPathName(String path) {
         pathname = path;
-        if( m_Details != null) {
-            m_Details +="<b>File Path:</b>&nbsp;"+pathname;
+        if( path != null) {
+            int idx = pathname.lastIndexOf('.');
+            type = pathname.substring(idx + 1).toLowerCase();
+            if (type.equals("html")) {
+                type = "htm";
+            }
+            System.out.println("setPathName called - path=" + path + " type=" + type);
+            addKeywords(type);
+            if( m_Details != null) {
+                m_Details +="<b>File Path:</b>&nbsp;"+pathname;
+            }
         }
     }
     
@@ -282,6 +291,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             if (type.equals("html")) {
                 type = "htm";
             }
+            System.out.println("ScannedFile called called - path=" + pathname + " type=" + type);
             addKeywords(type);
             if( update) updateMetaData();
         }
