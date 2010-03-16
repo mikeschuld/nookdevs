@@ -33,6 +33,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.ConditionVariable;
 import android.util.Log;
 import android.widget.Toast;
@@ -75,6 +77,8 @@ public class BNBooks {
     private boolean m_Sync = false;
     Timer m_Timer = new Timer();
     TimerTask m_TimerTask;
+    ConnectivityManager cmgr;
+    ConnectivityManager.WakeLock lock;
     private BroadcastReceiver m_DownloadReceiver = new BroadcastReceiver() {
         
         @Override
@@ -82,6 +86,7 @@ public class BNBooks {
             // download complete.
             m_TimerTask.cancel();
             m_Timer.cancel();
+            if( lock.isHeld()) lock.release();
             String path = "downloadedFileName";
             if (arg1 == null) {
                 path = null;
@@ -107,6 +112,7 @@ public class BNBooks {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             // sync complete.
+            if( lock.isHeld()) lock.release();
             m_TimerTask.cancel();
             m_Timer.cancel();
             m_Context.unregisterReceiver(m_SyncReceiver);
@@ -122,26 +128,27 @@ public class BNBooks {
                 / 100.0);
         }
     };
-    
-    static {
-        m_Auth = authenticate();
-    }
-    
     public BNBooks(Context context) {
+        cmgr = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
+        lock = cmgr.newWakeLock(1, "nookLibrary.BNBooks" + hashCode());
         m_Context = context;
     }
     
     public List<ScannedFile> getBooks() {
+        if( !waitForNetwork()) {
+            return null;
+        }
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
         m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
-        if (!m_Auth) { return null; }
+        if (!m_Auth) { if(!authenticate()) return null; }
+        m_Auth=true;
         m_SyncDone.close();
         m_Sync = true;
         registerSyncReceiver();
         m_TimerTask = new TimerTask() {
             @Override
             public void run() {
-                cancel();
+                BNBooks.this.cancel();
             }
             
         };
@@ -153,8 +160,33 @@ public class BNBooks {
         m_Db = null;
         return m_Books;
     }
-    
+    private boolean waitForNetwork() {
+        try {
+            lock.acquire();
+            NetworkInfo info = cmgr.getActiveNetworkInfo();
+            boolean connection = (info == null) ? false : info.isConnected();
+            int attempts=0;
+            while( !connection && attempts < 20) {
+                attempts++;
+                try {
+                    Thread.sleep(3000);
+                } catch(Exception ex) {
+                    
+                }
+                info = cmgr.getActiveNetworkInfo();
+                connection = (info == null) ? false : info.isConnected();
+            }
+            if( connection) return true;
+        } catch(Exception ex) {
+            Log.e("BNBooks", "Exception while checking for connection", ex);
+        }
+        if( lock !=null && lock.isHeld()) lock.release();
+        return false;
+    }
     public ScannedFile getBook(ScannedFile file) {
+        if( !waitForNetwork()) {
+            return null;
+        }
         m_DownloadEan = file.getEan();
         m_DownloadBook = file;
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
@@ -166,7 +198,7 @@ public class BNBooks {
         m_TimerTask = new TimerTask() {
             @Override
             public void run() {
-                cancel();
+                BNBooks.this.cancel();
             }
             
         };
@@ -216,7 +248,6 @@ public class BNBooks {
     
     private static boolean authenticate() {
         try {
-            System.out.println("Auth start " + new Date());
             SQLiteDatabase db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
             String user = "";
             String pass = "";
@@ -246,7 +277,6 @@ public class BNBooks {
                 buffer[len] = '\0';
                 System.out.print(new String(buffer));
             }
-            System.out.println("Auth end " + new Date());
             db.close();
             return true;
         } catch (Exception ex) {
@@ -389,7 +419,6 @@ public class BNBooks {
                 file.addKeywords("B&N");
                 if (addToList) {
                     m_Books.add(file);
-                    // System.out.println(" File in booksdata = " + file);
                 }
                 
                 cursor.moveToNext();

@@ -26,6 +26,8 @@ import java.util.zip.ZipFile;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.util.Log;
+
 import com.bravo.ecmscannerservice.ScannedFile;
 
 public class EpubMetaReader {
@@ -35,10 +37,13 @@ public class EpubMetaReader {
     public static final String PUBLISHER = "publisher";
     public static final String DESCRIPTION = "description";
     public static final String SUBJECT = "subject";
-    public static final String ISBN = "ISBN";
+    public static final String IDENTIFIER = "identifier";
+    public static final String SERIES = "series";
+    public static final String SERIES_INDEX = "series_index";
     public static final String DATE = "date";
+    public static final String ISBN = "ISBN";
     String[] entries = {
-        TITLE, CREATOR, PUBLISHER, DESCRIPTION, SUBJECT, ISBN
+        TITLE, CREATOR, PUBLISHER, DESCRIPTION, SUBJECT, IDENTIFIER,SERIES, SERIES_INDEX
     };
     
     private static List<String> m_ValidEntries;
@@ -146,7 +151,18 @@ public class EpubMetaReader {
                     } else {
                         valid = false;
                     }
-                    
+                    if( name.equals(IDENTIFIER)) {
+                        int count = parser.getAttributeCount();
+                        for (int i = 0; i < count; i++) {
+                            String attr = parser.getAttributeName(i);
+                            if( attr != null && attr.contains("scheme")) {
+                                String val = parser.getAttributeValue(i);
+                                if( !val.equals(ISBN)) {
+                                    name="";
+                                }
+                            }
+                        }
+                    }
                     if (name.equals("meta") && !(seriesTag && seriesIdx)) {
                         int count = parser.getAttributeCount();
                         for (int i = 0; i < count; i++) {
@@ -158,6 +174,8 @@ public class EpubMetaReader {
                                 attr = parser.getAttributeName(i);
                                 val = parser.getAttributeValue(i);
                                 m_File.setSeries(val);
+                                m_File.addKeywords(val);
+                                break;
                             } else if (attr.equals("name") && val.equals("calibre:series_index")) {
                                 i++;
                                 attr = parser.getAttributeName(i);
@@ -167,6 +185,7 @@ public class EpubMetaReader {
                                     idx = idx.substring(0, dot);
                                 }
                                 seriesIdx = true;
+                                break;
                             }
                         }
                     }
@@ -192,8 +211,14 @@ public class EpubMetaReader {
                         m_File.setDescription(text);
                     } else if (name.equals(SUBJECT)) {
                         m_File.addKeywords(text);
-                    } else if (name.equals(ISBN)) {
+                    } else if (name.equals(IDENTIFIER)) {
                         m_File.setEan(text);
+                    } else if(name.equals(SERIES)) {
+                        seriesTag=true;
+                        m_File.setSeries(text);
+                        m_File.addKeywords(text);
+                    } else if( name.equals(SERIES_INDEX)) {
+                        idx = text;
                     }
                     valid = false;
                 }
@@ -202,6 +227,7 @@ public class EpubMetaReader {
                 m_File.setSeries(m_File.getSeries() + " " + idx + "-");
             }
         } catch (Exception ex) {
+            Log.e("EpuBMetaReader", "Exception parsing metadata", ex);
             return false;
         }
         return true;
