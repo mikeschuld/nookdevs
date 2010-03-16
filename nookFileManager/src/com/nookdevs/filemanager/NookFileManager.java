@@ -36,6 +36,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -277,8 +278,11 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         } catch (Exception ex) {
             int id = getResource(ext);
             if (id == -1) {
-                Bitmap bMap = BitmapFactory.decodeFile(path.substring(7));
-                m_ImageView.setImageBitmap(bMap);
+                try {
+                    Bitmap bMap = BitmapFactory.decodeFile(path.substring(7));
+                    m_ImageView.setImageBitmap(bMap);
+                } catch(Throwable ex1) {
+                }
                 
             } else {
                 Toast.makeText(this, R.string.no_viewer, Toast.LENGTH_SHORT).show();
@@ -457,7 +461,11 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 if (id != -1) {
                     icon.setImageResource(id);
                 } else {
-                    icon.setImageURI(Uri.parse(f.getAbsolutePath()));
+                    try {
+                        icon.setImageURI(Uri.parse(f.getAbsolutePath()));
+                    } catch(Throwable err) {
+                        icon.setImageResource(R.drawable.image);
+                    }
                 }
                 icon.setTag(f);
                 icon.setOnClickListener(m_FileSelectListener);
@@ -609,7 +617,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     private void clickAction(View v) {
         if (v.getTag() == null) {
             if (m_DirDetails) {
+                m_Lock.release();
                 finish();
+                throw new Error("Dummy exception to force stop the app.");
             } else {
                 goBack();
             }
@@ -664,6 +674,13 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     m_FileView = true;
                     m_Local = true;
                     m_CurrentNode = pc.idx;
+                    return;
+                }
+                ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+                NetworkInfo info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                boolean connection = (info == null) ? false : info.isConnected();
+                if( !connection) {
+                    displayAlert(getString(R.string.wifi_error), getString(R.string.wait_for_wifi), 2, null, -1);
                     return;
                 }
                 String smUrl = "smb://";
