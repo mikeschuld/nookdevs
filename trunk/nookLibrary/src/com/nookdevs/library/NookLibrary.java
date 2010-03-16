@@ -522,8 +522,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 if (m_ShowIndex != position) {
                     m_ListAdapter.setSubText(SHOW, (String) m_ShowValues.get(position));
                     ShowTask task = new ShowTask();
-                    task.execute((String) m_ShowValues.get(position));
                     m_ShowIndex = position;
+                    task.execute((String) m_ShowValues.get(position));
                 }
             }
             animator.setInAnimation(this, R.anim.fromleft);
@@ -647,15 +647,12 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             pageViewHelper.selectNext();
         } else if (button.equals(goButton) || button.equals(m_CoverBtn)) {
             final ScannedFile file = pageViewHelper.getCurrent();
-            // file.setLastAccessedDate(new Date(f.lastModified()));
-            // if( ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {
-            // SortTask task = new SortTask();
-            // task.execute(ScannedFile.SORT_BY_LATEST);
-            // }
             if (file.getStatus() != null && !file.getStatus().equals(BNBooks.BORROWED)
                 && !file.getStatus().equals(BNBooks.SAMPLE)) {
                 int msgId;
-                if (file.getStatus().equals(BNBooks.DOWNLOAD)) {
+                if (file.getStatus().startsWith(BNBooks.DOWNLOAD_IN_PROGRESS)) {
+                    msgId = R.string.download_in_progress;
+                } if (file.getStatus().contains(BNBooks.DOWNLOAD)) {
                     file.setStatus(BNBooks.DOWNLOAD_IN_PROGRESS);
                     Runnable thrd = new Runnable() {
                         public void run() {
@@ -671,8 +668,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     (new Thread(thrd)).start();
                     msgId = R.string.download_started;
                     pageViewHelper.update();
-                } else if (file.getStatus().startsWith(BNBooks.DOWNLOAD_IN_PROGRESS)) {
-                    msgId = R.string.download_in_progress;
                 } else {
                     msgId = R.string.on_loan;
                 }

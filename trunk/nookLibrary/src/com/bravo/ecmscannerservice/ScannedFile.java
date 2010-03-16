@@ -164,7 +164,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     
     public void setSeries(String s) {
         m_Series = s;
-        addKeywords(m_Series);
+        m_DataBuffer.append(" ");
+        m_DataBuffer.append(s);
     }
     
     public String getSeries() {
@@ -291,7 +292,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             if (type.equals("html")) {
                 type = "htm";
             }
-            System.out.println("ScannedFile called called - path=" + pathname + " type=" + type);
             addKeywords(type);
             if( update) updateMetaData();
         }
