@@ -25,6 +25,8 @@
     <string name="completed">Completed</string>
     <string name="failed">Failed</string>
     <string name="in_progress">In Progress</string>
+    <string name="wait_for_wifi">Please Wait for Wi-Fi to start.</string>
+    <string name="wifi_error">No Wi-Fi</string>
     <string name="status">Copy/Download Status</string>
     <string name="no_viewer">No Viewer found.</string>
     <string name="prev">Prev</string>
