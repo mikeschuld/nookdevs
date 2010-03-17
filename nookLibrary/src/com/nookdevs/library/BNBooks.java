@@ -336,7 +336,11 @@ public class BNBooks {
                     }
                 }
                 if (titles.contains("Merriam-Webster's Pocket Dictionary")) {
-                    file.setPathName("/system/media/reference/c11.pdb");
+                    if( !addToList) {
+                        m_Books.remove(file);
+                    }
+                    cursor.moveToNext();
+                    continue;
                 }
                 file.setTitles(title);
                 String keywordData = cursor.getString(5);

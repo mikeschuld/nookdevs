@@ -699,7 +699,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
             mimetype += ext;
             path = "file://" + path;
-            if (file.getEan() != null) {
+            if (file.getEan() != null && !file.getEan().trim().equals("")) {
                 path += "?EAN=" + file.getEan();
             }
             intent.setDataAndType(Uri.parse(path), mimetype);
