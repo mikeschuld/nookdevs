@@ -33,11 +33,14 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
     int m_SubTextFieldId = -1;
     private TextView[] m_SubTextFields = null;
     private String[] m_SubTextValues = null;
+    private boolean[] m_EnableFields;
     
     public IconArrayAdapter(Context context, int textViewResourceId, List<E> objects, int[] icons) {
         super(context, textViewResourceId, objects);
         m_ListItemId = textViewResourceId;
         m_Icons = icons;
+        m_EnableFields = new boolean[objects.size()];
+        java.util.Arrays.fill(m_EnableFields,true);
     }
     
     public void setIcons(int[] icons) {
@@ -68,6 +71,9 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
     public String getSubText(int id) {
         return m_SubTextValues[id];
     }
+    public void setEnabled(int idx, boolean val) {
+        m_EnableFields[idx] = val;
+    }
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -81,7 +87,7 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
         TextView label = (TextView) row.findViewById(m_TextFieldId);
         label.setText(getItem(position).toString());
         ImageView icon = (ImageView) row.findViewById(m_ImageFieldId);
-        if (m_Icons[position] != -1) {
+        if (m_Icons.length > position && m_Icons[position] != -1) {
             icon.setImageResource(m_Icons[position]);
         } else {
             icon.setImageDrawable(null);
@@ -102,7 +108,11 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
             sub.setHint(String.valueOf(position));
             m_SubTextFields[position] = sub;
         }
-        
+        if( !m_EnableFields[position]) {
+            row.setVisibility(View.INVISIBLE);
+        } else {
+            row.setVisibility(View.VISIBLE);
+        }
         return (row);
     }
     
