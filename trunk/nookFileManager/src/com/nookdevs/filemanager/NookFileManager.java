@@ -90,14 +90,16 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     private ListView m_List = null;
     private IconArrayAdapter<CharSequence> m_LocalAdapter = null;
     private IconArrayAdapter<CharSequence> m_RemoteAdapter = null;
+    private File m_CurrentTarget=null;
     private static final int CUT = 0;
     private static final int COPY = 1;
     private static final int DELETE = 2;
     private static final int RENAME = 3;
+    private static final int SET_AS_TARGET = 4;
     private static final int RCOPY = 0;
     private static final int DOWNLOAD = 1;
     int[] icons = {
-        R.drawable.cut, R.drawable.copy, R.drawable.delete, -1
+        R.drawable.cut, R.drawable.copy, R.drawable.delete, -1,-1
     };
     int[] remoteicons = {
         R.drawable.copy, R.drawable.download
@@ -121,6 +123,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     ImageView m_ImageView = null;
     SmbFile[] m_CurrentSmbFiles;
     File[] m_CurrentFiles;
+    ArrayList<CharSequence> m_RemoteMenuItems = new ArrayList<CharSequence>(4);
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -146,11 +149,11 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         m_LocalAdapter.setSubTextField(R.id.ListSubTextView);
         menuitems = getResources().getTextArray(R.array.remotemenu);
         menuitemsList = Arrays.asList(menuitems);
+        m_RemoteMenuItems.addAll(menuitemsList);
         m_RemoteAdapter =
-            new IconArrayAdapter<CharSequence>(m_List.getContext(), R.layout.listitem, menuitemsList, remoteicons);
+            new IconArrayAdapter<CharSequence>(m_List.getContext(), R.layout.listitem,m_RemoteMenuItems, remoteicons);
         m_RemoteAdapter.setImageField(R.id.ListImageView);
         m_RemoteAdapter.setTextField(R.id.ListTextView);
-        m_RemoteAdapter.setSubTextField(R.id.ListSubTextView);
         m_FileIcon = (ImageButton) findViewById(R.id.fileicon);
         m_ImageView = (ImageView) findViewById(R.id.mainimage);
         m_FileIcon.setOnClickListener(new OnClickListener() {
@@ -199,6 +202,14 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             }
             
         });
+        if (m_externalMyDownloads.exists()) {
+            m_CurrentTarget = m_externalMyDownloads;
+        } else {
+            m_CurrentTarget = m_MyDownloads;
+            if (!m_MyDownloads.exists()) {
+                m_MyDownloads.mkdir();
+            }
+        }
         m_Add.setText(R.string.add_pc);
         m_Back.setText(R.string.back);
         if (m_Type == BROWSE) {
@@ -803,6 +814,11 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 m_RemoteCopy = null;
             }
         } else {
+            if( f.isDirectory()) {
+                m_LocalAdapter.setEnabled(SET_AS_TARGET, true);
+            } else {
+                m_LocalAdapter.setEnabled(SET_AS_TARGET, false);
+            }
             // file details.
             m_Add.setVisibility(View.INVISIBLE);
             m_FileIcon.setImageDrawable(((ImageButton) v).getDrawable());
@@ -885,6 +901,16 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                     m_Rename = true;
                     m_Dialog.show();
+                    break;
+                case SET_AS_TARGET:
+                    m_RemoteMenuItems.remove(1);
+                    m_CurrentTarget = m_Current;
+                    m_RemoteMenuItems.add("Copy to " + m_Current.getName());
+                    m_RemoteAdapter =
+                        new IconArrayAdapter<CharSequence>(m_List.getContext(), R.layout.listitem,m_RemoteMenuItems, remoteicons);
+                    m_RemoteAdapter.setImageField(R.id.ListImageView);
+                    m_RemoteAdapter.setTextField(R.id.ListTextView);
+                    Toast.makeText(this, R.string.target_set, Toast.LENGTH_SHORT).show();
             }
         } else {
             if (position == 0) {
@@ -894,14 +920,18 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 m_PasteButton.setVisibility(View.VISIBLE);
                 clickAction(m_Back);
             } else {
-                String target = "";
-                if (m_externalMyDownloads.exists()) {
-                    target = m_externalMyDownloads.getAbsolutePath();
-                } else {
-                    target = m_MyDownloads.getAbsolutePath();
-                    if (!m_MyDownloads.exists()) {
-                        m_MyDownloads.mkdir();
+                String target;
+                if( m_CurrentTarget ==null) {
+                    if (m_externalMyDownloads.exists()) {
+                        target = m_externalMyDownloads.getAbsolutePath();
+                    } else {
+                        target = m_MyDownloads.getAbsolutePath();
+                        if (!m_MyDownloads.exists()) {
+                            m_MyDownloads.mkdir();
+                        }
                     }
+                } else {
+                    target = m_CurrentTarget.getAbsolutePath();
                 }
                 RemoteCopyTask task = new RemoteCopyTask(target, m_CurrentRemote);
                 clickAction(m_Back);
