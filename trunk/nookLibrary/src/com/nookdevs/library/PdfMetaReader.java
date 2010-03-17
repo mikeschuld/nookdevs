@@ -38,6 +38,7 @@ public class PdfMetaReader {
                 AdobeNativeInterface.openPDF(m_File.getPathName());
                 m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
                 m_File.addContributor(AdobeNativeInterface.getMetaData("DC.creator"), "");
+                AdobeNativeInterface.closePDF();
             } else {
                 Document doc = new Document();
                 try {

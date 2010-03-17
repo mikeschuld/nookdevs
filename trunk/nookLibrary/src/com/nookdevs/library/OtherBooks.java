@@ -192,7 +192,8 @@ public class OtherBooks extends SQLiteOpenHelper {
             for (int i = 0; i < size; i++) {
                 String path = cursor.getString(10);
                 File file = new File(path);
-                if (!file.exists()) {
+                File skip = new File(file.getParent() + "/" + ".skip");
+                if (!file.exists() || skip.exists()) {
                     m_DeleteBooks.add(cursor.getString(0));
                     cursor.moveToNext();
                     continue;
