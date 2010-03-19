@@ -56,8 +56,11 @@
 		android:background="@drawable/header_button"
 		/>
 	</LinearLayout>
-	<ViewAnimator android:id="@+id/fileanim" android:layout_width="480.0px"
-			android:layout_height="109.0px">
+	<RelativeLayout android:layout_width="480.0px" android:layout_height="109.0px">
+	<ListView android:layout_height="fill_parent" android:layout_width="fill_parent" 
+	 android:id="@+id/pastemenu"></ListView>
+	<ViewAnimator android:id="@+id/fileanim" android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
 	<HorizontalScrollView android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 	>
@@ -103,4 +106,5 @@
 	</ScrollView>
 	</HorizontalScrollView>
 	</ViewAnimator>
+	</RelativeLayout>
 </LinearLayout>
