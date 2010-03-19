@@ -50,6 +50,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -61,6 +62,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewAnimator;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.nookdevs.common.IconArrayAdapter;
 import com.nookdevs.common.nookBaseActivity;
@@ -110,8 +112,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     private File m_Current;
     private SmbFile m_CurrentRemote;
     ImageButton m_PasteButton = null;
-    private File m_CopyFile = null;
-    private SmbFile m_RemoteCopy = null;
+    private List<File> m_CopyFile = new ArrayList<File>(5);
+    private List<SmbFile> m_RemoteCopy = new ArrayList<SmbFile>(5);
     private boolean m_CutOperation = false;
     Handler m_Handler = new Handler();
     private boolean m_Rename = false;
@@ -124,6 +126,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     SmbFile[] m_CurrentSmbFiles;
     File[] m_CurrentFiles;
     ArrayList<CharSequence> m_RemoteMenuItems = new ArrayList<CharSequence>(4);
+    ListView m_PasteMenu = null;
+    ArrayAdapter m_PasteAdapter = null;
+    ArrayList<String> m_PasteMenuItems = new ArrayList<String>(10);
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -165,17 +170,108 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         });
         m_List.setOnItemClickListener(this);
         m_PasteButton = (ImageButton) findViewById(R.id.paste);
+        m_PasteMenu = (ListView) findViewById(R.id.pastemenu);
         m_PasteButton.setVisibility(View.INVISIBLE);
+        m_PasteMenu.setVisibility(View.INVISIBLE);
+        m_PasteMenu.setOnItemClickListener(new OnItemClickListener() {
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                if( position ==0) {
+                    for(int i=0; i< m_CopyFile.size();i++) {
+                        CopyTask task = new CopyTask( m_CurrentFolder, m_CopyFile.get(i));
+                        task.execute();
+                    }
+                    for(int i=0; i< m_RemoteCopy.size();i++) {
+                        RemoteCopyTask task = new RemoteCopyTask( m_CurrentFolder, m_RemoteCopy.get(i));
+                        task.execute();
+                    }
+                    m_CopyFile.clear();
+                    m_RemoteCopy.clear();
+                } else if( position ==1) {
+                    m_CopyFile.clear();
+                    m_RemoteCopy.clear();
+                } else {
+                    int val = position-2;
+                    if( val < m_CopyFile.size()) {
+                        //local copy
+                        CopyTask task = new CopyTask( m_CurrentFolder, m_CopyFile.get(val));
+                        task.execute();
+                        m_CopyFile.remove(val);
+                    } else {
+                        //remote copy
+                        val -= m_CopyFile.size();
+                        RemoteCopyTask task = new RemoteCopyTask( m_CurrentFolder, m_RemoteCopy.get(val));
+                        task.execute();
+                        m_RemoteCopy.remove(val);
+                    }
+                }
+                if( m_CopyFile.size() ==0 && m_RemoteCopy.size() ==0) {
+                    m_PasteButton.setVisibility(View.INVISIBLE);
+                }
+                m_PasteMenu.setVisibility(View.INVISIBLE);
+                m_Back.setVisibility(View.VISIBLE);
+                m_ViewAnimator.setVisibility(View.VISIBLE);
+                m_Add.setVisibility(View.VISIBLE);
+                m_PasteMenuItems.clear();
+                m_StatusView=false;
+            }
+        });
+        m_PasteMenu.setOnItemLongClickListener(new OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                if( position <=1) {
+                    return false;
+                } else {
+                    int val = position-2;
+                    if( val < m_CopyFile.size()) {
+                        m_CopyFile.remove(val);
+                    } else {
+                        val -= m_CopyFile.size();
+                        m_RemoteCopy.remove(val);
+                    }
+                    if( m_CopyFile.size() ==0 && m_RemoteCopy.size() ==0) {
+                        m_PasteButton.setVisibility(View.INVISIBLE);
+                        m_PasteMenu.setVisibility(View.INVISIBLE);
+                        m_Back.setVisibility(View.VISIBLE);
+                        m_ViewAnimator.setVisibility(View.VISIBLE);
+                        m_Add.setVisibility(View.VISIBLE);
+                        m_PasteMenuItems.clear();
+                        m_StatusView=false;
+                    } else {
+                        m_PasteMenuItems.remove( position);
+                        m_PasteAdapter = new ArrayAdapter<String>(NookFileManager.this, R.layout.listitem2, m_PasteMenuItems);
+                        m_PasteMenu.setAdapter(m_PasteAdapter);
+                    }
+                    return true;
+                }
+            }
+           
+        });
+        
         m_PasteButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if (m_CurrentFolder == null) { return; }
-                if (m_CopyFile != null) {
-                    CopyTask task = new CopyTask(m_CurrentFolder, m_CopyFile);
-                    task.execute();
-                } else if (m_RemoteCopy != null) {
-                    RemoteCopyTask task = new RemoteCopyTask(m_CurrentFolder, m_RemoteCopy);
-                    task.execute();
+                if( m_StatusView) {
+                    m_PasteMenu.setVisibility(View.INVISIBLE);
+                    m_Back.setVisibility(View.VISIBLE);
+                    m_ViewAnimator.setVisibility(View.VISIBLE);
+                    m_Add.setVisibility(View.VISIBLE);
+                    m_PasteMenuItems.clear();
+                    m_StatusView=false;
+                    return;
                 }
+                m_PasteMenuItems.add(getString(R.string.paste_all));
+                m_PasteMenuItems.add(getString(R.string.clear_all));
+                for( File file:m_CopyFile) {
+                    m_PasteMenuItems.add(file.getAbsolutePath());
+                }
+                for( SmbFile file:m_RemoteCopy) {
+                    m_PasteMenuItems.add(file.getCanonicalPath());
+                }
+                m_PasteAdapter = new ArrayAdapter<String>(NookFileManager.this, R.layout.listitem2, m_PasteMenuItems);
+                m_Add.setVisibility(View.INVISIBLE);
+                m_ViewAnimator.setVisibility(View.INVISIBLE);
+                m_StatusView = true;
+                m_PasteMenu.setAdapter(m_PasteAdapter);
+                m_Back.setVisibility(View.INVISIBLE);
+                m_PasteMenu.setVisibility(View.VISIBLE);
             }
         });
         m_Add.setOnClickListener(new OnClickListener() {
@@ -799,19 +895,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             m_Add.setVisibility(View.VISIBLE);
             loadFolders(subfolder, false);
             m_FileView = false;
-            if (m_CopyFile != null && m_CopyFile.exists()) {
+            if (m_CopyFile.size() >0 || m_RemoteCopy.size()>0) {
                 m_PasteButton.setVisibility(View.VISIBLE);
-            } else {
-                m_CopyFile = null;
-            }
-            try {
-                if (m_RemoteCopy != null && m_RemoteCopy.exists()) {
-                    m_PasteButton.setVisibility(View.VISIBLE);
-                } else {
-                    m_RemoteCopy = null;
-                }
-            } catch (Exception ex) {
-                m_RemoteCopy = null;
             }
         } else {
             if( f.isDirectory()) {
@@ -858,8 +943,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                         displayError(R.string.operation_invalid);
                         return;
                     }
-                    m_CopyFile = m_Current;
-                    m_RemoteCopy = null;
+                    m_CopyFile.add(m_Current);
                     m_PasteButton.setVisibility(View.VISIBLE);
                     clickAction(m_Back);
                     break;
@@ -915,8 +999,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         } else {
             if (position == 0) {
                 // plain copy
-                m_RemoteCopy = m_CurrentRemote;
-                m_CopyFile = null;
+                m_RemoteCopy.add(m_CurrentRemote);
                 m_PasteButton.setVisibility(View.VISIBLE);
                 clickAction(m_Back);
             } else {
@@ -1103,7 +1186,6 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 } catch (Exception ex) {
                     Log.e(LOGTAG, "Failed to delete file after copy.", ex);
                 }
-                m_RemoteCopy = null;
                 m_CutOperation = false;
                 lock.release();
                 return true;
@@ -1127,7 +1209,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     };
                     loadFolders(subfolder, false);
                 }
-                if (m_CopyFile == null || !m_CopyFile.exists()) {
+                if (m_CopyFile.size() ==0 && m_RemoteCopy.size() ==0) {
                     m_PasteButton.setVisibility(View.INVISIBLE);
                 }
             } else if (m_Target != null) {
@@ -1217,9 +1299,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     };
                     loadFolders(subfolder, false);
                 }
-                if (m_CopyFile == null || !m_CopyFile.exists()) {
+                if (m_CopyFile.size()==0 && m_RemoteCopy.size()==0) {
                     m_PasteButton.setVisibility(View.INVISIBLE);
-                    m_CopyFile = null;
                 }
             } else if (m_Target != null) {
                 displayError(R.string.copy_failed);

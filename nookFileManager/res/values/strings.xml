@@ -32,6 +32,9 @@
     <string name="prev">Prev</string>
     <string name="next">Next</string>
     <string name="target_set">Target folder for downloads set.</string>
+    <string name="paste">Paste Menu</string>
+    <string name="paste_all">Paste All</string>
+    <string name="clear_all">Clear All</string>
      
     <string-array name="localmenu">
 	    <item>Cut</item>
