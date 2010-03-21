@@ -48,7 +48,7 @@
 	 <link type="application/vnd.android.package-archive"
        href="http://nookdevs.googlecode.com/files/nookFileManager.apk"/>
     	 <id>http://nookdevs.googlecode.com/files/nookFileManager.apk</id>
-       <content type="text">File manager app - access sdcard folders and network shares. Version 0.0.1 - added on 02/17/2010.</content>
+       <content type="text">File manager app - access sdcard folders and network shares. Version 0.0.2 - added on 03/20/2010.</content>
   </entry>
   <entry>
     <title>Trook</title>
