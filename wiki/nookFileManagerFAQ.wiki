@@ -1,4 +1,5 @@
 #labels Featured
+Changes in version 0.0.2 - Fixes and features requested in Issue 50, 51.
 nookFileManager - some useful info
 <h2>1. Adding network shares</h2>
 Click Add PC button and enter ip address. You can also enter ip_addr/Share. 
