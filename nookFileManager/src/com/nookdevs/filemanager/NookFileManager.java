@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import jcifs.smb.SmbFile;
@@ -114,7 +115,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     ImageButton m_PasteButton = null;
     private List<File> m_CopyFile = new ArrayList<File>(5);
     private List<SmbFile> m_RemoteCopy = new ArrayList<SmbFile>(5);
-    private boolean m_CutOperation = false;
+    private HashMap<String,Boolean> m_CutOperation = new HashMap<String,Boolean>();
     Handler m_Handler = new Handler();
     private boolean m_Rename = false;
     private int m_CurrentNode = 0;
@@ -937,7 +938,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                         displayError(R.string.operation_invalid);
                         return;
                     }
-                    m_CutOperation = true;
+                    m_CutOperation.put( m_Current.getAbsolutePath(), true);
                 case COPY:
                     if (m_Current == null) {
                         displayError(R.string.operation_invalid);
@@ -1180,13 +1181,13 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 lock.acquire();
                 copyRemoteDirectory(m_Copy, m_Target, this);
                 try {
-                    if (m_CutOperation) {
+                    if (m_CutOperation.get(m_Copy.getCanonicalPath()) != null) {
                         m_Copy.delete();
+                        m_CutOperation.remove(m_Copy.getCanonicalPath());
                     }
                 } catch (Exception ex) {
                     Log.e(LOGTAG, "Failed to delete file after copy.", ex);
                 }
-                m_CutOperation = false;
                 lock.release();
                 return true;
             } catch (Exception ex) {
@@ -1270,13 +1271,13 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 lock.acquire();
                 copyDirectory(m_Copy, m_Target, this);
                 try {
-                    if (m_CutOperation) {
+                    if (m_CutOperation.get(m_Copy.getAbsolutePath()) != null) {
                         m_Copy.delete();
+                        m_CutOperation.remove(m_Copy.getAbsolutePath());
                     }
                 } catch (Exception ex) {
                     Log.e(LOGTAG, "Failed to delete file after copy.", ex);
                 }
-                m_CutOperation = false;
                 lock.release();
                 return true;
             } catch (Exception ex) {
