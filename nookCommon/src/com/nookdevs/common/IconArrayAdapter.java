@@ -40,7 +40,7 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
         m_ListItemId = textViewResourceId;
         m_Icons = icons;
         m_EnableFields = new boolean[objects.size()];
-        java.util.Arrays.fill(m_EnableFields,true);
+        java.util.Arrays.fill(m_EnableFields, true);
     }
     
     public void setIcons(int[] icons) {
@@ -71,6 +71,7 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
     public String getSubText(int id) {
         return m_SubTextValues[id];
     }
+    
     public void setEnabled(int idx, boolean val) {
         m_EnableFields[idx] = val;
     }
@@ -108,7 +109,7 @@ public class IconArrayAdapter<E> extends ArrayAdapter<E> {
             sub.setHint(String.valueOf(position));
             m_SubTextFields[position] = sub;
         }
-        if( !m_EnableFields[position]) {
+        if (m_EnableFields.length > position && !m_EnableFields[position]) {
             row.setVisibility(View.INVISIBLE);
         } else {
             row.setVisibility(View.VISIBLE);
