@@ -27,6 +27,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -37,6 +39,8 @@ public class nookBaseActivity extends Activity {
     public static final int SOFT_KEYBOARD_CLEAR = -13;
     public static final int SOFT_KEYBOARD_SUBMIT = -8;
     public static final int SOFT_KEYBOARD_CANCEL = -3;
+    public static final int SOFT_KEYBOARD_DOWN_KEY = 20;
+    public static final int SOFT_KEYBOARD_UP_KEY = 19;
     protected static final int NOOK_PAGE_UP_KEY_RIGHT = 98;
     protected static final int NOOK_PAGE_DOWN_KEY_RIGHT = 97;
     protected static final int NOOK_PAGE_UP_KEY_LEFT = 96;
@@ -169,8 +173,7 @@ public class nookBaseActivity extends Activity {
             dout.writeUTF(intent.getDataString());
             String tmp = intent.getDataString();
             int idx = tmp.indexOf('?');
-            if( idx !=-1)
-                tmp = tmp.substring(0,idx);
+            if (idx != -1) tmp = tmp.substring(0, idx);
             File f = new File(tmp.substring(6));
             f.setLastModified(System.currentTimeMillis());
             dout.writeUTF(intent.getType());
@@ -236,7 +239,8 @@ public class nookBaseActivity extends Activity {
         };
         
         try {
-            for (@SuppressWarnings("unused") String field : fields) {
+            for (@SuppressWarnings("unused")
+            String field : fields) {
                 if (name == null) {
                     name = "name=?";
                 } else {
@@ -269,6 +273,31 @@ public class nookBaseActivity extends Activity {
             Log.e(LOGTAG, "Error reading system settings... keeping hardcoded values");
             ex.printStackTrace();
         }
+    }
+    
+    public boolean waitForNetwork(ConnectivityManager.WakeLock lock) {
+        try {
+            ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            lock.acquire();
+            NetworkInfo info = cmgr.getActiveNetworkInfo();
+            boolean connection = (info == null) ? false : info.isConnected();
+            int attempts = 0;
+            while (!connection && attempts < 20) {
+                attempts++;
+                try {
+                    Thread.sleep(3000);
+                } catch (Exception ex) {
+                    
+                }
+                info = cmgr.getActiveNetworkInfo();
+                connection = (info == null) ? false : info.isConnected();
+            }
+            if (connection) return true;
+        } catch (Exception ex) {
+            Log.e("BNBooks", "Exception while checking for connection", ex);
+        }
+        if (lock != null && lock.isHeld()) lock.release();
+        return false;
     }
     
 }
