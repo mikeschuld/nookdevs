@@ -43,7 +43,7 @@ public class EpubMetaReader {
     public static final String DATE = "date";
     public static final String ISBN = "ISBN";
     String[] entries = {
-        TITLE, CREATOR, PUBLISHER, DESCRIPTION, SUBJECT, IDENTIFIER,SERIES, SERIES_INDEX
+        TITLE, CREATOR, PUBLISHER, DESCRIPTION, SUBJECT, IDENTIFIER, SERIES, SERIES_INDEX
     };
     
     private static List<String> m_ValidEntries;
@@ -151,14 +151,14 @@ public class EpubMetaReader {
                     } else {
                         valid = false;
                     }
-                    if( name.equals(IDENTIFIER)) {
+                    if (name.equals(IDENTIFIER)) {
                         int count = parser.getAttributeCount();
                         for (int i = 0; i < count; i++) {
                             String attr = parser.getAttributeName(i);
-                            if( attr != null && attr.contains("scheme")) {
+                            if (attr != null && attr.contains("scheme")) {
                                 String val = parser.getAttributeValue(i);
-                                if( !val.equals(ISBN)) {
-                                    name="";
+                                if (!val.equals(ISBN)) {
+                                    name = "";
                                 }
                             }
                         }
@@ -184,21 +184,17 @@ public class EpubMetaReader {
                                 if (dot != -1) {
                                     idx = idx.substring(0, dot);
                                 }
+                                if (idx.length() == 1) {
+                                    idx = "0" + idx;
+                                }
                                 seriesIdx = true;
                                 break;
                             }
                         }
                     }
-                    // int count = parser.getAttributeCount();
-                    // for(int i=0; i<count; i++) {
-                    // System.out.println(" attribute = " +
-                    // parser.getAttributeName(i) + " value = " +
-                    // parser.getAttributeValue(i));
-                    // }
                 }
                 if (type == XmlPullParser.TEXT && valid) {
                     String text = parser.getText();
-                    // System.out.println(name + " = " + parser.getText());
                     if (name.equals(TITLE)) {
                         m_File.setTitle(text);
                     } else if (name.equals(CREATOR)) {
@@ -213,12 +209,19 @@ public class EpubMetaReader {
                         m_File.addKeywords(text);
                     } else if (name.equals(IDENTIFIER)) {
                         m_File.setEan(text);
-                    } else if(name.equals(SERIES)) {
-                        seriesTag=true;
+                    } else if (name.equals(SERIES)) {
+                        seriesTag = true;
                         m_File.setSeries(text);
                         m_File.addKeywords(text);
-                    } else if( name.equals(SERIES_INDEX)) {
+                    } else if (name.equals(SERIES_INDEX)) {
                         idx = text;
+                        int dot = idx.indexOf('.');
+                        if (dot != -1) {
+                            idx = idx.substring(0, dot);
+                        }
+                        if (idx.length() == 1) {
+                            idx = "0" + idx;
+                        }
                     }
                     valid = false;
                 }
