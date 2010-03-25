@@ -34,12 +34,12 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.ConditionVariable;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.bravo.ecmscannerservice.ScannedFile;
+import com.nookdevs.common.nookBaseActivity;
 
 public class BNBooks {
     
@@ -67,18 +67,18 @@ public class BNBooks {
     private ScannedFile m_DownloadBook = null;
     private ConditionVariable m_SyncDone = new ConditionVariable();
     private ConditionVariable m_DownloadDone = new ConditionVariable();
-    private Context m_Context;
+    private nookBaseActivity m_Context;
     private String m_DownloadEan;
     private int m_DownloadProgress;
     private SQLiteDatabase m_Db;
     private SQLiteDatabase m_FilesDb;
-    HashMap<String, ScannedFile> m_EanMap = new HashMap<String, ScannedFile>();
+    private HashMap<String, ScannedFile> m_EanMap = new HashMap<String, ScannedFile>();
     private static boolean m_Auth = false;
     private boolean m_Sync = false;
-    Timer m_Timer = new Timer();
-    TimerTask m_TimerTask;
-    ConnectivityManager cmgr;
-    ConnectivityManager.WakeLock lock;
+    private Timer m_Timer = new Timer();
+    private TimerTask m_TimerTask;
+    protected ConnectivityManager cmgr;
+    protected ConnectivityManager.WakeLock lock;
     private BroadcastReceiver m_DownloadReceiver = new BroadcastReceiver() {
         
         @Override
@@ -86,7 +86,9 @@ public class BNBooks {
             // download complete.
             m_TimerTask.cancel();
             m_Timer.cancel();
-            if( lock.isHeld()) lock.release();
+            if (lock.isHeld()) {
+                lock.release();
+            }
             String path = "downloadedFileName";
             if (arg1 == null) {
                 path = null;
@@ -112,7 +114,9 @@ public class BNBooks {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             // sync complete.
-            if( lock.isHeld()) lock.release();
+            if (lock.isHeld()) {
+                lock.release();
+            }
             m_TimerTask.cancel();
             m_Timer.cancel();
             m_Context.unregisterReceiver(m_SyncReceiver);
@@ -128,70 +132,58 @@ public class BNBooks {
                 / 100.0);
         }
     };
-    public BNBooks(Context context) {
-        cmgr = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
+    
+    public BNBooks(nookBaseActivity context) {
+        cmgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         lock = cmgr.newWakeLock(1, "nookLibrary.BNBooks" + hashCode());
         m_Context = context;
     }
     
     public List<ScannedFile> getBooks() {
-        if( !waitForNetwork()) {
-            return null;
+        return getBooks(false);
+    }
+    
+    public List<ScannedFile> getBooks(boolean refresh) {
+        if (refresh && !m_Context.waitForNetwork(lock)) {
+            refresh = false;
         }
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
         m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
-        if (!m_Auth) { if(!authenticate()) return null; }
-        m_Auth=true;
-        m_SyncDone.close();
-        m_Sync = true;
-        registerSyncReceiver();
-        m_TimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                BNBooks.this.cancel();
+        if (refresh && !m_Auth) {
+            if (!authenticate()) {
+                refresh = false;
             }
-            
-        };
-        m_Timer.schedule(m_TimerTask, TIMEOUT);
-        sync();
-        m_SyncDone.block();
+        }
+        if (refresh) {
+            m_Auth = true;
+            m_SyncDone.close();
+            m_Sync = true;
+            registerSyncReceiver();
+            m_TimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    BNBooks.this.cancel();
+                }
+            };
+            m_Timer.schedule(m_TimerTask, TIMEOUT);
+            sync();
+            m_SyncDone.block();
+        } else {
+            loadBooksData();
+        }
         m_FilesDb.close();
         m_Db.close();
         m_Db = null;
         return m_Books;
     }
-    private boolean waitForNetwork() {
-        try {
-            lock.acquire();
-            NetworkInfo info = cmgr.getActiveNetworkInfo();
-            boolean connection = (info == null) ? false : info.isConnected();
-            int attempts=0;
-            while( !connection && attempts < 20) {
-                attempts++;
-                try {
-                    Thread.sleep(3000);
-                } catch(Exception ex) {
-                    
-                }
-                info = cmgr.getActiveNetworkInfo();
-                connection = (info == null) ? false : info.isConnected();
-            }
-            if( connection) return true;
-        } catch(Exception ex) {
-            Log.e("BNBooks", "Exception while checking for connection", ex);
-        }
-        if( lock !=null && lock.isHeld()) lock.release();
-        return false;
-    }
+    
     public ScannedFile getBook(ScannedFile file) {
-        if( !waitForNetwork()) {
-            return null;
-        }
+        if (!m_Auth) { return null; }
+        if (!m_Context.waitForNetwork(lock)) { return null; }
         m_DownloadEan = file.getEan();
         m_DownloadBook = file;
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
         m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
-        if (!m_Auth) { return null; }
         m_Sync = false;
         m_DownloadDone.close();
         registerDownloadReceiver();
@@ -336,7 +328,7 @@ public class BNBooks {
                     }
                 }
                 if (titles.contains("Merriam-Webster's Pocket Dictionary")) {
-                    if( !addToList) {
+                    if (!addToList) {
                         m_Books.remove(file);
                     }
                     cursor.moveToNext();
@@ -450,7 +442,6 @@ public class BNBooks {
                 file.setEan(cursor.getString(0));
                 m_Books.add(file);
                 m_EanMap.put(file.getEan(), file);
-                // System.out.println(" File in local books = " + file);
                 cursor.moveToNext();
             }
             cursor.close();

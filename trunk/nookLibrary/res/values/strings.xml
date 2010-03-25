@@ -20,14 +20,22 @@
     <string name="download_complete">Download Completed.</string>
     <string name="scan_error">Scanning failed to complete. Try again later.</string>
     <string name="on_loan">Book is on Loan.</string>
-<string-array name="mainmenu">
+    <string name="add_lib">Add Library</string>
+    <string name="fictionwise">Fictionwise</string>
+    <string name="kobobooks">Kobo books</string>
+    <string name="smashwords">Smashwords</string>
+    <string name="userid">User ID:</string>
+    <string name="password">Password:</string>
+    <string name="add_lib_error">Error updating Library details. Try again later.</string>
+    
+    <string-array name="mainmenu">
 		<item>View Details</item>
         <item>Sort By</item>
         <item>Search</item>
         <item>Show Covers</item>
         <item>Show</item>
-       <!-- <item>Quick Browse</item> -->
-        <item>Scan Folders</item>
+        <item>Authors</item>
+        <item>Refresh</item>
         <item>Close</item>
     </string-array>
     <string-array name="sortmenu">
@@ -36,5 +44,8 @@
  	<item>Author Last Name</item>
   	<item>Most recent</item>
  	</string-array>
-
+	<string-array name="refreshmenu">
+  	<item>Local Books</item>
+ 	<item>B&amp;N Books</item>
+ 	</string-array>
 </resources>
