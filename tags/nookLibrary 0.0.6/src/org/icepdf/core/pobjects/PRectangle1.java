@@ -106,9 +106,7 @@ public class PRectangle1 {
      *             thrown if coordinates is null or does not have four elements
      */
     public PRectangle1(Vector coordinates) throws IllegalArgumentException {
-        if (coordinates == null || coordinates.size() < 4) {
-            throw new IllegalArgumentException();
-        }
+        if (coordinates == null || coordinates.size() < 4) { throw new IllegalArgumentException(); }
         float x1 = ((Number) coordinates.elementAt(0)).floatValue();
         float y1 = ((Number) coordinates.elementAt(1)).floatValue();
         

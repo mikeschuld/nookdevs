@@ -34,11 +34,12 @@ public class OtherBooks extends SQLiteOpenHelper {
     public static final String BOOKS_DB = "myBooks.db";
     public static final String CREATE_BOOKS_TABLE =
         " create table books ( id integer primary key autoincrement, ean text, titles text not null, "
-            + "authors text not null, desc text, keywords text, publisher text, cover text, published long, created long, path text not null unique, series text)";
+            + "authors text not null, desc text, keywords text, publisher text, cover text, published long, created long, path text not null unique, series text, status text)";
     public static final String CREATE_LOG_TABLE = "create table log ( last_update long )";
     private NookLibrary nookLib;
-    public static final int VERSION = 2;
+    public static final int VERSION = 10;
     private List<ScannedFile> m_Files = new ArrayList<ScannedFile>(100);
+    private List<ScannedFile> m_ArchivedFiles = new ArrayList<ScannedFile>(100);
     private SQLiteDatabase m_Db = null;
     List<String> m_DeleteBooks = new ArrayList<String>(10);
     List<File> m_UpdatedFiles = new ArrayList<File>(100);
@@ -65,9 +66,7 @@ public class OtherBooks extends SQLiteOpenHelper {
     
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS BOOKS");
-        db.execSQL("DROP TABLE IF EXISTS LOG");
-        onCreate(db);
+        db.execSQL("ALTER TABLE BOOKS ADD COLUMN STATUS TEXT");
     }
     
     private void updateLastScan() {
@@ -110,15 +109,15 @@ public class OtherBooks extends SQLiteOpenHelper {
         }
     }
     
-    private void deleteBooks() {
+    private boolean deleteBooks() {
         try {
             String[] values = m_DeleteBooks.toArray(new String[1]);
             String whereclause = "";
             for (int i = 0; i < values.length; i++) {
                 if (i == 0) {
-                    whereclause += "id=?";
+                    whereclause += "path=?";
                 } else {
-                    whereclause += " or id=?";
+                    whereclause += " or path=?";
                 }
             }
             m_Db.beginTransaction();
@@ -129,7 +128,9 @@ public class OtherBooks extends SQLiteOpenHelper {
         } catch (Exception ex) {
             Log.e("OtherBooks", "Exception deleting books", ex);
             m_Db.endTransaction();
+            return false;
         }
+        return true;
     }
     
     public void addBookToDB(ScannedFile file) {
@@ -167,6 +168,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                 keyword += keywords.get(i);
             }
             values.put("keywords", keyword);
+            values.put("status", file.getStatus());
             m_Db.beginTransaction();
             m_Db.insert("BOOKS", null, values);
             m_Db.setTransactionSuccessful();
@@ -185,7 +187,7 @@ public class OtherBooks extends SQLiteOpenHelper {
             m_DeleteBooks.clear();
             Date lastScan = getLastScanDate();
             String query =
-                "select id, ean,titles,authors,desc,keywords,publisher,cover,published,created,path,series from books";
+                "select id, ean,titles,authors,desc,keywords,publisher,cover,published,created,path,series,status from books";
             Cursor cursor = m_Db.rawQuery(query, null);
             int size = cursor.getCount();
             cursor.moveToFirst();
@@ -194,7 +196,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                 File file = new File(path);
                 File skip = new File(file.getParent() + "/" + ".skip");
                 if (!file.exists() || skip.exists()) {
-                    m_DeleteBooks.add(cursor.getString(0));
+                    m_DeleteBooks.add(cursor.getString(10));
                     cursor.moveToNext();
                     continue;
                 }
@@ -239,8 +241,13 @@ public class OtherBooks extends SQLiteOpenHelper {
                     }
                 }
                 sf.setSeries(cursor.getString(11));
+                sf.setStatus(cursor.getString(12));
                 sf.setBookInDB(true);
-                m_Files.add(sf);
+                if (sf.getStatus() != null && sf.getStatus().equalsIgnoreCase(BNBooks.ARCHIVED)) {
+                    m_ArchivedFiles.add(sf);
+                } else {
+                    m_Files.add(sf);
+                }
                 cursor.moveToNext();
             }
             cursor.close();
@@ -259,8 +266,59 @@ public class OtherBooks extends SQLiteOpenHelper {
         return null;
     }
     
+    private boolean updateStatusInDB(ScannedFile file) {
+        try {
+            if (m_Db == null) {
+                m_Db = getWritableDatabase();
+            }
+            String[] whereArgs = {
+                file.getPathName()
+            };
+            ContentValues values = new ContentValues();
+            values.put("status", file.getStatus());
+            m_Db.beginTransaction();
+            m_Db.update("BOOKS", values, "path = ?", whereArgs);
+            m_Db.setTransactionSuccessful();
+        } catch (Exception ex) {
+            Log.e("OtherBooks", "Exception updating datbase", ex);
+            return false;
+        } finally {
+            m_Db.endTransaction();
+        }
+        return true;
+    }
+    
+    public boolean deleteBook(ScannedFile file) {
+        m_DeleteBooks.clear();
+        m_DeleteBooks.add(file.getPathName());
+        deleteBooks();
+        m_DeleteBooks.clear();
+        
+        File f = new File(file.getPathName());
+        f.delete();
+        f = new File(file.getCover());
+        f.delete();
+        return true;
+    }
+    
+    public List<ScannedFile> getArchived() {
+        return m_ArchivedFiles;
+    }
+    
+    public boolean archiveBook(ScannedFile file, boolean val) {
+        if (val) {
+            file.setStatus(BNBooks.ARCHIVED);
+            m_ArchivedFiles.add(file);
+        } else {
+            file.setStatus(null);
+            m_ArchivedFiles.remove(file);
+        }
+        return updateStatusInDB(file);
+    }
+    
     public void getOtherBooks() {
         try {
+            m_ArchivedFiles.clear();
             getBooksFromDB();
             File file = new File(nookBaseActivity.SDFOLDER);
             File external = new File(nookBaseActivity.EXTERNAL_SDFOLDER);

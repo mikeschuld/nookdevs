@@ -26,15 +26,20 @@ import java.util.StringTokenizer;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import android.content.ContentValues;
@@ -57,26 +62,44 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     public static final String BOOKS_DB = "fictionwise.db";
     public static final String CREATE_BOOKS_TABLE =
         " create table books ( id integer primary key autoincrement, ean text, titles text not null, "
-            + "authors text not null, desc text, keywords text, publisher text, cover text, published long, created long, path text, series text, bookid text not null unique, downloadUrl text)";
+            + "authors text not null, desc text, keywords text, publisher text, cover text, published long, created long, path text, series text, bookid text not null unique, downloadUrl text, status text)";
     public static final String CREATE_USER_TABLE = " create table user ( login text not null, pass text not null)";
     protected NookLibrary nookLib;
-    public static final int VERSION = 2;
+    public static final int VERSION = 11;
     protected ConnectivityManager cmgr;
     protected ConnectivityManager.WakeLock lock;
     private SQLiteDatabase m_Db;
-    private static String m_User;
-    private static String m_Pass;
-    private String m_BookShelfHtml;
-    DefaultHttpClient httpClient;
-    ArrayList<ScannedFile> m_Files = new ArrayList<ScannedFile>(50);
-    ArrayList<ScannedFile> m_NewFiles = new ArrayList<ScannedFile>(50);
-    private HashMap<String, ScannedFile> m_BookIdMap = new HashMap<String, ScannedFile>();
-    private String m_CookieStr;
-    private static String m_BaseDir;
-    private static boolean m_Auth = false;
+    protected static String m_User;
+    protected static String m_Pass;
+    protected String m_BookShelfHtml;
+    protected DefaultHttpClient httpClient;
+    protected ArrayList<ScannedFile> m_Files = new ArrayList<ScannedFile>(50);
+    protected ArrayList<ScannedFile> m_ArchivedFiles = new ArrayList<ScannedFile>(10);
+    protected HashMap<String, ScannedFile> m_BookIdMap = new HashMap<String, ScannedFile>();
+    protected static String m_BaseDir;
+    protected static boolean m_Auth = false;
+    static {
+        try {
+            File file = new File(nookBaseActivity.EXTERNAL_SDFOLDER + "/" + "fictionwise/");
+            if (!file.exists()) {
+                file = new File(nookBaseActivity.SDFOLDER + "/" + "fictionwise/");
+                file.mkdir();
+            }
+            m_BaseDir = file.getAbsolutePath() + "/";
+            file = new File(m_BaseDir + ".skip");
+            file.createNewFile();
+            
+        } catch (Exception ex) {
+            Log.e("FictionwiseBooks", "exception in init static block ", ex);
+        }
+    }
     
     public FictionwiseBooks(NookLibrary context) {
-        super(context, BOOKS_DB, null, VERSION);
+        this(context, BOOKS_DB, VERSION);
+    }
+    
+    public FictionwiseBooks(NookLibrary context, String dbName, int version) {
+        super(context, dbName, null, version);
         nookLib = context;
         cmgr = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
         lock = cmgr.newWakeLock(1, "nookLibrary.FictionwiseBooks" + hashCode());
@@ -87,24 +110,22 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     }
     
     private boolean authenticate() {
-        String url = AUTH_URL + "&" + "loginid=" + m_User + "&password=" + m_Pass + "&login=Login";
+        String url = AUTH_URL;
         try {
+            nookLib.waitForNetwork(lock);
             SSLSocketFactory factory = SSLSocketFactory.getSocketFactory();
             X509HostnameVerifier orgVerifier = factory.getHostnameVerifier();
             factory.setHostnameVerifier(new AllowAllHostnameVerifier());
-            HttpGet request = new HttpGet(url);
+            HttpPost request = new HttpPost(url);
+            List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+            nvps.add(new BasicNameValuePair("loginid", m_User));
+            nvps.add(new BasicNameValuePair("password", m_Pass));
+            nvps.add(new BasicNameValuePair("login", "Login"));
+            request.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
             
             HttpResponse response = httpClient.execute(request);
             m_BookShelfHtml = EntityUtils.toString(response.getEntity());
             factory.setHostnameVerifier(orgVerifier);
-            File file = new File(nookBaseActivity.EXTERNAL_SDFOLDER + "/" + "fictionwise/");
-            if (!file.exists()) {
-                file = new File(nookBaseActivity.SDFOLDER + "/" + "fictionwise/");
-                file.mkdir();
-            }
-            m_BaseDir = file.getAbsolutePath() + "/";
-            file = new File(m_BaseDir + ".skip");
-            file.createNewFile();
             m_Auth = true;
             return true;
         } catch (Exception ex) {
@@ -139,6 +160,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             if (idx2 == -1) { return false; }
             keyword = bookData.substring(idx1 + 1, idx2);
             file.addKeywords(keyword);
+            file.addKeywords(nookLib.getString(R.string.fictionwise));
             idx1 = bookData.indexOf("Add to Cart", idx2);
             if (idx1 == -1) { return false; }
             idx2 = bookData.indexOf("<p>", idx1);
@@ -305,6 +327,9 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
                 }
             }
         }
+        if (lock.isHeld()) {
+            lock.release();
+        }
     }
     
     public void close() {
@@ -318,14 +343,57 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
         }
     }
     
-    private void getBooksfromDB() {
+    public boolean archiveInServer(ScannedFile file) {
+        // not supported for fictionwise as of now.
+        return true;
+    }
+    
+    public List<ScannedFile> getArchived() {
+        return m_ArchivedFiles;
+    }
+    
+    public boolean archiveBook(ScannedFile file, boolean val) {
+        if (!archiveInServer(file)) { return false; }
+        if (val) {
+            file.setStatus(BNBooks.ARCHIVED);
+            m_ArchivedFiles.add(file);
+            File f = new File(file.getPathName());
+            f.delete();
+        } else {
+            file.setStatus(BNBooks.DOWNLOAD);
+            m_ArchivedFiles.remove(file);
+        }
+        if (m_Db == null) {
+            m_Db = getWritableDatabase();
+        }
+        try {
+            m_Db.beginTransaction();
+            ContentValues values = new ContentValues();
+            values.put("status", file.getStatus());
+            values.put("path", "");
+            String[] whereArgs = {
+                file.getBookID()
+            };
+            m_Db.update("BOOKS", values, "bookid=?", whereArgs);
+            m_Db.setTransactionSuccessful();
+        } catch (Exception ex) {
+            Log.e("FictionwiseBooks", "Exception updating status in database", ex);
+            return false;
+        } finally {
+            m_Db.endTransaction();
+        }
+        return true;
+    }
+    
+    protected void getBooksfromDB() {
         try {
             m_Files.clear();
+            m_ArchivedFiles.clear();
             if (m_Db == null) {
                 m_Db = getWritableDatabase();
             }
             String query =
-                "select id, ean,titles,authors,desc,keywords,publisher,cover,published,created,path,series, bookid, downloadUrl from books";
+                "select id, ean,titles,authors,desc,keywords,publisher,cover,published,created,path,series, bookid, downloadUrl , status from books";
             Cursor cursor = m_Db.rawQuery(query, null);
             int size = cursor.getCount();
             cursor.moveToFirst();
@@ -333,15 +401,13 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
                 String bookId = cursor.getString(12);
                 String path = cursor.getString(10);
                 ScannedFile sf = new ScannedFile(path, false);
-                if (path == null || path.trim().equals("")) {
-                    sf.setStatus(BNBooks.DOWNLOAD);
-                } else {
-                    sf.setStatus(null);
+                if (path != null && !path.trim().equals("")) {
                     sf.updateLastAccessDate();
                 }
                 m_BookIdMap.put(bookId, sf);
                 sf.setBookID(bookId);
                 sf.setDownloadUrl(cursor.getString(13));
+                sf.setStatus(cursor.getString(14));
                 sf.setEan(cursor.getString(1));
                 sf.setPublisher(cursor.getString(6));
                 sf.setCover(cursor.getString(7));
@@ -374,7 +440,11 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
                 }
                 sf.setSeries(cursor.getString(11));
                 sf.setBookInDB(true);
-                m_Files.add(sf);
+                if (BNBooks.ARCHIVED.equals(sf.getStatus())) {
+                    m_ArchivedFiles.add(sf);
+                } else {
+                    m_Files.add(sf);
+                }
                 cursor.moveToNext();
             }
             cursor.close();
@@ -419,6 +489,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             values.put("publisher", file.getPublisher());
             values.put("path", file.getPathName());
             values.put("cover", file.getCover());
+            values.put("status", file.getStatus());
             if (file.getPublishedDate() != null) {
                 values.put("published", file.getPublishedDate().getTime());
             }
@@ -442,7 +513,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             values.put("authors", file.getAuthor());
             String keyword = "";
             List<String> keywords = file.getKeywords();
-            for (int i = 0; i < keywords.size(); i++) {
+            for (int i = 0; keywords != null && i < keywords.size(); i++) {
                 if (i != 0) {
                     keyword += ",";
                 }
@@ -459,9 +530,13 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
         }
     }
     
-    public ScannedFile downloadBook(ScannedFile file) {
+    public void downloadBook(ScannedFile file) {
         try {
+            if (m_Auth) {
+                nookLib.waitForNetwork(lock);
+            }
             if (!m_Auth && !authenticate()) { throw new Exception("Authentication error"); }
+            
             HttpGet request = new HttpGet(file.getDownloadUrl());
             HttpResponse response = httpClient.execute(request);
             InputStream in = response.getEntity().getContent();
@@ -507,7 +582,9 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             file.setStatus(BNBooks.DOWNLOAD);
             close();
         }
-        return null;
+        if (lock.isHeld()) {
+            lock.release();
+        }
     }
     
     public static String getBaseDir() {
@@ -527,9 +604,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
-            db.execSQL("DROP TABLE IF EXISTS BOOKS ");
-            db.execSQL("DROP TABLE IF EXISTS USER ");
-            onCreate(db);
+            db.execSQL("ALTER TABLE BOOKS ADD COLUMN STATUS TEXT");
         } catch (Exception ex) {
             onCreate(db);
         }
@@ -542,6 +617,8 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             }
             m_Db.delete("BOOKS", null, null);
             m_Db.delete("USER", null, null);
+            m_User = null;
+            m_Pass = null;
         } catch (Exception ex) {
             Log.e("FictionwiseBooks", "exception while deleting ficionwise tables", ex);
         }
