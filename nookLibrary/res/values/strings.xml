@@ -26,6 +26,7 @@
     <string name="smashwords">Smashwords</string>
     <string name="userid">User ID:</string>
     <string name="password">Password:</string>
+    <string name="archived_books">Archived Books</string>
     <string name="add_lib_error">Error updating Library details. Try again later.</string>
     
     <string-array name="mainmenu">
@@ -36,6 +37,7 @@
         <item>Show</item>
         <item>Authors</item>
         <item>Refresh</item>
+        <item>Show Archived</item>
         <item>Close</item>
     </string-array>
     <string-array name="sortmenu">

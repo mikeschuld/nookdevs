@@ -50,15 +50,26 @@
       android:layout_below="@id/pageview"
       android:layout_toRightOf="@id/cover"
       android:background="#FFFFFF"
-      android:scrollbars="vertical"
+      android:scrollbars="none"
       > 
+     <RelativeLayout android:layout_height="fill_parent" 
+     	android:layout_width="365.0px"
+     	>
  	 <TextView android:id ="@+id/details"
-  		android:layout_width="365.0px"
+  		android:layout_width="330.0px"
   		android:layout_height="fill_parent"
   		android:textColor="#000000"
   		android:background="#FFFFFF"
   		android:padding="5.0px"
   		/>
+  	 <Button android:id="@+id/archive"
+		android:layout_width="35.0px"
+		android:layout_height="35.0px"
+		android:soundEffectsEnabled="true"
+		android:layout_toRightOf="@id/details"
+		android:background="@drawable/archive_button">
+	 </Button>
+	</RelativeLayout>
  </ScrollView>
   <com.nookdevs.common.CustomGallery android:id="@+id/icongallery"
     	android:layout_below="@id/pageview"
