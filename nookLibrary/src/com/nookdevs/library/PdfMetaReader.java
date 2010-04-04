@@ -35,9 +35,12 @@ public class PdfMetaReader {
     private boolean readMetadata(boolean quick) {
         try {
             if (quick) {
-                AdobeNativeInterface.openPDF(m_File.getPathName());
+                int ret = AdobeNativeInterface.openPDF(m_File.getPathName());
+                if (ret != 0) { return false; }
                 m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
                 m_File.addContributor(AdobeNativeInterface.getMetaData("DC.creator"), "");
+                m_File.setPublisher(AdobeNativeInterface.getMetaData("DC.publisher"));
+                m_File.setEan(AdobeNativeInterface.getMetaData("DC.identifier"));
                 AdobeNativeInterface.closePDF();
             } else {
                 Document doc = new Document();
@@ -47,6 +50,8 @@ public class PdfMetaReader {
                     
                 }
                 PInfo info = doc.getInfo();
+                // m_File.setTitle( info.getTitle());
+                // m_File.addContributor( info.getAuthor(),"");
                 m_File.setDescription(info.getSubject());
                 StringTokenizer token = new StringTokenizer(info.getKeywords(), ",; ");
                 while (token.hasMoreTokens()) {

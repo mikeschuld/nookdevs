@@ -41,9 +41,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.nookdevs.common.nookBaseActivity;
+import com.nookdevs.library.BNBooks;
 import com.nookdevs.library.EpubMetaReader;
 import com.nookdevs.library.FictionwiseBooks;
 import com.nookdevs.library.PdfMetaReader;
+import com.nookdevs.library.Smashwords;
 
 public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Serializable {
     private static final long serialVersionUID = -1908968223219359322L;
@@ -214,11 +216,17 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public boolean loadCover() {
         try {
             if (getCover() != null) {
-                if (getCover().startsWith("http://")) {
-                    URL aURL = new URL(getCover());
+                if (getCover().startsWith("http")) {
                     String name;
                     if (m_BookId != null) {
-                        name = FictionwiseBooks.getBaseDir() + titles.get(0) + ".jpg";
+                        if (matchSubject("Fictionwise")) {
+                            name = FictionwiseBooks.getBaseDir() + titles.get(0) + ".jpg";
+                        } else {
+                            int idx = m_DownloadUrl.lastIndexOf('/');
+                            int idx1 = m_DownloadUrl.lastIndexOf('.');
+                            name = m_DownloadUrl.substring(idx + 1, idx1);
+                            name = Smashwords.getBaseDir() + name + ".jpg";
+                        }
                     } else {
                         name = "/system/media/sdcard/my B&N downloads/" + titles.get(0) + ".jpg";
                     }
@@ -227,6 +235,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                             setCover(name);
                             return true;
                         }
+                        URL aURL = new URL(getCover());
                         DefaultHttpClient httpClient = new DefaultHttpClient();
                         HttpGet request = new HttpGet(getCover());
                         HttpResponse response = httpClient.execute(request);
@@ -546,7 +555,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 }
             }
         }
-        if (m_Status != null) {
+        if (m_Status != null && !BNBooks.ARCHIVED.equals(m_Status)) {
             title += "-" + m_Status;
         }
         return title;
@@ -564,6 +573,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     
     public void addKeywords(String keyword) {
         if (keyword == null || keyword.trim().equals("")) { return; }
+        keyword = keyword.trim();
         if (m_Keywords == null) {
             m_Keywords = new ArrayList<String>(10);
         }

@@ -64,6 +64,7 @@ public class BNBooks {
     public static final String AUTH_URL = "https://cart2.barnesandnoble.com/services/service.asp";
     public static final long TIMEOUT = 300000;
     private List<ScannedFile> m_Books = null;
+    private List<ScannedFile> m_ArchivedBooks = null;
     private ScannedFile m_DownloadBook = null;
     private ConditionVariable m_SyncDone = new ConditionVariable();
     private ConditionVariable m_DownloadDone = new ConditionVariable();
@@ -277,6 +278,19 @@ public class BNBooks {
         }
     }
     
+    public boolean archiveBook(ScannedFile file, boolean val) {
+        if (val) {
+            m_ArchivedBooks.add(file);
+        } else {
+            m_ArchivedBooks.remove(file);
+        }
+        return true;
+    }
+    
+    public List<ScannedFile> getArchived() {
+        return m_ArchivedBooks;
+    }
+    
     private void loadBooksData(String ean) {
         try {
             if (ean == null) {
@@ -297,25 +311,31 @@ public class BNBooks {
                     + PRODUCT_TABLE + " A ," + PRODUCT_STATE_TABLE + " B " + selection;
             Cursor cursor = m_Db.rawQuery(sql, selectionArgs);
             cursor.moveToFirst();
-            
             while (!cursor.isAfterLast()) {
                 boolean available = cursor.getInt(7) == 1;
+                boolean archived = false;
                 String lockerStatus = cursor.getString(12);
                 
                 String ean1 = cursor.getString(1);
                 boolean addToList = false;
-                ScannedFile file = m_EanMap.get(ean1);
+                ScannedFile file = m_EanMap.remove(ean1);
                 if (!available || ARCHIVED.equals(lockerStatus) || DELETED.equals(lockerStatus)) {
                     if (file != null) {
-                        m_EanMap.remove(ean1);
                         m_Books.remove(file);
                     }
-                    cursor.moveToNext();
-                    continue;
+                    if (ARCHIVED.equals(lockerStatus)) {
+                        m_ArchivedBooks.add(file);
+                        archived = true;
+                    } else {
+                        cursor.moveToNext();
+                        continue;
+                    }
                 }
                 if (file == null) { // not downloaded yet
                     file = new ScannedFile();
-                    addToList = true;
+                    if (!archived) {
+                        addToList = true;
+                    }
                 }
                 String titles = cursor.getString(2);
                 JSONArray array = new JSONArray(titles);
@@ -390,7 +410,9 @@ public class BNBooks {
                 file.setCover(object.optString("url"));
                 String lendState = cursor.getString(13);
                 file.setLendState(lendState);
-                if (LENT.equals(lendState)) {
+                if (archived) {
+                    file.setStatus(ARCHIVED);
+                } else if (LENT.equals(lendState)) {
                     file.setStatus(LENT);
                     String lendMessage = "On Loan to " + cursor.getString(14);
                     file.setDescription(lendMessage + "<br>" + file.getDescription());
@@ -420,7 +442,9 @@ public class BNBooks {
                 cursor.moveToNext();
             }
             cursor.close();
-            
+            if (!m_EanMap.isEmpty()) {
+                m_Books.removeAll(m_EanMap.values());
+            }
         } catch (Exception ex) {
             Log.e("BNBooks", "Exception loading BN books", ex);
         }
@@ -429,6 +453,7 @@ public class BNBooks {
     private void loadLocalBooks() {
         try {
             m_Books = new ArrayList<ScannedFile>(50);
+            m_ArchivedBooks = new ArrayList<ScannedFile>(10);
             String[] columns = {
                 "product_ean", "content_path"
             };
