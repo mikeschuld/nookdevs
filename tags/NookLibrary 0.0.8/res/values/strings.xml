@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, customLibrary!</string>
+    <string name="app_name">customLibrary</string>
+    <string name="scanning">Scanning Folders</string>
+    <string name="sorting">Sorting</string>
+    <string name="searching">Searching Books</string>
+    <string name="please_wait">Please Wait!</string>
+    <string name="search_results">Search Results</string>
+    <string name="my_documents">My Documents</string>
+    <string name="no_result">No Items Found</string>
+    <string name="error">Error</string>
+    <string name="not_implemented">Feature not implemented yet!</string>
+    <string name="reader_not_found">No Reader found for this file type.</string>
+    <string name="search_lib">Search Library:</string>
+    <string name="in_progress">In Progress...</string>
+    <string name="download_started">Download Started.</string>
+    <string name="download_in_progress">Download In Progress</string>
+    <string name="download_failed">Download Failed.</string>
+    <string name="download_complete">Download Completed.</string>
+    <string name="scan_error">Scanning failed to complete. Try again later.</string>
+    <string name="on_loan">Book is on Loan.</string>
+    <string name="add_lib">Add Library</string>
+    <string name="fictionwise">Fictionwise</string>
+    <string name="kobobooks">Kobo books</string>
+    <string name="smashwords">Smashwords</string>
+    <string name="userid">User ID:</string>
+    <string name="password">Password:</string>
+    <string name="archived_books">Archived Books</string>
+    <string name="add_lib_error">Error updating Library details. Try again later.</string>
+    
+    <string-array name="mainmenu">
+		<item>View Details</item>
+        <item>Sort By</item>
+        <item>Search</item>
+        <item>Show Covers</item>
+        <item>Show</item>
+        <item>Authors</item>
+        <item>Refresh</item>
+        <item>Show Archived</item>
+        <item>Close</item>
+    </string-array>
+    <string-array name="sortmenu">
+  	<item>Title</item>
+ 	<item>Author First Name</item>
+ 	<item>Author Last Name</item>
+  	<item>Most recent</item>
+ 	</string-array>
+	<string-array name="refreshmenu">
+  	<item>Local Books</item>
+ 	<item>B&amp;N Books</item>
+ 	</string-array>
+</resources>
