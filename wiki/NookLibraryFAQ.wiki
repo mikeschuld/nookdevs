@@ -1,4 +1,10 @@
 #labels Featured
+Following changes are included in 0.0.8 version<br>
+Option to download books from fictionwise and smashwords libraries directly via WIFI<br>
+Ability to filter books by author<br>
+Option to archive books - Doesn't work for B&N books as of now.<br>
+Fixed Series sorting issue and few other bugs<br>
+
 Following changes are included in 0.0.7 version- updated on 03/15 with bug fixes.
 <h2>1.Series info included in title.</h2>
 Series name/nbr from calibre tags included in title. Sorting by title/author will keep series books together.
