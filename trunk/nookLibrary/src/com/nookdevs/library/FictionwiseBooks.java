@@ -76,7 +76,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     protected ArrayList<ScannedFile> m_Files = new ArrayList<ScannedFile>(50);
     protected ArrayList<ScannedFile> m_ArchivedFiles = new ArrayList<ScannedFile>(10);
     protected HashMap<String, ScannedFile> m_BookIdMap = new HashMap<String, ScannedFile>();
-    protected static String m_BaseDir;
+    private static String m_BaseDir;
     protected static boolean m_Auth = false;
     static {
         try {
@@ -463,6 +463,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
         try {
             m_Db.beginTransaction();
             ContentValues values = new ContentValues();
+            values.put("status", file.getStatus());
             values.put("path", file.getPathName());
             String[] whereArgs = {
                 file.getBookID()
@@ -551,7 +552,6 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             } else {
                 throw new Exception("Unknown book type");
             }
-            System.out.println("BaseDir = " + m_BaseDir);
             String name = m_BaseDir + file.getTitles().get(0) + type;
             BufferedInputStream bis = new BufferedInputStream(in, 8096);
             FileOutputStream fout = new FileOutputStream(new File(name));

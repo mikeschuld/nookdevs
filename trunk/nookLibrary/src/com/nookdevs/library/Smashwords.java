@@ -62,6 +62,7 @@ public class Smashwords extends FictionwiseBooks {
     public static final String CREATE_USER_TABLE = " create table user ( login text not null, pass text not null)";
     protected NookLibrary nookLib;
     public static final int VERSION = 11;
+    private static String m_BaseDir;
     
     static {
         try {
@@ -88,7 +89,9 @@ public class Smashwords extends FictionwiseBooks {
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         httpClient = new DefaultHttpClient(params);
     }
-    
+    public static String getBaseDir() {
+        return m_BaseDir;
+    }
     private boolean authenticate() {
         String url = AUTH_URL;
         try {
@@ -205,6 +208,8 @@ public class Smashwords extends FictionwiseBooks {
     @Override
     public void downloadBook(ScannedFile file) {
         try {
+            if( m_User == null) 
+                getUser();
             nookLib.waitForNetwork(lock);
             HttpPost request = new HttpPost(file.getDownloadUrl());
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
@@ -235,6 +240,8 @@ public class Smashwords extends FictionwiseBooks {
                     }
                 }
                 // failed.
+                throw new Exception("Invalid data returned.");
+            } else if( type.contains("html")) {
                 throw new Exception("Invalid data returned.");
             }
             int idx = file.getDownloadUrl().lastIndexOf('/');
