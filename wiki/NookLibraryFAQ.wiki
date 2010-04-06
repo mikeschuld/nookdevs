@@ -1,5 +1,5 @@
 #labels Featured
-Following changes are included in 0.0.8 version<br>
+Following changes are included in 0.0.8 version - updated on 04/05 with few more bug fixes.<br>
 Option to download books from fictionwise and smashwords libraries directly via WIFI<br>
 Ability to filter books by author<br>
 Option to archive books - Doesn't work for B&N books as of now.<br>
