@@ -57,4 +57,11 @@
     <id>http://nookapps.googlecode.com/svn/trunk/feed/trook.xml</id>
     <content type="text">Get the latest news, documentation and updates about Trook, a Stanza/OPDS catalog reader, feed reader and local book browser app.</content>
   </entry>
+  <entry>
+    <title>Twook</title>
+    <link type="application/vnd.android.package-archive"
+          href="http://github.com/downloads/unchiujar/Twook/Twook.apk"/>
+    <id>http://github.com/downloads/unchiujar/Twook/Twook.apk</id>
+    <content type="text">Twitter client for the Nook</content>
+  </entry>
 </feed>
