@@ -21,7 +21,7 @@ import org.icepdf.core.pobjects.PInfo;
 
 import android.util.Log;
 
-import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.ecm.service.ScannedFile;
 import com.bravo.util.AdobeNativeInterface;
 
 public class PdfMetaReader {

@@ -23,7 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.ecm.service.ScannedFile;
 
 public class PageViewHelper {
     LinearLayout m_PageViewMain;

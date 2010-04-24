@@ -38,7 +38,7 @@ import android.os.ConditionVariable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.ecm.service.ScannedFile;
 import com.nookdevs.common.nookBaseActivity;
 
 public class BNBooks {
@@ -50,9 +50,10 @@ public class BNBooks {
     public static final String DOWNLOAD_PROGRESS = "com.bravo.intent.action.DOWNLOAD_PROGRESS";
     public static final String APP_DB = "/data/data/com.bravo.home/theDB.db";
     public static final String LOCAL_BOOKS_TABLE = "appInfo_table";
-    public static final String FILES_DB = "/data/data/com.bravo.library/AppInfoDB.db";
+  //  public static final String FILES_DB = "/data/data/com.bravo.library/AppInfoDB.db";
     public static final String PRODUCT_TABLE = "bn_client_products";
     public static final String PRODUCT_STATE_TABLE = "bn_client_product_states";
+    public static final String LOCAL_PRODUCT_STATE_TABLE = "bn_client_local_product_state";
     public static final String DEVICE_TABLE = "bn_client_device";
     public static final String ARCHIVED = "ARCHIVED";
     public static final String DELETED = "DELETED";
@@ -72,7 +73,7 @@ public class BNBooks {
     private String m_DownloadEan;
     private int m_DownloadProgress;
     private SQLiteDatabase m_Db;
-    private SQLiteDatabase m_FilesDb;
+ //   private SQLiteDatabase m_FilesDb;
     private HashMap<String, ScannedFile> m_EanMap = new HashMap<String, ScannedFile>();
     private static boolean m_Auth = false;
     private boolean m_Sync = false;
@@ -149,7 +150,7 @@ public class BNBooks {
             refresh = false;
         }
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
-        m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
+        //m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
         if (refresh && !m_Auth) {
             if (!authenticate()) {
                 refresh = false;
@@ -172,7 +173,7 @@ public class BNBooks {
         } else {
             loadBooksData();
         }
-        m_FilesDb.close();
+       // m_FilesDb.close();
         m_Db.close();
         m_Db = null;
         return m_Books;
@@ -184,7 +185,7 @@ public class BNBooks {
         m_DownloadEan = file.getEan();
         m_DownloadBook = file;
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
-        m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
+       // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
         m_Sync = false;
         m_DownloadDone.close();
         registerDownloadReceiver();
@@ -198,7 +199,7 @@ public class BNBooks {
         m_Timer.schedule(m_TimerTask, TIMEOUT);
         download();
         m_DownloadDone.block();
-        m_FilesDb.close();
+        //m_FilesDb.close();
         m_Db.close();
         return m_DownloadBook;
     }
@@ -312,14 +313,14 @@ public class BNBooks {
             Cursor cursor = m_Db.rawQuery(sql, selectionArgs);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                boolean available = cursor.getInt(7) == 1;
+                //boolean available = cursor.getInt(7) == 1;
                 boolean archived = false;
                 String lockerStatus = cursor.getString(12);
                 
                 String ean1 = cursor.getString(1);
                 boolean addToList = false;
                 ScannedFile file = m_EanMap.remove(ean1);
-                if (!available || ARCHIVED.equals(lockerStatus) || DELETED.equals(lockerStatus)) {
+                if (ARCHIVED.equals(lockerStatus) || DELETED.equals(lockerStatus)) {
                     if (file != null) {
                         m_Books.remove(file);
                     }
@@ -368,24 +369,28 @@ public class BNBooks {
                     }
                 }
                 file.setDescription(desc);
-                array = new JSONArray(contributorData);
-                sz = array.length();
-                for (int i = 0; i < sz; i++) {
-                    JSONObject object = array.getJSONObject(i);
-                    String firstName = object.optString("first_name");
-                    String middle = object.optString("middle_name");
-                    String lastName = object.optString("last_name");
-                    if (middle != null) {
-                        firstName += " " + middle;
+                if( contributorData != null) {
+                    array = new JSONArray(contributorData);
+                    sz = array.length();
+                    for (int i = 0; i < sz; i++) {
+                        JSONObject object = array.getJSONObject(i);
+                        String firstName = object.optString("first_name");
+                        String middle = object.optString("middle_name");
+                        String lastName = object.optString("last_name");
+                        if (middle != null) {
+                            firstName += " " + middle;
+                        }
+                        file.addContributor(firstName, lastName);
                     }
-                    file.addContributor(firstName, lastName);
                 }
-                array = new JSONArray(keywordData);
-                sz = array.length();
-                for (int i = 0; i < sz; i++) {
-                    JSONObject object = array.getJSONObject(i);
-                    String keyword = object.optString("name");
-                    file.addKeywords(keyword);
+                if( keywordData != null) {
+                    array = new JSONArray(keywordData);
+                    sz = array.length();
+                    for (int i = 0; i < sz; i++) {
+                        JSONObject object = array.getJSONObject(i);
+                        String keyword = object.optString("name");
+                        file.addKeywords(keyword);
+                    }
                 }
                 String type = cursor.getString(0);
                 if (type != null) {
@@ -406,8 +411,10 @@ public class BNBooks {
                 }
                 file.updateLastAccessDate();
                 String coverURL = cursor.getString(10);
-                JSONObject object = new JSONObject(coverURL);
-                file.setCover(object.optString("url"));
+                if( coverURL != null) {
+                    JSONObject object = new JSONObject(coverURL);
+                    file.setCover(object.optString("url"));
+                }
                 String lendState = cursor.getString(13);
                 file.setLendState(lendState);
                 if (archived) {
@@ -455,12 +462,12 @@ public class BNBooks {
             m_Books = new ArrayList<ScannedFile>(50);
             m_ArchivedBooks = new ArrayList<ScannedFile>(10);
             String[] columns = {
-                "product_ean", "content_path"
+                "local_product_ean", "downloaded_path"
             };
             String selection;
             String[] selectionArgs = null;
             selection = null;
-            Cursor cursor = m_FilesDb.query(LOCAL_BOOKS_TABLE, columns, selection, selectionArgs, null, null, null);
+            Cursor cursor = m_Db.query(LOCAL_PRODUCT_STATE_TABLE, columns, selection, selectionArgs, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 ScannedFile file = new ScannedFile(cursor.getString(1), false);

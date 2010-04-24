@@ -28,7 +28,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.util.Log;
 
-import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.ecm.service.ScannedFile;
 
 public class EpubMetaReader {
     public static final String TITLE = "title";
