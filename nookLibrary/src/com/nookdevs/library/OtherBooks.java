@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.ecm.service.ScannedFile;
 import com.nookdevs.common.nookBaseActivity;
 
 public class OtherBooks extends SQLiteOpenHelper {
@@ -334,7 +334,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                     if (m_UpdatedFiles.contains(f)) { return false; }
                     String extension = f.getName().toLowerCase();
                     if (extension.endsWith("epub") || extension.endsWith("htm") || extension.endsWith("txt")
-                        || extension.endsWith("html") || extension.endsWith("pdf")) {
+                        || extension.endsWith("html") || extension.endsWith("pdf") || extension.endsWith("pdb")) {
                         return true;
                     } else {
                         return false;

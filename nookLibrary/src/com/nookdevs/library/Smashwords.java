@@ -48,7 +48,7 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.ecm.service.ScannedFile;
 import com.nookdevs.common.nookBaseActivity;
 
 public class Smashwords extends FictionwiseBooks {

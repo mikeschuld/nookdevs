@@ -19,7 +19,7 @@
 // Interface is from ecmscannerservice package and this has to be part of that 
 // package due to class casting issues.
 //
-package com.bravo.ecmscannerservice;
+package com.bravo.ecm.service;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -547,7 +547,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         } else {
             for (int i = 0; i < titles.size(); i++) {
                 String tmp = titles.get(i).trim();
-                if (!title.contains(tmp)) {
+                if (i==0 || !title.contains(tmp)) {
                     if (i != 0) {
                         tmp = "," + tmp;
                     }

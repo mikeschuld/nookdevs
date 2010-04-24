@@ -65,9 +65,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-import com.bravo.ecmscannerservice.IECMScannerService;
-import com.bravo.ecmscannerservice.IECMScannerServiceCallback;
-import com.bravo.ecmscannerservice.ScannedFile;
+import com.bravo.ecm.dto.BNContent;
+import com.bravo.ecm.service.ScannedFile;
+import com.bravo.ecm.service.IECMScannerService;
+import com.bravo.ecm.service.IECMScannerServiceCallback;
 import com.nookdevs.common.CustomGallery;
 import com.nookdevs.common.IconArrayAdapter;
 import com.nookdevs.common.ImageAdapter;
@@ -144,7 +145,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     ViewAnimator m_PageViewAnimator = null;
     TextView m_DetailsPage = null;
     private boolean m_ScanInProgress = false;
-    private boolean m_RemoteScanDone = false;
     private OtherBooks m_OtherBooks;
     private BNBooks m_BNBooks;
     private FictionwiseBooks m_FictionwiseBooks = null;
@@ -363,7 +363,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         super.onResume();
     }
     
-    void updatePageView(List<ScannedFile> files) {
+    void updatePageView(List files) {
         if (files != null && files.size() > 0) {
             synchronized (m_Files) {
                 m_Files.addAll(files);
@@ -428,91 +428,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_Handler.post(thrd);
         
     }
-    
-    private IECMScannerService m_Service = null;
-    private IECMScannerServiceCallback m_Callback = new IECMScannerServiceCallback.Stub() {
-        
-        public void appendFiles(List<ScannedFile> files) throws RemoteException {
-            Log.i(LOGTAG, "appendFiles called ...");
-        }
-        
-        public void getBatchList(final List<ScannedFile> files) throws RemoteException {
-            m_RemoteScanDone = true;
-            updatePageView(files);
-            unbindService(m_Conn);
-            m_RemoteScanDone = false;
-            m_BNBooksLock.block();
-            m_LocalScanDone.block();
-            m_FictionwiseLock.block();
-            m_SmashwordsLock.block();
-            updatePageView(true);
-            Runnable thrd1 = new Runnable() {
-                public void run() {
-                    loadCovers();
-                }
-            };
-            (new Thread(thrd1)).start();
-            
-        }
-        
-        public void getFileFound(ScannedFile file) throws RemoteException {
-            Log.i(LOGTAG, "getFileFound called ...");
-            if (file != null) {
-                Log.w(LOGTAG, file.toString());
-            }
-        }
-        
-        public void getList(List<ScannedFile> list) throws RemoteException {
-            Log.i(LOGTAG, "getList called ...");
-        }
-        
-        public void setTotalSize(int size) throws RemoteException {
-        }
-    };
-    
-    private void loadBookData() {
-        try {
-            String[] folders = {
-                "my documents", "Digital Editions", "mydownloads", "my downloads"
-            };
-            String[] exts = {
-                "pdb"
-            };
-            m_Service.scanDirectoriesBatch(1, folders, exts, MAX_FILES_PER_BATCH, m_Callback);
-        } catch (Exception ex) {
-            Log.e(LOGTAG, "Exception calling scanDirectoriesBatch ...", ex);
-            try {
-                displayAlert(getString(R.string.scanning), getString(R.string.scan_error), 2, null, -1);
-                m_Callback.getBatchList(null);
-            } catch (Exception ex1) {
-                
-            }
-        }
-        
-    }
-    
-    private ServiceConnection m_Conn = new ServiceConnection() {
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(LOGTAG, "scanner service connected ..." + name);
-            m_Service = IECMScannerService.Stub.asInterface(service);
-            try {
-                m_Service.registerCallback(m_Callback);
-                Runnable thrd = new Runnable() {
-                    public void run() {
-                        loadBookData();
-                    }
-                };
-                (new Thread(thrd)).start();
-            } catch (Exception ex) {
-                Log.e(LOGTAG, "Exception calling registercallback ...", ex);
-            }
-        }
-        
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(LOGTAG, "service disconnected ..." + name);
-        }
-    };
-    
     private void queryFolders() {
         queryFolders(LOCAL_BOOKS);
     }
@@ -525,7 +440,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_ListAdapter.setSubText(REFRESH, getString(R.string.in_progress));
         m_Files.clear();
         m_Lock.acquire();
-        bindService(new Intent("SCAN_ECM"), m_Conn, Context.BIND_AUTO_CREATE);
         m_LocalScanDone.close();
         Runnable thrd1 = new Runnable() {
             public void run() {
@@ -540,6 +454,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             public void run() {
                 m_OtherBooks.getOtherBooks();
                 m_LocalScanDone.open();
+                m_BNBooksLock.block();
+                m_FictionwiseLock.block();
+                m_SmashwordsLock.block();
+                updatePageView(true);
+                loadCovers();
             }
         };
         final CharSequence val = m_RefreshAdapter.getItem(type);
