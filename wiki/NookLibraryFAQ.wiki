@@ -1,4 +1,6 @@
 #labels Featured
+0.0.9 version - Supports B&N 1.3. This doesn't work in older versions. 
+
 Following changes are included in 0.0.8 version - updated on 04/05 with few more bug fixes.<br>
 Option to download books from fictionwise and smashwords libraries directly via WIFI<br>
 Ability to filter books by author<br>
