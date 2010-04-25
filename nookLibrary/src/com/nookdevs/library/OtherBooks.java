@@ -433,6 +433,8 @@ MediaScannerConnectionClient {
     }
 
     public void onScanCompleted(String path, Uri arg1) {
+        String ext = path.toLowerCase();
+        if( !ext.endsWith("pdb") && !ext.endsWith("pdf")) return; 
         ScannedFile file = new ScannedFile(path);
         String [] columns = {"title","authors","ean","publisher","date_published"};
         Cursor dbCursor = mNookLib.getContentResolver().query(arg1, columns, null,null, null);
