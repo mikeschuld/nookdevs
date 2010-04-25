@@ -14,15 +14,10 @@
  */
 package com.nookdevs.library;
 
-import java.util.StringTokenizer;
-
-import org.icepdf.core.pobjects.Document;
-import org.icepdf.core.pobjects.PInfo;
-
-import android.util.Log;
-
 import com.bravo.ecm.service.ScannedFile;
 import com.bravo.util.AdobeNativeInterface;
+
+import android.util.Log;
 
 public class PdfMetaReader {
     ScannedFile m_File;
