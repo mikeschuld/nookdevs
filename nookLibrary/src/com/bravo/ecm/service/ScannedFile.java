@@ -205,7 +205,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             if (type.equals("html")) {
                 type = "htm";
             }
-            System.out.println("setPathName called - path=" + path + " type=" + type);
             addKeywords(type);
             if (m_Details != null) {
                 m_Details += "<b>File Path:</b>&nbsp;" + pathname;
@@ -307,15 +306,9 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public void updateMetaData() {
-        updateMetaData(true);
-    }
-    
-    public void updateMetaData(boolean quick) {
         if ("epub".equals(type)) {
             epub = new EpubMetaReader(this);
-        } else if ("pdf".equalsIgnoreCase(type)) {
-            pdf = new PdfMetaReader(this, quick);
-        }
+        } 
     }
     
     public ScannedFile(String pathName) {
