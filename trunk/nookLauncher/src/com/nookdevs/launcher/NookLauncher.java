@@ -41,7 +41,7 @@ public class NookLauncher extends nookBaseActivity {
     String[] apps =
         {
             "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
-            "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SystemPrefActivity",
+            "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SettingsActivity",
             "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity",
             "com.nookdevs.launcher.LauncherSelector"
         };
