@@ -146,8 +146,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     List<String> titles = new ArrayList<String>();
     Date createdDate;
     Date lastAccessedDate;
-    private String m_Data = null;
-    private StringBuffer m_DataBuffer = new StringBuffer();
     private String m_Cover = null;
     private String description;
     private List<String> m_Keywords;
@@ -185,8 +183,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     
     public void setSeries(String s) {
         m_Series = s;
-        m_DataBuffer.append(" ");
-        m_DataBuffer.append(s);
     }
     
     public String getSeries() {
@@ -206,9 +202,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 type = "htm";
             }
             addKeywords(type);
-            if (m_Details != null) {
-                m_Details += "<b>File Path:</b>&nbsp;" + pathname;
-            }
         }
     }
     
@@ -318,7 +311,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public ScannedFile(String pathName, boolean update) {
         pathname = pathName;
         if (pathname != null) {
-            m_DataBuffer.append(pathname);
             int idx = pathname.lastIndexOf('.');
             type = pathname.substring(idx + 1).toLowerCase();
             if (type.equals("html")) {
@@ -346,13 +338,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public void readFromParcel(Parcel parcel) {
         pathname = parcel.readString();
         ean = parcel.readString();
-        m_DataBuffer.append(ean);
-        m_DataBuffer.append(" ");
         parcel.readStringList(titles);
-        m_DataBuffer.append(titles.toString());
         publisher = parcel.readString();
-        m_DataBuffer.append(" ");
-        m_DataBuffer.append(publisher);
         
         try {
             long date = parcel.readLong();
@@ -365,10 +352,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         for (int i = 0; i < size; i++) {
             String first = parcel.readString();
             String last = parcel.readString();
-            m_DataBuffer.append(first);
-            m_DataBuffer.append(" ");
-            m_DataBuffer.append(last);
-            m_DataBuffer.append(" ");
             addContributor(first, last);
         }
         
@@ -509,8 +492,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     
     public void setPublisher(String p) {
         publisher = p;
-        m_DataBuffer.append(" ");
-        m_DataBuffer.append(publisher);
     }
     
     public void setLastAccessedDate(Date date) {
@@ -524,8 +505,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         }
         if (val == null || val.trim().equals("")) { return; }
         titles.add(val);
-        m_DataBuffer.append(" ");
-        m_DataBuffer.append(val);
     }
     
     public void setTitles(List<String> titles) {
@@ -560,8 +539,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     
     public void setDescription(String desc) {
         description = desc;
-        m_DataBuffer.append(" ");
-        m_DataBuffer.append(desc);
     }
     
     public void addKeywords(String keyword) {
@@ -575,8 +552,6 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (!m_KeyWordsList.contains(keyword)) {
             m_KeyWordsList.add(keyword);
         }
-        m_DataBuffer.append(" ");
-        m_DataBuffer.append(keyword);
     }
     
     public boolean matchSubject(String subject) {
@@ -591,11 +566,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         return m_Keywords;
     }
     
-    private String m_Details = null;
-    
     public String getDetails() {
         String text1 = "<b>" + getTitle() + "</b><br/><br/>";
-        if (m_Details != null) { return text1 + m_Details; }
         StringBuffer text = new StringBuffer();
         if (contributors.size() > 0) {
             text.append("&nbsp;&nbsp;&nbsp;&nbsp;by " + getAuthor() + "<br/>");
@@ -633,17 +605,19 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             text.append("<b>File Path:</b>&nbsp;");
             text.append(pathname);
         }
-        m_Details = text.toString();
-        return text1 + m_Details;
+        String details = text.toString();
+        return text1 + details;
     }
     
     public String getAuthorLast() {
         if (contributors == null || contributors.size() == 0) {
             return "No Author Info";
         } else {
-            StringBuffer auth = new StringBuffer();
-            auth.append(contributors.get(0).lastName);
-            return auth.toString().trim();
+            String auth =contributors.get(0).lastName;
+            if( auth == null || auth.trim().equals("")) {
+                return getAuthor();
+            }
+            return auth.trim();
         }
     }
     
@@ -668,9 +642,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         Contributors c = new Contributors(first, last);
         if (!contributors.contains(c)) {
             contributors.add(c);
-            m_DataBuffer.append(" ");
             String tmp = c.toString().trim();
-            m_DataBuffer.append(tmp);
             if (!m_AuthorsList.contains(tmp)) {
                 m_AuthorsList.add(tmp);
             }
@@ -744,10 +716,23 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public String getData() {
-        if (m_Data == null) {
-            m_Data = m_DataBuffer.toString().toLowerCase();
-        }
-        return m_Data;
+        StringBuffer str = new StringBuffer();
+        str.append(pathname);
+        str.append(" ");
+        str.append(ean);
+        str.append(" ");
+        str.append(publisher);
+        str.append(" ");
+        str.append(titles);
+        str.append(" ");
+        str.append(contributors);
+        str.append(" ");
+        str.append(m_Series);
+        str.append(" ");
+        str.append(m_Keywords);
+        str.append(" ");
+        str.append(getDescription());
+        return str.toString().toLowerCase();
     }
     
     private boolean m_BookInDB = true;
