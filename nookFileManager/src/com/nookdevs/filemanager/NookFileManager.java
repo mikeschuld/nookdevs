@@ -50,6 +50,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -349,9 +350,18 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     private void startViewer(File file) {
         String path = file.getAbsolutePath();
         Intent intent;
-        String mimetype = "application/";
+        
         int idx = path.lastIndexOf('.');
         String ext = path.substring(idx + 1);
+        MimeTypeMap mimemap = MimeTypeMap.getSingleton();
+        String mimetype = mimemap.getMimeTypeFromExtension(ext);
+        if( mimetype == null) {
+            if ("apk".equals(ext)) {
+                mimetype = "application/vnd.android.package-archive";
+            } else {
+                mimetype="application/" +ext;
+            }
+        }
         if ("txt".equals(ext) || "html".equals(ext) || "htm".equals(ext)) {
             try {
                 intent = new Intent(Intent.ACTION_MAIN);
@@ -363,9 +373,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             } catch (Exception ex) {
             }
         }
-        intent = new Intent("com.bravo.intent.action.VIEW");
-        mimetype += ext;
         path = "file://" + path;
+        intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(path), mimetype);
         try {
             if ("epub".equals(ext) || "pdf".equals(ext) || "pdb".equals(ext)) {
@@ -374,12 +383,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             startActivity(intent);
             return;
         } catch (ActivityNotFoundException ex) {
-            
         }
-        intent = new Intent(Intent.ACTION_VIEW);
-        if ("apk".equals(ext)) {
-            mimetype = "application/vnd.android.package-archive";
-        }
+        intent = new Intent("com.bravo.intent.action.VIEW");
         intent.setDataAndType(Uri.fromFile(file), mimetype);
         try {
             startActivity(intent);
