@@ -42,15 +42,19 @@ public class NookLauncher extends nookBaseActivity {
         {
             "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
             "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SettingsActivity",
+            "com.bravo.app.settings.WifiActivity",
             "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity",
-            "com.nookdevs.launcher.LauncherSelector"
+            "com.nookdevs.launcher.LauncherSelector", "com.bravo.chess.ChessActivity",
+            "com.bravo.sudoku.SudokuActivity", "com.bravo.app.browser.BrowserActivity"
         };
     
     int[] appIcons =
         {
             R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
-            R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_launcher_settings,
-            R.drawable.select_home_bnhome, R.drawable.select_default_launcher
+            R.drawable.select_home_mybook, R.drawable.select_home_settings, R.drawable.select_home_wifi,
+            R.drawable.select_home_launcher_settings,
+            R.drawable.select_home_bnhome, R.drawable.select_default_launcher, R.drawable.select_home_chess,
+            R.drawable.select_home_sudoku, R.drawable.select_home_browser
         };
     
     final static String readingNowUri = "content://com.reader.android/last";
