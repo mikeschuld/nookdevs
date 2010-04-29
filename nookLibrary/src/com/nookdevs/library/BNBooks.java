@@ -87,7 +87,6 @@ public class BNBooks {
         public void onReceive(Context arg0, Intent arg1) {
             // download complete.
             m_TimerTask.cancel();
-            m_Timer.cancel();
             if (lock.isHeld()) {
                 lock.release();
             }
@@ -120,7 +119,6 @@ public class BNBooks {
                 lock.release();
             }
             m_TimerTask.cancel();
-            m_Timer.cancel();
             m_Context.unregisterReceiver(m_SyncReceiver);
             loadBooksData();
             m_SyncDone.open();
@@ -180,8 +178,11 @@ public class BNBooks {
     }
     
     public ScannedFile getBook(ScannedFile file) {
-        if (!m_Auth) { return null; }
         if (!m_Context.waitForNetwork(lock)) { return null; }
+        if (!m_Auth && !authenticate()) {
+            if( lock.isHeld()) lock.release();
+            return null;
+        }
         m_DownloadEan = file.getEan();
         m_DownloadBook = file;
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
@@ -217,7 +218,6 @@ public class BNBooks {
         m_Context.registerReceiver(m_DownloadReceiver, filter);
         IntentFilter filter1 = new IntentFilter(DOWNLOAD_PROGRESS);
         m_Context.registerReceiver(m_DownloadProgressReceiver, filter1);
-        
     }
     
     private void sync() {
@@ -228,6 +228,7 @@ public class BNBooks {
     private void download() {
         Intent intent = new Intent(DOWNLOAD_ACTION);
         intent.putExtra("dstDir", "/system/media/sdcard/my B&N Downloads/");
+      //  intent.putExtra("continue", true);
         ArrayList<String> values = new ArrayList<String>(1);
         values.add(m_DownloadEan);
         intent.putStringArrayListExtra("producteanList", values);
