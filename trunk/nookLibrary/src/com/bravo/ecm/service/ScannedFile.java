@@ -415,6 +415,9 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 case SORT_BY_AUTHOR_LAST:
                     authsort = getAuthorLast().compareToIgnoreCase(file1.getAuthorLast());
                     if (authsort == 0) {
+                        authsort = getAuthor().compareToIgnoreCase(file1.getAuthor());
+                    }
+                    if (authsort == 0) {
                         return getTitle().compareToIgnoreCase(file1.getTitle());
                     } else {
                         return authsort;
