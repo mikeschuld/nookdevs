@@ -379,7 +379,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                 }
                 String ext = file.getAbsolutePath().toLowerCase();
                 ext = ext.substring(ext.lastIndexOf('.')+1);
-                if( "pdf".equals(ext) || "pdb".equals(ext)) {
+                if("pdb".equals(ext)) {
                     m_ScannerNotifier.scanFile(file.getAbsolutePath());
                 } else {
                     ScannedFile file1 = new ScannedFile(file.getAbsolutePath());
@@ -434,7 +434,7 @@ MediaScannerConnectionClient {
 
     public void onScanCompleted(String path, Uri arg1) {
         String ext = path.toLowerCase();
-        if( !ext.endsWith("pdb") && !ext.endsWith("pdf")) return; 
+        if( !ext.endsWith("pdb")) return; 
         ScannedFile file = new ScannedFile(path);
         String [] columns = {"title","authors","ean","publisher","date_published"};
         Cursor dbCursor = mNookLib.getContentResolver().query(arg1, columns, null,null, null);

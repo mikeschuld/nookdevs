@@ -619,6 +619,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         }
         m_Lock.release();
         for (ScannedFile file : list) {
+            if (!file.getBookInDB() && "pdf".equals(file.getType())) {
+                file.updateMetaData(false);
+            }
             if (!file.getBookInDB()) {
                 String fictionwise = getString(R.string.fictionwise);
                 if (file.getBookID() != null) {
