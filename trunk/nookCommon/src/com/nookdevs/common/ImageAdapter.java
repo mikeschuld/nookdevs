@@ -108,7 +108,11 @@ public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
             if (m_AppIcons.get(position - m_Resources.length - curr) == null) {
                 i.setImageResource(m_Default);
             } else {
-                i.setImageURI(Uri.parse(m_AppIcons.get(position - m_Resources.length - curr)));
+                try {
+                    i.setImageURI(Uri.parse(m_AppIcons.get(position - m_Resources.length - curr)));
+                } catch( Throwable ex) {
+                    i.setImageResource(m_Default);
+                }
             }
         }
         /* Image should be scaled as width/height are set. */
