@@ -14,6 +14,11 @@
  */
 package com.nookdevs.library;
 
+import java.util.StringTokenizer;
+
+import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.PInfo;
+
 import com.bravo.ecm.service.ScannedFile;
 import com.bravo.util.AdobeNativeInterface;
 
@@ -29,7 +34,7 @@ public class PdfMetaReader {
     
     private boolean readMetadata(boolean quick) {
         try {
-    //        if (quick) {
+            if (quick) {
                 int ret = AdobeNativeInterface.openPDF(m_File.getPathName());
                 if (ret != 0) { return false; }
                 m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
@@ -37,22 +42,20 @@ public class PdfMetaReader {
                 m_File.setPublisher(AdobeNativeInterface.getMetaData("DC.publisher"));
                 m_File.setEan(AdobeNativeInterface.getMetaData("DC.identifier"));
                 AdobeNativeInterface.closePDF();
-//            } else {
-//                Document doc = new Document();
-//                try {
-//                    doc.setFile(m_File.getPathName());
-//                } catch (Throwable er) {
-//                    
-//                }
-//                PInfo info = doc.getInfo();
-//                // m_File.setTitle( info.getTitle());
-//                // m_File.addContributor( info.getAuthor(),"");
-//                m_File.setDescription(info.getSubject());
-//                StringTokenizer token = new StringTokenizer(info.getKeywords(), ",; ");
-//                while (token.hasMoreTokens()) {
-//                    m_File.addKeywords(token.nextToken());
-//                }
-//            }
+            } else {
+                Document doc = new Document();
+                try {
+                    doc.setFile(m_File.getPathName());
+                } catch (Throwable er) {
+                    
+                }
+                PInfo info = doc.getInfo();
+                m_File.setDescription(info.getSubject());
+                StringTokenizer token = new StringTokenizer(info.getKeywords(), ",; ");
+                while (token.hasMoreTokens()) {
+                    m_File.addKeywords(token.nextToken());
+                }
+            }
         } catch (Throwable e) {
             // TODO Auto-generated catch block
             Log.w("PdfMetaReader", "No Metadata for " + m_File.getPathName());
