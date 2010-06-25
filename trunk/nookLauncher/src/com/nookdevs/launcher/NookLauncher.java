@@ -42,7 +42,7 @@ public class NookLauncher extends nookBaseActivity {
         {
             "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
             "com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SettingsActivity",
-            "com.bravo.app.settings.WifiActivity",
+            "com.bravo.app.settings.wifi.WifiActivity",
             "com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity",
             "com.nookdevs.launcher.LauncherSelector", "com.bravo.chess.ChessActivity",
             "com.bravo.sudoku.SudokuActivity", "com.bravo.app.browser.BrowserActivity"
@@ -129,19 +129,26 @@ public class NookLauncher extends nookBaseActivity {
     
     private final void fillButton(ImageButton b, String appName, int appIconId, String iconpath) {
         boolean systemApp = false;
-        if (appIconId > 0) {
+        Log.i(LOGTAG, "appIconId = " + ((Integer) appIconId).toString());
+       if (appIconId > 0) {
             b.setImageResource(appIconId);
             systemApp = true;
         }
         Intent intent = null;
         int idx = appName.lastIndexOf(".");
         String pkgName = appName.substring(0, idx);
+        Log.i(LOGTAG, "appName = '" + appName +"', pkgName = '" + pkgName + "'");
+        if (pkgName.equals("com.bravo.app.settings.wifi")) {
+            pkgName = "com.bravo.app.settings";
+            Log.i(LOGTAG, "pkgName = '" + pkgName + "'");
+       }
         intent = new Intent(Intent.ACTION_MAIN);
         if (appName.endsWith("HomeActivity")) {
             intent.addCategory(Intent.CATEGORY_DEFAULT);
         } else {
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
         }
+        Log.i(LOGTAG, "intent.setComponent("+pkgName+","+appName+")");
         intent.setComponent(new ComponentName(pkgName, appName));
         boolean settings = false;
         if (appName.endsWith("LauncherSettings")) {
