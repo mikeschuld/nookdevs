@@ -16,6 +16,8 @@ package com.nookdevs.launcher;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
+import java.util.HashMap;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -27,7 +29,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -59,9 +64,11 @@ public class NookLauncher extends nookBaseActivity {
     
     final static String readingNowUri = "content://com.reader.android/last";
     ImageButton m_LastButton = null;
+    private Uri m_LastImageUri=null;
     
     public final static int DB_VERSION = 10;
     private boolean m_SettingsChanged = false;
+    private HashMap<ImageButton,String> m_UriMap = new HashMap<ImageButton,String>();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,7 @@ public class NookLauncher extends nookBaseActivity {
     
     @Override
     public void onResume() {
+        NAME="Home";
         super.onResume();
         if (m_SettingsChanged) {
             loadApps();
@@ -83,6 +91,9 @@ public class NookLauncher extends nookBaseActivity {
         loadWallpaper();
         if (m_LastButton != null) {
             m_LastButton.setBackgroundResource(android.R.color.darker_gray);
+            String icon = m_UriMap.get(m_LastButton);
+            if( icon != null)
+                m_LastButton.setImageURI(Uri.parse(icon));
         }
     }
     
@@ -129,10 +140,6 @@ public class NookLauncher extends nookBaseActivity {
     
     private final void fillButton(ImageButton b, String appName, int appIconId, String iconpath) {
         boolean systemApp = false;
-       if (appIconId > 0) {
-            b.setImageResource(appIconId);
-            systemApp = true;
-        }
         Intent intent = null;
         int idx = appName.lastIndexOf(".");
         String pkgName = appName.substring(0, idx);
@@ -155,22 +162,58 @@ public class NookLauncher extends nookBaseActivity {
         if (appName.endsWith("ReaderActivity")) {
             readingNow = true;
         }
-        
         b.setOnClickListener(new ClickListener(intent, readingNow, settings));
-        if (!systemApp) {
-            if (iconpath == null) {
+        if (iconpath == null) {
+            if (appIconId > 0) {
+                b.setImageResource(appIconId);
+                systemApp = true;
+            } else {
                 PackageManager manager = getPackageManager();
                 try {
                     b.setImageDrawable(manager.getActivityIcon(intent.getComponent()));
                 } catch (Exception ex) {
                     Log.e(LOGTAG, "Exception loading image -", ex);
                 }
-            } else {
+            }
+        } else {
                 Uri iconUri = Uri.parse(iconpath);
                 b.setImageURI(iconUri);
-            }
-            b.setBackgroundResource(android.R.color.darker_gray);
+                m_UriMap.put(b, iconpath);
+                b.setOnTouchListener(new OnTouchListener() {
+                    float x,y;
+                    public boolean onTouch(View b, MotionEvent arg1) {
+                        if( arg1.getAction() == MotionEvent.ACTION_MOVE) {
+                            if( Math.abs(x-arg1.getX()) > 10 ||
+                                Math.abs(y-arg1.getY()) > 10 ) {
+                                ImageButton img  = (ImageButton) b;
+                                String icon = m_UriMap.get(img);
+                                if( icon != null) {
+                                    img.setImageURI(Uri.parse(icon));
+                                }
+                            }
+                        } else
+                        if( arg1.getAction() == MotionEvent.ACTION_DOWN) {
+                            x=arg1.getX();
+                            y=arg1.getY();
+                            ImageButton img  = (ImageButton) b;
+                            String icon = m_UriMap.get(img);
+                            if( icon != null) {
+                                int idx = icon.lastIndexOf('.');
+                                String ext = icon.substring(idx);
+                                icon =icon.replace(ext, "_sel"+ext);
+                                File f = new File(icon);
+                                if( f.exists()) {
+                                    img.setImageURI( Uri.parse(icon));
+                                } else {
+                                    img.setImageURI(Uri.parse(icon));
+                                }
+                            }
+                        }
+                        return false;
+                    }
+                });
         }
+        b.setBackgroundResource(android.R.color.darker_gray);
     }
     
     @Override
