@@ -75,7 +75,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         {
     		"com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
     		"com.bravo.ereader.activities.ReaderActivity", "com.bravo.app.settings.SettingsActivity",
-    		"com.bravo.app.settings.WifiActivity",
+    		"com.bravo.app.settings.wifi.WifiActivity",
     		"com.nookdevs.launcher.LauncherSettings", "com.bravo.home.HomeActivity",
     		"com.nookdevs.launcher.LauncherSelector", "com.bravo.chess.ChessActivity",
     		"com.bravo.sudoku.SudokuActivity", "com.bravo.app.browser.BrowserActivity"
@@ -101,6 +101,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         for (int i = 0; i < apps.length; i++) {
+        	Log.i(LOGTAG, "Adding " + apps[i] + "to m_SystemIcons" );
             m_SystemIcons.put(apps[i], appIcons[i]);
         }
     }
@@ -301,6 +302,11 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 int resid = -1;
                 String appName = pkg + "." + name;
                 Log.w(LOGTAG, "adding " + name + " back to launcher");
+                Log.w(LOGTAG, "looking for " + appName);
+                if (appName.equals("com.bravo.app.settings.WifiActivity")) {
+                	// a kludge, not sure why it's getting this
+                	appName="com.bravo.app.settings.wifi.WifiActivity";
+                }
                 if (m_SystemIcons.get(appName) != null) {
                     resid = m_SystemIcons.get(appName);
                     Log.w(LOGTAG, "system app " + name + " back to launcher");
