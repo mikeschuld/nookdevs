@@ -129,7 +129,6 @@ public class NookLauncher extends nookBaseActivity {
     
     private final void fillButton(ImageButton b, String appName, int appIconId, String iconpath) {
         boolean systemApp = false;
-        Log.i(LOGTAG, "appIconId = " + ((Integer) appIconId).toString());
        if (appIconId > 0) {
             b.setImageResource(appIconId);
             systemApp = true;
@@ -137,10 +136,8 @@ public class NookLauncher extends nookBaseActivity {
         Intent intent = null;
         int idx = appName.lastIndexOf(".");
         String pkgName = appName.substring(0, idx);
-        Log.i(LOGTAG, "appName = '" + appName +"', pkgName = '" + pkgName + "'");
         if (pkgName.equals("com.bravo.app.settings.wifi")) {
             pkgName = "com.bravo.app.settings";
-            Log.i(LOGTAG, "pkgName = '" + pkgName + "'");
        }
         intent = new Intent(Intent.ACTION_MAIN);
         if (appName.endsWith("HomeActivity")) {
@@ -148,7 +145,6 @@ public class NookLauncher extends nookBaseActivity {
         } else {
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
         }
-        Log.i(LOGTAG, "intent.setComponent("+pkgName+","+appName+")");
         intent.setComponent(new ComponentName(pkgName, appName));
         boolean settings = false;
         if (appName.endsWith("LauncherSettings")) {
