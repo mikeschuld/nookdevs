@@ -16,6 +16,10 @@ package com.nookdevs.launcher;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -70,6 +74,11 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     boolean m_AddAppsInitDone = false;
     boolean m_IconsLoaded = false;
     ImageAdapter m_IconAdapter = null;
+    boolean m_mainSettings=false;
+    Uri m_CurrentUri = null;
+    ImageButton m_CurrentButton;
+    boolean m_ImageChanged=false;
+    
     
     public static String[] apps =
         {
@@ -125,14 +134,17 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     
     private void loadIcons() {
         try {
-            File file = new File(SDFOLDER);
-            File external = new File(EXTERNAL_SDFOLDER);
+            File file = new File(SDFOLDER +"/my icons");
+            File external = new File(EXTERNAL_SDFOLDER +"/my icons");
             FileFilter filter = new FileFilter() {
                 public boolean accept(File f) {
                     if (f.isDirectory()) { return true; }
                     String extension = f.getName().toLowerCase();
                     if (extension.endsWith("jpeg") || extension.endsWith("tif") || extension.endsWith("gif")
                         || extension.endsWith("jpg") || extension.endsWith("png")) {
+                        if( extension.contains("_sel.")) {
+                            return false;
+                        }
                         return true;
                     } else {
                         return false;
@@ -288,7 +300,6 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     }
     
     AddAppListener m_AddAppListener = new AddAppListener();
-    
     protected void addAppsToLauncher() {
         try {
             for (Button app : m_AddAppsList) {
@@ -304,12 +315,37 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 	// a kludge, not sure why it's dropping the .wifi, probably because I had to drop it in NookLauncher
                 	appName="com.bravo.app.settings.wifi.WifiActivity";
                 }
-                 Log.w(LOGTAG, "adding " + name + " back to launcher");
-                if (m_SystemIcons.get(appName) != null) {
-                    resid = m_SystemIcons.get(appName);
-                    Log.w(LOGTAG, "system app " + name + " back to launcher");
+                if( imageUri == null || imageUri.trim().equals("")) {
+                    if (m_SystemIcons.get(appName) != null) {
+                        resid = m_SystemIcons.get(appName);
+                        Log.w(LOGTAG, "system app " + name + " back to launcher");
                     
+                    }
+                } else {
+                    File f = new File(imageUri);
+                    imageUri = "/data/data/com.nookdevs.launcher/files/" + f.getName();
+                    int num=0;
+                    while ( num < 2) {
+                        if( f.exists()) {
+                            InputStream in = new FileInputStream(f);
+                            OutputStream out = openFileOutput(f.getName(), MODE_PRIVATE);
+                            byte[] buf = new byte[1024];
+                            int len;
+                            while ((len = in.read(buf)) > 0){
+                                out.write(buf, 0, len);
+                            }
+                            in.close();
+                            out.close();
+                        }
+                        num++;
+                        if( num > 1) break;
+                        f = new File( f.getAbsolutePath().replace(".", "_sel."));
+                        if( !f.exists()) {
+                            break;
+                        }
+                    }
                 }
+               
                 m_DBHelper.addData(appName, resid, imageUri, "0");
                 LayoutInflater inflater = getLayoutInflater();
                 ImageButton btn1 = (ImageButton) inflater.inflate(R.layout.settingsbutton, m_LinearLayout, false);
@@ -388,9 +424,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
     
     private final class ClickListener implements View.OnClickListener {
         
-        ImageButton m_CurrentButton;
         Drawable m_CurrentImg;
-        Uri m_CurrentUri = null;
         
         public void setCurrentImg(Drawable img) {
             m_CurrentImg = img;
@@ -405,11 +439,26 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         }
         
         private void closeButtonClicked() {
+            System.out.println("Close btton clicked -" + m_CurrentImg + " uri =" + m_CurrentUri);
+            if( m_mainSettings) {
+                AppDetail app = m_IntentsList.get(m_CurrentButton);
+                if (m_CurrentUri != null) {
+                    app.uri = m_CurrentUri.toString();
+                    m_ImageChanged=true;
+                    m_Current.setImageURI(m_CurrentUri);
+                }
+                m_WebView.loadUrl("file:///android_asset/settings_main.htm");
+                m_mainSettings=false;
+                m_ViewAnimatorMain.setVisibility(View.VISIBLE);
+                m_ViewAnimator.setVisibility(View.VISIBLE);
+                m_IconGallery.setVisibility(View.INVISIBLE);
+                m_CloseBtn.setVisibility(View.INVISIBLE);
+                return;
+            }
             m_ViewAnimatorMain.setVisibility(View.VISIBLE);
             m_ViewAnimator.setVisibility(View.VISIBLE);
             m_IconGallery.setVisibility(View.INVISIBLE);
             m_CloseBtn.setVisibility(View.INVISIBLE);
-            m_WebView.loadUrl("file:///android_asset/settings_addapp.htm");
             m_CurrentButton.setScaleType(ScaleType.CENTER);
             m_CurrentButton.setImageDrawable(null);
             if (m_CurrentUri != null) {
@@ -417,6 +466,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
             } else {
                 m_CurrentButton.setImageDrawable(m_CurrentImg);
             }
+            m_WebView.loadUrl("file:///android_asset/settings_addapp.htm");
             m_CurrentButton = null;
         }
         
@@ -490,8 +540,28 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 // removed
                 AppDetail app = m_IntentsList.get(m_CurrentButton);
                 if ("com.bravo.home.HomeActivity".equals(app.appName)
-                    || "com.nookdevs.launcher.LauncherSettings".equals(app.appName)) { return;
+                    || "com.nookdevs.launcher.LauncherSettings".equals(app.appName)) { 
+                    m_mainSettings=true;
+                    m_ImageChanged=false;
                 // can't delete these 2.
+                    // Change Icons
+                    // display icons gallery
+                    while (!m_IconsLoaded) {
+                        try {
+                            Thread.sleep(2000);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    m_ViewAnimatorMain.setVisibility(View.INVISIBLE);
+                    m_ViewAnimator.setVisibility(View.INVISIBLE);
+                    m_IconGallery.setVisibility(View.VISIBLE);
+                    m_CloseBtn.setVisibility(View.VISIBLE);
+                    m_IconAdapter.setCurrentImage(m_CurrentButton.getDrawable());
+                    m_IconAdapter.setImageUrls(m_IconFiles);
+                    m_IconGallery.setAdapter(m_IconAdapter);
+                    m_WebView.loadUrl("file:///android_asset/settings_changeicons.htm");
+                    return;
                 }
                 
                 setMainImage(null);
@@ -509,6 +579,17 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 
             } else {
                 // put button back.
+                if( m_ImageChanged && m_CurrentUri != null) {
+                    AppDetail app = m_IntentsList.get(m_CurrentButton);
+                    m_LauncherApps.remove(app.appName);
+                    m_DBHelper.removeData(app.appName);
+                    setMainImage(null);
+                    m_BackBtn.setVisibility(View.VISIBLE);
+                    updateButtonImage(app.appName, m_CurrentUri.toString(), button);
+                    AppDetail appPrev = m_IntentsList.get(button);
+                    m_DBHelper.updateData(app.appName, appPrev.appName);
+                    return;
+                }
                 final LayoutInflater inflater = getLayoutInflater();
                 ImageButton btn = (ImageButton) inflater.inflate(R.layout.settingsbutton, m_LinearLayout, false);
                 AppDetail app = m_IntentsList.get(m_CurrentButton);
@@ -525,6 +606,52 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         }
         
     }
+    protected void updateButtonImage(String appName, String imageUri,View button) {
+        try {
+                int resid = -1;
+                if( imageUri == null || imageUri.trim().equals("")) {
+                    if (m_SystemIcons.get(appName) != null) {
+                        resid = m_SystemIcons.get(appName);
+                        Log.w(LOGTAG, "system app " + appName + " back to launcher");
+                    
+                    }
+                } else {
+                    File f = new File(imageUri);
+                    imageUri = "/data/data/com.nookdevs.launcher/files/" + f.getName();
+                    int num=0;
+                    while ( num < 2) {
+                        if( f.exists()) {
+                            InputStream in = new FileInputStream(f);
+                            OutputStream out = openFileOutput(f.getName(), MODE_PRIVATE);
+                            byte[] buf = new byte[1024];
+                            int len;
+                            while ((len = in.read(buf)) > 0){
+                                out.write(buf, 0, len);
+                            }
+                            in.close();
+                            out.close();
+                        }
+                        num++;
+                        if( num > 1) break;
+                        f = new File( f.getAbsolutePath().replace(".", "_sel."));
+                        if( !f.exists()) {
+                            break;
+                        }
+                    }
+                }
+               
+                m_DBHelper.addData(appName, resid, imageUri, "0");
+                LayoutInflater inflater = getLayoutInflater();
+                ImageButton btn1 = (ImageButton) inflater.inflate(R.layout.settingsbutton, m_LinearLayout, false);
+                fillButton(btn1, appName, resid, imageUri);
+                int idx = m_LinearLayout.indexOfChild(button);
+                m_LinearLayout.addView(btn1, idx);
+                
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     
     private final class AppDetail {
         String appName;
