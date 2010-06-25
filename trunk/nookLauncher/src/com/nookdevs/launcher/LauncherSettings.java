@@ -101,7 +101,6 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         for (int i = 0; i < apps.length; i++) {
-        	Log.i(LOGTAG, "Adding " + apps[i] + "to m_SystemIcons" );
             m_SystemIcons.put(apps[i], appIcons[i]);
         }
     }
@@ -301,12 +300,11 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 m_AddAppLayout.removeView(layout);
                 int resid = -1;
                 String appName = pkg + "." + name;
-                Log.w(LOGTAG, "adding " + name + " back to launcher");
-                Log.w(LOGTAG, "looking for " + appName);
                 if (appName.equals("com.bravo.app.settings.WifiActivity")) {
-                	// a kludge, not sure why it's getting this
+                	// a kludge, not sure why it's dropping the .wifi, probably because I had to drop it in NookLauncher
                 	appName="com.bravo.app.settings.wifi.WifiActivity";
                 }
+                 Log.w(LOGTAG, "adding " + name + " back to launcher");
                 if (m_SystemIcons.get(appName) != null) {
                     resid = m_SystemIcons.get(appName);
                     Log.w(LOGTAG, "system app " + name + " back to launcher");
