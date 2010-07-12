@@ -66,7 +66,7 @@ public class NookLauncher extends nookBaseActivity {
     ImageButton m_LastButton = null;
     private Uri m_LastImageUri=null;
     
-    public final static int DB_VERSION = 10;
+    public final static int DB_VERSION = 11;
     private boolean m_SettingsChanged = false;
     private HashMap<ImageButton,String> m_UriMap = new HashMap<ImageButton,String>();
     
