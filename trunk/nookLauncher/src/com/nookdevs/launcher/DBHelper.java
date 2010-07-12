@@ -44,6 +44,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 db.execSQL("update " + TABLE_NAME + " set resources = " + LauncherSettings.appIcons[i++]
                     + " WHERE name=\'" + apps + "\'");
             }
+            db.execSQL("update " + TABLE_NAME + " set name=\'com.bravo.app.settings.wifi.WifiActivity\' where name=\'com.bravo.app.settings.WifiActivity\'");
             db.setTransactionSuccessful();
             db.endTransaction();
         } catch (Exception ex) {
