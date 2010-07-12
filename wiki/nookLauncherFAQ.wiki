@@ -1,5 +1,11 @@
-#summary Making the nookLauncher your default Home
 #labels Featured,Phase-Deploy
+nookLauncher 0.0.8 
+
+Includes option to modify icons ( refer to Issues 72 and 74).
+Copy the new icons to "my icons" folder.
+
+
+#summary Making the nookLauncher your default Home
 
 UPDATE!
 
