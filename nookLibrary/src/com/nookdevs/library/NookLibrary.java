@@ -198,7 +198,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                         m_OtherBooks.archiveBook(file, false);
                     }
                 }
-                pageViewHelper.setFiles(m_Files);
+                //Fix for Issue 89
+                List<ScannedFile> f = pageViewHelper.getFiles();
+                f.remove(file);
+                pageViewHelper.setFiles(f);
                 backButton.performClick();
             }
         });

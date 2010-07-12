@@ -207,7 +207,8 @@ public class OtherBooks extends SQLiteOpenHelper {
                     continue;
                 }
                 Date lastModified = new Date(file.lastModified());
-                if (lastModified.after(lastScan)) {
+               
+                if (lastModified.after(lastScan) && !BNBooks.ARCHIVED.equalsIgnoreCase(cursor.getString(12))) {
                     m_DeleteBooks.add(cursor.getString(0));
                     cursor.moveToNext();
                     continue;
