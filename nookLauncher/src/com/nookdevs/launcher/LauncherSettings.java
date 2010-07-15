@@ -588,6 +588,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                     updateButtonImage(app.appName, m_CurrentUri.toString(), button);
                     AppDetail appPrev = m_IntentsList.get(button);
                     m_DBHelper.updateData(app.appName, appPrev.appName);
+                    m_CurrentButton=null;
                     return;
                 }
                 final LayoutInflater inflater = getLayoutInflater();
