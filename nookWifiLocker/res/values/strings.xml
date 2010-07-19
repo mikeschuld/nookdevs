@@ -5,6 +5,9 @@
     <string name="wifilock">Lock Wi-Fi</string>
     <string name="wifiunlock">UnLock Wi-Fi</string>
     
+    <string name="radioKill">Disallow Radio</string>
+    <string name="radioAllow">Allow Radio</string>
+    
     <string name="screensaverlock">Disable ScreenSaver</string>
     <string name="screensaverunlock">Enable ScreenSaver</string>
     
