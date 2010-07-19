@@ -14,6 +14,7 @@
  */
 package com.nookdevs.wifi;
 
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -38,6 +39,7 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
     Button touchscreen;
     Button screensaver;
     Button adb;
+    Button radio;
     boolean locked = false;
     Handler m_Handler = new Handler();
     boolean adbstarted = true;
@@ -77,6 +79,29 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
                 }
             }
         });
+        radio = (Button) findViewById(R.id.radio);
+        setRadioButtonText();
+        radio.setOnClickListener(new OnClickListener() {
+            public void onClick(View arg0) {
+                if(android.provider.Settings.System.getString(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_RADIOS).equals("cell,bluetooth,wifi")) {
+                    android.provider.Settings.System.putString(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_RADIOS,"cell");
+                    android.provider.Settings.System.putInt(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_ON, 1);
+                    Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+                    intent.putExtra("state", true);
+                    sendBroadcast(intent);                    
+                    Log.d("WifiLocker","Cellular radio disallowed.");
+                } else {
+                	android.provider.Settings.System.putString(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_RADIOS,"cell,bluetooth,wifi");
+                    android.provider.Settings.System.putInt(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_ON, 0); 
+                    Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+                    intent.putExtra("state", false);
+                    sendBroadcast(intent);   
+                    Log.d("WifiLocker","Cellular radio allowed.");
+                }
+                setRadioButtonText();
+            }
+        });
+        
         touchscreen = (Button) findViewById(R.id.touchscreen);
         touchscreen.setText(R.string.touchscreenlock);
         screensaver = (Button) findViewById(R.id.screensaver);
@@ -133,7 +158,13 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
          * tracker.setRadio(false); locked=false; wifi.setText(R.string.lock); }
          */
     }
-    
+    public void setRadioButtonText() {
+    	if(android.provider.Settings.System.getString(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_RADIOS).equals("cell,bluetooth,wifi")) {
+    		radio.setText(R.string.radioKill);
+    	} else {
+    		radio.setText(R.string.radioAllow);	
+    	}    	
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();
