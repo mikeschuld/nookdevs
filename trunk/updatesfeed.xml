@@ -12,7 +12,7 @@
   <entry>
     <title>nookLauncher</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookdevs.googlecode.com/files/nookLauncher.apk"/>
+          href="http://nookdevs.googlecode.com/files/nookLauncher.apk" version="0.0.8"/>
     <id>http://nookdevs.googlecode.com/files/nookLauncher.apk</id>
     <content type="text">A replacement app launcher for the Nook. Version 0.0.8 - only for B&amp;N 1.4- added on 07/11/10.
 </content>
