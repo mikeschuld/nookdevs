@@ -23,7 +23,9 @@
   <entry>
     <title>nookBrowser</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookdevs.googlecode.com/files/nookBrowser.apk" version="0.0.9"/>
+          href="http://nookdevs.googlecode.com/files/nookBrowser.apk"/>
+    <version>0.0.9</version>
+    <pkg>com.nookdevs.browser</pkg>
     <id>http://nookdevs.googlecode.com/files/nookBrowser.apk</id>
     <content type="text">nook-tweaked browser version 0.0.9 - added on 02/12/10.</content>
   </entry>
@@ -31,8 +33,10 @@
   <entry>
     <title>nookLibrary</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookdevs.googlecode.com/files/nookLibrary.apk"  version="0.0.9"/>
+          href="http://nookdevs.googlecode.com/files/nookLibrary.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookLibrary.apk</id>
+    <version>0.0.9</version>
+    <pkg>com.nookdevs.library</pkg>
     <content type="text">Browse, sort and search books on the Nook - version 0.0.9 - updated on 04/24/10. 
              This change is to support B&amp;N 1.3 and only works in 1.3 
 		 </content>
@@ -41,7 +45,9 @@
   <entry>
     <title>nookWifiLocker</title>
     <link type="application/vnd.android.package-archive"
-     href="http://nookdevs.googlecode.com/files/nookWifiLocker.apk"  version="0.0.4"/>
+     href="http://nookdevs.googlecode.com/files/nookWifiLocker.apk" />
+    <pkg>com.nookdevs.wifi</pkg>
+    <version>0.0.4</version>
     <id>http://nookdevs.googlecode.com/files/nookWifiLocker.apk</id>
     <content type="text">Simple app to keep Wifi locked. Useful for running apps like pandora, debugging, vnc. 
 	Version 0.0.3 - option to stop/start adbd. Added on 03/14/10.
@@ -52,7 +58,9 @@
   <entry>
 	<title>nookFileManager</title>
 	 <link type="application/vnd.android.package-archive"
-       href="http://nookdevs.googlecode.com/files/nookFileManager.apk" version="0.0.2"/>
+       href="http://nookdevs.googlecode.com/files/nookFileManager.apk" />
+       <version>0.0.2</version>
+       <pkg>com.nookdevs.filemanager</pkg>
     	 <id>http://nookdevs.googlecode.com/files/nookFileManager.apk</id>
        <content type="text">File manager app - access sdcard folders and network shares. Version 0.0.2 - added on 03/20/2010.</content>
   </entry>
@@ -66,7 +74,9 @@
   <entry>
     <title>Twook</title>
     <link type="application/vnd.android.package-archive"
-          href="http://github.com/downloads/unchiujar/Twook/Twook-0.0.6.apk" version="0.0.6"/>
+          href="http://github.com/downloads/unchiujar/Twook/Twook-0.0.6.apk"/>
+    <version>0.0.6</version>
+    <pkg>com.nookdevs.twook.activities</pkg>
     <id>http://github.com/downloads/unchiujar/Twook/Twook-0.0.6.apk"</id>
     <content type="text">Twitter client for the Nook</content>
   </entry>
