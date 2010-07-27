@@ -27,6 +27,7 @@
      android:scrollbarStyle="outsideOverlay"
      android:fadingEdge="none"
      >
+
     <LinearLayout
        android:layout_width="fill_parent"
        android:layout_height="fill_parent"
