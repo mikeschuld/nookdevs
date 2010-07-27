@@ -327,7 +327,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                     imageUri = "/data/data/com.nookdevs.launcher/files/" + f.getName();
                     int num=0;
                     while ( num < 2) {
-                        if( f.exists()) {
+                        if( f.exists() && !f.getAbsolutePath().startsWith("/data/data/com.nookdevs.launcher")) {
                             InputStream in = new FileInputStream(f);
                             OutputStream out = openFileOutput(f.getName(), MODE_PRIVATE);
                             byte[] buf = new byte[1024];
@@ -341,6 +341,11 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                         num++;
                         if( num > 1) break;
                         f = new File( f.getAbsolutePath().replace(".", "_sel."));
+                        if( !f.exists()) {
+                            f = new File( f.getAbsolutePath().replace("_sel.", "_focused."));
+                            if( !f.exists())
+                                break;
+                        }
                         if( !f.exists()) {
                             break;
                         }
