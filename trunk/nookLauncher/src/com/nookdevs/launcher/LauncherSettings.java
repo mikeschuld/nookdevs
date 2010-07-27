@@ -33,6 +33,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Contacts.Extensions;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -142,7 +143,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                     String extension = f.getName().toLowerCase();
                     if (extension.endsWith("jpeg") || extension.endsWith("tif") || extension.endsWith("gif")
                         || extension.endsWith("jpg") || extension.endsWith("png")) {
-                        if( extension.contains("_sel.")) {
+                        if( extension.contains("_sel.") || extension.contains("_focused.")) {
                             return false;
                         }
                         return true;
@@ -636,7 +637,9 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                         if( num > 1) break;
                         f = new File( f.getAbsolutePath().replace(".", "_sel."));
                         if( !f.exists()) {
-                            break;
+                            f = new File( f.getAbsolutePath().replace("_sel.", "_focused."));
+                            if( !f.exists())
+                                break;
                         }
                     }
                 }
