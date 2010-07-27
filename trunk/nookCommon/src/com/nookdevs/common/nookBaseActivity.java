@@ -63,6 +63,7 @@ public class nookBaseActivity extends Activity {
     public static final String READING_NOW_URL = "content://com.ereader.android/last";
     protected boolean m_FirstTime = true;
     protected String m_Version;
+    protected String m_DeviceName ="";
     
     protected String getWallpaperFile() {
         return m_WallPaper;
@@ -77,7 +78,7 @@ public class nookBaseActivity extends Activity {
     }
     
     protected static String LOGTAG = "nookActivity";
-    protected static String NAME = "nookActivity";
+    protected static String NAME =null;
     
     /** Called when the activity is first created. */
     @Override
@@ -96,8 +97,9 @@ public class nookBaseActivity extends Activity {
             e.printStackTrace();
             m_Version = "";
         }
-        
-        updateTitle(NAME);
+        if( NAME == null) updateTitle(m_DeviceName);
+        else
+            updateTitle(NAME);
     }
     
     @Override
@@ -123,8 +125,11 @@ public class nookBaseActivity extends Activity {
             screenLock.acquire(m_ScreenSaverDelay);
         }
         m_FirstTime = false;
-        
-        updateTitle(NAME + " " + m_Version);
+        if( NAME == null) { 
+            updateTitle(m_DeviceName);
+        } else {
+            updateTitle(NAME + " " + m_Version);
+        }
     }
     
     @Override
@@ -235,7 +240,7 @@ public class nookBaseActivity extends Activity {
         };
         String name = null;
         String[] fields = {
-            "airplane_mode_on", "bnScreensaverDelay", "bnWallpaper"
+            "airplane_mode_on", "bnScreensaverDelay", "bnWallpaper","bnDeviceName"
         };
         
         try {
@@ -257,6 +262,8 @@ public class nookBaseActivity extends Activity {
                     m_AirplaneMode = true;
                 }
                 c.moveToNext();
+                m_DeviceName = c.getString(0);
+                c.moveToNext();
                 long lvalue = c.getLong(0);
                 if (lvalue > 0) {
                     m_ScreenSaverDelay = lvalue;
@@ -264,7 +271,6 @@ public class nookBaseActivity extends Activity {
                 c.moveToNext();
                 m_WallPaper = c.getString(0);
                 Log.d(LOGTAG, "m_Wallpaper = " + m_WallPaper);
-                
             }
             c.close();
             c.deactivate();
