@@ -343,6 +343,10 @@ public class OtherBooks extends SQLiteOpenHelper {
                     String extension = f.getName().toLowerCase();
                     if (extension.endsWith("epub") || extension.endsWith("htm") || extension.endsWith("txt")
                         || extension.endsWith("html") || extension.endsWith("pdf") ||
+                        extension.endsWith("fb2") || 
+                        extension.endsWith("fb2.zip") ||
+                        extension.endsWith("cbx") ||
+                        extension.endsWith("cbr") ||
                         extension.endsWith("pdb")) {
                         return true;
                     } else {
