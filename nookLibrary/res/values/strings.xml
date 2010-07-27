@@ -28,7 +28,10 @@
     <string name="password">Password:</string>
     <string name="archived_books">Archived Books</string>
     <string name="add_lib_error">Error updating Library details. Try again later.</string>
-    
+    <string name="caption">My Books</string>
+    <string name="off">off</string>
+    <string name="on">on</string>
+    <string name="all">All</string>
     <string-array name="mainmenu">
 		<item>View Details</item>
         <item>Sort By</item>

@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -63,6 +64,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     // "History","Feed", "News", "Sports", "Science","Travel", "epub", "pdb",
     // "pdf", "htm", "txt"};
     private static ArrayList<String> m_KeyWordsList = new ArrayList<String>(200);
+    private static ArrayList<String> m_KeyWordsDupList = new ArrayList<String>(200);
     private static ArrayList<String> m_AuthorsList = new ArrayList<String>(100);
     
     public static List<String> getAuthors() {
@@ -558,16 +560,20 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         }
         if (m_Keywords.contains(keyword)) { return; }
         m_Keywords.add(keyword);
-        if (!m_KeyWordsList.contains(keyword)) {
-            m_KeyWordsList.add(keyword);
-        }
+     //   if (!m_KeyWordsList.contains(keyword)) {
+        m_KeyWordsDupList.add(keyword);
+     //   }
     }
-    
+    public void removeKeywords() {
+        m_KeyWordsDupList.removeAll(m_Keywords);
+    }
     public boolean matchSubject(String subject) {
         return m_Keywords != null && m_Keywords.contains(subject);
     }
     
     public static List<String> getAvailableKeywords() {
+        HashSet<String> hash = new HashSet<String>(m_KeyWordsDupList);
+        m_KeyWordsList = new ArrayList<String>(hash);
         return ScannedFile.m_KeyWordsList;
     }
     
