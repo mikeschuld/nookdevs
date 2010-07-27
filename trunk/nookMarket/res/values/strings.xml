@@ -2,4 +2,9 @@
 <resources>
  <string name="app_name">nookMarket</string>
  <string name="install_in_background">Install will start once the package is downloaded.</string>
+ <string name="delete">UnInstall Package</string>
+ <string name="confirm">Are you sure?</string>
+ <string name="network">Network</string>
+ <string name="network_error">Timed out waiting for Wi-Fi Lock.</string>
+    
 </resources>
