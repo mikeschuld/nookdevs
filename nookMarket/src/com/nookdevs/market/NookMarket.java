@@ -7,8 +7,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -25,22 +30,28 @@ import org.apache.http.protocol.HTTP;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.IPackageDeleteObserver;
 import android.content.pm.IPackageInstallObserver;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -51,11 +62,13 @@ import com.nookdevs.common.nookBaseActivity;
 public class NookMarket extends nookBaseActivity {
     private String FEED_URL="http://nookdevs.googlecode.com/svn/trunk/updatesfeed.xml";
     ConnectivityManager.WakeLock lock;
-    ArrayList<AppInfo> availableApps = new ArrayList<AppInfo>(10);
+    LinkedList<AppInfo> availableApps = new LinkedList<AppInfo>();
     HashMap<String,PackageInfo> installedApps = new HashMap<String,PackageInfo>();
     ArrayList<AppInfo> documents = new ArrayList<AppInfo>();
     LinearLayout m_Content;
     private static String m_BaseDir="";
+    Handler m_Handler = new Handler();
+    
     static {
         try {
             File file = new File(nookBaseActivity.EXTERNAL_SDFOLDER + "/" + "my packages/");
@@ -70,11 +83,38 @@ public class NookMarket extends nookBaseActivity {
             Log.e("nookMarket", "exception in init static block", ex);
         }
     }
+     private View.OnLongClickListener appdelListener = new View.OnLongClickListener() {
+
+        public boolean onLongClick(final View arg0) {
+            //confirm
+            AlertDialog.Builder builder = new AlertDialog.Builder(NookMarket.this);
+            builder.setTitle(R.string.delete);
+            builder.setMessage(R.string.confirm);
+            builder.setNegativeButton(android.R.string.no, null).setCancelable(true);
+            builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    AppInfo app = (AppInfo)arg0.getTag();
+                    IPackageDeleteObserver.Stub observer = new IPackageDeleteObserver.Stub() {
+                        public void packageDeleted(boolean succeeded) {
+                            m_Handler.post( new Runnable() {
+                                public void run() {
+                                    init();
+                                }
+                            });
+                        }
+                    };
+                    NookMarket.this.getPackageManager().deletePackage(app.pkg, observer, 0);
+                }
+            });
+            builder.show();
+            return true;
+        }
+         
+     };
      private View.OnClickListener appListener = new View.OnClickListener() {
         public void onClick(final View v) {
             if( v.getTag() instanceof AppInfo) {
                 final AppInfo app = (AppInfo)v.getTag();
-                //are you sure?
                 Toast.makeText(NookMarket.this, R.string.install_in_background, Toast.LENGTH_SHORT).show();
                 Runnable run = new Runnable() {
                     public void run() {
@@ -82,17 +122,18 @@ public class NookMarket extends nookBaseActivity {
                             final String apk = downloadPackage( app.url);
                             final PackageManager pm = getPackageManager();
                             if( apk != null) {
-                                if( app.installed) {
+                                if( app.installed && !allowUpgrades()) {
                                     IPackageDeleteObserver.Stub observer = new IPackageDeleteObserver.Stub() {
                                         public void packageDeleted(boolean succeeded) {
-                                            System.out.println("Delete status = " + succeeded);
                                             //install anyway.
                                             installPackage(apk);
+                                            ( new File(apk)).delete();
                                         }
                                     };
                                     pm.deletePackage(app.pkg, observer, 1);
                                 } else {
                                     installPackage(apk);
+                                    ( new File(apk)).delete();
                                 }
                                 
                             }
@@ -105,6 +146,56 @@ public class NookMarket extends nookBaseActivity {
             }
         }
     };
+    private void loadWallpaper() {
+        String wallPaperFile = getWallpaperFile();
+        if (wallPaperFile != null) {
+            try {
+                ImageView img = (ImageView) findViewById(R.id.mainimage);
+                wallPaperFile = wallPaperFile.substring(7);
+                Bitmap bMap = BitmapFactory.decodeFile(wallPaperFile);
+                img.setImageBitmap(bMap);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    private boolean allowUpgrades() {
+        try {
+            File f = new File(nookBaseActivity.SDFOLDER + "/" + "market.xml");
+            if (!f.exists()) {
+                f = new File(nookBaseActivity.EXTERNAL_SDFOLDER + "/" + "market.xml");
+            }
+            if (f.exists()) {
+                FileInputStream inp = new FileInputStream(f);
+                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                XmlPullParser parser = factory.newPullParser();
+                parser.setInput(inp, null);
+                int type;
+                boolean allowUpgrades=false;
+                while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
+                    if (type == XmlPullParser.START_TAG) {
+                        String txt = parser.getName();
+                        if (txt != null && txt.equals("allowUpgrades")) {
+                            allowUpgrades=true;
+                        }
+                    } else if( type == XmlPullParser.TEXT && allowUpgrades) {
+                        String txt = parser.getText();
+                        if( txt != null && !txt.trim().equals("")) {
+                            txt = txt.toLowerCase();
+                            allowUpgrades = txt.startsWith("y");
+                            break;
+                        }
+                    }
+                }
+                inp.close();
+                return allowUpgrades;
+            }
+            return true;
+        } catch(Exception ex) {
+            return true;
+        }
+    }
     private void installPackage(String uri) {
         String path = "file://" + uri;
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -118,11 +209,6 @@ public class NookMarket extends nookBaseActivity {
             HttpResponse response = httpClient.execute(request);
             String type = response.getEntity().getContentType().getValue();
             InputStream in = response.getEntity().getContent();
-            if (!type.contains("archive")) {
-                // failed.
-                System.out.println("Type returned = " + type);
-                return null;
-            }
             int idx = url.lastIndexOf('/');
             String name = m_BaseDir + url.substring(idx + 1);
             BufferedInputStream bis = new BufferedInputStream(in, 8096);
@@ -173,65 +259,39 @@ public class NookMarket extends nookBaseActivity {
     @Override
     public void onResume() {
         super.onResume();
+        loadWallpaper();
         lock.acquire();
+        init();
+    }
+    private void init() {
         installedApps.clear();
         availableApps.clear();
+        documents.clear();
+        m_Content.removeAllViews();
         PackageManager manager = getPackageManager();
-        final List<PackageInfo> apps = manager.getInstalledPackages(PackageManager.GET_ACTIVITIES);
+        final List<PackageInfo> apps = 
+            manager.getInstalledPackages(PackageManager.GET_ACTIVITIES);
         for(PackageInfo app:apps) {
-        //    System.out.println("package name =" + app.packageName);
-        //    System.out.println("version name =" + app.versionName);
             installedApps.put( app.packageName, app);
         }
-        waitForNetwork(lock);
-        loadApps(FEED_URL);
-//        System.out.println("App Size =" + availableApps.size());
-//        for(int i=0; i< availableApps.size(); i++) {
-//            System.out.println(" AppInfo = " + availableApps.get(i));
-//        }
-        populateScreen();
-    }
-    private void populateScreen() {
-        m_Content.removeAllViews();
-        LayoutInflater inflater = getLayoutInflater();
-        for(AppInfo app:availableApps) {
-            RelativeLayout appdetails =
-                (RelativeLayout) inflater.inflate(R.layout.addapp, m_Content, false);
-            ImageButton icon = (ImageButton) appdetails.findViewById(R.id.appicon);
-            icon.setOnClickListener(appListener);
-            if( !app.installed) {
-                icon.setImageResource(R.drawable.icon);
-            } else {
-                try {
-                    if( installedApps.get(app.pkg).activities[0] != null)
-                        icon.setImageDrawable( installedApps.get(app.pkg).activities[0].loadIcon(getPackageManager()));
-                    else
-                        icon.setImageDrawable( installedApps.get(app.pkg).applicationInfo.loadIcon(getPackageManager()));
-                } catch(Exception ex) {
-                    icon.setImageResource(R.drawable.icon);
+        Runnable thrd = new Runnable() {
+            public void run() {
+                if( !waitForNetwork(lock)) {
+                    //alert and exit.
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NookMarket.this);
+                    builder.setTitle(R.string.network);
+                    builder.setMessage(R.string.network_error);
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                           finish();
+                        }
+                    });
                 }
+                loadApps(FEED_URL);
             }
-            icon.setTag( app);
-            TextView text = (TextView) appdetails.findViewById(R.id.desc);
-            TextView title = (TextView) appdetails.findViewById(R.id.title);
-            text.setText(app.text);
-            title.setText(app.title);
-            m_Content.addView(appdetails);
-            
-        }
-        for(AppInfo app:documents) {
-            RelativeLayout appdetails =
-                (RelativeLayout) inflater.inflate(R.layout.addapp, m_Content, false);
-            ImageButton icon = (ImageButton) appdetails.findViewById(R.id.appicon);
-            icon.setImageResource(R.drawable.info);
-            icon.setOnClickListener(docListener);
-            icon.setTag(app);
-            TextView text = (TextView) appdetails.findViewById(R.id.desc);
-            TextView title = (TextView) appdetails.findViewById(R.id.title);
-            text.setText(app.text);
-            title.setText(app.title);
-            m_Content.addView(appdetails);
-        }
+        };
+        (new Thread(thrd)).start();
+  
     }
     @Override
     public void onPause() {
@@ -239,36 +299,10 @@ public class NookMarket extends nookBaseActivity {
             lock.release();
         super.onPause();
     }
-    private void copyDirectory(File sourceLocation, File targetLocation) throws IOException {
-        System.out.println("Source =" + sourceLocation);
-        System.out.println("Dest =" + targetLocation);
-        if (sourceLocation.isDirectory()) {
-            if (!targetLocation.exists()) {
-                targetLocation.mkdir();
-            }
-            String[] children = sourceLocation.list();
-            for (String element : children) {
-                copyDirectory(new File(sourceLocation, element), new File(targetLocation, element));
-            }
-        } else {
-            FileInputStream in = new FileInputStream(sourceLocation);
-            FileOutputStream out = new FileOutputStream(targetLocation);
-            float size = sourceLocation.length();
-            float current = 0;
-            int prevProgress = 0;
-            // Copy the bits from instream to outstream
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-                current += len;
-            }
-            in.close();
-            out.close();
-        }
-    }
+
     private void loadApps(String url) {
         try {
+            final LayoutInflater inflater = getLayoutInflater();
             HttpGet request = new HttpGet(url);
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpResponse response = httpClient.execute(request);
@@ -299,7 +333,7 @@ public class NookMarket extends nookBaseActivity {
                             entry=false;
                             title=null;
                             continue;
-                        } else if( val != null && val.equals("text/html")) {
+                   //     } else if( val != null && val.equals("text/html")) {
                         } else {
                             entry=false;
                             title=null;
@@ -336,12 +370,55 @@ public class NookMarket extends nookBaseActivity {
                                 if(!app.version.equals(info.versionName)) {
                                     app.updateAvailable=true;
                                     app.text ="***Update Available***\n" + app.text;
-                                    System.out.println("current version=" + app.version);
-                                    System.out.println("installed version=" + info.versionName);
                                 }
                             }
                         }
-                        availableApps.add(app);
+                        Comparator myComp = new Comparator<AppInfo>() {
+                            public int compare(AppInfo arg0, AppInfo arg1) {
+                                if( arg0.updateAvailable && !arg1.updateAvailable)
+                                        return -1;
+                                else if( arg1.updateAvailable && !arg0.updateAvailable)
+                                        return 1;
+                                else if( !arg0.installed && arg1.installed)
+                                        return -1;
+                                else if( !arg1.installed && arg0.installed)
+                                        return 1;
+                                return arg0.title.compareToIgnoreCase(arg1.title);
+                            }
+                            
+                        };
+                        final int idx =-Collections.binarySearch(availableApps, app, myComp)-1;
+                        availableApps.add(idx,app);
+                        final AppInfo app1 = app;
+                        Runnable run = new Runnable() {
+                            public void run() {
+                                RelativeLayout appdetails =
+                                (RelativeLayout) inflater.inflate(R.layout.addapp, m_Content, false);
+                                ImageButton icon = (ImageButton) appdetails.findViewById(R.id.appicon);
+                                icon.setOnClickListener(appListener);
+                                if( !app1.installed) {
+                                    icon.setImageResource(R.drawable.icon);
+                                } else {
+                                    icon.setOnLongClickListener(appdelListener);
+                                    try {
+                                        if( installedApps.get(app1.pkg).activities[0] != null)
+                                            icon.setImageDrawable( installedApps.get(app1.pkg).activities[0].loadIcon(getPackageManager()));
+                                        else
+                                            icon.setImageDrawable( installedApps.get(app1.pkg).applicationInfo.loadIcon(getPackageManager()));
+                                    } catch(Exception ex) {
+                                        icon.setImageResource(R.drawable.icon);
+                                    }
+                                }
+                                icon.setTag( app1);
+                                TextView text = (TextView) appdetails.findViewById(R.id.desc);
+                                TextView title1 = (TextView) appdetails.findViewById(R.id.title);
+                                text.setText(app1.text);
+                                title1.setText(app1.title);
+                                
+                                m_Content.addView(appdetails, idx);
+                            }
+                        };
+                        m_Handler.post(run);
                     } else {
                         app.installed=false;
                         app.updateAvailable=false;
