@@ -90,7 +90,7 @@ public class NookLauncher extends nookBaseActivity {
         }
         loadWallpaper();
         if (m_LastButton != null) {
-            m_LastButton.setBackgroundResource(android.R.color.darker_gray);
+            m_LastButton.setBackgroundResource(android.R.color.transparent);
             String icon = m_UriMap.get(m_LastButton);
             if( icon != null)
                 m_LastButton.setImageURI(Uri.parse(icon));
@@ -219,7 +219,7 @@ public class NookLauncher extends nookBaseActivity {
                     }
                 });
         }
-        b.setBackgroundResource(android.R.color.darker_gray);
+        b.setBackgroundResource(android.R.color.transparent);
     }
     
     @Override
@@ -236,7 +236,7 @@ public class NookLauncher extends nookBaseActivity {
         }
         
         public void onClick(View v) {
-            v.setBackgroundResource(android.R.color.background_light);
+            v.setBackgroundResource(android.R.color.darker_gray);
             m_LastButton = (ImageButton) v;
             if (m_readingNow) {
                 try {
