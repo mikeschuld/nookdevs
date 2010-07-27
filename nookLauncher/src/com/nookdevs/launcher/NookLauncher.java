@@ -73,7 +73,7 @@ public class NookLauncher extends nookBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         LOGTAG = "nookLauncher";
-        NAME = "Home";
+        NAME = null;
         
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
@@ -83,7 +83,7 @@ public class NookLauncher extends nookBaseActivity {
     
     @Override
     public void onResume() {
-        NAME="Home";
+        NAME=null;
         super.onResume();
         if (m_SettingsChanged) {
             loadApps();
@@ -200,12 +200,18 @@ public class NookLauncher extends nookBaseActivity {
                             if( icon != null) {
                                 int idx = icon.lastIndexOf('.');
                                 String ext = icon.substring(idx);
-                                icon =icon.replace(ext, "_sel"+ext);
-                                File f = new File(icon);
+                                String icon1 =icon.replace(ext, "_sel"+ext);
+                                File f = new File(icon1);
                                 if( f.exists()) {
-                                    img.setImageURI( Uri.parse(icon));
+                                    img.setImageURI( Uri.parse(icon1));
                                 } else {
-                                    img.setImageURI(Uri.parse(icon));
+                                    icon1 =icon.replace(ext, "_focused"+ext);
+                                    f = new File(icon1);
+                                    if( f.exists()) {
+                                        img.setImageURI( Uri.parse(icon1));
+                                    }
+                                    else    
+                                        img.setImageURI(Uri.parse(icon));
                                 }
                             }
                         }
