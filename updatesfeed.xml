@@ -88,4 +88,15 @@
     <id>http://nookdevs.googlecode.com/files/Music.apk</id>
     <content type="text">Music player for nook</content>
   </entry>
+
+  <entry>
+    <title>nookCalculator</title>
+    <link type="application/vnd.android.package-archive"
+          href="http://nookdevs.googlecode.com/files/nookCalculator.apk"/>
+    <version>1.0</version>
+    <pkg>com.nookdevs.calculator</pkg>
+    <id>http://nookdevs.googlecode.com/files/nookCalculator.apk</id>
+    <content type="text">Simple calculator for the Nook</content>
+  </entry>
+
 </feed>
