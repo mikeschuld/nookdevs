@@ -13,10 +13,10 @@
     <title>nookLauncher</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookLauncher.apk" />
-    <version>0.0.8</version>
+    <version>0.0.9</version>
     <pkg>com.nookdevs.launcher</pkg>
     <id>http://nookdevs.googlecode.com/files/nookLauncher.apk</id>
-    <content type="text">A replacement app launcher for the Nook. Version 0.0.8 - only for B&amp;N 1.4- added on 07/11/10.
+    <content type="text">A replacement app launcher for the Nook. 0.0.9 has new icons and bug fixes.
 </content>
   </entry>
 
@@ -59,10 +59,10 @@
 	<title>nookFileManager</title>
 	 <link type="application/vnd.android.package-archive"
        href="http://nookdevs.googlecode.com/files/nookFileManager.apk" />
-       <version>0.0.2</version>
+       <version>0.0.3</version>
        <pkg>com.nookdevs.filemanager</pkg>
     	 <id>http://nookdevs.googlecode.com/files/nookFileManager.apk</id>
-       <content type="text">File manager app - access sdcard folders and network shares. Version 0.0.2 - added on 03/20/2010.</content>
+       <content type="text">File manager app - access sdcard folders and network shares.</content>
   </entry>
   <entry>
     <title>Trook</title>
