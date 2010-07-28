@@ -68,6 +68,7 @@ public class NookMarket extends nookBaseActivity {
     LinearLayout m_Content;
     private static String m_BaseDir="";
     Handler m_Handler = new Handler();
+    String lastApk=null;
     
     static {
         try {
@@ -127,13 +128,13 @@ public class NookMarket extends nookBaseActivity {
                                         public void packageDeleted(boolean succeeded) {
                                             //install anyway.
                                             installPackage(apk);
-                                            ( new File(apk)).delete();
+                                            lastApk=apk;
                                         }
                                     };
                                     pm.deletePackage(app.pkg, observer, 1);
                                 } else {
                                     installPackage(apk);
-                                    ( new File(apk)).delete();
+                                    lastApk=apk;
                                 }
                                 
                             }
@@ -260,6 +261,14 @@ public class NookMarket extends nookBaseActivity {
     public void onResume() {
         super.onResume();
         loadWallpaper();
+        if( lastApk != null) {
+            try {
+                //( new File(apk)).delete();
+                System.out.println("Delete status =" + ( new File(lastApk)).delete());
+            } catch(Exception ex) {
+                Log.e(LOGTAG, ex.getMessage(),ex);
+            }
+        }
         lock.acquire();
         init();
     }
