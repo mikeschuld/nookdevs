@@ -375,12 +375,15 @@ public class NookMarket extends nookBaseActivity {
                             PackageInfo info = installedApps.get(app.pkg);
                             app.installed=true;
                             if( app.version != null) {
-                                app.title = app.title + " " + app.version;
+                                if( !app.title.contains(app.version))
+                                    app.title = app.title + " " + app.version;
                                 if(!app.version.equals(info.versionName)) {
                                     app.updateAvailable=true;
                                     app.text ="***Update Available***\n" + app.text;
                                 }
                             }
+                        } else if( app.version != null && !app.title.contains(app.version)) {
+                            app.title = app.title + " " + app.version;
                         }
                         Comparator myComp = new Comparator<AppInfo>() {
                             public int compare(AppInfo arg0, AppInfo arg1) {
