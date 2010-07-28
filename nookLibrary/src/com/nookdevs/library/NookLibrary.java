@@ -23,13 +23,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.IPackageDeleteObserver;
 import android.content.res.TypedArray;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -168,6 +171,60 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         upButton = (Button) findViewById(R.id.up);
         downButton = (Button) findViewById(R.id.down);
         m_Archive = (Button) findViewById(R.id.archive);
+        m_Archive.setOnLongClickListener(new OnLongClickListener() {
+
+            public boolean onLongClick(View arg0) {
+                //confirm
+                AlertDialog.Builder builder = new AlertDialog.Builder(NookLibrary.this);
+                builder.setTitle(R.string.delete);
+                builder.setMessage(R.string.confirm);
+                builder.setNegativeButton(android.R.string.no, null).setCancelable(true);
+                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        ScannedFile file = pageViewHelper.getCurrent();
+                        // delete book
+                        m_Files.remove(file);
+                        if (file.matchSubject(getString(R.string.fictionwise))) {
+                            m_FictionwiseBooks.deleteBook(file);
+                        } else if (file.matchSubject("B&N")) {
+                            m_BNBooks.deleteBook(file);
+                        } else if (file.matchSubject(getString(R.string.smashwords))) {
+                            m_Smashwords.deleteBook(file);
+                        } else {
+                            // local
+                            m_OtherBooks.deleteBook(file);
+                        }
+                      //Fix for Issue 89
+                        List<ScannedFile> f = pageViewHelper.getFiles();
+                        f.remove(file);
+                        pageViewHelper.setFiles(f);
+                        file.removeKeywords();
+                        List<String> tmpList = ScannedFile.getAvailableKeywords();
+                        Comparator<String> c = new Comparator<String>() {
+                            public int compare(String object1, String object2) {
+                                if (object1 != null) {
+                                    return object1.compareToIgnoreCase(object2);
+                                } else {
+                                    return 1;
+                                }
+                            }
+                        };
+                        Collections.sort(tmpList, c);
+                        m_ShowValues = new ArrayList<CharSequence>(tmpList.size() + 1);
+                        m_ShowValues.add(getString(R.string.all));
+                        if (ScannedFile.m_StandardKeywords != null) {
+                            m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
+                        }
+                        m_ShowValues.addAll(tmpList);
+                        m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
+                        backButton.performClick();
+                    }
+                });
+                builder.show();
+                return true;
+            }
+            
+        });
         m_Archive.setOnClickListener(new OnClickListener() {
             
             public void onClick(View arg0) {

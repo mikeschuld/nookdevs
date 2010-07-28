@@ -288,6 +288,9 @@ public class BNBooks {
         }
         return true;
     }
+    public boolean deleteBook(ScannedFile file) {
+        return true;
+    }
     
     public List<ScannedFile> getArchived() {
         return m_ArchivedBooks;
