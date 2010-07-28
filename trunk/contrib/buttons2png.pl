@@ -30,7 +30,7 @@ $::SVG = "$::BASEDIR/buttons.svg";
 $::BUTTON_WIDTH = 96;
 $::BUTTON_HEIGHT = 144;
 $::COUNTX = 10;
-$::COUNTY = 2;
+$::COUNTY = 3;
 
 $::NOOKDEVS = "$ENV{HOME}/git/nookdevs";
 $::NOOKAPPS = "$ENV{HOME}/git/nookapps";
@@ -53,9 +53,10 @@ $::NOOKAPPS = "$ENV{HOME}/git/nookapps";
           "$::NOOKDEVS/nookLauncher/res/drawable/bn_settings.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_settings_focus.png" ],
   7 => [ "bn_wifi",
           "$::NOOKDEVS/nookLauncher/res/drawable/bn_wifi.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_wifi_focus.png" ],
-  8 => [ "cc_music",
-         "/dev/null", "/dev/null" ],
-  # 9
+  8 => [ "bn_chess",
+         "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess_focus.png" ],
+  9 => [ "bn_sudoku",
+         "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku_focus.png" ],
   10 => [ "na_trook",
           "$::NOOKAPPS/trook/res/drawable/trook_icon.png", "$::NOOKAPPS/trook/res/drawable/trook_icon_selected.png" ],
   11 => [ "nd_files",
@@ -72,10 +73,15 @@ $::NOOKAPPS = "$ENV{HOME}/git/nookapps";
           "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings.png", "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings_focus.png" ],
   17 => [ "nd_wifi_locker",
           "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_normal.PNG", "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_pressed.PNG" ],
-  18 => [ "bn_chess",
-          "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess_focus.png" ],
-  19 => [ "bn_sudoku",
-          "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku_focus.png" ],
+  # 18
+  19 => [ "nd_crosswords",
+          "/dev/null", "/dev/null" ],
+  20 => [ "cc_media",
+          "$::NOOKDEVS/nookMedia/res/drawable/cc_media.png", "$::NOOKDEVS/nookMedia/res/drawable/cc_media_focus.png" ],
+  21 => [ "nd_market",
+          "$::NOOKDEVS/nookMarket/res/drawable/nd_market.jpg", "$::NOOKDEVS/nookMarket/res/drawable/nd_market_sel.jpg" ],
+  22 => [ "nd_calculator",
+          "$::NOOKDEVS/nookCalculator/res/drawable/icon.png", "$::NOOKDEVS/nookCalculator/res/drawable/icon_pressed.png" ],
 );
 
 # parse command-line arguments, validate context...
@@ -130,8 +136,9 @@ for my $id (qw(normal pressed)) {  # for each of the two button states
           or warn "Failed to copy $id #$idx to “$to”!\n";
       } else {
         if (-w $::MAPPING{$idx}[$target]) {
-          copy("$tempdir/crop-$idx.png", $::MAPPING{$idx}[$target])
-            or warn "Failed to copy $id #$idx to “$::MAPPING[$idx][$target]”!\n";
+          my $cmd = &shell_cmd("convert %s -quality 100 %s 2>/dev/null",
+                               "$tempdir/crop-$idx.png", $::MAPPING{$idx}[$target]);
+          system $cmd and warn "Failed to convert $id #$idx to “$::MAPPING[$idx][$target]”!\n";
         } else {
           warn "Not copying $id #$idx as “$::MAPPING{$idx}[$target]” does not exist or is not writable.\n";
         }
