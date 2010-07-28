@@ -303,8 +303,14 @@ public class OtherBooks extends SQLiteOpenHelper {
         
         File f = new File(file.getPathName());
         f.delete();
-        f = new File(file.getCover());
-        f.delete();
+        if( file.getCover() != null) {
+            try {
+                f = new File(file.getCover());
+                f.delete();
+            } catch(Exception ex) {
+                return true;
+            }
+        }
         return true;
     }
     

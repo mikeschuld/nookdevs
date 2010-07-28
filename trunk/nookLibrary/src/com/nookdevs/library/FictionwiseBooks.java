@@ -351,7 +351,18 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     public List<ScannedFile> getArchived() {
         return m_ArchivedFiles;
     }
-    
+    public boolean deleteBook(ScannedFile file) {
+        archiveBook(file, true);
+        if( file.getCover() != null) {
+            try {
+                File f = new File(file.getCover());
+                f.delete();
+            } catch(Exception ex) {
+                return true;
+            }
+        }
+        return true;
+    }
     public boolean archiveBook(ScannedFile file, boolean val) {
         if (!archiveInServer(file)) { return false; }
         if (val) {

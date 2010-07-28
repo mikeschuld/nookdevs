@@ -32,6 +32,9 @@
     <string name="off">off</string>
     <string name="on">on</string>
     <string name="all">All</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Are you Sure? Make sure there is a backup.</string>
+    
     <string-array name="mainmenu">
 		<item>View Details</item>
         <item>Sort By</item>
