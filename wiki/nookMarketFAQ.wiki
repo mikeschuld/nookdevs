@@ -1,0 +1,36 @@
+nookMarket
+
+The idea here is to mimic the android app store & list all the apps available for nook, allow install/upgrades, uninstall, checking for new versions of installed apps etc.
+
+Steps to Add a new app to the store:
+
+If your app is maintained under nookdevs project, just upload the apk in the downloads section & update updatesfeed.xml with app details. Make sure to include version and pkg tags.
+
+Example entry:
+<pre>
+<entry> 
+     <title>nookLibrary</title> 
+     <link type="application/vnd.android.package-archive" 
+           href="http://nookdevs.googlecode.com/files/nookLibrary.apk"/> 
+     <version>0.1.0</version> 
+     <pkg>com.nookdevs.library</pkg> 
+     <content type="text">Browse, sort and search books on the Nook.  
+     </content> 
+   </entry>  
+</pre>
+
+If your app is in a different repository,
+create an xml file with the following syntax, put it in a place accessible without userid/pass and send us the link (create a task under Issues section).
+
+<pre>
+<?xml version="1.0"?> 
+ <feed xmlns="http://www.w3.org/2005/Atom"> 
+   <title>nookDevs</title>  <!-- optional -->
+   <author><name>nookDevs</name></author> <!-- optional -->
+   <entry> 
+    ... <!-- same as above example -->
+   </entry> 
+</feed>
+</pre>
+
+Again, make sure to update the contents of this file whenever the version changes. A single file can have multiple apps.
