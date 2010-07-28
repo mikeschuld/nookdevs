@@ -70,8 +70,15 @@ public class PageViewHelper {
         int i = 0;
         for (; i < ITEMS_PER_PAGE && (currentOffset + i) < m_NumItems; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            m_BookNames[i].setText(file.getTitle());
-            m_Authors[i].setText(file.getAuthor());
+            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
+                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+                    m_Authors[i].setText(file.getTitle());
+                    m_BookNames[i].setText(file.getAuthor());
+            
+            } else {
+                m_BookNames[i].setText(file.getTitle());
+                m_Authors[i].setText(file.getAuthor());
+            }
         }
         for (; i < ITEMS_PER_PAGE; i++) {
             m_BookNames[i].setText("");
@@ -147,8 +154,15 @@ public class PageViewHelper {
         int currentOffset = (m_CurrentPage - 1) * ITEMS_PER_PAGE;
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            m_BookNames[i].setText(file.getTitle());
-            m_Authors[i].setText(file.getAuthor());
+            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
+                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+                    m_Authors[i].setText(file.getTitle());
+                    m_BookNames[i].setText(file.getAuthor());
+            
+            } else {
+                m_BookNames[i].setText(file.getTitle());
+                m_Authors[i].setText(file.getAuthor());
+            }
         }
         updateHeader();
     }
@@ -156,7 +170,12 @@ public class PageViewHelper {
     public void update() {
         if (m_CurrentItem > 0) {
             ScannedFile file = getCurrent();
-            m_BookNames[m_CurrentItem - 1].setText(file.getTitle());
+            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
+                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+                m_Authors[m_CurrentItem - 1].setText(file.getTitle());         
+            } else {
+                m_BookNames[m_CurrentItem - 1].setText(file.getTitle());
+            }
         }
     }
     
@@ -183,8 +202,15 @@ public class PageViewHelper {
         int i = 0;
         for (; i < ITEMS_PER_PAGE && (currentOffset + i) < m_NumItems; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            m_BookNames[i].setText(file.getTitle());
-            m_Authors[i].setText(file.getAuthor());
+            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
+                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+                    m_Authors[i].setText(file.getTitle());
+                    m_BookNames[i].setText(file.getAuthor());
+            
+            } else {
+                m_BookNames[i].setText(file.getTitle());
+                m_Authors[i].setText(file.getAuthor());
+            }
         }
         if (m_CurrentItem > i) {
             m_Dividers[m_CurrentItem].setVisibility(View.INVISIBLE);
