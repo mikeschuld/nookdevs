@@ -62,7 +62,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 /**
  * @author Li Wenhao
  */
-public class PDFViewerActivity extends nookBaseActivity implements OnKeyListener {
+public class PDFViewerActivity extends nookBaseActivity {
 	//private final static String TAG = "PDFViewerActivity";
 	
   
@@ -96,7 +96,6 @@ public class PDFViewerActivity extends nookBaseActivity implements OnKeyListener
 		initButtons();
 		initListener();
 		m_pdf_view.openUri(uri);
-		m_pdf_view.setOnKeyListener(this);
 		int idx = file.lastIndexOf('/');
 		file = file.substring(idx+1) + "userData";
 		try {
@@ -420,44 +419,43 @@ public class PDFViewerActivity extends nookBaseActivity implements OnKeyListener
 	    (new Thread(run)).start();
 	        
     }
-	public boolean onKey(View view, int keyCode, KeyEvent event) {
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         boolean handled = false;
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            switch (keyCode) {
-                case NOOK_PAGE_UP_KEY_LEFT:
-                case NOOK_PAGE_UP_KEY_RIGHT:
-                    if( m_landscape) 
-                        pageUpL();
-                    else 
-                        pageUp();
-                    handled = true;
-                    break;
-                
-                case NOOK_PAGE_DOWN_KEY_LEFT:
-                case NOOK_PAGE_DOWN_KEY_RIGHT:
-                    if( m_landscape)
-                        pageDownL();
-                    else
-                        pageDown();
-                    handled = true;
-                    break;
-                case NOOK_PAGE_UP_SWIPE:
-                     if( m_landscape)
-                         pageDownL();
-                     else
-                         pageUp();
-                     handled = true;
-                     break;
-                case NOOK_PAGE_DOWN_SWIPE:
-                    if( m_landscape)
-                        pageUpL();
-                    else
-                        pageDown();
-                    handled = true;
-                    break;
-                default:
-                    break;
-            }
+        switch (keyCode) {
+            case NOOK_PAGE_UP_KEY_LEFT:
+            case NOOK_PAGE_UP_KEY_RIGHT:
+                if( m_landscape) 
+                    pageUpL();
+                else 
+                    pageUp();
+                handled = true;
+                break;
+            
+            case NOOK_PAGE_DOWN_KEY_LEFT:
+            case NOOK_PAGE_DOWN_KEY_RIGHT:
+                if( m_landscape)
+                    pageDownL();
+                else
+                    pageDown();
+                handled = true;
+                break;
+            case NOOK_PAGE_UP_SWIPE:
+                 if( m_landscape)
+                     pageDownL();
+                 else
+                     pageUp();
+                 handled = true;
+                 break;
+            case NOOK_PAGE_DOWN_SWIPE:
+                if( m_landscape)
+                    pageUpL();
+                else
+                    pageDown();
+                handled = true;
+                break;
+            default:
+                break;
         }
         return handled;
     }
