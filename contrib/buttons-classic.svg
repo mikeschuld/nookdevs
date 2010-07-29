@@ -375,6 +375,27 @@
        inkscape:vp_y="0 : 1000 : 0"
        inkscape:vp_x="0 : 0.5 : 1"
        sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5518"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5581"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4396"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
     <filter
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
@@ -389,14 +410,7 @@
          id="feGaussianBlur4351-4" />
     </filter>
     <inkscape:perspective
-       id="perspective5518"
-       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
-       inkscape:vp_z="1 : 0.5 : 1"
-       inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_x="0 : 0.5 : 1"
-       sodipodi:type="inkscape:persp3d" />
-    <inkscape:perspective
-       id="perspective5581"
+       id="perspective4478"
        inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
        inkscape:vp_z="1 : 0.5 : 1"
        inkscape:vp_y="0 : 1000 : 0"
@@ -416,7 +430,7 @@
      inkscape:window-height="1057"
      id="namedview4"
      showgrid="true"
-     inkscape:zoom="1.5364583"
+     inkscape:zoom="1.5458333"
      inkscape:cx="480"
      inkscape:cy="216"
      inkscape:window-x="60"
@@ -1070,6 +1084,32 @@
            id="tspan5492"
            x="911.96484"
            y="246.96875">crosswords</tspan></text>
+      <path
+         id="path3558"
+         d="m 396.6715,306.36719 c -6.87274,0 -12.40625,5.53351 -12.40625,12.40625 l 0,35.1875 c 12.93358,1.25667 26.63165,1.9375 40.8125,1.9375 13.78275,0 27.07545,-0.65418 39.6875,-1.84375 l 0,-35.28125 c 0,-6.87274 -5.53351,-12.40625 -12.40625,-12.40625 l -55.6875,0 z"
+         style="opacity:0.2;fill:#ffffff;fill-opacity:1;stroke:none;display:inline" />
+      <rect
+         style="color:#000000;fill:#356aa0;fill-opacity:1;stroke:none;stroke-width:6;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect4458"
+         width="96"
+         height="144"
+         x="288"
+         y="288" />
+      <path
+         style="fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
+         d="m 321.5269,331 0,7.3154 c 14.18875,0.0582 25.61649,11.4853 25.63081,25.6846 l 7.3154,0 c -0.0145,-18.15331 -14.80285,-32.94146 -32.94621,-33 z m 0,11.75306 0,7.3154 c 7.68225,0.0581 13.8097,6.23834 13.82396,13.93154 l 7.3154,0 c -0.0145,-11.64699 -9.50251,-21.18758 -21.13936,-21.24694 z m 4.14181,12.96333 c -2.29158,0 -4.14181,1.85021 -4.14181,4.1418 0,2.29158 1.85023,4.14181 4.14181,4.14181 2.29158,0 4.1687,-1.85023 4.1687,-4.14181 0,-2.29159 -1.87712,-4.1418 -4.1687,-4.1418 z"
+         id="rect4357" />
+      <text
+         sodipodi:linespacing="100%"
+         id="text4460"
+         y="390.84375"
+         x="335.70703"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Segoe;-inkscape-font-specification:Segoe"
+         xml:space="preserve"><tspan
+           y="390.84375"
+           x="335.70703"
+           id="tspan4462"
+           sodipodi:role="line">g·reader</tspan></text>
     </g>
   </g>
   <g
@@ -1506,6 +1546,21 @@
            x="143.77344"
            id="tspan5571"
            sodipodi:role="line">market</tspan></text>
+      <path
+         id="path4464"
+         d="m 321.5269,331 0,7.3154 c 14.18875,0.0582 25.61649,11.4853 25.63081,25.6846 l 7.3154,0 c -0.0145,-18.15331 -14.80285,-32.94146 -32.94621,-33 z m 0,11.75306 0,7.3154 c 7.68225,0.0581 13.8097,6.23834 13.82396,13.93154 l 7.3154,0 c -0.0145,-11.64699 -9.50251,-21.18758 -21.13936,-21.24694 z m 4.14181,12.96333 c -2.29158,0 -4.14181,1.85021 -4.14181,4.1418 0,2.29158 1.85023,4.14181 4.14181,4.14181 2.29158,0 4.1687,-1.85023 4.1687,-4.14181 0,-2.29159 -1.87712,-4.1418 -4.1687,-4.1418 z"
+         style="fill:#356aa0;fill-opacity:1;stroke:none;display:inline" />
+      <text
+         xml:space="preserve"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#356aa0;fill-opacity:1;stroke:none;display:inline;font-family:Segoe;-inkscape-font-specification:Segoe"
+         x="335.70703"
+         y="390.84375"
+         id="text4466"
+         sodipodi:linespacing="100%"><tspan
+           sodipodi:role="line"
+           id="tspan4468"
+           x="335.70703"
+           y="390.84375">g·reader</tspan></text>
     </g>
   </g>
 </svg>
