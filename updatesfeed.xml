@@ -66,7 +66,7 @@
   <entry>
     <title>Trook</title>
     <version>craftycoder 1.0</version>
-    <link type="application/atom+xml"
+    <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/trook.apk"/>
     <id>http://nookdevs.googlecode.com/files/trook.apk</id>
     <content type="text">Trook, a Stanza/OPDS catalog reader, feed reader and local book browser app.</content>
