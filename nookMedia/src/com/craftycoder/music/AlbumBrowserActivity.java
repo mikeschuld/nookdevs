@@ -200,12 +200,7 @@ public class AlbumBrowserActivity extends nookListActivity
             }
         }
         View b = (View) findViewById(R.id.media_picker_touchsurface);	
-        try {
-			GreyBarButtonLayout layout = new GreyBarButtonLayout( new GreyBarButtonPosition(0,150),null,null,null);
-			b.setOnTouchListener(new GreyBarTouchListener(this,layout));
-		} catch (GreyBarButtonPositionException e) {
-			e.printStackTrace();
-		}
+		b.setOnTouchListener(new GreyBarTouchListener(this));
     }
 
     @Override
