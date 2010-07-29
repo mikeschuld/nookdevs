@@ -65,10 +65,11 @@
   </entry>
   <entry>
     <title>Trook</title>
+    <version>craftycoder 1.0</version>
     <link type="application/atom+xml"
-          href="http://nookapps.googlecode.com/svn/trunk/feed/trook.xml"/>
-    <id>http://nookapps.googlecode.com/svn/trunk/feed/trook.xml</id>
-    <content type="text">Get the latest news, documentation and updates about Trook, a Stanza/OPDS catalog reader, feed reader and local book browser app.</content>
+          href="http://nookdevs.googlecode.com/files/trook.apk"/>
+    <id>http://nookdevs.googlecode.com/files/trook.apk</id>
+    <content type="text">Trook, a Stanza/OPDS catalog reader, feed reader and local book browser app.</content>
   </entry>
   <entry>
     <title>Twook</title>
