@@ -89,14 +89,14 @@ public class wifiLocker extends nookBaseActivity implements OnClickListener {
                     Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
                     intent.putExtra("state", true);
                     sendBroadcast(intent);                    
-                    Log.d("WifiLocker","Cellular radio disallowed.");
+                    Log.d(LOGTAG,"Cellular radio disallowed.");
                 } else {
                 	android.provider.Settings.System.putString(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_RADIOS,"cell,bluetooth,wifi");
                     android.provider.Settings.System.putInt(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_ON, 0); 
                     Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
                     intent.putExtra("state", false);
                     sendBroadcast(intent);   
-                    Log.d("WifiLocker","Cellular radio allowed.");
+                    Log.d(LOGTAG,"Cellular radio allowed.");
                 }
                 setRadioButtonText();
             }
