@@ -66,6 +66,7 @@
   <entry>
     <title>Trook</title>
     <version>craftycoder 1.0</version>
+    <pkg>com.kbs.trook</pkg>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/trook.apk"/>
     <id>http://nookdevs.googlecode.com/files/trook.apk</id>
