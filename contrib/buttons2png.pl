@@ -15,6 +15,7 @@
 
 use 5.010;
 
+use integer;
 use strict;
 use warnings;
 
@@ -108,6 +109,8 @@ die "“$::SVG” not found.  Symlink one of the buttons SVGs there.\n" unless -
 die "Failed to create non-existing output directory “$opts{dir}”: $!\n" if $opts{dir} && !-d $opts{dir} && !mkdir $opts{dir};
 
 # process SVG...
+my $crop = `tempfile`;
+chomp $crop;
 my(@ids, @temps);
 for my $id (qw(normal pressed)) {  # for each of the two button states
   push @ids, $id;
@@ -115,29 +118,27 @@ for my $id (qw(normal pressed)) {  # for each of the two button states
   # render to PNG..
   push @temps, `tempfile`;
   chomp $temps[-1];
-  system &shell_cmd("inkscape -C -w %d -h %d" . join("", ((map { " -i $_" } @ids), " -j")[0, 1]) . " -e %s %s &>/dev/null",
-                    $::COUNTX * $::BUTTON_WIDTH, $::COUNTY * $::BUTTON_HEIGHT, $temps[-1], $opts{file} || $::SVG)
-    and die "Failed to convert $id buttons vector image to PNG!\n";
+  my $cmd = &shell_cmd("inkscape -C -w %d -h %d" . join("", ((map { " -i $_" } @ids), " -j")[0, 1]) . " -e %s %s &>/dev/null",
+                       $::COUNTX * $::BUTTON_WIDTH, $::COUNTY * $::BUTTON_HEIGHT, $temps[-1], $opts{file} || $::SVG);
+  system $cmd and die "Failed to convert $id buttons vector image to PNG!\n";
 
-  # crop...
-  my $tempdir = `tempfile`;
-  chomp $tempdir;
-  unlink $tempdir;
-  mkdir $tempdir or die "Failed to create temporary directory!\n";
-  system &shell_cmd("convert -crop %dx%d %s %s", $::BUTTON_WIDTH, $::BUTTON_HEIGHT, $temps[-1], "$tempdir/crop.png")
-    and die "Failed to crop buttons PNG!\n";
-
-  # copy individual cropped PNGs to their respective destinations...
+  # crop, copy/convert individual cropped PNGs to their respective destinations...
   for my $idx (grep { $::MAPPING{$_} } (0..(($::COUNTX * $::COUNTY) - 1))) {
+    # crop...
+    $cmd = &shell_cmd("convert -crop %dx%d+%d+%d! %s %s",
+                      $::BUTTON_WIDTH, $::BUTTON_HEIGHT, $::BUTTON_WIDTH * ($idx % $::COUNTX), $::BUTTON_HEIGHT * ($idx / $::COUNTX),
+                      $temps[-1], "png:$crop");
+    system $cmd and die "Failed to crop $id buttons PNG #$idx!\n";
+
+    # copy/convert...
     for (my $target = @temps; $target < @{$::MAPPING{$idx}}; $target += 2) {
       if ($opts{dir}) {
         my $to = "$opts{dir}/$::MAPPING{$idx}[0]" . ($target % 2 ? "" : "_sel") . ".png";
-        copy("$tempdir/crop-$idx.png", $to)
-          or warn "Failed to copy $id #$idx to “$to”!\n";
+        copy($crop, $to) or warn "Failed to copy $id #$idx to “$to”!\n";
       } else {
         if (-w $::MAPPING{$idx}[$target]) {
-          my $cmd = &shell_cmd("convert %s -quality 100 %s 2>/dev/null",
-                               "$tempdir/crop-$idx.png", $::MAPPING{$idx}[$target]);
+          $cmd = &shell_cmd("convert %s -quality 100 %s 2>/dev/null",
+                            "png:$crop", $::MAPPING{$idx}[$target]);
           system $cmd and warn "Failed to convert $id #$idx to “$::MAPPING[$idx][$target]”!\n";
         } else {
           warn "Not copying $id #$idx as “$::MAPPING{$idx}[$target]” does not exist or is not writable.\n";
@@ -145,10 +146,8 @@ for my $id (qw(normal pressed)) {  # for each of the two button states
       }
     }
   }
-
-  system &shell_cmd("rm %s/crop-*.png", $tempdir);
-  rmdir $tempdir;
 }
+push @temps, $crop;
 unlink @temps;
 
 
