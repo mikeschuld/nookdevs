@@ -42,6 +42,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -285,18 +286,25 @@ public class NookMarket extends nookBaseActivity {
         }
         Runnable thrd = new Runnable() {
             public void run() {
-                if( !waitForNetwork(lock)) {
-                    //alert and exit.
-                    AlertDialog.Builder builder = new AlertDialog.Builder(NookMarket.this);
-                    builder.setTitle(R.string.network);
-                    builder.setMessage(R.string.network_error);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                           finish();
-                        }
-                    });
-                }
-                loadApps(FEED_URL);
+                if( waitForNetwork(lock)) {
+                    ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+                    NetworkInfo info = cmgr.getNetworkInfo(cmgr.TYPE_WIFI);
+                    if( info != null && info.isConnected()) {
+                        loadApps(FEED_URL);
+                        return;
+                    }
+                } 
+                //alert and exit.
+                m_Handler.post( new Runnable() {
+                    public void run() {
+                        displayAlert(getString(R.string.network), getString(R.string.network_error), 2, 
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                   finish();
+                                }
+                            },-1);
+                    }
+                });
             }
         };
         (new Thread(thrd)).start();
@@ -348,9 +356,11 @@ public class NookMarket extends nookBaseActivity {
                             title=null;
                             continue;
                         }
-                        app.version = parser.getAttributeValue(null, "version");
+                        if( app.version ==null)
+                            app.version = parser.getAttributeValue(null, "version");
                         app.url = parser.getAttributeValue(null, "href");
-                        app.pkg = parser.getAttributeValue(null, "pkg");
+                        if( app.pkg == null)
+                            app.pkg = parser.getAttributeValue(null, "pkg");
                     }
                 } else if( entry && type ==XmlPullParser.TEXT){
                     String text = parser.getText().trim();
@@ -377,7 +387,7 @@ public class NookMarket extends nookBaseActivity {
                             if( app.version != null) {
                                 if( !app.title.contains(app.version))
                                     app.title = app.title + " " + app.version;
-                                if(!app.version.equals(info.versionName)) {
+                                if(!app.version.trim().equals(info.versionName)) {
                                     app.updateAvailable=true;
                                     app.text ="***Update Available***\n" + app.text;
                                 }
@@ -444,13 +454,19 @@ public class NookMarket extends nookBaseActivity {
             }
         } catch(Exception ex) {
             Log.e(LOGTAG, ex.getMessage(), ex);
+            //alert and exit.
+            if( availableApps.size() ==0)
+                m_Handler.post( new Runnable() {
+                    public void run() {
+                        displayAlert(getString(R.string.network), getString(R.string.feed_error), 2, 
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            },-1);
+                    }
+                });
         }
-//     PackageManager manager = getPackageManager();
-//     Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-//     mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-//     final LayoutInflater inflater = getLayoutInflater();
-//     final List<ResolveInfo> apps = manager.queryIntentActivities(mainIntent, 0);
-//        
     }
     class AppInfo {
         String url;

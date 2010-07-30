@@ -6,5 +6,6 @@
  <string name="confirm">Are you sure?</string>
  <string name="network">Network</string>
  <string name="network_error">Timed out waiting for Wi-Fi Lock.</string>
+ <string name="feed_error">Error retrieving the apps feed.</string>
     
 </resources>
