@@ -102,14 +102,13 @@
 	android:divider="#808080"
 	android:dividerHeight="1.0px"
 	android:choiceMode="singleChoice"
-	android:drawSelectorOnTop="true"
 	android:scrollbars="vertical"
 	android:scrollbarStyle="insideOverlay"
 	android:scrollbarSize="20.0px"
 	android:minHeight="250.0px"
 	android:fadingEdge="none"
 	android:background="#C8C8C8"
-	android:listSelector="@drawable/list_selector_background">
+	android:listSelector="@android:color/transparent">
 </ListView>
 
 <ListView 
@@ -119,14 +118,13 @@
 	android:divider="#808080"
 	android:dividerHeight="1.0px"
 	android:choiceMode="singleChoice"
-	android:drawSelectorOnTop="true"
 	android:scrollbars="vertical"
 	android:scrollbarStyle="insideOverlay"
 	android:scrollbarSize="20.0px"
 	android:minHeight="250.0px"
 	android:fadingEdge="none"
 	android:background="#C8C8C8"
-	android:listSelector="@drawable/list_selector_background">
+	android:listSelector="@android:color/transparent">
 </ListView>
 </ViewAnimator>
 <Button

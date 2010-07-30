@@ -3,9 +3,9 @@
     android:id="@+id/ListTextView03" 
 	android:layout_width="fill_parent" 
 	android:layout_height="35.0px"
-    android:background="@drawable/list_item_normal"
+    android:background="@drawable/list_selector_background"
 	android:paddingTop="6.0px"
 	android:paddingLeft="10.0px"
 	android:paddingBottom="8.0px"
 	android:textStyle="bold"
-	android:textColor="#000000"/>	
+	android:textColor="@color/list_selector_textcolor"/>
