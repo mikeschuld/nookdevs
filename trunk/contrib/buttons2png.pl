@@ -84,7 +84,7 @@ $::NOOKAPP_GOOGLEREADER = "$ENV{HOME}/git/nookapp-googlereader";
           "$::NOOKDEVS/nookMarket/res/drawable/nd_market.jpg", "$::NOOKDEVS/nookMarket/res/drawable/nd_market_sel.jpg" ],
   22 => [ "nd_calculator",
           "$::NOOKDEVS/nookCalculator/res/drawable/icon.png", "$::NOOKDEVS/nookCalculator/res/drawable/icon_pressed.png" ],
-  22 => [ "mz_googlereader",
+  23 => [ "mz_googlereader",
           "$::NOOKAPP_GOOGLEREADER/res/drawable/icon.png", "$::NOOKAPP_GOOGLEREADER/res/drawable/icon_pressed.png" ],
 );
 
