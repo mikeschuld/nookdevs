@@ -35,6 +35,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.ConditionVariable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -152,6 +153,8 @@ public class PDFView extends View {
      * bitmap configure
      */
     Bitmap.Config m_bitmap_config = Bitmap.Config.ARGB_8888;
+    
+    ConditionVariable m_updatecache = new ConditionVariable();
     
 
 	/**
@@ -325,6 +328,7 @@ public class PDFView extends View {
 		    if( m_cache_bitmap_prev != null) m_cache_bitmap_prev.recycle();
 	    	m_cache_bitmap_prev=m_cache_bitmap;
 	         if( m_cache_bitmap_next != null) {
+	                m_updatecache.block();
 	                m_cache_bitmap=m_cache_bitmap_next;
 	                m_cache_bitmap_next=null;
 	         } else {
@@ -432,14 +436,22 @@ public class PDFView extends View {
         w = (int)(m_doc.getPageMediaWidth(m_current_page+1)*m_sys_dpi.x*zoom/72.0F);
         h = (int)(m_doc.getPageMediaHeight(m_current_page+1)*m_sys_dpi.y*zoom/72.0F);
         try {
+            m_updatecache.close();
             m_cache_bitmap_next = Bitmap.createBitmap(w, h, m_bitmap_config);
         } catch (Throwable a) {
             m_cache_bitmap_next=null;
+            m_updatecache.open();
+            if( m_cache_bitmap_prev != null) {
+                m_cache_bitmap_prev.recycle();
+                m_cache_bitmap_prev=null;
+                updateCache();
+            } 
             return false;
         }
         m_cache_canvas_next.setBitmap(m_cache_bitmap_next);
         m_cache_canvas_next.setDrawFilter(new PaintFlagsDrawFilter(0,Paint.FAKE_BOLD_TEXT_FLAG));
         m_doc.drawPage(m_cache_canvas_next, m_current_page+1);
+        m_updatecache.open();
         return true;
     }	
 	private boolean ensureCache() {
@@ -514,8 +526,14 @@ public class PDFView extends View {
 						m_offset.x, m_offset.y, getWidth(), getHeight());
 			}
 		}
-		if( m_cache_bitmap_next == null)
-		    updateCache();
+        if( m_cache_bitmap_next == null) {
+            Runnable run = new Runnable() {
+                public void run() {
+		            updateCache();
+                }
+            };
+            (new Thread(run)).start();
+        }
 	}
 
 	public int getPagesCount() {
