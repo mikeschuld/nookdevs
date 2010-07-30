@@ -65,7 +65,7 @@
   </entry>
   <entry>
     <title>Trook</title>
-    <version>craftycoder 1.1</version>
+    <version>craftycoder 1.2</version>
     <pkg>com.kbs.trook</pkg>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/trook.apk" />
@@ -73,6 +73,7 @@
     <content type="text">Trook, a Stanza/OPDS catalog reader, feed reader and local book browser app.
     Version 1.0 - Calibre, Authenticated Feeds
     Version 1.1 - Wifi Lock released return to Launcher
+    Version 1.2 - Pause at startup fixed
     </content>
   </entry>
   <entry>
