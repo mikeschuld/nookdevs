@@ -839,7 +839,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 break;
             case SORT_BY:
                 int currvalue = ScannedFile.getSortType();
-                subicons[currvalue] = R.drawable.check;
+                subicons[currvalue] = R.drawable.check_image;
                 m_SortAdapter.setIcons(subicons);
                 submenu.setAdapter(m_SortAdapter);
                 animator.setInAnimation(this, R.anim.fromright);
