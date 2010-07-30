@@ -111,8 +111,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     public static final String PREF_FILE = "NookLibrary";
     private int[] icons =
         {
-            -1, R.drawable.submenu, R.drawable.search, R.drawable.covers, R.drawable.submenu, R.drawable.submenu,
-            R.drawable.submenu, -1, -1, -1, -1, -1, -1, -1, -1
+            -1, R.drawable.submenu_image, R.drawable.search_image, R.drawable.covers_image,
+            R.drawable.submenu_image, R.drawable.submenu_image, R.drawable.submenu_image, -1, -1,
+            -1, -1, -1, -1, -1, -1
         };
     
     private int[] subicons = {
