@@ -72,8 +72,9 @@ public class PDFViewerActivity extends nookBaseActivity {
 	ViewAnimator m_animator;
 	private SeekBar m_seek_view;
 	TextView m_text ;
-	TextView m_name;
-	boolean m_landscape=false;
+//	TextView m_name;
+	boolean m_landscapeleft=false;
+	boolean m_landscaperight=false;
 	private static final int SCROLL_PX_Y = 850;
 	private static final int SCROLL_PX_X = 650;
 	Handler m_Handler = new Handler();
@@ -103,17 +104,20 @@ public class PDFViewerActivity extends nookBaseActivity {
 		    pageInfo = (CurrentPageInfo) inp.readObject();
 		    inp.close();
 		    m_pdf_view.gotoPage(pageInfo.pageno);
-		    if( pageInfo.landscape) { 
-		        m_landscape=true;
+		    if( pageInfo.landscapeleft) { 
+		        m_landscapeleft=true;
 		        m_pdf_view.setRotate(90);
-		    }
+		    } else if( pageInfo.landscaperight) { 
+                m_landscaperight=true;
+                m_pdf_view.setRotate(270);
+            }
 		    m_pdf_view.scrollTo(pageInfo.scrollX, pageInfo.scrollY);
 		} catch(Exception ex) {
 		    Log.e(LOGTAG, ex.getMessage(),ex);
 		    pageInfo = new CurrentPageInfo();
 		    pageInfo.file = file;
 		}
-		m_name = (TextView)findViewById(R.id.name);
+		//m_name = (TextView)findViewById(R.id.name);
 		m_animator = (ViewAnimator)findViewById(R.id.viewanim);
 		m_seek_view = (SeekBar)findViewById(R.id.page_picker_seeker);
 		m_seek_view.setMax(m_pdf_view.getPagesCount());
@@ -193,14 +197,18 @@ public class PDFViewerActivity extends nookBaseActivity {
 	private void pageUp() {
         int cury = m_pdf_view.getScrollY();
         int curx = m_pdf_view.getScrollX();
-        if (cury == 0) { 
+        if (cury <= 0) { 
             m_pdf_view.prevPage();
-            m_pdf_view.scrollTo(curx, m_pdf_view.getMediaHeight() - SCROLL_PX_Y);
+            if( m_pdf_view.getMediaHeight() > SCROLL_PX_Y)
+                m_pdf_view.scrollTo(curx, m_pdf_view.getMediaHeight() - SCROLL_PX_Y);
+            else
+                m_pdf_view.scrollTo(curx, 0);
             return;
         }
-        int newy = cury - SCROLL_PX_Y;
-        if (newy < 0)
+        int newy = cury - SCROLL_PX_Y+60;
+        if (newy < 0) {
             newy=0;
+        }
         m_pdf_view.scrollTo(0, newy);
    }
     private void pageDown() {
@@ -212,10 +220,10 @@ public class PDFViewerActivity extends nookBaseActivity {
             m_pdf_view.scrollTo(curx,0);
             return;
         }
-        int newy = cury + SCROLL_PX_Y;
-        if (newy > hmax) {
-            newy = hmax;
-        }
+        int newy = cury + SCROLL_PX_Y-60;
+//        if (newy > hmax) {
+//            newy = hmax;
+//        }
         if (cury != newy) {
             m_pdf_view.scrollTo(0, newy);
         } else {
@@ -224,15 +232,51 @@ public class PDFViewerActivity extends nookBaseActivity {
         }
 
     }
+    private void pageUpR() {
+        int curx = m_pdf_view.getScrollX();
+        int cury = m_pdf_view.getScrollY();
+        if (curx == 0) { 
+           m_pdf_view.prevPage();
+           if( m_pdf_view.getMediaHeight() > SCROLL_PX_X)
+               m_pdf_view.scrollTo((m_pdf_view.getMediaHeight()-SCROLL_PX_X), cury);
+           else
+               m_pdf_view.scrollTo(0,cury);
+           return;
+        }
+        int newx = curx + SCROLL_PX_X-60;
+        if( newx >0) newx=0;
+        m_pdf_view.scrollTo(newx,0);
+   }
+    private void pageDownR() {
+        int curx = m_pdf_view.getScrollX();
+        int cury = m_pdf_view.getScrollY();
+        int hmax = (int)m_pdf_view.getMediaHeight() - SCROLL_PX_X;
+        
+        if( curx >= hmax) { 
+            m_pdf_view.nextPage();
+            m_pdf_view.scrollTo(0,cury);
+            return;
+        }
+        int newx = curx + SCROLL_PX_X-60;
+        if (curx != newx) {
+            m_pdf_view.scrollTo(newx,0);
+        } else {
+            m_pdf_view.nextPage();
+            m_pdf_view.scrollTo(0,cury);
+        }
+    }
 	private void pageUpL() {
 	    int curx = m_pdf_view.getScrollX();
 	    int cury = m_pdf_view.getScrollY();
 	    if (curx == 0) { 
            m_pdf_view.prevPage();
-           m_pdf_view.scrollTo(-(m_pdf_view.getMediaHeight()-SCROLL_PX_X), cury);
+           if( m_pdf_view.getMediaHeight() > SCROLL_PX_X)
+               m_pdf_view.scrollTo(-(m_pdf_view.getMediaHeight()-SCROLL_PX_X), cury);
+           else
+               m_pdf_view.scrollTo(0,cury);
            return;
         }
-        int newx = curx + SCROLL_PX_X;
+        int newx = curx + SCROLL_PX_X-60;
         if( newx >0) newx=0;
         m_pdf_view.scrollTo(newx,0);
    }
@@ -246,10 +290,7 @@ public class PDFViewerActivity extends nookBaseActivity {
             m_pdf_view.scrollTo(0,cury);
             return;
         }
-        int newx = curx - SCROLL_PX_X;
-        if (newx < -hmax) {
-            newx = -hmax;
-        }
+        int newx = curx - SCROLL_PX_X+60;
         if (curx != newx) {
             m_pdf_view.scrollTo(newx,0);
         } else {
@@ -268,7 +309,10 @@ public class PDFViewerActivity extends nookBaseActivity {
         btn = (ImageButton)findViewById(R.id.prev_page);
 		btn.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
-			    if( m_landscape) pageDownL();
+			    if( m_landscapeleft) 
+			        pageDownL();
+			    else if( m_landscaperight)
+			        pageUpR();
 			    else 
 			        pageUp();
 			    saveData();
@@ -286,8 +330,10 @@ public class PDFViewerActivity extends nookBaseActivity {
 		btn = (ImageButton)findViewById(R.id.next_page);
 		btn.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
-			    if( m_landscape) 
+			    if( m_landscapeleft) 
 			        pageUpL();
+			    else if( m_landscaperight)
+			        pageDownR();
 			    else
 			        pageDown();
 	            saveData();
@@ -305,15 +351,31 @@ public class PDFViewerActivity extends nookBaseActivity {
 		btn = (ImageButton)findViewById(R.id.switch_page);
 		btn.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
-			    if( m_landscape) {
+			    if( m_landscaperight || m_landscapeleft) {
 			        m_pdf_view.setRotate(0);
-			    } else {
+		            m_landscaperight=false;
+                    m_landscapeleft=false;
+        	    } else {
 			        m_pdf_view.setRotate(90);
-			    }
-			    m_landscape=!m_landscape;
+			        m_landscapeleft=true;
+        	    }
 			    saveData();
 			}
 		});
+		btn.setOnLongClickListener(new View.OnLongClickListener(){
+            public boolean onLongClick(View v) {
+                if( m_landscaperight || m_landscapeleft) {
+                    m_pdf_view.setRotate(0);
+                    m_landscaperight=false;
+                    m_landscapeleft=false;
+                } else {
+                    m_pdf_view.setRotate(270);
+                    m_landscaperight=true;
+                }
+                saveData();
+                return true;
+            }
+        });
 	}
 	
 	private void initZoomSpinner() {
@@ -406,7 +468,8 @@ public class PDFViewerActivity extends nookBaseActivity {
 	            pageInfo.pageno = m_pdf_view.getCurrentPage();
                 pageInfo.scrollX = m_pdf_view.getScrollX();
                 pageInfo.scrollY = m_pdf_view.getScrollY();
-                pageInfo.landscape = m_landscape;
+                pageInfo.landscapeleft = m_landscapeleft;
+                pageInfo.landscaperight=m_landscaperight;
                 ObjectOutputStream out = new ObjectOutputStream(
                 PDFViewerActivity.this.openFileOutput(pageInfo.file, PDFViewerActivity.MODE_PRIVATE));
                 out.writeObject(pageInfo);
@@ -425,8 +488,10 @@ public class PDFViewerActivity extends nookBaseActivity {
         switch (keyCode) {
             case NOOK_PAGE_UP_KEY_LEFT:
             case NOOK_PAGE_UP_KEY_RIGHT:
-                if( m_landscape) 
+                if( m_landscapeleft) 
                     pageUpL();
+                else if(m_landscaperight)
+                    pageUpR();
                 else 
                     pageUp();
                 handled = true;
@@ -434,22 +499,28 @@ public class PDFViewerActivity extends nookBaseActivity {
             
             case NOOK_PAGE_DOWN_KEY_LEFT:
             case NOOK_PAGE_DOWN_KEY_RIGHT:
-                if( m_landscape)
+                if( m_landscapeleft)
                     pageDownL();
+                else if(m_landscaperight)
+                    pageDownR();
                 else
                     pageDown();
                 handled = true;
                 break;
             case NOOK_PAGE_UP_SWIPE:
-                 if( m_landscape)
+                 if( m_landscapeleft)
                      pageDownL();
+                 else if( m_landscaperight)
+                     pageUpR();
                  else
                      pageUp();
                  handled = true;
                  break;
             case NOOK_PAGE_DOWN_SWIPE:
-                if( m_landscape)
+                if( m_landscapeleft)
                     pageUpL();
+                else if( m_landscaperight) 
+                    pageDownR();
                 else
                     pageDown();
                 handled = true;
@@ -488,7 +559,8 @@ public class PDFViewerActivity extends nookBaseActivity {
 	        dbCursor.moveToFirst();
 	        PDFViewerActivity.this.m_Handler.post ( new Runnable() {
 	            public void run() {
-	                m_name.setText(dbCursor.getString(0));
+	             //   m_name.setText(dbCursor.getString(0));
+	                updateTitle(dbCursor.getString(0));
 	                dbCursor.close();
 	            }
 	        });
@@ -498,7 +570,8 @@ public class PDFViewerActivity extends nookBaseActivity {
 }
 class CurrentPageInfo implements Serializable {
     int pageno=1;
-    boolean landscape=false;
+    boolean landscaperight=false;
+    boolean landscapeleft=false;
     int scrollX=0;
     int scrollY=0;
     String file;

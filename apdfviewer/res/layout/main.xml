@@ -24,7 +24,7 @@
 		android:scrollbars="none"
 		android:paddingTop="10px" android:gravity="center"
 		android:layout_width="600.0px" 
-		android:layout_height="790.0px">
+		android:layout_height="760.0px">
   	</com.googlecode.apdfviewer.PDFView>
  	<ViewAnimator android:layout_width="480.0px" android:paddingTop="20.0px"
 	android:layout_height="124.0px" android:layout_below="@id/view"
@@ -66,7 +66,7 @@
 	<RelativeLayout android:id="@+id/top_bar" android:layout_width="fill_parent" 
 		android:layout_height="20.0px" android:layout_below="@id/viewanim" android:background="@android:color/transparent"
 		>
-		<TextView android:layout_width="380.0px" android:paddingLeft="20.0px"
+		<TextView android:layout_width="400.0px" android:paddingLeft="20.0px"
 		android:layout_height="20.0px" android:id="@+id/name" 
 		android:background="@android:color/transparent" android:textColor="#FFFFFF" android:textSize="14sp" ></TextView>
 		

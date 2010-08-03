@@ -303,6 +303,7 @@ public class PDFView extends View {
 		
 		// open document
 		m_doc = new PDFDocument(m_descriptor.getFileDescriptor(), "", "");
+		m_doc.setmUseMediaBox(true);
 		if (!m_doc.isOk()) {
 			// TODO: report error.
 			return;
@@ -382,7 +383,7 @@ public class PDFView extends View {
 		if (m_zoom_factor <= +0.0F) {
 			if (m_doc == null)
 				return 1.0F;
-			if( m_Rotate == 90)
+			if( m_Rotate == 90 || m_Rotate==270)
 			    return (float) (getHeight()*72.0F/m_doc.getPageMediaWidth(m_current_page)/m_sys_dpi.y);
 			return (float) (getWidth()*72.0F/m_doc.getPageMediaWidth(m_current_page)/m_sys_dpi.x);
 		}
@@ -496,11 +497,12 @@ public class PDFView extends View {
 			return;
 	    if( m_Rotate >0) {
 	        canvas.rotate(m_Rotate, (getHeight())/2, getWidth()/2);
-	        canvas.translate(100, 100);
+	        if( m_Rotate == 90) canvas.translate(60, 60);
+	        else canvas.translate(-100,-100);
 	    }
 	    // set document DPI.
 		float zoom = getRealZoomFactor();
-		if( m_Rotate == 90) {
+		if( m_Rotate == 90 || m_Rotate==270) {
             m_doc.setXdpi(m_sys_dpi.y*zoom);
             m_doc.setYdpi(m_sys_dpi.x*zoom);
 		} else {
@@ -514,7 +516,8 @@ public class PDFView extends View {
 		if (isCached()) {
 		    Paint p = new Paint();
 		    ColorFilter filter = new PorterDuffColorFilter(Color.WHITE,PorterDuff.Mode.MULTIPLY);
-				    p.setColorFilter(filter);
+		    p.setColorFilter(filter);
+		    canvas.drawColor(Color.WHITE);
 			canvas.drawBitmap(m_cache_bitmap, -m_offset.x, -m_offset.y, p);
 		} else {
 			if (ensureCache()) {
@@ -548,6 +551,7 @@ public class PDFView extends View {
 	}
 	public void setRotate(int degree) {
 	   m_Rotate = degree;
+	   scrollTo(0,0);
 	   m_offset.set(0,0);
 	   if( m_cache_bitmap_prev != null) m_cache_bitmap_prev.recycle();
 	   if( m_cache_bitmap_next != null) m_cache_bitmap_next.recycle();
