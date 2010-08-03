@@ -17,7 +17,7 @@
  */
  -->
 <resources>
-    <string name="app_name">PDFViewer</string>
+    <string name="app_name">APDFViewer</string>
 	<string name="page_picker_title"> Goto page </string>
 	<string name="auto"> Auto </string>
 	<string name="about"> Create By Li Wenhao 2009 - Modified by Hari for nook.</string>

@@ -21,8 +21,8 @@
       android:versionName="0.0.2" android:icon="@drawable/pdf">
 
 	<application android:label="@string/app_name" >
-		<activity android:name="PDFViewerActivity" android:label="PDFViewer"
-			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:icon="@drawable/pdf">
+		<activity android:name="PDFViewerActivity" android:label="@string/app_name"
+			android:theme="@android:style/Theme.NoTitleBar" android:icon="@drawable/pdf">
 			<intent-filter>
 				<category android:name="android.intent.category.DEFAULT" />
 				<action android:name="com.bravo.intent.action.VIEW"/>				
@@ -34,5 +34,6 @@
 	</application>
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>
 
