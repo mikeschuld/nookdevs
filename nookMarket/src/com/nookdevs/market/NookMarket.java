@@ -1,3 +1,17 @@
+/* 
+ * Copyright 2010 nookDevs - Hari Swaminathan
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. 
+ */
 package com.nookdevs.market;
 
 import java.io.BufferedInputStream;
@@ -44,6 +58,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -284,30 +299,8 @@ public class NookMarket extends nookBaseActivity {
         for(PackageInfo app:apps) {
             installedApps.put( app.packageName, app);
         }
-        Runnable thrd = new Runnable() {
-            public void run() {
-                if( waitForNetwork(lock)) {
-                    ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-                    NetworkInfo info = cmgr.getNetworkInfo(cmgr.TYPE_WIFI);
-                    if( info != null && info.isConnected()) {
-                        loadApps(FEED_URL);
-                        return;
-                    }
-                } 
-                //alert and exit.
-                m_Handler.post( new Runnable() {
-                    public void run() {
-                        displayAlert(getString(R.string.network), getString(R.string.network_error), 2, 
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                   finish();
-                                }
-                            },-1);
-                    }
-                });
-            }
-        };
-        (new Thread(thrd)).start();
+        WifiTask task = new WifiTask();
+        task.execute();
   
     }
     @Override
@@ -496,5 +489,49 @@ public class NookMarket extends nookBaseActivity {
             sb.append("\n");
             return sb.toString();
         }
+    }
+    class WifiTask extends AsyncTask<Void, Integer, Boolean> {
+        @Override
+        protected void onPreExecute() {
+            displayAlert(getString(R.string.start_wifi), getString(R.string.please_wait), 1, null, -1);
+        }
+        
+        @Override
+        protected Boolean doInBackground(Void... arg0) {
+            ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            // NetworkInfo info =
+            // cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo info = cmgr.getActiveNetworkInfo();
+            boolean connection = (info == null) ? false : info.isConnected();
+            int attempts = 1;
+            while (!connection && attempts < 15) {
+                try {
+                    Thread.sleep(3000);
+                } catch (Exception ex) {
+                    
+                }
+                // info = cmgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                info = cmgr.getActiveNetworkInfo();
+                connection = (info == null) ? false : info.isConnected();
+                attempts++;
+            }
+            return connection;
+        }
+        
+        @Override
+        protected void onPostExecute(Boolean result) {
+            closeAlert();
+            if( result) {
+                loadApps(FEED_URL);
+            } else {
+                displayAlert(getString(R.string.network), getString(R.string.network_error), 2, 
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                           finish();
+                        }
+                    },-1);
+            }
+        }
+
     }
 }
