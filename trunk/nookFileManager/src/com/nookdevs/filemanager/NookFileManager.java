@@ -417,6 +417,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         }
         icon.setTag(m_StatusUpdater);
         icon.setOnClickListener(m_FileSelectListener);
+        text.setTag(icon);
+        text.setOnClickListener(m_FileSelectListener);
         m_Content.addView(filedetails);
     }
     
@@ -468,6 +470,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     icon.setTag(pc);
                     icon.setOnClickListener(m_FileSelectListener);
                     icon.setOnLongClickListener(m_FileSelectListener);
+                    text.setTag(icon);
+                    text.setOnClickListener(m_FileSelectListener);
+                    icon.setOnLongClickListener(m_FileSelectListener);
                     m_Content.addView(filedetails);
                 }
                 return;
@@ -501,6 +506,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 icon.setImageResource(R.drawable.prev);
                 icon.setTag(new Integer(index - MAX_FILES_PER_VIEW));
                 icon.setOnClickListener(m_FileSelectListener);
+                text.setTag(icon);
+                text.setOnClickListener(m_FileSelectListener);
+                
                 m_Content.addView(filedetails);
             }
             for (i = index; i < m_CurrentSmbFiles.length && i < index + MAX_FILES_PER_VIEW; i++) {
@@ -522,6 +530,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 }
                 icon.setTag(f);
                 icon.setOnClickListener(m_FileSelectListener);
+                text.setTag(icon);
+                text.setOnClickListener(m_FileSelectListener);
+                
                 if (f.isDirectory()) {
                     icon.setOnLongClickListener(m_FileSelectListener);
                     
@@ -538,6 +549,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             icon.setTag(new Integer(index + MAX_FILES_PER_VIEW));
             icon.setOnClickListener(m_FileSelectListener);
             m_Content.addView(filedetails);
+            text.setTag(icon);
+            text.setOnClickListener(m_FileSelectListener);
         } catch (Exception ex) {
             
         }
@@ -557,6 +570,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 icon.setImageResource(R.drawable.prev);
                 icon.setTag(new Integer(index - MAX_FILES_PER_VIEW));
                 icon.setOnClickListener(m_FileSelectListener);
+                text.setTag(icon);
+                text.setOnClickListener(m_FileSelectListener);
                 m_Content.addView(filedetails);
             }
             for (i = index; i < m_CurrentFiles.length && i < index + MAX_FILES_PER_VIEW; i++) {
@@ -582,6 +597,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 }
                 icon.setTag(f);
                 icon.setOnClickListener(m_FileSelectListener);
+                text.setTag(icon);
+                text.setOnClickListener(m_FileSelectListener);
+                
                 if (f.isDirectory()) {
                     icon.setOnLongClickListener(m_FileSelectListener);
                     
@@ -597,6 +615,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             icon.setImageResource(R.drawable.next);
             icon.setTag(new Integer(index + MAX_FILES_PER_VIEW));
             icon.setOnClickListener(m_FileSelectListener);
+            text.setTag(icon);
+            text.setOnClickListener(m_FileSelectListener);
             m_Content.addView(filedetails);
         } catch (Exception ex) {
             
@@ -621,6 +641,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 icon.setImageResource(getResource(type));
                 icon.setTag(f1);
                 icon.setOnClickListener(m_FileSelectListener);
+                text.setTag(icon);
+                text.setOnClickListener(m_FileSelectListener);
                 if (f1.isDirectory()) {
                     icon.setOnLongClickListener(m_FileSelectListener);
                     
@@ -738,6 +760,9 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             }
             return;
         }
+        // hack to get the image 
+        if( v instanceof TextView && v.getTag() instanceof ImageButton) 
+            v = (View)v.getTag();
         m_ImageView.setImageBitmap(null);
         m_PasteButton.setVisibility(View.INVISIBLE);
         if (v.getTag() instanceof Integer) {

@@ -61,15 +61,16 @@
 	 android:id="@+id/pastemenu"></ListView>
 	<ViewAnimator android:id="@+id/fileanim" android:layout_width="fill_parent"
 			android:layout_height="fill_parent">
-	<HorizontalScrollView android:layout_width="fill_parent"
+	<ScrollView android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 	>
 	<LinearLayout 
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:id="@+id/files"
+		android:orientation="vertical"
 		/>
-	</HorizontalScrollView>
+	</ScrollView>
 	<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
 		<ImageButton
 		android:id="@+id/fileicon" android:layout_width="96.0px"
