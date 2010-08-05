@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">nookTaskManager</string>
+	<string name="kill">Kill Process</string>
+	<string name="confirm">Are you sure?</string>
+</resources>

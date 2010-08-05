@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_width="fill_parent"
+   android:layout_height="fill_parent"
+   android:orientation="vertical"
+   >
+  <!-- this Frame is used merely to block out the eink-display -->
+	<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="760px"
+    android:stretchColumns="1"
+		android:id="@+id/miscinfotable"
+	>
+		<TableRow>
+			<TextView 
+				android:text="Available Memory:"
+				android:textSize="30sp"
+				android:gravity="left"
+				android:padding="3dip"
+			/>
+			<TextView
+				android:text=""
+				android:textSize="30sp"
+				android:gravity="right"
+				android:padding="3dip"
+				android:id="@+id/availmem"
+			/>
+		</TableRow>
+		<TableRow>
+			<TextView 
+				android:text="Low Memory:"
+				android:textSize="30sp"
+				android:gravity="left"
+				android:padding="3dip"
+			/>
+			<TextView
+				android:text=""
+				android:textSize="30sp"
+				android:gravity="right"
+				android:padding="3dip"
+				android:id="@+id/lowmem"
+			/>
+		</TableRow>
+		<TableRow>
+			<TextView 
+				android:text="Threshold:"
+				android:textSize="30sp"
+				android:gravity="left"
+				android:padding="3dip"
+			/>
+			<TextView
+				android:text=""
+				android:textSize="30sp"
+				android:gravity="right"
+				android:padding="3dip"
+				android:id="@+id/threshold"
+			/>
+		</TableRow>
+	</TableLayout>
+  <!-- From here onwards is the real layout -->
+  <!-- It's probably simplest to use a Frame that explicitly
+       sets the width and height, but a HorizontalScrollView
+       is itself a Frame, so it's good enough to do it directly
+       in it. -->
+  <HorizontalScrollView
+     android:layout_width="480px"
+     android:layout_height="144px"
+     android:orientation="horizontal"
+     android:background="#6B6D7B"
+     android:scrollbars="none"
+     android:scrollbarStyle="outsideOverlay"
+     android:fadingEdge="none"
+     >
+
+    <LinearLayout
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent"
+       android:id="@+id/processcontainer"
+       />
+  </HorizontalScrollView>
+</LinearLayout>
