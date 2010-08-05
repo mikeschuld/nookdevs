@@ -45,6 +45,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -76,7 +78,7 @@ import android.widget.Toast;
 import com.nookdevs.common.nookBaseActivity;
 
 public class NookMarket extends nookBaseActivity {
-    private String FEED_URL="http://nookdevs.googlecode.com/svn/trunk/updatesfeed.xml";
+    protected static String FEED_URL="http://nookdevs.googlecode.com/svn/trunk/updatesfeed.xml";
     ConnectivityManager.WakeLock lock;
     LinkedList<AppInfo> availableApps = new LinkedList<AppInfo>();
     HashMap<String,PackageInfo> installedApps = new HashMap<String,PackageInfo>();
@@ -237,6 +239,7 @@ public class NookMarket extends nookBaseActivity {
             }
             bis.close();
             fout.close();
+            httpClient.getConnectionManager().closeExpiredConnections();
             return name;
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -459,35 +462,6 @@ public class NookMarket extends nookBaseActivity {
                             },-1);
                     }
                 });
-        }
-    }
-    class AppInfo {
-        String url;
-        String version;
-        String text;
-        String title;
-        String pkg;
-        boolean installed=false;
-        boolean updateAvailable=false;
-        @Override
-        public String toString() {
-            StringBuffer sb = new StringBuffer();
-            sb.append("Title =");
-            sb.append(title);
-            sb.append(" URL =");
-            sb.append(url);
-            sb.append(" version=");
-            sb.append(version);
-            sb.append(" package=");
-            sb.append(pkg);
-            sb.append(" installed=");
-            sb.append(installed);
-            sb.append(" updateAvailable=");
-            sb.append(updateAvailable);
-            sb.append(" desc=");
-            sb.append(text);
-            sb.append("\n");
-            return sb.toString();
         }
     }
     class WifiTask extends AsyncTask<Void, Integer, Boolean> {
