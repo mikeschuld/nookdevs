@@ -78,6 +78,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     protected HashMap<String, ScannedFile> m_BookIdMap = new HashMap<String, ScannedFile>();
     private static String m_BaseDir;
     protected static boolean m_Auth = false;
+    
     static {
         try {
             File file = new File(nookBaseActivity.EXTERNAL_SDFOLDER + "/" + "fictionwise/");
@@ -563,7 +564,11 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             } else {
                 throw new Exception("Unknown book type");
             }
-            String name = m_BaseDir + file.getTitles().get(0) + type;
+            String name = file.getTitles().get(0);
+            for(int i=0; i<ScannedFile.ReservedChars.length(); i++) {
+                name = name.replace(ScannedFile.ReservedChars.charAt(i),'_');
+            }
+            name = m_BaseDir + name + type;
             BufferedInputStream bis = new BufferedInputStream(in, 8096);
             FileOutputStream fout = new FileOutputStream(new File(name));
             byte[] buffer = new byte[8096];
