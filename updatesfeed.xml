@@ -35,7 +35,7 @@
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookLibrary.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookLibrary.apk</id>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <pkg>com.nookdevs.library</pkg>
     <content type="text">Browse, sort and search books on the Nook. 
     </content>
@@ -58,7 +58,7 @@
 	<title>nookFileManager</title>
 	 <link type="application/vnd.android.package-archive"
        href="http://nookdevs.googlecode.com/files/nookFileManager.apk" />
-       <version>0.0.3</version>
+       <version>0.0.4</version>
        <pkg>com.nookdevs.filemanager</pkg>
     	 <id>http://nookdevs.googlecode.com/files/nookFileManager.apk</id>
        <content type="text">File manager app - access sdcard folders and network shares.</content>
@@ -107,7 +107,7 @@
     <title>nookMarket</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookMarket.apk"/>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <pkg>com.nookdevs.market</pkg>
     <id>http://nookdevs.googlecode.com/files/nookMarket.apk</id>
     <content type="text">Lists available apps for Nook.Provides version details for the apps,allow you to install,uninstall and upgrade.</content>
