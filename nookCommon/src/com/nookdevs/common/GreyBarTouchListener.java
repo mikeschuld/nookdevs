@@ -39,7 +39,6 @@ public class GreyBarTouchListener implements OnTouchListener {
 		buttonLayout = layout;
 	}
 	
-	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		try {
 	    	float x = event.getRawX();
