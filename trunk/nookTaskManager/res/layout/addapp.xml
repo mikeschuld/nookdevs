@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="400.0px" android:layout_height="144.0px"
+	android:background="#FFFFFF">
+	<ImageButton
+		android:id="@+id/process" android:layout_width="96.0px"
+		android:layout_height="fill_parent" android:layout_marginLeft="20.0px"
+		android:gravity="center_horizontal|center_vertical" 
+		android:scaleType="centerInside"
+	/>
+
+	<TextView android:id="@+id/title" android:layout_width="296.0px"
+		android:layout_height="25.0px" android:layout_marginTop="10.0px" android:layout_marginLeft="10.0px"
+		android:textColor="#000000" android:background="#FFFFFF" android:textStyle="bold"
+		android:textSize="16.0px" android:layout_toRightOf="@id/process" />
+	<ScrollView android:layout_below="@id/title" android:layout_toRightOf="@id/process"
+      			android:layout_width="296.0px" android:layout_height="109.0px" android:layout_marginTop="10.0px" android:layout_marginLeft="10.0px"
+      			>
+	<TextView android:id="@+id/desc" android:layout_width="fill_parent" android:layout_height="fill_parent" 
+		android:textColor="#000000" android:background="#FFFFFF"
+		android:textSize="16.0px"/>
+	</ScrollView>
+</RelativeLayout>
