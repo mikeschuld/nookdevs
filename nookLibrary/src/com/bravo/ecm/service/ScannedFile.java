@@ -66,6 +66,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private static ArrayList<String> m_KeyWordsList = new ArrayList<String>(200);
     private static ArrayList<String> m_KeyWordsDupList = new ArrayList<String>(200);
     private static ArrayList<String> m_AuthorsList = new ArrayList<String>(100);
+    public static final String ReservedChars = "|\\?*<\":>+[]/'"; 
+
     
     public static List<String> getAuthors() {
         return m_AuthorsList;
@@ -214,7 +216,11 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                     String name;
                     if (m_BookId != null) {
                         if (matchSubject("Fictionwise")) {
-                            name = FictionwiseBooks.getBaseDir() + titles.get(0) + ".jpg";
+                            name = titles.get(0);
+                            for(int i=0; i<ReservedChars.length(); i++) {
+                                name = name.replace(ReservedChars.charAt(i),'_');
+                            }
+                            name = FictionwiseBooks.getBaseDir() + name + ".jpg";
                         } else {
                             int idx = m_DownloadUrl.lastIndexOf('/');
                             int idx1 = m_DownloadUrl.lastIndexOf('.');
