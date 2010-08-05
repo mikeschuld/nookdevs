@@ -79,7 +79,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     public static final int BROWSE = 1;
     public static final int OPEN = 2;
     public static final int SAVE = 3;
-    public static final int MAX_FILES_PER_VIEW = 15;
+    public static final int MAX_FILES_PER_VIEW = 50;
     
     private int m_Type = BROWSE;
     private FileSelectListener m_FileSelectListener = new FileSelectListener();
