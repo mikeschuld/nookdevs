@@ -1,5 +1,19 @@
 nookMarket
 
+***IMPORANT INFO***
+you need the latest softroot to enable upgrades. 
+For the old softroot, do the following-
+
+Create a file - market.xml and put the following in there-
+<?xml version="1.0" encoding="utf-8"?>
+<allowUpgrades>n</allowUpgrades>
+
+This will force the market app to uninstall apps before installing. But all your app data will be retained.
+
+This file has to go in the root ( either internal or external sd card).
+***
+
+
 The idea here is to mimic the android app store & list all the apps available for nook, allow install/upgrades, uninstall, checking for new versions of installed apps etc.
 
 Steps to Add a new app to the store:
