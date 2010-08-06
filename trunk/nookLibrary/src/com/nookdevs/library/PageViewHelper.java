@@ -198,6 +198,7 @@ public class PageViewHelper {
     private void loadNextPage() {
         if (m_Files == null || m_Files.size() == 0) {
             clearData();
+            updateFooter();
             return;
         }
         if (m_CurrentPage >= m_NumPages) { return; }
