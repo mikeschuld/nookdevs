@@ -14,15 +14,16 @@
  */
 package com.nookdevs.library;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.bravo.ecm.service.ScannedFile;
 
-import java.util.List;
+import com.bravo.ecm.service.ScannedFile;
 
 public class PageViewHelper {
     LinearLayout m_PageViewMain;
@@ -41,14 +42,14 @@ public class PageViewHelper {
     TextView m_Header2;
     LinearLayout m_Footer;
     List<ScannedFile> m_Files;
-
+    
     public PageViewHelper(Activity activity, LinearLayout mainLayout, List<ScannedFile> files) {
         m_PageViewMain = mainLayout;
         m_Activity = activity;
         m_Files = files;
         createPage();
     }
-
+    
     public void setFiles(List<ScannedFile> files) {
         m_Files = files;
         if (m_CurrentItem > 0) {
@@ -58,11 +59,11 @@ public class PageViewHelper {
         }
         initPage();
     }
-
+    
     public List<ScannedFile> getFiles() {
         return m_Files;
     }
-
+    
     public void gotoPage(int page) {
         if (m_CurrentPage == page) { return; }
         m_CurrentPage = page;
@@ -70,11 +71,11 @@ public class PageViewHelper {
         int i = 0;
         for (; i < ITEMS_PER_PAGE && (currentOffset + i) < m_NumItems; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
-                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
-                    m_Authors[i].setText(file.getTitle());
-                    m_BookNames[i].setText(file.getAuthor());
-
+            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
+                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+                m_Authors[i].setText(file.getTitle());
+                m_BookNames[i].setText(file.getAuthor());
+                
             } else {
                 m_BookNames[i].setText(file.getTitle());
                 m_Authors[i].setText(file.getAuthor());
@@ -87,7 +88,7 @@ public class PageViewHelper {
         updateHeader();
         updateFooter();
     }
-
+    
     public void gotoItem(int item) {
         if (item <= 0 || item > m_NumItems) { return; }
         int page = (item - 1) / ITEMS_PER_PAGE + 1;
@@ -104,7 +105,7 @@ public class PageViewHelper {
         m_Dividers[m_CurrentItem - 1].setVisibility(View.VISIBLE);
         m_Dividers[m_CurrentItem].setVisibility(View.VISIBLE);
     }
-
+    
     private void createPage() {
         final LayoutInflater inflater = m_Activity.getLayoutInflater();
         m_PageViewMain.removeAllViews();
@@ -136,7 +137,7 @@ public class PageViewHelper {
         setTitle(R.string.my_documents);
         initPage();
     }
-
+    
     private void initPage() {
         m_CurrentPage = 0;
         m_CurrentItem = 1;
@@ -149,7 +150,7 @@ public class PageViewHelper {
             m_Pointers[0].setVisibility(View.VISIBLE);
         }
     }
-
+    
     private void loadPrevPage() {
         if (m_Files == null || m_Files.size() == 0) { return; }
         if (m_CurrentPage == 1) { return; }
@@ -157,11 +158,11 @@ public class PageViewHelper {
         int currentOffset = (m_CurrentPage - 1) * ITEMS_PER_PAGE;
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
-                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
-                    m_Authors[i].setText(file.getTitle());
-                    m_BookNames[i].setText(file.getAuthor());
-
+            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
+                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+                m_Authors[i].setText(file.getTitle());
+                m_BookNames[i].setText(file.getAuthor());
+                
             } else {
                 m_BookNames[i].setText(file.getTitle());
                 m_Authors[i].setText(file.getAuthor());
@@ -170,19 +171,19 @@ public class PageViewHelper {
         updateHeader();
         updateFooter();
     }
-
+    
     public void update() {
         if (m_CurrentItem > 0) {
             ScannedFile file = getCurrent();
-            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
-                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
+                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
                 m_Authors[m_CurrentItem - 1].setText(file.getTitle());
             } else {
                 m_BookNames[m_CurrentItem - 1].setText(file.getTitle());
             }
         }
     }
-
+    
     private void clearData() {
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
             m_Dividers[i].setVisibility(View.INVISIBLE);
@@ -194,7 +195,7 @@ public class PageViewHelper {
         m_Header1.setText(R.string.no_result);
         m_Header2.setText("");
     }
-
+    
     private void loadNextPage() {
         if (m_Files == null || m_Files.size() == 0) {
             clearData();
@@ -207,11 +208,11 @@ public class PageViewHelper {
         int i = 0;
         for (; i < ITEMS_PER_PAGE && (currentOffset + i) < m_NumItems; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR ||
-                ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
-                    m_Authors[i].setText(file.getTitle());
-                    m_BookNames[i].setText(file.getAuthor());
-
+            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
+                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+                m_Authors[i].setText(file.getTitle());
+                m_BookNames[i].setText(file.getAuthor());
+                
             } else {
                 m_BookNames[i].setText(file.getTitle());
                 m_Authors[i].setText(file.getAuthor());
@@ -225,7 +226,7 @@ public class PageViewHelper {
             m_Dividers[m_CurrentItem].setVisibility(View.VISIBLE);
             m_Dividers[m_CurrentItem - 1].setVisibility(View.VISIBLE);
             m_Pointers[m_CurrentItem - 1].setVisibility(View.VISIBLE);
-
+            
         }
         for (; i < ITEMS_PER_PAGE; i++) {
             m_BookNames[i].setText("");
@@ -234,19 +235,19 @@ public class PageViewHelper {
         updateHeader();
         updateFooter();
     }
-
+    
     public void pageUp() {
         if (m_CurrentPage > 1) {
             loadPrevPage();
         }
     }
-
+    
     public void pageDown() {
         if (m_CurrentPage < m_NumPages) {
             loadNextPage();
         }
     }
-
+    
     public void selectNext() {
         int prev = m_CurrentItem - 1;
         if (m_CurrentPage == m_NumPages) {
@@ -260,7 +261,7 @@ public class PageViewHelper {
             m_Dividers[ITEMS_PER_PAGE].setVisibility(View.INVISIBLE);
             m_Dividers[ITEMS_PER_PAGE - 1].setVisibility(View.INVISIBLE);
             m_Pointers[ITEMS_PER_PAGE - 1].setVisibility(View.INVISIBLE);
-
+            
             m_CurrentItem = 0;
             loadNextPage();
         } else {
@@ -270,11 +271,11 @@ public class PageViewHelper {
         m_Dividers[m_CurrentItem].setVisibility(View.VISIBLE);
         m_Dividers[m_CurrentItem + 1].setVisibility(View.VISIBLE);
         m_Pointers[m_CurrentItem].setVisibility(View.VISIBLE);
-
+        
         m_CurrentItem++;
-
+        
     }
-
+    
     public void selectPrev() {
         int prev = m_CurrentItem;
         if (m_CurrentItem == 1) {
@@ -282,7 +283,7 @@ public class PageViewHelper {
             m_Dividers[1].setVisibility(View.INVISIBLE);
             m_Dividers[0].setVisibility(View.INVISIBLE);
             m_Pointers[0].setVisibility(View.INVISIBLE);
-
+            
             m_CurrentItem = ITEMS_PER_PAGE + 1;
             loadPrevPage();
         } else {
@@ -294,15 +295,15 @@ public class PageViewHelper {
         m_Dividers[m_CurrentItem - 1].setVisibility(View.VISIBLE);
         m_Pointers[m_CurrentItem - 1].setVisibility(View.VISIBLE);
     }
-
+    
     public void setTitle(String title) {
         m_Title.setText(title);
     }
-
+    
     public void setTitle(int res) {
         m_Title.setText(res);
     }
-
+    
     private void updateHeader() {
         if (m_CurrentPage == 0) {
             updateHeader(0);
@@ -310,7 +311,7 @@ public class PageViewHelper {
             updateHeader((m_CurrentPage - 1) * ITEMS_PER_PAGE + 1);
         }
     }
-
+    
     private void updateHeader(int curr) {
         if (curr == 0) {
             m_Header1.setText(R.string.no_result);
@@ -324,7 +325,7 @@ public class PageViewHelper {
         m_Header1.setText("Displaying " + curr + " to " + end + " of " + m_NumItems);
         m_Header2.setText(m_CurrentPage + "|" + m_NumPages);
     }
-
+    
     private void updateFooter() {
         boolean showDots = (m_NumPages > 1 && m_NumPages <= 10);
         for (int i = 0; i < 10; i++) {
@@ -336,21 +337,21 @@ public class PageViewHelper {
                 showDots && i < m_NumPages - m_CurrentPage ? View.VISIBLE : View.GONE);
         }
     }
-
+    
     public void gotoTop() {
         int item = (m_CurrentPage - 1) * ITEMS_PER_PAGE + 1;
         gotoItem(item);
     }
-
+    
     public void gotoBottom() {
         int item = (m_CurrentPage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
         gotoItem(item);
     }
-
+    
     public int getCurrentIndex() {
         return (m_CurrentPage - 1) * ITEMS_PER_PAGE + m_CurrentItem;
     }
-
+    
     public ScannedFile getCurrent() {
         if (m_CurrentPage == 0) { return null; }
         int currentOffset = (m_CurrentPage - 1) * ITEMS_PER_PAGE;

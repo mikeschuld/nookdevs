@@ -352,18 +352,20 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     public List<ScannedFile> getArchived() {
         return m_ArchivedFiles;
     }
+    
     public boolean deleteBook(ScannedFile file) {
         archiveBook(file, true);
-        if( file.getCover() != null) {
+        if (file.getCover() != null) {
             try {
                 File f = new File(file.getCover());
                 f.delete();
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 return true;
             }
         }
         return true;
     }
+    
     public boolean archiveBook(ScannedFile file, boolean val) {
         if (!archiveInServer(file)) { return false; }
         if (val) {
@@ -554,7 +556,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             HttpResponse response = httpClient.execute(request);
             InputStream in = response.getEntity().getContent();
             String contentType = response.getEntity().getContentType().getValue();
-            String name=null;
+            String name = null;
             String type;
             if (contentType.contains("epub") || contentType.contains("octet-stream")) {
                 type = ".epub";
@@ -565,10 +567,11 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             } else {
                 throw new Exception("Unknown book type");
             }
-            if( name == null)
+            if (name == null) {
                 name = file.getTitles().get(0);
-            for(int i=0; i<ScannedFile.ReservedChars.length(); i++) {
-                name = name.replace(ScannedFile.ReservedChars.charAt(i),'_');
+            }
+            for (int i = 0; i < ScannedFile.ReservedChars.length(); i++) {
+                name = name.replace(ScannedFile.ReservedChars.charAt(i), '_');
             }
             name = m_BaseDir + name + type;
             BufferedInputStream bis = new BufferedInputStream(in, 8096);

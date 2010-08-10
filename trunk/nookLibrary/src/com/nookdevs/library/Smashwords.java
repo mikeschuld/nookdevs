@@ -89,9 +89,11 @@ public class Smashwords extends FictionwiseBooks {
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         httpClient = new DefaultHttpClient(params);
     }
+    
     public static String getBaseDir() {
         return m_BaseDir;
     }
+    
     private boolean authenticate() {
         String url = AUTH_URL;
         try {
@@ -208,8 +210,9 @@ public class Smashwords extends FictionwiseBooks {
     @Override
     public void downloadBook(ScannedFile file) {
         try {
-            if( m_User == null) 
+            if (m_User == null) {
                 getUser();
+            }
             nookLib.waitForNetwork(lock);
             HttpPost request = new HttpPost(file.getDownloadUrl());
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
@@ -241,9 +244,7 @@ public class Smashwords extends FictionwiseBooks {
                 }
                 // failed.
                 throw new Exception("Invalid data returned.");
-            } else if( type.contains("html")) {
-                throw new Exception("Invalid data returned.");
-            }
+            } else if (type.contains("html")) { throw new Exception("Invalid data returned."); }
             int idx = file.getDownloadUrl().lastIndexOf('/');
             String name = m_BaseDir + file.getDownloadUrl().substring(idx + 1);
             BufferedInputStream bis = new BufferedInputStream(in, 8096);
