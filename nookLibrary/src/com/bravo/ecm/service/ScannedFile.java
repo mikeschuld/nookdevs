@@ -66,7 +66,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private static ArrayList<String> m_KeyWordsList = new ArrayList<String>(200);
     private static ArrayList<String> m_KeyWordsDupList = new ArrayList<String>(200);
     private static ArrayList<String> m_AuthorsList = new ArrayList<String>(100);
-    public static final String ReservedChars = "|\\?*<\":>+[]/'"; 
+    public static final String ReservedChars = "|\\?*<\":>+[]/'#"; 
 
     
     public static List<String> getAuthors() {
@@ -216,7 +216,15 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                     String name;
                     if (m_BookId != null) {
                         if (matchSubject("Fictionwise")) {
-                            name = titles.get(0);
+                            if( pathname != null) {
+                                name = ( new File(pathname)).getName();
+                                int idx = name.lastIndexOf('.');
+                                if( idx == -1) idx = name.length();
+                                name = name.substring(0, idx);
+                            
+                            }
+                            else
+                                name =  titles.get(0);
                             for(int i=0; i<ReservedChars.length(); i++) {
                                 name = name.replace(ReservedChars.charAt(i),'_');
                             }
@@ -228,7 +236,17 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                             name = Smashwords.getBaseDir() + name + ".jpg";
                         }
                     } else {
-                        name = "/system/media/sdcard/my B&N downloads/" + titles.get(0) + ".jpg";
+                        if( pathname != null) {
+                            name = ( new File(pathname)).getName();
+                            int idx = name.lastIndexOf('.');
+                            name = name.substring(0, idx);
+                        }
+                        else 
+                            name =  titles.get(0);
+                        for(int i=0; i<ReservedChars.length(); i++) {
+                            name = name.replace(ReservedChars.charAt(i),'_');
+                        }
+                        name = "/system/media/sdcard/my B&N downloads/" + name + ".jpg";
                     }
                     try {
                         if ((new File(name)).exists()) {

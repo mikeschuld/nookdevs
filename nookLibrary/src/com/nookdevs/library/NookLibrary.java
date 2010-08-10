@@ -15,6 +15,10 @@
 package com.nookdevs.library;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -295,10 +299,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     CharSequence name = m_RefreshAdapter.getItem(arg2);
                     if (name.equals(getString(R.string.fictionwise))) {
                         m_FictionwiseBooks.deleteAll();
+                        m_LibsAdapter.insert(name, 0);
                     } else if (name.equals(getString(R.string.smashwords))) {
                         m_Smashwords.deleteAll();
+                        m_LibsAdapter.insert(name,1);
                     }
-                    m_LibsAdapter.add(name);
                     m_RefreshAdapter.remove(name);
                     m_AddLibIndex--;
                     queryFolders(LOCAL_BOOKS);
@@ -1250,8 +1255,13 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             try {
                 if (m_Refresh) {
                     for (ScannedFile file : m_Files) {
-                        File f = new File(file.getPathName());
-                        file.setLastAccessedDate(new Date(f.lastModified()));
+                        try {
+                            if( file.getPathName() != null) {
+                                File f = new File(file.getPathName());
+                                file.setLastAccessedDate(new Date(f.lastModified()));
+                            }
+                        } catch(Exception ex) {
+                        }
                     }
                 }
                 List<ScannedFile> list = pageViewHelper.getFiles();
@@ -1261,7 +1271,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 }
                 return list;
             } catch (Exception ex) {
-                Log.e(LOGTAG, "Sorting failed...");
+                Log.e(LOGTAG, "Sorting failed...", ex);
                 return null;
             }
         }

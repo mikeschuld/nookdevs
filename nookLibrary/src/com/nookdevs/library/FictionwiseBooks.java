@@ -554,6 +554,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             HttpResponse response = httpClient.execute(request);
             InputStream in = response.getEntity().getContent();
             String contentType = response.getEntity().getContentType().getValue();
+            String name=null;
             String type;
             if (contentType.contains("epub") || contentType.contains("octet-stream")) {
                 type = ".epub";
@@ -564,7 +565,8 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             } else {
                 throw new Exception("Unknown book type");
             }
-            String name = file.getTitles().get(0);
+            if( name == null)
+                name = file.getTitles().get(0);
             for(int i=0; i<ScannedFile.ReservedChars.length(); i++) {
                 name = name.replace(ScannedFile.ReservedChars.charAt(i),'_');
             }
