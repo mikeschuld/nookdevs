@@ -21,5 +21,6 @@
 	<string name="page_picker_title"> Goto page </string>
 	<string name="auto"> Auto </string>
 	<string name="about"> Create By Li Wenhao 2009 - Modified by Hari for nook.</string>
+	<string name="open_error">Open Error</string>
 </resources>
 

@@ -17,6 +17,9 @@ package com.googlecode.apdfviewer;
 
 import java.io.FileNotFoundException;
 
+import com.googlecode.apdfviewer.PDF.Size;
+
+
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -97,7 +100,7 @@ public class PDFView extends View {
 	/**
      * The PDFDocument object
      */
-    private PDFDocument m_doc = null;
+    private PDF m_doc = null;
     
     /**
      * file descriptor of the PDF document.
@@ -107,12 +110,26 @@ public class PDFView extends View {
     /**
      * current page number, default is 1.
      */
-    private int m_current_page = 1;
+    private int m_current_page = 0;
+    
+    private int m_page_count=0;
+    
+    private int m_startX=0;
+    
+    private int m_startY=0;
+    
+    private int m_maxX =0;
+    
+    private int m_maxY=0;
+    
+    private Size m_size = new Size();
     
     /**
      * zoom factor.
      */
     private float m_zoom_factor = 1.0F;
+    
+    private float m_realzoom = 1.0F;
     
     /**
      * rotate degree
@@ -155,6 +172,9 @@ public class PDFView extends View {
     Bitmap.Config m_bitmap_config = Bitmap.Config.ARGB_8888;
     
     ConditionVariable m_updatecache = new ConditionVariable();
+    
+    public static final int HEIGHT=745;
+    public static final int WIDTH=595;
     
 
 	/**
@@ -206,7 +226,7 @@ public class PDFView extends View {
 		DisplayMetrics metrics = new DisplayMetrics();
 		manager.getDefaultDisplay().getMetrics(metrics);
 		m_sys_dpi.set(metrics.xdpi, metrics.ydpi);
-
+	
 		// bitmap configure
 		switch (manager.getDefaultDisplay().getPixelFormat()) {
 		case PixelFormat.A_8:
@@ -228,55 +248,53 @@ public class PDFView extends View {
 		setClickable(true);
 		// initialize configure
 		initConfig();
-				
-		// touch scroll handler
-		OnTouchListener l = new View.OnTouchListener(){
-			private GestureDetector g = new GestureDetector(getContext(), 
-					new GestureDetector.SimpleOnGestureListener(){
-				public boolean onScroll(MotionEvent e1, MotionEvent e2, 
-						float distanceX, float distanceY) {
-					
-					if (m_doc == null)
-						return false;
-					
-					m_offset.offset((int)distanceX, (int)distanceY);
+	      // touch scroll handler
+        OnTouchListener l = new View.OnTouchListener(){
+            private GestureDetector g = new GestureDetector(getContext(), 
+                    new GestureDetector.SimpleOnGestureListener(){
+                public boolean onScroll(MotionEvent e1, MotionEvent e2, 
+                        float distanceX, float distanceY) {
+                    
+                    if (m_doc == null)
+                        return false;
+                    
+                    m_offset.offset((int)distanceX, (int)distanceY);
 
-					postInvalidate();
+                    postInvalidate();
 
-					return true;
-				}
-			});
-			
-			public boolean onTouch(View v, MotionEvent event) {
-				if (g != null) {
-					return g.onTouchEvent(event);
-				}
-				
-				return false;
-			}
-		};
-		
-		setOnTouchListener(l);
+                    return true;
+                }
+            });
+            
+            public boolean onTouch(View v, MotionEvent event) {
+//                if (g != null) {
+//                    return g.onTouchEvent(event);
+//                }
+                
+                return true;
+            }
+        };
+        setOnTouchListener(l);
 	}
 
-	private void ensureOffset() {
-		float zoom = getRealZoomFactor();
-		int w;
-		int h;
-	    w = (int)(m_doc.getPageMediaWidth(m_current_page)*m_sys_dpi.x*zoom/72.0F);
-        h = (int)(m_doc.getPageMediaHeight(m_current_page)*m_sys_dpi.y*zoom/72.0F);
-    	if (m_offset.x > w - getWidth())
-			m_offset.x = w - getWidth();
-
-		if (m_offset.x < 0)
-			m_offset.x = 0;
-
-		if (m_offset.y > h - getHeight())
-			m_offset.y = h - getHeight();
-
-		if (m_offset.y < 0)
-			m_offset.y = 0;
-	}
+//	private void ensureOffset() {
+//		float zoom = getRealZoomFactor();
+//		int w;
+//		int h;
+//		w = (int)(m_size.width*m_sys_dpi.x*zoom/72.0F);
+//        h = (int)(m_size.height*m_sys_dpi.y*zoom/72.0F);
+//    	if (m_offset.x > w - getWidth())
+//			m_offset.x = w - getWidth();
+//
+//		if (m_offset.x < 0)
+//			m_offset.x = 0;
+//
+//		if (m_offset.y > h - getHeight())
+//			m_offset.y = h - getHeight();
+//
+//		if (m_offset.y < 0)
+//			m_offset.y = 0;
+//	}
 
 	/**
 	 * Open PDF contents from the URI.
@@ -288,8 +306,7 @@ public class PDFView extends View {
 			// TODO: clean up?
 			m_doc = null;
 		}
-		m_current_page = 1;
-		
+		m_current_page = 0;
 		// open uri
 		try {
 			m_descriptor = getContext().getContentResolver().openAssetFileDescriptor(uri, "r");
@@ -302,60 +319,159 @@ public class PDFView extends View {
 		}
 		
 		// open document
-		m_doc = new PDFDocument(m_descriptor.getFileDescriptor(), "", "");
-		m_doc.setmUseMediaBox(true);
-		if (!m_doc.isOk()) {
+		m_doc = new PDF(m_descriptor.getFileDescriptor());
+		if (m_doc == null) {
 			// TODO: report error.
 			return;
 		}
-		
-		pageChanged();
+		m_page_count = m_doc.getPageCount();
+ 		pageChanged();
 	}
 	private void pageChanged() {
-		if (m_listener != null) {
-			m_listener.onPageChanged(this, m_current_page);
-		}
-		
-	//	m_offset.set(0, 0);
-		dirty();
+	    pageChanged(0);
+	}
+	private void pageChanged(int status) {
+	    m_doc.getPageSize(m_current_page, m_size);
+	    calculateRealZoomFactor();
+	    m_maxX = (int)(m_realzoom * m_size.width);
+        m_maxY = (int)(m_realzoom * m_size.height);
+        m_listener.onPageChanged(this, m_current_page +1);
+        if( status >=2) {
+            m_startX = m_Rotate ==0?WIDTH:HEIGHT;
+            m_startY =  m_Rotate ==0?HEIGHT:WIDTH;
+            int t = m_maxX % m_startX;
+            if( t ==0)
+                m_startX = m_maxX - m_startX;
+            else
+                m_startX = m_maxX - t;
+            t = m_maxY % m_startY;
+            if( t ==0) 
+                m_startY = m_maxY -m_startY;
+            else
+                m_startY =m_maxY - t;
+            status -=2;
+        } else {
+            m_startX =0;
+            m_startY=0;
+        }
+        
+        if( status !=1) 
+		    dirty();
 	}
 	
 	/**
 	 * Show next page if exist.
 	 */
 	public void nextPage() {
-		if (m_doc != null && m_current_page != m_doc.getNumPages()) {
-			m_current_page++;
-		    if( m_cache_bitmap_prev != null) m_cache_bitmap_prev.recycle();
-	    	m_cache_bitmap_prev=m_cache_bitmap;
-	         if( m_cache_bitmap_next != null) {
-	                m_updatecache.block();
-	                m_cache_bitmap=m_cache_bitmap_next;
-	                m_cache_bitmap_next=null;
-	         } else {
-	             m_cache_bitmap=null;
-	         }
-	         pageChanged();
-		}
-		
+	    int cached=0;
+	    if (m_doc != null ) {
+	        if( m_cache_bitmap_prev != null) {
+	            m_cache_bitmap_prev.recycle();
+	        }
+	        m_cache_bitmap_prev = m_cache_bitmap;
+	        if( m_cache_bitmap_next != null) {
+	            m_updatecache.block();
+	            m_cache_bitmap=m_cache_bitmap_next;
+	            m_cache_bitmap_next=null;
+	            cached=1;
+	            dirty();
+	        }
+	        int orgStartx=m_startX;
+	        int orgStarty=m_startY;
+	        m_startX += (m_Rotate ==0)?WIDTH:HEIGHT;
+	        if( m_startX >=m_maxX) {
+	            m_startX=0;
+	            m_startY +=  (m_Rotate ==0)?HEIGHT:WIDTH;
+	            if( m_startY >= m_maxY) {
+	                if( m_current_page != m_page_count-1) {
+	                    m_current_page++;
+	                    pageChanged(cached);
+	                } else {
+	                    m_startY=orgStartx;
+	                    m_startX =orgStarty;
+	                }
+	                return;
+	            }
+	        }
+	        if( cached != 1) {
+	            if( m_startX !=0) m_startX -=10;
+	            if( m_startY !=0) m_startY -=10;
+	            dirty();
+	            if( m_startX !=0) m_startX +=10;
+	            if( m_startY !=0) m_startY +=10;
+	        }
+   	}
 	}
+	public void nextPageCache() {
+        if (m_doc != null ) {
+            m_updatecache.close();
+             m_cache_bitmap_next=null;
+             int x=m_startX;
+             int y=m_startY;
+             int page = m_current_page;
+             x += (m_Rotate ==0)?WIDTH:HEIGHT;
+             if( x >=m_maxX) {
+                 x=0;
+                 y+=  (m_Rotate ==0)?HEIGHT:WIDTH;
+                 if( y >= m_maxY) {
+                     if( page != m_page_count-1) {
+                         page++;
+                     } 
+                     updateCache(0,0,page);
+                     return;
+                 }
+             }
+             x-=10;
+             y-=10;
+             updateCache(x,y,page);
+             
+        }
+    }
 	
 	/**
 	 * Show previews page if exist.
 	 */
 	public void prevPage() {
-		if (m_current_page != 1) {
-			m_current_page--;
-		    if( m_cache_bitmap_next != null) m_cache_bitmap_next.recycle();
-        	m_cache_bitmap_next = m_cache_bitmap;
-			if( m_cache_bitmap_prev != null) {
-			    m_cache_bitmap=m_cache_bitmap_prev;
-			    m_cache_bitmap_prev=null;
-			} else {
-			    m_cache_bitmap=null;
-			}
-			pageChanged();
-		}
+	    int cache=0;
+	    if (m_doc != null ) {
+	        if( m_cache_bitmap_next != null) {
+	            m_cache_bitmap_next.recycle();
+	        }
+	        m_cache_bitmap_next = m_cache_bitmap;
+	        if( m_cache_bitmap_prev != null) {
+	            m_cache_bitmap=m_cache_bitmap_prev;
+	            m_cache_bitmap_prev=null;
+	            dirty();
+	            cache=1;
+	        } else {
+	            m_cache_bitmap=null;
+	        }
+            m_startX -= m_Rotate ==0?WIDTH:HEIGHT;
+            System.out.println("new StartX = " + m_startX + " maxX =" + m_maxX);
+            if( m_startX <0) {
+                m_startX=m_maxX;
+                m_startX -= m_Rotate ==0?WIDTH:HEIGHT;
+                m_startY -=  m_Rotate ==0?HEIGHT:WIDTH;
+                System.out.println("new StartY = " + m_startY +" maxY =" + m_maxY);
+                if( m_startY <0) {
+                    if( m_current_page != 0) {
+                        m_current_page--;
+                        pageChanged(2+cache);
+                    } else {
+                        m_startY=0;
+                        m_startX=0;
+                        return;
+                    }
+                }
+            }
+            if( cache !=1) {
+                if( m_startX != m_maxX) m_startX +=10;
+                if( m_startY != m_maxY) m_startY +=10;
+                dirty();
+                if( m_startX != m_maxX) m_startX -=10;
+                if( m_startY != m_maxY) m_startY -=10;
+            }
+        }
 	}
 	
 	/**
@@ -372,7 +488,7 @@ public class PDFView extends View {
 		    m_cache_bitmap=null;
 		    m_cache_bitmap_prev=null;
 		    m_cache_bitmap_next=null;			
-			dirty();
+			pageChanged();
 		}
 	}
 	
@@ -380,15 +496,42 @@ public class PDFView extends View {
 	 * Get real zoom factor.
 	 */
 	private float getRealZoomFactor() {
-		if (m_zoom_factor <= +0.0F) {
+	    return m_realzoom;
+	}
+	private float calculateRealZoomFactor(int page) {
+	    float zoom;
+	    if (m_zoom_factor <= +0.0F) {
+            if (m_doc == null)
+                return 1.0F;
+            Size size = new Size();
+            m_doc.getPageSize(page,size);
+            if( m_Rotate != 0 ) {
+                zoom= (float) ((HEIGHT)*1.0/(float)size.width);
+            } else {
+                zoom = Math.min(
+                    (float) ((HEIGHT)*1.0/(float)size.height) ,
+                    (float) ((WIDTH)*1.0/(float)size.width));
+            }
+        } else {
+            zoom=m_zoom_factor;
+        }
+        return zoom;
+    }
+	private float calculateRealZoomFactor() {
+	 	if (m_zoom_factor <= +0.0F) {
 			if (m_doc == null)
 				return 1.0F;
-			if( m_Rotate == 90 || m_Rotate==270)
-			    return (float) (getHeight()*72.0F/m_doc.getPageMediaWidth(m_current_page)/m_sys_dpi.y);
-			return (float) (getWidth()*72.0F/m_doc.getPageMediaWidth(m_current_page)/m_sys_dpi.x);
+			if( m_Rotate != 0 ) {
+			    m_realzoom= (float) ((HEIGHT)*1.0/(float)m_size.width);
+			} else {
+			    m_realzoom = Math.min(
+			        (float) ((HEIGHT)*1.0/(float)m_size.height) ,
+			        (float) ((WIDTH)*1.0/(float)m_size.width));
+			}
+		} else {
+		    m_realzoom=m_zoom_factor;
 		}
-		
-		return m_zoom_factor;
+		return m_realzoom;
 	}
 	
 	/**
@@ -403,21 +546,15 @@ public class PDFView extends View {
 	 * @param page the page number.
 	 */
 	public void gotoPage(int page) {
-		if (page != m_current_page && page > 0 && m_doc != null && page <= m_doc.getNumPages()) {
-			if( page == m_current_page -1) 
-			    prevPage();
-			else if( page == m_current_page +1)
-			    nextPage();
-			else {
-			    m_current_page = page;
-			    if( m_cache_bitmap_prev != null) m_cache_bitmap_prev.recycle();
-			    if( m_cache_bitmap_next != null) m_cache_bitmap_next.recycle();
-			    if( m_cache_bitmap != null) m_cache_bitmap.recycle();
-			    m_cache_bitmap_next =null;
-			    m_cache_bitmap_prev=null;
-			    m_cache_bitmap=null;
-			    pageChanged();
-			}
+		if (page != m_current_page && page > 0 && m_doc != null && page < m_page_count) {
+		    m_current_page = page;
+			if( m_cache_bitmap_prev != null) m_cache_bitmap_prev.recycle();
+			if( m_cache_bitmap_next != null) m_cache_bitmap_next.recycle();
+			if( m_cache_bitmap != null) m_cache_bitmap.recycle();
+			m_cache_bitmap_next =null;
+			m_cache_bitmap_prev=null;
+			m_cache_bitmap=null;
+		    pageChanged();
 		}
 	}
 	
@@ -428,30 +565,40 @@ public class PDFView extends View {
 	private boolean isCached() {
 		return (m_cache_bitmap != null);
 	}
-    private boolean updateCache() {
-        if( m_current_page == m_doc.getNumPages()) return false;
-        if( m_cache_bitmap_next != null) return false;
-        float zoom = getRealZoomFactor();
+    private boolean updateCache(int x, int y, int page) {
+        float zoom = calculateRealZoomFactor(page);
         int w;
         int h;
-        w = (int)(m_doc.getPageMediaWidth(m_current_page+1)*m_sys_dpi.x*zoom/72.0F);
-        h = (int)(m_doc.getPageMediaHeight(m_current_page+1)*m_sys_dpi.y*zoom/72.0F);
-        try {
-            m_updatecache.close();
-            m_cache_bitmap_next = Bitmap.createBitmap(w, h, m_bitmap_config);
-        } catch (Throwable a) {
-            m_cache_bitmap_next=null;
-            m_updatecache.open();
-            if( m_cache_bitmap_prev != null) {
-                m_cache_bitmap_prev.recycle();
-                m_cache_bitmap_prev=null;
-                updateCache();
-            } 
-            return false;
+        if( m_Rotate ==0) {
+            w = WIDTH+10;
+            h = HEIGHT+10;
+        } else {
+            h = WIDTH+10;
+            w = HEIGHT+10;
         }
-        m_cache_canvas_next.setBitmap(m_cache_bitmap_next);
-        m_cache_canvas_next.setDrawFilter(new PaintFlagsDrawFilter(0,Paint.FAKE_BOLD_TEXT_FLAG));
-        m_doc.drawPage(m_cache_canvas_next, m_current_page+1);
+        if (m_cache_bitmap_next == null || 
+            m_cache_bitmap_next.getWidth() != w || m_cache_bitmap_next.getHeight() != h) {
+
+            if (m_cache_bitmap_next != null)
+                m_cache_bitmap_next.recycle();
+
+            try {
+                m_cache_bitmap_next = Bitmap.createBitmap(w, h, m_bitmap_config);
+            } catch (Throwable a) {
+                m_cache_bitmap_next=null;
+                return false;
+            }
+            m_cache_canvas_next.setBitmap(m_cache_bitmap_next);
+        }
+        Size size = new Size();
+        size.height=h;
+        size.width=w;
+       // int rotate = (m_startX==0 && m_startY==0)?m_Rotate:0;
+        int buf[] = m_doc.renderPage(page, (int)(zoom*1000), x, y, 0, size, m_cache_canvas_next);
+    //    Paint p = new Paint();
+    //    ColorFilter filter = new PorterDuffColorFilter(Color.WHITE,PorterDuff.Mode.MULTIPLY);
+    //    p.setColorFilter(filter);
+    //    m_cache_canvas_next.drawBitmap(buf, 0, w, 0, 0, w, h, true, p);
         m_updatecache.open();
         return true;
     }	
@@ -459,34 +606,39 @@ public class PDFView extends View {
 		float zoom = getRealZoomFactor();
         int w;
         int h;
-        w = (int)(m_doc.getPageMediaWidth(m_current_page)*m_sys_dpi.x*zoom/72.0F);
-        h = (int)(m_doc.getPageMediaHeight(m_current_page)*m_sys_dpi.y*zoom/72.0F);
-     
-		if (m_cache_bitmap == null || 
-				m_cache_bitmap.getWidth() != w || m_cache_bitmap.getHeight() != h) {
+        if( m_Rotate ==0) {
+            w = WIDTH+10;
+            h = HEIGHT+10;
+        } else {
+            h = WIDTH+10;
+            w = HEIGHT+10;
+        }
+     	if (m_cache_bitmap == null || 
+     	   m_cache_bitmap.getWidth() != w || m_cache_bitmap.getHeight() != h) {
 
 			if (m_cache_bitmap != null)
-				m_cache_bitmap.recycle();
+			    m_cache_bitmap.recycle();
 
 			try {
-				m_cache_bitmap = Bitmap.createBitmap(w, h, m_bitmap_config);
+			    m_cache_bitmap = Bitmap.createBitmap(w, h, m_bitmap_config);
 			} catch (Throwable a) {
 			    m_cache_bitmap=null;
 				return false;
 			}
 			m_cache_canvas.setBitmap(m_cache_bitmap);
-		}
-		
+     	}
+     	Size size = new Size();
+        size.height=h;
+        size.width=w;
+       // int rotate = (m_startX==0 && m_startY==0)?m_Rotate:0;
+        int buf[] = m_doc.renderPage(m_current_page, (int)(zoom*1000), m_startX, m_startY, 0, size, m_cache_canvas);
+//        Paint p = new Paint();
+//        ColorFilter filter = new PorterDuffColorFilter(Color.WHITE,PorterDuff.Mode.MULTIPLY);
+//        p.setColorFilter(filter);
+//        m_cache_canvas.drawBitmap(buf, 0, w, 0, 0, w, h, true, p);
+        postInvalidate();
 		return true;
 	}
-	private void drawCache(boolean refresh) {
-	    m_cache_canvas.setDrawFilter(new PaintFlagsDrawFilter(0,Paint.FAKE_BOLD_TEXT_FLAG));
-     	m_doc.drawPage(m_cache_canvas, m_current_page);
-		if (refresh) {
-			postInvalidate();
-		}
-	}
-
 	/**
 	 * @see android.view.View#onDraw(android.graphics.Canvas)
 	 */
@@ -495,23 +647,13 @@ public class PDFView extends View {
 		// do nothing if no document loaded.
 		if (m_doc == null)
 			return;
-	    if( m_Rotate >0) {
-	        canvas.rotate(m_Rotate, (getHeight())/2, getWidth()/2);
-	        if( m_Rotate == 90) canvas.translate(60, 60);
-	        else canvas.translate(-100,-100);
-	    }
-	    // set document DPI.
-		float zoom = getRealZoomFactor();
-		if( m_Rotate == 90 || m_Rotate==270) {
-            m_doc.setXdpi(m_sys_dpi.y*zoom);
-            m_doc.setYdpi(m_sys_dpi.x*zoom);
-		} else {
-		    m_doc.setXdpi(m_sys_dpi.x*zoom);
-		    m_doc.setYdpi(m_sys_dpi.y*zoom);
-		}
-		// ensure offset is right.
-		ensureOffset();
-		
+	//	ensureOffset();
+        if( m_Rotate >0) {
+            canvas.rotate(m_Rotate, (getHeight())/2, getWidth()/2);
+            if( m_Rotate == 270) 
+                canvas.translate(-90, -90);
+            else canvas.translate(80,80);
+        }
 		// draw
 		if (isCached()) {
 		    Paint p = new Paint();
@@ -521,18 +663,17 @@ public class PDFView extends View {
 			canvas.drawBitmap(m_cache_bitmap, -m_offset.x, -m_offset.y, p);
 		} else {
 			if (ensureCache()) {
-				drawCache(true);
 			} else {
 				// use drawPageSlice.
-			    canvas.setDrawFilter(new PaintFlagsDrawFilter(0,Paint.FAKE_BOLD_TEXT_FLAG));
-				m_doc.drawPageSlice(canvas, m_current_page, 
-						m_offset.x, m_offset.y, getWidth(), getHeight());
+		//	    canvas.setDrawFilter(new PaintFlagsDrawFilter(0,Paint.FAKE_BOLD_TEXT_FLAG));
+		//		m_doc.drawPageSlice(canvas, m_current_page, 
+		//				m_offset.x, m_offset.y, getWidth(), getHeight());
 			}
 		}
         if( m_cache_bitmap_next == null) {
             Runnable run = new Runnable() {
                 public void run() {
-		            updateCache();
+		            nextPageCache();
                 }
             };
             (new Thread(run)).start();
@@ -540,10 +681,7 @@ public class PDFView extends View {
 	}
 
 	public int getPagesCount() {
-		if (m_doc != null)
-			return m_doc.getNumPages();
-		else
-			return 1;
+		return m_page_count;
 	}
 
 	public int getCurrentPage() {
@@ -559,12 +697,12 @@ public class PDFView extends View {
         m_cache_bitmap=null;
         m_cache_bitmap_prev=null;
         m_cache_bitmap_next=null;
-	   dirty();
+        pageChanged();
 	}
 	public int getMediaHeight() {
 	       if( m_doc != null) {
 	           float zoom = getRealZoomFactor();
-	           int h = (int)(m_doc.getPageMediaHeight(m_current_page)*m_sys_dpi.y*zoom/72.0F);
+	           int h = (int)(m_size.height*m_sys_dpi.y*zoom/72.0F);
 	           return h;
 	        }
 	        return 0;
@@ -572,8 +710,8 @@ public class PDFView extends View {
 	public int getMediaWidth() {
 	    if( m_doc != null) {
 	        float zoom = getRealZoomFactor();
-            int w = (int)(m_doc.getPageMediaWidth(m_current_page)*m_sys_dpi.x*zoom/72.0F);
-	        return w;
+	        int w = (int)(m_size.width*m_sys_dpi.y*zoom/72.0F);
+            return w;
 	    }
 	    return 0;
 	}
