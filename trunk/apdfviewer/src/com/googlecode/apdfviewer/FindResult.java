@@ -22,7 +22,6 @@ import java.util.List;
 import android.graphics.Rect;
 import android.util.Log;
 
-
 /**
  * Find result.
  */
@@ -37,10 +36,10 @@ public class FindResult {
      * Page number.
      */
     public int page;
-
+    
     /**
-     * List of rects that mark find result occurences.
-     * In page dimensions (not scalled).
+     * List of rects that mark find result occurences. In page dimensions (not
+     * scalled).
      */
     public List<Rect> markers;
     
@@ -48,38 +47,42 @@ public class FindResult {
      * Add marker.
      */
     public void addMarker(int x0, int y0, int x1, int y1) {
-        if (x0 >= x1) throw new IllegalArgumentException("x0 must be smaller than x1: " + x0 + ", " + x1);
-        if (y0 >= y1) throw new IllegalArgumentException("y0 must be smaller than y1: " + y0 + ", " + y1);
-        if (this.markers == null)
-            this.markers = new ArrayList<Rect>();
+        if (x0 >= x1) { throw new IllegalArgumentException("x0 must be smaller than x1: " + x0 + ", " + x1); }
+        if (y0 >= y1) { throw new IllegalArgumentException("y0 must be smaller than y1: " + y0 + ", " + y1); }
+        if (markers == null) {
+            markers = new ArrayList<Rect>();
+        }
         Rect nr = new Rect(x0, y0, x1, y1);
-        if (this.markers.isEmpty()) {
-            this.markers.add(nr);
+        if (markers.isEmpty()) {
+            markers.add(nr);
         } else {
-            this.markers.get(0).union(nr);
+            markers.get(0).union(nr);
         }
     }
     
+    @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("FindResult(");
-        if (this.markers == null || this.markers.isEmpty()) {
+        if (markers == null || markers.isEmpty()) {
             b.append("no markers");
         } else {
-            Iterator<Rect> i = this.markers.iterator();
+            Iterator<Rect> i = markers.iterator();
             Rect r = null;
-            while(i.hasNext()) {
+            while (i.hasNext()) {
                 r = i.next();
                 b.append(r);
-                if (i.hasNext()) b.append(", ");
+                if (i.hasNext()) {
+                    b.append(", ");
+                }
             }
         }
         b.append(")");
         return b.toString();
     }
     
+    @Override
     public void finalize() {
         Log.i(TAG, this + ".finalize()");
     }
 }
-
