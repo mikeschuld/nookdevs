@@ -50,7 +50,8 @@ public class BNBooks {
     public static final String DOWNLOAD_PROGRESS = "com.bravo.intent.action.DOWNLOAD_PROGRESS";
     public static final String APP_DB = "/data/data/com.bravo.home/theDB.db";
     public static final String LOCAL_BOOKS_TABLE = "appInfo_table";
-  //  public static final String FILES_DB = "/data/data/com.bravo.library/AppInfoDB.db";
+    // public static final String FILES_DB =
+    // "/data/data/com.bravo.library/AppInfoDB.db";
     public static final String PRODUCT_TABLE = "bn_client_products";
     public static final String PRODUCT_STATE_TABLE = "bn_client_product_states";
     public static final String LOCAL_PRODUCT_STATE_TABLE = "bn_client_local_product_state";
@@ -73,7 +74,7 @@ public class BNBooks {
     private String m_DownloadEan;
     private int m_DownloadProgress;
     private SQLiteDatabase m_Db;
- //   private SQLiteDatabase m_FilesDb;
+    // private SQLiteDatabase m_FilesDb;
     private HashMap<String, ScannedFile> m_EanMap = new HashMap<String, ScannedFile>();
     private static boolean m_Auth = false;
     private boolean m_Sync = false;
@@ -148,7 +149,8 @@ public class BNBooks {
             refresh = false;
         }
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
-        //m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
+        // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
+        // SQLiteDatabase.OPEN_READONLY);
         if (refresh && !m_Auth) {
             if (!authenticate()) {
                 refresh = false;
@@ -171,7 +173,7 @@ public class BNBooks {
         } else {
             loadBooksData();
         }
-       // m_FilesDb.close();
+        // m_FilesDb.close();
         m_Db.close();
         m_Db = null;
         return m_Books;
@@ -180,13 +182,16 @@ public class BNBooks {
     public ScannedFile getBook(ScannedFile file) {
         if (!m_Context.waitForNetwork(lock)) { return null; }
         if (!m_Auth && !authenticate()) {
-            if( lock.isHeld()) lock.release();
+            if (lock.isHeld()) {
+                lock.release();
+            }
             return null;
         }
         m_DownloadEan = file.getEan();
         m_DownloadBook = file;
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
-       // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null, SQLiteDatabase.OPEN_READONLY);
+        // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
+        // SQLiteDatabase.OPEN_READONLY);
         m_Sync = false;
         m_DownloadDone.close();
         registerDownloadReceiver();
@@ -200,7 +205,7 @@ public class BNBooks {
         m_Timer.schedule(m_TimerTask, TIMEOUT);
         download();
         m_DownloadDone.block();
-        //m_FilesDb.close();
+        // m_FilesDb.close();
         m_Db.close();
         return m_DownloadBook;
     }
@@ -228,7 +233,7 @@ public class BNBooks {
     private void download() {
         Intent intent = new Intent(DOWNLOAD_ACTION);
         intent.putExtra("dstDir", "/system/media/sdcard/my B&N Downloads/");
-      //  intent.putExtra("continue", true);
+        // intent.putExtra("continue", true);
         ArrayList<String> values = new ArrayList<String>(1);
         values.add(m_DownloadEan);
         intent.putStringArrayListExtra("producteanList", values);
@@ -288,6 +293,7 @@ public class BNBooks {
         }
         return true;
     }
+    
     public boolean deleteBook(ScannedFile file) {
         return true;
     }
@@ -317,7 +323,7 @@ public class BNBooks {
             Cursor cursor = m_Db.rawQuery(sql, selectionArgs);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                //boolean available = cursor.getInt(7) == 1;
+                // boolean available = cursor.getInt(7) == 1;
                 boolean archived = false;
                 String lockerStatus = cursor.getString(12);
                 
@@ -373,7 +379,7 @@ public class BNBooks {
                     }
                 }
                 file.setDescription(desc);
-                if( contributorData != null) {
+                if (contributorData != null) {
                     array = new JSONArray(contributorData);
                     sz = array.length();
                     for (int i = 0; i < sz; i++) {
@@ -387,7 +393,7 @@ public class BNBooks {
                         file.addContributor(firstName, lastName);
                     }
                 }
-                if( keywordData != null) {
+                if (keywordData != null) {
                     array = new JSONArray(keywordData);
                     sz = array.length();
                     for (int i = 0; i < sz; i++) {
@@ -415,7 +421,7 @@ public class BNBooks {
                 }
                 file.updateLastAccessDate();
                 String coverURL = cursor.getString(10);
-                if( coverURL != null) {
+                if (coverURL != null) {
                     JSONObject object = new JSONObject(coverURL);
                     file.setCover(object.optString("url"));
                 }

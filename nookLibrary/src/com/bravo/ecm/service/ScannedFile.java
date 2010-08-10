@@ -66,8 +66,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private static ArrayList<String> m_KeyWordsList = new ArrayList<String>(200);
     private static ArrayList<String> m_KeyWordsDupList = new ArrayList<String>(200);
     private static ArrayList<String> m_AuthorsList = new ArrayList<String>(100);
-    public static final String ReservedChars = "|\\?*<\":>+[]/'#"; 
-
+    public static final String ReservedChars = "|\\?*<\":>+[]/'#";
     
     public static List<String> getAuthors() {
         return m_AuthorsList;
@@ -216,17 +215,19 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                     String name;
                     if (m_BookId != null) {
                         if (matchSubject("Fictionwise")) {
-                            if( pathname != null) {
-                                name = ( new File(pathname)).getName();
+                            if (pathname != null) {
+                                name = (new File(pathname)).getName();
                                 int idx = name.lastIndexOf('.');
-                                if( idx == -1) idx = name.length();
+                                if (idx == -1) {
+                                    idx = name.length();
+                                }
                                 name = name.substring(0, idx);
-                            
+                                
+                            } else {
+                                name = titles.get(0);
                             }
-                            else
-                                name =  titles.get(0);
-                            for(int i=0; i<ReservedChars.length(); i++) {
-                                name = name.replace(ReservedChars.charAt(i),'_');
+                            for (int i = 0; i < ReservedChars.length(); i++) {
+                                name = name.replace(ReservedChars.charAt(i), '_');
                             }
                             name = FictionwiseBooks.getBaseDir() + name + ".jpg";
                         } else {
@@ -236,15 +237,15 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                             name = Smashwords.getBaseDir() + name + ".jpg";
                         }
                     } else {
-                        if( pathname != null) {
-                            name = ( new File(pathname)).getName();
+                        if (pathname != null) {
+                            name = (new File(pathname)).getName();
                             int idx = name.lastIndexOf('.');
                             name = name.substring(0, idx);
+                        } else {
+                            name = titles.get(0);
                         }
-                        else 
-                            name =  titles.get(0);
-                        for(int i=0; i<ReservedChars.length(); i++) {
-                            name = name.replace(ReservedChars.charAt(i),'_');
+                        for (int i = 0; i < ReservedChars.length(); i++) {
+                            name = name.replace(ReservedChars.charAt(i), '_');
                         }
                         name = "/system/media/sdcard/my B&N downloads/" + name + ".jpg";
                     }
@@ -554,7 +555,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         } else {
             for (int i = 0; i < titles.size(); i++) {
                 String tmp = titles.get(i).trim();
-                if (i==0 || !title.contains(tmp)) {
+                if (i == 0 || !title.contains(tmp)) {
                     if (i != 0) {
                         tmp = "," + tmp;
                     }
@@ -584,13 +585,15 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         }
         if (m_Keywords.contains(keyword)) { return; }
         m_Keywords.add(keyword);
-     //   if (!m_KeyWordsList.contains(keyword)) {
+        // if (!m_KeyWordsList.contains(keyword)) {
         m_KeyWordsDupList.add(keyword);
-     //   }
+        // }
     }
+    
     public void removeKeywords() {
         m_KeyWordsDupList.removeAll(m_Keywords);
     }
+    
     public boolean matchSubject(String subject) {
         return m_Keywords != null && m_Keywords.contains(subject);
     }
@@ -652,10 +655,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (contributors == null || contributors.size() == 0) {
             return "No Author Info";
         } else {
-            String auth =contributors.get(0).lastName;
-            if( auth == null || auth.trim().equals("")) {
-                return getAuthor();
-            }
+            String auth = contributors.get(0).lastName;
+            if (auth == null || auth.trim().equals("")) { return getAuthor(); }
             return auth.trim();
         }
     }

@@ -15,10 +15,6 @@
 package com.nookdevs.library;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,12 +27,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.IPackageDeleteObserver;
 import android.content.res.TypedArray;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -44,12 +37,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -73,10 +63,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-import com.bravo.ecm.dto.BNContent;
 import com.bravo.ecm.service.ScannedFile;
-import com.bravo.ecm.service.IECMScannerService;
-import com.bravo.ecm.service.IECMScannerServiceCallback;
 import com.nookdevs.common.CustomGallery;
 import com.nookdevs.common.IconArrayAdapter;
 import com.nookdevs.common.ImageAdapter;
@@ -115,9 +102,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     public static final String PREF_FILE = "NookLibrary";
     private int[] icons =
         {
-            -1, R.drawable.submenu_image, R.drawable.search_image, R.drawable.covers_image,
-            R.drawable.submenu_image, R.drawable.submenu_image, R.drawable.submenu_image, -1, -1,
-            -1, -1, -1, -1, -1, -1
+            -1, R.drawable.submenu_image, R.drawable.search_image, R.drawable.covers_image, R.drawable.submenu_image,
+            R.drawable.submenu_image, R.drawable.submenu_image, -1, -1, -1, -1, -1, -1, -1, -1
         };
     
     private int[] subicons = {
@@ -177,9 +163,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         downButton = (Button) findViewById(R.id.down);
         m_Archive = (Button) findViewById(R.id.archive);
         m_Archive.setOnLongClickListener(new OnLongClickListener() {
-
+            
             public boolean onLongClick(View arg0) {
-                //confirm
+                // confirm
                 AlertDialog.Builder builder = new AlertDialog.Builder(NookLibrary.this);
                 builder.setTitle(R.string.delete);
                 builder.setMessage(R.string.confirm);
@@ -199,7 +185,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                             // local
                             m_OtherBooks.deleteBook(file);
                         }
-                      //Fix for Issue 89
+                        // Fix for Issue 89
                         List<ScannedFile> f = pageViewHelper.getFiles();
                         f.remove(file);
                         pageViewHelper.setFiles(f);
@@ -221,7 +207,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                             m_ShowValues.addAll(ScannedFile.m_StandardKeywords);
                         }
                         m_ShowValues.addAll(tmpList);
-                        m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
+                        m_ShowAdapter =
+                            new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
                         backButton.performClick();
                     }
                 });
@@ -261,7 +248,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                         m_OtherBooks.archiveBook(file, false);
                     }
                 }
-                //Fix for Issue 89
+                // Fix for Issue 89
                 List<ScannedFile> f = pageViewHelper.getFiles();
                 f.remove(file);
                 pageViewHelper.setFiles(f);
@@ -302,7 +289,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                         m_LibsAdapter.insert(name, 0);
                     } else if (name.equals(getString(R.string.smashwords))) {
                         m_Smashwords.deleteAll();
-                        m_LibsAdapter.insert(name,1);
+                        m_LibsAdapter.insert(name, 1);
                     }
                     m_RefreshAdapter.remove(name);
                     m_AddLibIndex--;
@@ -514,6 +501,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_Handler.post(thrd);
         
     }
+    
     private void queryFolders() {
         queryFolders(LOCAL_BOOKS);
     }
@@ -1034,10 +1022,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 }
             }
             
-            if (path.endsWith("fb2.zip") || ext.equals("fb2") || ext.equals("cbr") || ext.equals("cbx")) 
-                mimetype += "fb2"; 
-            else 
-                mimetype += ext; 
+            if (path.endsWith("fb2.zip") || ext.equals("fb2") || ext.equals("cbr") || ext.equals("cbx")) {
+                mimetype += "fb2";
+            } else {
+                mimetype += ext;
+            }
             System.out.println("Path =" + path + " ext =" + ext + " mimetype=" + mimetype);
             path = "file://" + path;
             if (file.getEan() != null && !file.getEan().trim().equals("")) {
@@ -1256,11 +1245,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 if (m_Refresh) {
                     for (ScannedFile file : m_Files) {
                         try {
-                            if( file.getPathName() != null) {
+                            if (file.getPathName() != null) {
                                 File f = new File(file.getPathName());
                                 file.setLastAccessedDate(new Date(f.lastModified()));
                             }
-                        } catch(Exception ex) {
+                        } catch (Exception ex) {
                         }
                     }
                 }

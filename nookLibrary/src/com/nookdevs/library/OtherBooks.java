@@ -22,19 +22,17 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.MediaScannerConnectionClient;
+import android.net.Uri;
 import android.util.Log;
 
 import com.bravo.ecm.service.ScannedFile;
 import com.nookdevs.common.nookBaseActivity;
-import android.media.MediaScannerConnection;
-import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 
-
-import android.net.Uri;
 public class OtherBooks extends SQLiteOpenHelper {
     public static final String BOOKS_DB = "myBooks.db";
     public static final String CREATE_BOOKS_TABLE =
@@ -207,7 +205,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                     continue;
                 }
                 Date lastModified = new Date(file.lastModified());
-               
+                
                 if (lastModified.after(lastScan) && !BNBooks.ARCHIVED.equalsIgnoreCase(cursor.getString(12))) {
                     m_DeleteBooks.add(cursor.getString(0));
                     cursor.moveToNext();
@@ -303,11 +301,11 @@ public class OtherBooks extends SQLiteOpenHelper {
         
         File f = new File(file.getPathName());
         f.delete();
-        if( file.getCover() != null) {
+        if (file.getCover() != null) {
             try {
                 f = new File(file.getCover());
                 f.delete();
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 return true;
             }
         }
@@ -348,12 +346,9 @@ public class OtherBooks extends SQLiteOpenHelper {
                     if (m_UpdatedFiles.contains(f)) { return false; }
                     String extension = f.getName().toLowerCase();
                     if (extension.endsWith("epub") || extension.endsWith("htm") || extension.endsWith("txt")
-                        || extension.endsWith("html") || extension.endsWith("pdf") ||
-                        extension.endsWith("fb2") || 
-                        extension.endsWith("fb2.zip") ||
-                        extension.endsWith("cbx") ||
-                        extension.endsWith("cbr") ||
-                        extension.endsWith("pdb")) {
+                        || extension.endsWith("html") || extension.endsWith("pdf") || extension.endsWith("fb2")
+                        || extension.endsWith("fb2.zip") || extension.endsWith("cbx") || extension.endsWith("cbr")
+                        || extension.endsWith("pdb")) {
                         return true;
                     } else {
                         return false;
@@ -389,8 +384,8 @@ public class OtherBooks extends SQLiteOpenHelper {
                     continue;
                 }
                 String ext = file.getAbsolutePath().toLowerCase();
-                ext = ext.substring(ext.lastIndexOf('.')+1);
-                if("pdb".equals(ext)) {
+                ext = ext.substring(ext.lastIndexOf('.') + 1);
+                if ("pdb".equals(ext)) {
                     m_ScannerNotifier.scanFile(file.getAbsolutePath());
                 } else {
                     ScannedFile file1 = new ScannedFile(file.getAbsolutePath());
@@ -409,49 +404,52 @@ public class OtherBooks extends SQLiteOpenHelper {
     
 }
 
-class MediaScannerNotifier implements
-MediaScannerConnectionClient {
+class MediaScannerNotifier implements MediaScannerConnectionClient {
     private MediaScannerConnection mConnection;
-    private boolean mConnected=false;
-    private int mReqCount=0;
-    private ArrayList<String> mWaitList=new ArrayList<String>(10);
+    private boolean mConnected = false;
+    private int mReqCount = 0;
+    private ArrayList<String> mWaitList = new ArrayList<String>(10);
     private ArrayList<ScannedFile> mFiles = new ArrayList<ScannedFile>(10);
     private NookLibrary mNookLib;
-    public synchronized void scanFile( String path) {
-        if( path == null) return;
+    
+    public synchronized void scanFile(String path) {
+        if (path == null) { return; }
         mReqCount++;
-        if( mConnected) {
+        if (mConnected) {
             String mime = "ebook/";
-            String ext = path.substring(path.lastIndexOf(".")+1).toLowerCase();
+            String ext = path.substring(path.lastIndexOf(".") + 1).toLowerCase();
             mime += ext;
             mConnection.scanFile(path, mime);
         } else {
             mWaitList.add(path);
         }
     }
+    
     public MediaScannerNotifier(NookLibrary context) {
         mConnection = new MediaScannerConnection(context, this);
         mConnection.connect();
-        mNookLib=context;
+        mNookLib = context;
     }
-
+    
     public void onMediaScannerConnected() {
-        mConnected=true;
-        for(String path:mWaitList) {
+        mConnected = true;
+        for (String path : mWaitList) {
             scanFile(path);
         }
         mWaitList.clear();
     }
-
+    
     public void onScanCompleted(String path, Uri arg1) {
         String ext = path.toLowerCase();
-        if( !ext.endsWith("pdb")) return; 
+        if (!ext.endsWith("pdb")) { return; }
         ScannedFile file = new ScannedFile(path);
-        String [] columns = {"title","authors","ean","publisher","date_published"};
-        Cursor dbCursor = mNookLib.getContentResolver().query(arg1, columns, null,null, null);
+        String[] columns = {
+            "title", "authors", "ean", "publisher", "date_published"
+        };
+        Cursor dbCursor = mNookLib.getContentResolver().query(arg1, columns, null, null, null);
         dbCursor.moveToFirst();
-        file.setTitle( dbCursor.getString(0));
-        file.addContributor( dbCursor.getString(1),"");
+        file.setTitle(dbCursor.getString(0));
+        file.addContributor(dbCursor.getString(1), "");
         file.setEan(dbCursor.getString(2));
         file.setPublisher(dbCursor.getString(3));
         file.setPublishedDate(new Date(dbCursor.getLong(4)));
@@ -459,15 +457,16 @@ MediaScannerConnectionClient {
         file.setBookInDB(false);
         dbCursor.close();
         mFiles.add(file);
-        synchronized(this) {
+        synchronized (this) {
             mReqCount--;
         }
     }
+    
     public void waitForCompletion() {
-        while( mReqCount >0) {
+        while (mReqCount > 0) {
             try {
                 Thread.sleep(100);
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 
             }
         }
@@ -475,4 +474,3 @@ MediaScannerConnectionClient {
         mFiles.clear();
     }
 }
-
