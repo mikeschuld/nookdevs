@@ -195,108 +195,10 @@ public class PDFViewerActivity extends nookBaseActivity {
 		});
 	}
 	private void pageUp() {
-        int cury = m_pdf_view.getScrollY();
-        int curx = m_pdf_view.getScrollX();
-        if (cury <= 0) { 
-            m_pdf_view.prevPage();
-            if( m_pdf_view.getMediaHeight() > SCROLL_PX_Y)
-                m_pdf_view.scrollTo(curx, m_pdf_view.getMediaHeight() - SCROLL_PX_Y);
-            else
-                m_pdf_view.scrollTo(curx, 0);
-            return;
-        }
-        int newy = cury - SCROLL_PX_Y+60;
-        if (newy < 0) {
-            newy=0;
-        }
-        m_pdf_view.scrollTo(0, newy);
-   }
+	    m_pdf_view.prevPage();
+	}
     private void pageDown() {
-        int cury = m_pdf_view.getScrollY();
-        int curx = m_pdf_view.getScrollX();
-        int hmax = (int)m_pdf_view.getMediaHeight() - SCROLL_PX_Y;
-        if( cury >= hmax) { 
-            m_pdf_view.nextPage();
-            m_pdf_view.scrollTo(curx,0);
-            return;
-        }
-        int newy = cury + SCROLL_PX_Y-60;
-//        if (newy > hmax) {
-//            newy = hmax;
-//        }
-        if (cury != newy) {
-            m_pdf_view.scrollTo(0, newy);
-        } else {
-            m_pdf_view.nextPage();
-            m_pdf_view.scrollTo(curx, 0);
-        }
-
-    }
-    private void pageUpR() {
-        int curx = m_pdf_view.getScrollX();
-        int cury = m_pdf_view.getScrollY();
-        if (curx == 0) { 
-           m_pdf_view.prevPage();
-           if( m_pdf_view.getMediaHeight() > SCROLL_PX_X)
-               m_pdf_view.scrollTo((m_pdf_view.getMediaHeight()-SCROLL_PX_X), cury);
-           else
-               m_pdf_view.scrollTo(0,cury);
-           return;
-        }
-        int newx = curx + SCROLL_PX_X-60;
-        if( newx >0) newx=0;
-        m_pdf_view.scrollTo(newx,0);
-   }
-    private void pageDownR() {
-        int curx = m_pdf_view.getScrollX();
-        int cury = m_pdf_view.getScrollY();
-        int hmax = (int)m_pdf_view.getMediaHeight() - SCROLL_PX_X;
-        
-        if( curx >= hmax) { 
-            m_pdf_view.nextPage();
-            m_pdf_view.scrollTo(0,cury);
-            return;
-        }
-        int newx = curx + SCROLL_PX_X-60;
-        if (curx != newx) {
-            m_pdf_view.scrollTo(newx,0);
-        } else {
-            m_pdf_view.nextPage();
-            m_pdf_view.scrollTo(0,cury);
-        }
-    }
-	private void pageUpL() {
-	    int curx = m_pdf_view.getScrollX();
-	    int cury = m_pdf_view.getScrollY();
-	    if (curx == 0) { 
-           m_pdf_view.prevPage();
-           if( m_pdf_view.getMediaHeight() > SCROLL_PX_X)
-               m_pdf_view.scrollTo(-(m_pdf_view.getMediaHeight()-SCROLL_PX_X), cury);
-           else
-               m_pdf_view.scrollTo(0,cury);
-           return;
-        }
-        int newx = curx + SCROLL_PX_X-60;
-        if( newx >0) newx=0;
-        m_pdf_view.scrollTo(newx,0);
-   }
-	private void pageDownL() {
-        int curx = m_pdf_view.getScrollX();
-        int cury = m_pdf_view.getScrollY();
-        int hmax = (int)m_pdf_view.getMediaHeight() - SCROLL_PX_X;
-        
-        if( curx <= -hmax) { 
-            m_pdf_view.nextPage();
-            m_pdf_view.scrollTo(0,cury);
-            return;
-        }
-        int newx = curx - SCROLL_PX_X+60;
-        if (curx != newx) {
-            m_pdf_view.scrollTo(newx,0);
-        } else {
-            m_pdf_view.nextPage();
-            m_pdf_view.scrollTo(0,cury);
-        }
+        m_pdf_view.nextPage();
     }
     
 	private void initButtons() {
@@ -310,9 +212,7 @@ public class PDFViewerActivity extends nookBaseActivity {
 		btn.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
 			    if( m_landscapeleft) 
-			        pageDownL();
-			    else if( m_landscaperight)
-			        pageUpR();
+			        pageDown();
 			    else 
 			        pageUp();
 			    saveData();
@@ -331,9 +231,7 @@ public class PDFViewerActivity extends nookBaseActivity {
 		btn.setOnClickListener(new View.OnClickListener(){
 			public void onClick(View v) {
 			    if( m_landscapeleft) 
-			        pageUpL();
-			    else if( m_landscaperight)
-			        pageDownR();
+			        pageUp();
 			    else
 			        pageDown();
 	            saveData();
@@ -395,21 +293,26 @@ public class PDFViewerActivity extends nookBaseActivity {
 					factor = 0.50F;
 					break;
 				case 3:
-					factor = 0.60F;
-					break;
-				case 4:
 					factor = 0.75F;
 					break;
+				case 4:
+					factor = 1.00F;
+					break;
 				case 5:
-					factor = 0.90F;
+					factor = 1.25F;
 					break;
 				case 6:
-				    factor = 1.00F;
+				    factor = 1.5F;
 				    break;
 				case 7:
-				    factor = 1.15F;
+				    factor = 2.0F;
+				    break;
 				case 8:
-				    factor = 1.25F;
+				    factor = 2.5F;
+				    break;
+				case 9:
+                    factor = 3.0F;
+                    break;
 				default:
 					factor = -1.0F;
 					break;
@@ -488,39 +391,25 @@ public class PDFViewerActivity extends nookBaseActivity {
         switch (keyCode) {
             case NOOK_PAGE_UP_KEY_LEFT:
             case NOOK_PAGE_UP_KEY_RIGHT:
-                if( m_landscapeleft) 
-                    pageUpL();
-                else if(m_landscaperight)
-                    pageUpR();
-                else 
-                    pageUp();
+                pageUp();
                 handled = true;
                 break;
             
             case NOOK_PAGE_DOWN_KEY_LEFT:
             case NOOK_PAGE_DOWN_KEY_RIGHT:
-                if( m_landscapeleft)
-                    pageDownL();
-                else if(m_landscaperight)
-                    pageDownR();
-                else
-                    pageDown();
+                pageDown();
                 handled = true;
                 break;
             case NOOK_PAGE_UP_SWIPE:
                  if( m_landscapeleft)
-                     pageDownL();
-                 else if( m_landscaperight)
-                     pageUpR();
+                     pageDown();
                  else
                      pageUp();
                  handled = true;
                  break;
             case NOOK_PAGE_DOWN_SWIPE:
                 if( m_landscapeleft)
-                    pageUpL();
-                else if( m_landscaperight) 
-                    pageDownR();
+                    pageUp();
                 else
                     pageDown();
                 handled = true;

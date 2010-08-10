@@ -21,7 +21,7 @@
 	<com.googlecode.apdfviewer.PDFView android:id="@+id/view"
 	android:textColor="#FFFFFF"
 	android:color="#FFFFFF"
-		android:scrollbars="none"
+		android:scrollbars="horizontal|vertical"
 		android:paddingTop="10px" android:gravity="center"
 		android:layout_width="600.0px" 
 		android:layout_height="760.0px">
