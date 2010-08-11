@@ -1022,12 +1022,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 }
             }
             
-            if (path.endsWith("fb2.zip") || ext.equals("fb2") || ext.equals("cbr") || ext.equals("cbx")) {
+            if (path.endsWith("fb2.zip") || ext.equals("fb2")) {
                 mimetype += "fb2";
             } else {
                 mimetype += ext;
             }
-            System.out.println("Path =" + path + " ext =" + ext + " mimetype=" + mimetype);
             path = "file://" + path;
             if (file.getEan() != null && !file.getEan().trim().equals("")) {
                 path += "?EAN=" + file.getEan();
