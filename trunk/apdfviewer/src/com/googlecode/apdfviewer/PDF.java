@@ -20,8 +20,6 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.util.List;
 
-import android.graphics.Canvas;
-
 /**
  * Native PDF - interface to native code.
  */
@@ -127,12 +125,9 @@ public class PDF {
      *            right edge
      * @param passes
      *            requested size, used for size of resulting bitmap
-     * @param Canvas
-     *            to draw the bitmap.
      * @return bytes of bitmap in Androids format
      */
-    synchronized public native int[] renderPage(int n, int zoom, int left, int top, int rotation, PDF.Size rect,
-        Canvas canvas);
+    synchronized public native int[] renderPage(int n, int zoom, int left, int top, int rotation, PDF.Size rect);
     
     /**
      * Get PDF page size, store it in size struct, return error code.
@@ -163,10 +158,6 @@ public class PDF {
     /**
      * Free memory allocated in native code.
      */
-    synchronized private native void freeMemory();
+    synchronized public native void freeMemory();
     
-    @Override
-    public void finalize() {
-        freeMemory();
-    }
 }

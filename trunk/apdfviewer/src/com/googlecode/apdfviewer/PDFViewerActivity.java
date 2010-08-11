@@ -32,10 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -80,7 +77,7 @@ public class PDFViewerActivity extends nookBaseActivity {
         
         Uri uri = intent.getData();
         m_pdf_view = (PDFView) findViewById(R.id.view);
-        String file = uri.toString().substring(7);
+        String file = uri.getPath();
         new MediaScannerNotifier(file);
         initZoomSpinner();
         initButtons();
@@ -113,6 +110,9 @@ public class PDFViewerActivity extends nookBaseActivity {
         m_text = (TextView) findViewById(R.id.page_picker_message);
         m_seek_view.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (progress == 0) {
+                    progress = 1;
+                }
                 m_text.setText(progress + "");
             }
             
@@ -133,12 +133,18 @@ public class PDFViewerActivity extends nookBaseActivity {
         ImageButton minus = (ImageButton) findViewById(R.id.page_picker_minus);
         minus.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                m_seek_view.incrementProgressBy(-1);
+                if (m_seek_view.getProgress() != 0) {
+                    m_seek_view.incrementProgressBy(-1);
+                }
             }
         });
         close.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                m_pdf_view.gotoPage(m_seek_view.getProgress());
+                if (m_seek_view.getProgress() == 0) {
+                    m_pdf_view.gotoPage(0);
+                } else {
+                    m_pdf_view.gotoPage(m_seek_view.getProgress() - 1);
+                }
                 m_animator.showNext();
             }
         });
@@ -197,6 +203,8 @@ public class PDFViewerActivity extends nookBaseActivity {
         ImageButton btn = (ImageButton) findViewById(R.id.exit);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                m_pdf_view.close();
+                System.gc();
                 finish();
             }
         });
@@ -214,7 +222,7 @@ public class PDFViewerActivity extends nookBaseActivity {
         btn.setOnLongClickListener(new View.OnLongClickListener() {
             
             public boolean onLongClick(View v) {
-                m_seek_view.setProgress(m_pdf_view.getCurrentPage());
+                m_seek_view.setProgress(m_pdf_view.getCurrentPage() + 1);
                 m_animator.showNext();
                 return true;
             }
@@ -234,7 +242,7 @@ public class PDFViewerActivity extends nookBaseActivity {
         btn.setOnLongClickListener(new View.OnLongClickListener() {
             
             public boolean onLongClick(View v) {
-                m_seek_view.setProgress(m_pdf_view.getCurrentPage());
+                m_seek_view.setProgress(m_pdf_view.getCurrentPage() + 1);
                 m_animator.showNext();
                 return true;
             }
@@ -342,21 +350,6 @@ public class PDFViewerActivity extends nookBaseActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-    }
-    
-    /**
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem item = menu.add(0, 0, 0, "About");
-        item.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                showDialog(ABOUT);
-                return true;
-            }
-        });
-        return true;
     }
     
     private void saveData() {

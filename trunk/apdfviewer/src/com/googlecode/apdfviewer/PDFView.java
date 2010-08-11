@@ -619,12 +619,12 @@ public class PDFView extends View {
         Size size = new Size();
         size.height = h;
         size.width = w;
-        m_doc.renderPage(page, (int) (zoom * 1000), x, y, 0, size, m_cache_canvas_next);
-        // Paint p = new Paint();
-        // ColorFilter filter = new
-        // PorterDuffColorFilter(Color.WHITE,PorterDuff.Mode.MULTIPLY);
-        // p.setColorFilter(filter);
-        // m_cache_canvas_next.drawBitmap(buf, 0, w, 0, 0, w, h, true, p);
+        // int rotate = (m_startX==0 && m_startY==0)?m_Rotate:0;
+        int[] buf = m_doc.renderPage(page, (int) (zoom * 1000), x, y, 0, size);
+        Paint p = new Paint();
+        ColorFilter filter = new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
+        p.setColorFilter(filter);
+        m_cache_canvas_next.drawBitmap(buf, 0, w, 0, 0, w, h, true, p);
         m_updatecache.open();
         return true;
     }
@@ -657,13 +657,14 @@ public class PDFView extends View {
         Size size = new Size();
         size.height = h;
         size.width = w;
-        m_doc.renderPage(m_current_page, (int) (zoom * 1000), m_startX, m_startY, 0, size, m_cache_canvas);
-        // Paint p = new Paint();
-        // ColorFilter filter = new
-        // PorterDuffColorFilter(Color.WHITE,PorterDuff.Mode.MULTIPLY);
-        // p.setColorFilter(filter);
-        // m_cache_canvas.drawBitmap(buf, 0, w, 0, 0, w, h, true, p);
+        // int rotate = (m_startX==0 && m_startY==0)?m_Rotate:0;
+        int[] buf = m_doc.renderPage(m_current_page, (int) (zoom * 1000), m_startX, m_startY, 0, size);
+        Paint p = new Paint();
+        ColorFilter filter = new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
+        p.setColorFilter(filter);
+        m_cache_canvas.drawBitmap(buf, 0, w, 0, 0, w, h, true, p);
         postInvalidate();
+        System.gc();
         return true;
     }
     
@@ -755,4 +756,7 @@ public class PDFView extends View {
         return 0;
     }
     
+    public void close() {
+        m_doc.freeMemory();
+    }
 }
