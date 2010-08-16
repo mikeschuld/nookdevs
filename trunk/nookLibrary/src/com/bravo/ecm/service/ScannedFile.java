@@ -35,6 +35,11 @@ import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.geometerplus.fbreader.library.Author;
+import org.geometerplus.fbreader.library.Book;
+import org.geometerplus.fbreader.library.Tag;
+import org.geometerplus.zlibrary.core.filesystem.ZLArchiveEntryFile;
+import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -204,6 +209,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             if (type.equals("html")) {
                 type = "htm";
             }
+            if( type.equals("zip"))
+                type="fb2";
             addKeywords(type);
         }
     }
@@ -334,7 +341,40 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             epub = new EpubMetaReader(this);
         } else if ("pdf".equalsIgnoreCase(type)) {
             pdf = new PdfMetaReader(this, quick);
+        } else if ("fb2".equalsIgnoreCase(type)) { 
+            Book book = tryGetFB2Book(ZLFile.createFileByPath(pathname)); 
+            if( book != null) {
+                setTitle(book.getTitle()); 
+                for(Tag s : book.tags()) 
+                { 
+                        addKeywords(s.Name); 
+                } 
+                for(Author s : book.authors()) 
+                { 
+                        addContributor(s.DisplayName, ""); 
+                }
+            }
+        } 
+
+    }
+    Book tryGetFB2Book(ZLFile file)
+    {
+        try {
+            if (file.isArchive()) {
+                Book book = new Book(ZLArchiveEntryFile.archiveEntries(file).get(0));
+                book.readMetaInfo();
+                return book;
+            }
+            else
+            {
+                Book book = new Book(file);
+                book.readMetaInfo();
+                return book;
+            }
+        } catch(Exception ex) {
+            return null;
         }
+        
     }
     
     public ScannedFile(String pathName) {
