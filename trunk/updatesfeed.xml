@@ -35,7 +35,7 @@
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookLibrary.apk"/>
     <id>http://nookdevs.googlecode.com/files/nookLibrary.apk</id>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <pkg>com.nookdevs.library</pkg>
     <content type="text">Browse, sort and search books on the Nook. 
     </content>
