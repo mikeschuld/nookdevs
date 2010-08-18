@@ -86,6 +86,8 @@ $::NOOKAPP_GOOGLEREADER = "$ENV{HOME}/git/nookapp-googlereader";
           "$::NOOKDEVS/nookCalculator/res/drawable/icon.png", "$::NOOKDEVS/nookCalculator/res/drawable/icon_pressed.png" ],
   23 => [ "mz_googlereader",
           "$::NOOKAPP_GOOGLEREADER/res/drawable/icon.png", "$::NOOKAPP_GOOGLEREADER/res/drawable/icon_pressed.png" ],
+  24 => [ "nd_tasks",
+          "$::NOOKDEVS/nookTaskManager/res/drawable/icon.png", "$::NOOKDEVS/nookTaskManager/res/drawable/icon_pressed.png" ],
 );
 
 # parse command-line arguments, validate context...
