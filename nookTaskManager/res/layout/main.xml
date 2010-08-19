@@ -8,7 +8,7 @@
   <!-- this Frame is used merely to block out the eink-display -->
 	<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="760px"
+    android:layout_height="560px"
     android:stretchColumns="1"
 		android:id="@+id/miscinfotable"
 	>
@@ -58,6 +58,30 @@
 			/>
 		</TableRow>
 	</TableLayout>
+	<TextView
+		android:text="Quick Keys: Hit top right '&lt;' to kill all non-barnes and noble apps."
+		android:layout_height="50px"
+		android:layout_width="fill_parent"
+		android:textSize="17sp"
+		android:gravity="left"
+		android:padding="3dip"
+	/>
+	<TextView 
+		android:text="Quick Keys: Hit top left '&lt;' to display all apps."
+		android:layout_height="50px"
+		android:layout_width="fill_parent"
+		android:textSize="17sp"
+		android:gravity="left"
+		android:padding="3dip"
+	/>
+	<TextView 
+		android:text="Quick Keys: Hit bottom left '&gt;' to display only non-barnes and noble apps."
+		android:layout_height="100px"
+		android:layout_width="fill_parent"
+		android:textSize="17sp"
+		android:gravity="left"
+		android:padding="3dip"
+	/>
   <!-- From here onwards is the real layout -->
   <!-- It's probably simplest to use a Frame that explicitly
        sets the width and height, but a HorizontalScrollView
