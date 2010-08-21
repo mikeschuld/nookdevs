@@ -1,0 +1,20 @@
+ISSUES
+
+IMMEDIATE
+
+- propset svn:ignore for "bin", "doc", "gen", "*.apk" after commit!
+
+FEATURES
+
+- automatically replace arrows, long dash, some markup for umlauts? -> provide an option then to toggle this
+- make long-tapping left/right on the soft keyboard go the the next/previous word, up/down to top/bottom
+
+COSMETICS
+
+- disable menu and other buttons context-dependently?
+- make the menu scrollbars look like the B&N ones
+
+NIGGLES
+
+- work around emulator crashes with the soft keyboard
+- get custom themes to work after all?!

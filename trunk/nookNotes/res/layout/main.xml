@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent" android:layout_height="fill_parent"
+              android:orientation="vertical">
+
+    <!-- eInk display... -->
+    <LinearLayout android:id="@+id/einkscreen"
+                  android:layout_width="600px" android:layout_height="760px"
+                  android:scrollbars="none"
+                  android:orientation="vertical"
+                  android:background="#ffffff"/>
+
+    <!--  touch-screen... -->
+    <LinearLayout android:id="@+id/touchscreen"
+                  android:layout_width="480px" android:layout_height="144px"
+                  android:scrollbars="none"
+                  android:orientation="horizontal"
+                  android:gravity="top"
+                  android:background="#c0c0c0">
+
+        <!--  "back" button... -->
+        <Button android:id="@+id/button_back"
+                android:layout_width="35px" android:layout_height="fill_parent"
+                android:layout_below="@id/einkscreen"
+                android:background="@drawable/back_button"/>
+
+        <!-- menu, scrolling among two levels... -->
+        <ViewAnimator android:id="@+id/menu_animator"
+                      android:layout_width="334px" android:layout_height="144px"
+                      android:layout_below="@id/einkscreen"
+                      android:layout_toRightOf="@id/button_back"
+                      android:layout_marginLeft="1px"
+                      android:alwaysDrawnWithCache="true">
+
+            <!-- first-level menu... -->
+            <ListView android:id="@+id/main_menu"
+                      android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:minHeight="250px"
+                      android:divider="#808080" android:dividerHeight="1px"
+                      android:choiceMode="singleChoice"
+                      android:scrollbars="vertical"
+                      android:scrollbarStyle="insideOverlay" android:scrollbarSize="20px"
+                      android:fadingEdge="none"
+                      android:background="#c8c8c8"
+                      android:listSelector="@android:color/transparent"/>
+
+            <!-- second-level menu... -->
+            <ListView android:id="@+id/sub_menu"
+                      android:layout_width="fill_parent" android:layout_height="fill_parent"
+                      android:minHeight="250px"
+                      android:divider="#808080" android:dividerHeight="1px"
+                      android:choiceMode="singleChoice"
+                      android:scrollbars="vertical"
+                      android:scrollbarStyle="insideOverlay" android:scrollbarSize="20px"
+                      android:fadingEdge="none"
+                      android:background="#c8c8c8"
+                      android:listSelector="@android:color/transparent"/>
+
+        </ViewAnimator>
+
+        <!-- "up"/"down" buttons... -->
+        <LinearLayout android:layout_width="72px" android:layout_height="144px"
+                      android:orientation="vertical"
+                      android:gravity="top"
+                      android:scrollbars="none"
+                      android:layout_marginLeft="1px"
+                      android:background="#c0c0c0">
+            <Button android:id="@+id/button_up"
+                    android:layout_width="fill_parent" android:layout_height="72px"
+                    android:soundEffectsEnabled="true"
+                    android:background="@drawable/up_button"/>
+            <Button android:id="@+id/button_down"
+                    android:layout_width="fill_parent" android:layout_height="72px"
+                    android:soundEffectsEnabled="true"
+                    android:background="@drawable/down_button"/>
+        </LinearLayout>
+
+        <!-- view button -->
+        <Button android:id="@+id/button_view"
+                android:layout_marginLeft="1px"
+                android:layout_width="wrap_content" android:layout_height="144.0px"
+                android:layout_below="@id/einkscreen" android:layout_toRightOf="@id/button_up"
+                android:soundEffectsEnabled="true"
+                android:background="@drawable/selection_button"/>
+
+    </LinearLayout>
+
+</LinearLayout>

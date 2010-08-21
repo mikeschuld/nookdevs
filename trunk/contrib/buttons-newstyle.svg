@@ -420,6 +420,26 @@
        inkscape:vp_y="0 : 1000 : 0"
        inkscape:vp_x="0 : 0.5 : 1"
        sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3632"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <filter
+       color-interpolation-filters="sRGB"
+       inkscape:collect="always"
+       id="filter4349-7-5"
+       x="-0.13664845"
+       width="1.273297"
+       y="-0.10696768"
+       height="1.2139354">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="4.5831791"
+         id="feGaussianBlur4351-4-9" />
+    </filter>
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -430,17 +450,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1860"
-     inkscape:window-height="1057"
+     inkscape:window-width="1280"
+     inkscape:window-height="962"
      id="namedview4"
      showgrid="true"
      inkscape:zoom="1.5458333"
-     inkscape:cx="480"
-     inkscape:cy="216"
-     inkscape:window-x="60"
+     inkscape:cx="660.16173"
+     inkscape:cy="188.18329"
+     inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="normal"
+     inkscape:current-layer="pressed"
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:snap-global="true"
@@ -1498,6 +1518,53 @@
          id="path4042"
          style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
          d="m 258.19724,42.875 0,4.125 -4.125,0 0,3 4.125,0 0,4.125 3,0 0,-4.125 4.09375,0 0,-3 -4.09375,0 0,-4.125 -3,0 z m -7.97165,4.125 6.26243,36 -4.68789,0 -6.2624,-36 4.68786,0 z m -7.90854,0 6.26242,36 -4.6521,0 -6.26241,-36 4.65208,0 z m -7.20997,0.01649 0,1.638072 0,32.693257 0,1.638071 -1.63807,0 -8.90703,0 -1.63807,0 0,-1.638071 0,-32.693257 0,-1.638072 1.63807,0 8.90703,0 1.63807,0 z m -3.27616,3.276143 -5.63087,0 0,29.417104 5.63087,0 0,-29.417104 z" />
+      <rect
+         ry="12.405665"
+         rx="12.405665"
+         y="163.14597"
+         x="871.75195"
+         height="102.83134"
+         width="80.495827"
+         id="rect3096"
+         style="opacity:0.5;fill:#000000;fill-opacity:1;stroke:none;display:inline;filter:url(#filter4349-7-5)" />
+      <rect
+         ry="12.405665"
+         rx="12.405665"
+         y="158.10617"
+         x="871.75195"
+         height="102.83134"
+         width="80.495827"
+         id="rect3098"
+         style="fill:#3f4696;fill-opacity:1;stroke:#ffffff;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline" />
+      <text
+         sodipodi:linespacing="100%"
+         id="text3102"
+         y="279.96875"
+         x="911.6991"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;writing-mode:lr-tb;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;display:inline;font-family:Segoe;-inkscape-font-specification:Segoe"
+         xml:space="preserve"><tspan
+           y="279.96875"
+           x="911.6991"
+           id="tspan3104"
+           sodipodi:role="line">notes</tspan></text>
+      <path
+         style="opacity:0.2;fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
+         d="m 884.15612,158.09375 c -6.87274,0 -12.40625,5.53351 -12.40625,12.40625 l 0,35.1875 c 12.93358,1.25667 26.63165,1.9375 40.8125,1.9375 13.78275,0 27.07545,-0.65418 39.6875,-1.84375 l 0,-35.28125 c 0,-6.87274 -5.53351,-12.40625 -12.40625,-12.40625 l -55.6875,0 z"
+         id="path3100" />
+      <g
+         style="display:inline"
+         id="g3855"
+         transform="translate(0.21891962,-144)">
+        <path
+           sodipodi:nodetypes="ccccccccccccccccc"
+           d="m 907.44337,335 0,12.26073 -12.26073,0 0,0.0697 L 907.51305,335 l -0.0697,0 z m 20.90427,0 0,36 -33.165,0 0,-23.73927 3,0 0,21.28031 27.70604,0 0,-31.08208 -18.44531,0 0,-2.45896 20.90427,0 z"
+           style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;color:#000000;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3.00000024;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+           id="rect3882" />
+        <path
+           d="m 909.52857,354.41398 3.98515,3.16589 -6.78338,4.44758 2.79823,-7.61347 z m 0.89736,-1.05956 17.09636,-21.52042 3.98527,3.166 -17.09636,21.52041 -3.98527,-3.16599 z"
+           style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:3;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect3844" />
+      </g>
     </g>
   </g>
   <g
@@ -1726,6 +1793,15 @@
          y="302.10565"
          rx="12.405665"
          ry="12.405665" />
+      <rect
+         ry="12.405665"
+         rx="12.405665"
+         y="302.10565"
+         x="871.75195"
+         height="102.83134"
+         width="80.495827"
+         id="rect3673"
+         style="opacity:0.2;fill:#ffffff;fill-opacity:1;stroke:none;display:inline" />
     </g>
   </g>
 </svg>

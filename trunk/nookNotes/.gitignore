@@ -1,0 +1,10 @@
+/bin/
+/doc/
+/gen/
+/local.properties
+*~
+*.apk
+*.bak
+*.tmp
+*.iws
+.*.swp
