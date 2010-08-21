@@ -2,8 +2,6 @@ ISSUES
 
 IMMEDIATE
 
-- propset svn:ignore for "bin", "doc", "gen", "*.apk" after commit!
-
 FEATURES
 
 - automatically replace arrows, long dash, some markup for umlauts? -> provide an option then to toggle this
