@@ -49,13 +49,19 @@ public abstract class BaseActivity extends Activity
      */
     @NotNull protected static final String PKEY_NOTES_SORT_BY = "notesSortBy";
 
+    /**
+     * The default screensaver delay/screen lock period in milliseconds.  Used if fetching the
+     * corresponding system setting fails.
+     */
+    private static final long DEFAULT_SCREENSAVER_DELAY = 600000l;
+
     //................................................................................... internals
 
     /** The title as displayed in the status bar. */
     @NotNull private String mTitle;
 
-    /** The screensaver delay (in milliseconds). */
-    private long mScreenSaverDelay = 600000l;  // ms
+    /** The screensaver delay/screen lock period (in milliseconds). */
+    private long mScreenSaverDelay = DEFAULT_SCREENSAVER_DELAY;  // ms
     /**
      * Wake lock preventing the screensaver from kicking in too soon.  May be <code>null</code> if
      * acquisition failed.
@@ -73,14 +79,6 @@ public abstract class BaseActivity extends Activity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // fetch relevant system settings...
-        try {
-            mScreenSaverDelay =
-                Settings.System.getLong(getContentResolver(), SYSTEM_SETTINGS_SCREENSAVER_DELAY);
-        } catch (Settings.SettingNotFoundException e) {
-            Log.v(mLogTag, "Failed to fetch screensaver delay system setting!");
-        }
 
         // initialize screen lock...
         PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
@@ -107,7 +105,21 @@ public abstract class BaseActivity extends Activity
     @Override
     protected void onResume() {
         super.onResume();
+
+        // fetch relevant system settings (we're doing this here in case they have changed
+        // intermittently)...
+        try {
+            mScreenSaverDelay =
+                Settings.System.getLong(getContentResolver(), SYSTEM_SETTINGS_SCREENSAVER_DELAY);
+            if (mScreenSaverDelay <= 0) mScreenSaverDelay = DEFAULT_SCREENSAVER_DELAY;
+        } catch (Settings.SettingNotFoundException e) {
+            Log.v(mLogTag, "Failed to fetch screensaver delay system setting!");
+        }
+
+        // lock screen for a while...
         if (mScreenLock != null) mScreenLock.acquire(mScreenSaverDelay);
+
+        // make sure the activity's title is displayed...
         updateTitle(mTitle);
     }
 
@@ -115,6 +127,8 @@ public abstract class BaseActivity extends Activity
     @Override
     public void onUserInteraction() {
         super.onUserInteraction();
+
+        // lock screen for a while...
         if (mScreenLock != null) mScreenLock.acquire(mScreenSaverDelay);
     }
 
@@ -122,6 +136,8 @@ public abstract class BaseActivity extends Activity
     @Override
     protected void onPause() {
         super.onPause();
+
+        // release screen lock...
         if (mScreenLock != null) mScreenLock.release();
     }
 
