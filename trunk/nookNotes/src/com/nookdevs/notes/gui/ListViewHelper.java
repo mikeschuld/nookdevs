@@ -112,8 +112,9 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
     @NotNull protected final Activity mActivity;
     /** The items storage. */
     @NotNull protected final ListItemsProvider<T> mItems;
+
     /** The list title to display. */
-    @NotNull protected final String mTitle;
+    @NotNull protected String mTitle;
 
     /** The number of pages in the list. */
     protected int mPageCount;

@@ -39,7 +39,7 @@ import com.nookdevs.notes.provider.Notes;
 import com.nookdevs.notes.util.NookSpecifics;
 import org.jetbrains.annotations.NotNull;
 
-import static com.nookdevs.notes.provider.NotesUris.noteIdOfUri;
+import static com.nookdevs.notes.provider.NotesUris.*;
 import static com.nookdevs.notes.provider.NotesUtils.getNote;
 import static com.nookdevs.notes.provider.NotesUtils.notesCount;
 
@@ -53,6 +53,9 @@ import static com.nookdevs.notes.provider.NotesUtils.notesCount;
 public class ItemsListViewHelper extends ListViewHelper<Item>
 {
     ///////////////////////////////////////// ATTRIBUTES //////////////////////////////////////////
+
+    /** The ID of the note whose items we display. */
+    protected int mNoteId;
 
     /** List of (absolute, 0-based) item indices for each page. */
     @NotNull protected static final List<Integer> mFirstItemsInPages = new ArrayList<Integer>();
@@ -75,6 +78,8 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
                                @NotNull ListItemsProvider<Item> notes)
     {
         super(activity, view, notes, getNoteTitle(activity, noteUri));
+        assert isSingleNoteUri(noteUri);
+        mNoteId = noteIdOfUri(noteUri);
     }
 
     // inherited methods...
@@ -177,6 +182,15 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
     }
 
     // own methods...
+
+    /**
+     * Updates the note's title as displayed above the list in case it has changed.
+     */
+    public void refreshTitle() {
+        mvTitle.setText(mTitle = getNoteTitle(mActivity, singleNoteUri(mNoteId)));
+    }
+
+    //................................................................................... internals
 
     /**
      * Returns the title of a note given its URI, or a default string if its title is

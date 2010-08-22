@@ -307,6 +307,7 @@ public class NoteView
 
         // requery data...
         mItemsProvider.requery();  // TODO: Why is this necessary despite observers?
+        mListViewHelper.refreshTitle();  // may have changed
 
         // check whether the note is the one last viewed, then make it that...
         boolean lastViewed = isLastViewed();
