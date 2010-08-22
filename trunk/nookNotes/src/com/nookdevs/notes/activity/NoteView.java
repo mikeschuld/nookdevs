@@ -433,15 +433,19 @@ public class NoteView
                         REQUEST_ADD_ITEM);
                     break;
                 case 1:  // "Add above selection"
-                    startActivity(new Intent(Intent.ACTION_INSERT,
-                                             singleItemUri(mNoteId, Math.max(idx - 1, 0))));
+                    startActivityForResult(
+                        new Intent(Intent.ACTION_INSERT,
+                                   singleItemUri(mNoteId, Math.max(idx - 1, 0))),
+                        REQUEST_ADD_ITEM);
                     break;
                 case 2:  // "Add below selection"
-                    startActivity(new Intent(Intent.ACTION_INSERT,
-                                             singleItemUri(mNoteId, idx + 1)));
+                    startActivityForResult(
+                        new Intent(Intent.ACTION_INSERT, singleItemUri(mNoteId, idx + 1)),
+                        REQUEST_ADD_ITEM);
                     break;
                 case 3:  // "Add at bottom"
-                    startActivity(new Intent(Intent.ACTION_INSERT, itemsUri(mNoteId)));
+                    startActivityForResult(new Intent(Intent.ACTION_INSERT, itemsUri(mNoteId)),
+                                           REQUEST_ADD_ITEM);
                     break;
 
                 default:
@@ -486,7 +490,8 @@ public class NoteView
             switch (position) {
                 case 0:  // "Add"
                     // add at bottom
-                    startActivity(new Intent(Intent.ACTION_INSERT, itemsUri(mNoteId)));
+                    startActivityForResult(new Intent(Intent.ACTION_INSERT, itemsUri(mNoteId)),
+                                           REQUEST_ADD_ITEM);
                     return true;
                 case 3:  // "Delete"
                     if (idx < 0) break;
@@ -512,8 +517,7 @@ public class NoteView
                 if (resultCode == RESULT_OK && data != null) {
                     Uri uri = data.getData();
                     if (isSingleItemUri(uri)) {
-                        int itemIdx = itemIndexOfUri(uri);
-                        mListViewHelper.setSelectedIndex(itemIdx);
+                        mListViewHelper.setSelectedIndex(itemIndexOfUri(uri));
                     } else {
                         Log.e(mLogTag,
                               "Expected result of adding an item to be a single item's URI -- " +
