@@ -88,7 +88,8 @@ public class NotesSQLite extends Notes
                        "(" + KEY_ITEM_NOTE_ID + " INTEGER NOT NULL, " +
                              KEY_ITEM_INDEX + " INTEGER NOT NULL DEFAULT -1, " +
                              KEY_ITEM_TEXT + " TEXT, " +
-                             KEY_ITEM_CHECKED + " INTEGER NOT NULL DEFAULT 0);");
+                             KEY_ITEM_CHECKED + " INTEGER NOT NULL DEFAULT 0, " +
+                             KEY_ITEM_HEIGHT + " INTEGER);");
             db.setVersion(DATABASE_VERSION);
         }
 
@@ -107,6 +108,10 @@ public class NotesSQLite extends Notes
                         case 1:
                         case 2:
                             // versions 1 through 2 were pre-release, won't be encountered any more
+                            break;
+                        case 3:  // TABLE_ITEMS += KEY_ITEM_HEIGHT
+                            db.execSQL("ALTER TABLE " + TABLE_ITEMS + " " +
+                                       "ADD COLUMN " + KEY_ITEM_HEIGHT + " INTEGER;");
                             break;
 
                         default:
@@ -131,7 +136,7 @@ public class NotesSQLite extends Notes
     /** The name of the database. */
     @NotNull protected static final String DATABASE_NAME = "notes.db";
     /** The current database version. */
-    protected static final int DATABASE_VERSION = 3;
+    protected static final int DATABASE_VERSION = 4;
 
     /** The name of the notes table. */
     @NotNull protected static final String TABLE_NOTES = "notes";
@@ -175,29 +180,29 @@ public class NotesSQLite extends Notes
                                      @Nullable String sortOrder)
     {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        switch (NotesUris.uriMatcher.match(uri)) {
-            case NotesUris.URI_NOTES_ALL:
+        switch (uriMatcher.match(uri)) {
+            case URI_NOTES_ALL:
                 qb.setTables(TABLE_NOTES);
                 if (TextUtils.isEmpty(sortOrder)) sortOrder = KEY_NOTE_ID;
                 break;
-            case NotesUris.URI_NOTES_SINGLE_VIEW:
+            case URI_NOTES_SINGLE_VIEW:
                 // update "viewed" order (but don't notify about this)...
                 touchNoteAndNotify(noteIdOfUri(uri), KEY_NOTE_ORDER_VIEWED);
                 // fall through
-            case NotesUris.URI_NOTES_SINGLE: {
+            case URI_NOTES_SINGLE: {
                 int noteId = noteIdOfUri(uri);
                 qb.setTables(TABLE_NOTES);
                 qb.appendWhere(KEY_NOTE_ID + "=" + noteId);
                 break;
             }
-            case NotesUris.URI_ITEMS_ALL: {
+            case URI_ITEMS_ALL: {
                 int noteId = noteIdOfUri(uri);
                 qb.setTables(TABLE_ITEMS);
                 qb.appendWhere(KEY_ITEM_NOTE_ID + "=" + noteId);
                 if (TextUtils.isEmpty(sortOrder)) sortOrder = KEY_ITEM_INDEX;
                 break;
             }
-            case NotesUris.URI_ITEMS_SINGLE: {
+            case URI_ITEMS_SINGLE: {
                 int noteId = noteIdOfUri(uri);
                 int index = itemIndexOfUri(uri);
                 qb.setTables(TABLE_ITEMS);
@@ -220,8 +225,8 @@ public class NotesSQLite extends Notes
                                    @Nullable ContentValues values)
     {
         if (values == null) values = new ContentValues();
-        switch (NotesUris.uriMatcher.match(uri)) {
-            case NotesUris.URI_NOTES_ALL: {
+        switch (uriMatcher.match(uri)) {
+            case URI_NOTES_ALL: {
                 values.remove(KEY_NOTE_ID);
                 values.remove(KEY_NOTE_ORDER_EDITED);
                 values.remove(KEY_NOTE_ORDER_VIEWED);
@@ -247,9 +252,9 @@ public class NotesSQLite extends Notes
                 touchNoteAndNotify(noteId, KEY_NOTE_ORDER_EDITED);
                 return singleNoteUri(noteId);
             }
-            case NotesUris.URI_NOTES_SINGLE:
-            case NotesUris.URI_ITEMS_ALL:
-            case NotesUris.URI_ITEMS_SINGLE: {
+            case URI_NOTES_SINGLE:
+            case URI_ITEMS_ALL:
+            case URI_ITEMS_SINGLE: {
                 // determine insertion index...
                 int noteId = noteIdOfUri(uri);
                 if (!existsNote(noteId))
@@ -304,8 +309,8 @@ public class NotesSQLite extends Notes
                                    @Nullable String[] selectionArgs)
     {
         int count;
-        switch (NotesUris.uriMatcher.match(uri)) {
-            case NotesUris.URI_NOTES_SINGLE: {
+        switch (uriMatcher.match(uri)) {
+            case URI_NOTES_SINGLE: {
                 try {
                     mDatabase.beginTransaction();
 
@@ -327,14 +332,14 @@ public class NotesSQLite extends Notes
                 getContext().getContentResolver().notifyChange(notesUri(), null);
                 break;
             }
-            case NotesUris.URI_ITEMS_SINGLE: {
-                // delete item...
+            case URI_ITEMS_SINGLE: {
                 int noteId = noteIdOfUri(uri);
                 int index = itemIndexOfUri(uri);
 
                 try {
                     mDatabase.beginTransaction();
 
+                    // delete item...
                     count =
                         mDatabase.delete(
                             TABLE_ITEMS,
@@ -373,10 +378,9 @@ public class NotesSQLite extends Notes
                                    @Nullable String selection,
                                    @Nullable String[] selectionArgs)
     {
-        if (values == null) values = new ContentValues();
         int count = 0;
-        switch (NotesUris.uriMatcher.match(uri)) {
-            case NotesUris.URI_NOTES_SINGLE: {
+        switch (uriMatcher.match(uri)) {
+            case URI_NOTES_SINGLE: {
                 int noteId = noteIdOfUri(uri);
                 if (values == null) break;
                 values.put(KEY_NOTE_ID, noteId);
@@ -400,15 +404,16 @@ public class NotesSQLite extends Notes
                 if (count > 0) touchNoteAndNotify(noteId, KEY_NOTE_ORDER_EDITED);
                 break;
             }
-            case NotesUris.URI_ITEMS_ALL_SORT_ALPHA:
-            case NotesUris.URI_ITEMS_ALL_SORT_CHECKED:
-            case NotesUris.URI_ITEMS_ALL_REVERSE:
-            case NotesUris.URI_ITEMS_ALL_CLEAR: {
+            case URI_ITEMS_ALL_SORT_ALPHA:
+            case URI_ITEMS_ALL_SORT_CHECKED:
+            case URI_ITEMS_ALL_REVERSE:
+            case URI_ITEMS_ALL_CLEAR: {
                 int noteId = noteIdOfUri(uri);
 
                 try {
                     mDatabase.beginTransaction();
 
+                    // apply transformation...
                     if (isSortItemsAlphabeticallyUri(uri)) {
                         sortItems(noteId, SORT_ALPHA);
                     } else if (isSortItemsByCheckedUri(uri)) {
@@ -433,9 +438,8 @@ public class NotesSQLite extends Notes
                 touchNoteAndNotify(noteId, KEY_NOTE_ORDER_EDITED);
                 break;
             }
-            case NotesUris.URI_ITEMS_SINGLE:
-            case NotesUris.URI_ITEMS_SINGLE_MOVE: {
-                // update item...
+            case URI_ITEMS_SINGLE:
+            case URI_ITEMS_SINGLE_MOVE: {
                 int noteId = noteIdOfUri(uri);
                 int index = itemIndexOfUri(uri);
 
@@ -446,6 +450,7 @@ public class NotesSQLite extends Notes
                     if (values != null) {
                         values.put(KEY_ITEM_NOTE_ID, noteId);
                         values.put(KEY_ITEM_INDEX, index);
+                        values.put(KEY_ITEM_HEIGHT, (Integer) null);
                         String text = values.getAsString(KEY_ITEM_TEXT);
                         if (TextUtils.isEmpty(text) || text.matches("\\s+")) {
                             values.remove(KEY_ITEM_TEXT);
@@ -473,6 +478,28 @@ public class NotesSQLite extends Notes
                 }
 
                 touchNoteAndNotify(noteId, KEY_NOTE_ORDER_EDITED);
+                break;
+            }
+            case URI_ITEMS_SINGLE_HEIGHT: {
+                int noteId = noteIdOfUri(uri);
+                int index = itemIndexOfUri(uri);
+                Integer height = (values != null ? values.getAsInteger(KEY_ITEM_HEIGHT) : null);
+
+                try {
+                    mDatabase.beginTransaction();
+
+                    // update height field without notifying...
+                    mDatabase.execSQL("UPDATE " + TABLE_ITEMS + " " +
+                                      "SET " + KEY_ITEM_HEIGHT + "=" +
+                                          (height != null ? height : "NULL") + " " +
+                                      "WHERE " + KEY_ITEM_NOTE_ID + "=" + noteId + " AND " +
+                                          KEY_ITEM_INDEX + "=" + index + ";");
+                    count = 1;
+
+                    mDatabase.setTransactionSuccessful();
+                } finally {
+                    mDatabase.endTransaction();
+                }
                 break;
             }
 
@@ -675,12 +702,7 @@ public class NotesSQLite extends Notes
                                 KEY_ITEM_NOTE_ID + "=" + noteId, null,
                                 null, null, KEY_ITEM_INDEX);
             if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    items.add(
-                        new Item(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_INDEX)),
-                                 cursor.getString(cursor.getColumnIndexOrThrow(KEY_ITEM_TEXT)),
-                                 cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_CHECKED))));
-                }
+                while (cursor.moveToNext()) items.add(NotesUtils.getItem(cursor));
                 cursor.close();
             }
 

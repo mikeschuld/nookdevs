@@ -121,6 +121,12 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
     /** Adapter for the sub-menu for changing the sort order. */
     @NotNull protected IconArrayAdapter<CharSequence> mSubMenuSortByAdapter;
 
+    /**
+     * Flag set to <code>false</code> by {@link #onResume()}, indicating on subsequent runs that
+     * this an actual resume, allowing for optimizations in the first pass.
+     */
+    private boolean mFirstRun = true;
+
     ////////////////////////////////////////// METHODS ////////////////////////////////////////////
 
     // inherited methods...
@@ -170,8 +176,9 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         mvButtonView = (Button) findViewById(R.id.button_view);
 
         // initialize the eInk views...
+        mListViewHelper = new NotesListViewHelper(this, mvEInkScreen);
         mNotesProvider = new NoteListItemsProvider(this, fetchSortBySetting());
-        mListViewHelper = new NotesListViewHelper(this, mvEInkScreen, mNotesProvider);
+        mListViewHelper.setProvider(mNotesProvider);
         if (isSingleNoteUri(uri)) {
             mListViewHelper.setSelectedItem(noteIdOfUri(uri));
         } else if (savedInstanceState != null) {
@@ -268,7 +275,11 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         super.onResume();
 
         // requery data...
-        mNotesProvider.requery();  // TODO: Why is this necessary despite observers?
+        if (mFirstRun) {
+            mFirstRun = false;
+        } else {
+            mNotesProvider.requery();  // TODO: Why is this needed despite observers?
+        }
     }
 
     /** {@inheritDoc} */

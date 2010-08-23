@@ -72,6 +72,11 @@ public abstract class NotesUris
     static final int URI_ITEMS_SINGLE = 9;
     /** URI matcher constant for URIs for moving an item of a note, i.e., changing its index. */
     static final int URI_ITEMS_SINGLE_MOVE = 10;
+    /**
+     * URI matcher constant for URIs for updating an item's cached display height without
+     * "touching" the note.
+     */
+    static final int URI_ITEMS_SINGLE_HEIGHT = 11;
 
     /** A URI matcher matching URIs of the applications. */
     @NotNull static final UriMatcher uriMatcher;
@@ -94,6 +99,8 @@ public abstract class NotesUris
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/clear", URI_ITEMS_ALL_CLEAR);
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/#", URI_ITEMS_SINGLE);
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/#/move/#", URI_ITEMS_SINGLE_MOVE);
+        uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/#/height",
+                          URI_ITEMS_SINGLE_HEIGHT);
     }
 
     // own methods...
@@ -109,7 +116,7 @@ public abstract class NotesUris
     public static boolean isNotesUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 1 && res <= 10);
+        return (res >= 1 && res <= 11);
     }
 
     /**
@@ -123,7 +130,7 @@ public abstract class NotesUris
     public static boolean isSingleNoteUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 2 && res <= 10);
+        return (res >= 2 && res <= 11);
     }
 
     /**
@@ -148,7 +155,7 @@ public abstract class NotesUris
     public static boolean isItemsUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 4 && res <= 10);
+        return (res >= 4 && res <= 11);
     }
 
     /**
@@ -202,7 +209,7 @@ public abstract class NotesUris
     public static boolean isSingleItemUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 9 && res <= 10);
+        return (res >= 9 && res <= 11);
     }
 
     /**
@@ -213,6 +220,17 @@ public abstract class NotesUris
      */
     public static boolean isMoveItemUri(@Nullable Uri uri) {
         return (uri != null && uriMatcher.match(uri) == URI_ITEMS_SINGLE_MOVE);
+    }
+
+    /**
+     * Returns whether a given URI is a URI for updating an item's cached display height without
+     * "touching" the note.
+     *
+     * @param uri the URI in question (may be <code>null</code>)
+     * @return <code>true</code> if the URI is a note item height URI, <code>false</code> otherwise
+     */
+    public static boolean isItemHeightUri(@Nullable Uri uri) {
+        return (uri != null && uriMatcher.match(uri) == URI_ITEMS_SINGLE_HEIGHT);
     }
 
     /**
@@ -352,6 +370,29 @@ public abstract class NotesUris
         if (noteId >= 0) {
             if (itemIndex >= 0 && newIndex >= 0) {
                 return Uri.withAppendedPath(singleItemUri(noteId, itemIndex), "move/" + newIndex);
+            }
+            return itemsUri(noteId);
+        }
+        return notesUri();
+    }
+
+    /**
+     * Returns a URI for updating an item's cached display height without otherwise "touching" the
+     * note.  Falls back to a URI for all of the note's items if <code>index</code> or
+     * <code>newIndex</code> are negative, or to a URI for all notes if <code>noteId</code> is
+     * lower than 0.
+     *
+     * @param noteId    the ID of the item's note
+     * @param itemIndex the index of the item for which to return a URI
+     * @return a URI for the item
+     */
+    @NotNull
+    public static Uri itemHeightUri(int noteId,
+                                    int itemIndex)
+    {
+        if (noteId >= 0) {
+            if (itemIndex >= 0) {
+                return Uri.withAppendedPath(singleItemUri(noteId, itemIndex), "height");
             }
             return itemsUri(noteId);
         }

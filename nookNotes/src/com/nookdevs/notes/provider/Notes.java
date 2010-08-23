@@ -84,6 +84,11 @@ public abstract class Notes extends ContentProvider
      * @see #ITEM_CHECKED_CHECKED
      */
     @NotNull public static final String KEY_ITEM_CHECKED = "checked";
+    /**
+     * Column key for a note's item's cached display height.  The attribute is reset to
+     * <code>NULL</code> whenever the item is touched.
+     */
+    @NotNull public static final String KEY_ITEM_HEIGHT = "height";
 
     /**
      * Constant for {@link #KEY_ITEM_CHECKED} noting that the item is neither checked nor
@@ -121,6 +126,7 @@ public abstract class Notes extends ContentProvider
                 return CONTENT_TYPE_ITEMS;
             case NotesUris.URI_ITEMS_SINGLE:
             case NotesUris.URI_ITEMS_SINGLE_MOVE:
+            case NotesUris.URI_ITEMS_SINGLE_HEIGHT:
                 return CONTENT_TYPE_SINGLE_ITEM;
 
             default:

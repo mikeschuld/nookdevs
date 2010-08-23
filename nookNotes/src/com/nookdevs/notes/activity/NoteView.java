@@ -137,6 +137,12 @@ public class NoteView
     /** The items provider used for the notes list view. */
     @NotNull protected ItemsListItemsProvider mItemsProvider;
 
+    /**
+     * Flag set to <code>false</code> by {@link #onResume()}, indicating on subsequent runs that
+     * this an actual resume, allowing for optimizations in the first pass.
+     */
+    private boolean mFirstRun = true;
+
     ////////////////////////////////////////// METHODS ////////////////////////////////////////////
 
     // inherited methods...
@@ -168,9 +174,10 @@ public class NoteView
         mvButtonSelection = (ToggleButton) findViewById(R.id.button_selection);
 
         // initialize the eInk views...
-        mItemsProvider = new ItemsListItemsProvider(this, mNoteId);
         mListViewHelper =
-            new ItemsListViewHelper(this, mvEInkScreen, singleNoteUri(mNoteId), mItemsProvider);
+            new ItemsListViewHelper(this, mvEInkScreen, singleNoteUri(mNoteId));
+        mItemsProvider = new ItemsListItemsProvider(this, mNoteId);
+        mListViewHelper.setProvider(mItemsProvider);
         if (NotesUris.isSingleItemUri(uri)) {
             List<String> path = uri.getPathSegments();
             mListViewHelper.setSelectedItem(Integer.parseInt(path.get(path.size() - 1)));
@@ -306,8 +313,12 @@ public class NoteView
         super.onResume();
 
         // requery data...
-        mItemsProvider.requery();  // TODO: Why is this necessary despite observers?
-        mListViewHelper.refreshTitle();  // may have changed
+        if (mFirstRun) {
+            mFirstRun = false;
+        } else {
+            mItemsProvider.requery();  // TODO: Why is this needed despite observers?
+            mListViewHelper.refreshTitle();  // may have changed
+        }
 
         // check whether the note is the one last viewed, then make it that...
         boolean lastViewed = isLastViewed();
