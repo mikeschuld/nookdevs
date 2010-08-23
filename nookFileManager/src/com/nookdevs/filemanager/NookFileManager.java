@@ -385,7 +385,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         } catch (ActivityNotFoundException ex) {
         }
         intent = new Intent("com.bravo.intent.action.VIEW");
-        intent.setDataAndType(Uri.fromFile(file), mimetype);
+        intent.setDataAndType(Uri.parse(path), mimetype);
         try {
             startActivity(intent);
         } catch (Exception ex) {
