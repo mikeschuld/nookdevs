@@ -1,0 +1,757 @@
+<html><head><title>touch</title>
+
+<script type="text/javascript">
+        
+    function a1()
+    {
+        nook.getEink().loadUrl("javascript:message('1')"); 
+    }
+
+    function a2() {
+        nook.getEink().loadUrl("javascript:message('2')");
+    }
+    function a3() {
+        nook.getEink().loadUrl("javascript:message('3')");
+    }
+    function a4() {
+        nook.getEink().loadUrl("javascript:message('4')");
+    }
+    function a5() {
+        nook.getEink().loadUrl("javascript:message('5')");
+    }
+    function a6() {
+        nook.getEink().loadUrl("javascript:message('6')");
+    }
+    function a7() {
+        nook.getEink().loadUrl("javascript:message('7')");
+    }
+    function a8() {
+        nook.getEink().loadUrl("javascript:message('8')");
+    }
+    function a9() {
+        nook.getEink().loadUrl("javascript:message('9')");
+    }
+    function a0() {
+        nook.getEink().loadUrl("javascript:message('0')");
+    }
+    function del() {
+        nook.getEink().loadUrl("javascript:del()");
+    }
+    function acomma() {
+        nook.getEink().loadUrl("javascript:message('.')");
+    }
+
+    function clr() {
+        nook.getEink().loadUrl("javascript:clr()");
+    }
+
+    function cc() {   // ''CHANGE CURRENCY'' BUTTON
+        document.getElementById("aa1").type = 'hidden';
+        document.getElementById("aa2").type = 'hidden';
+        document.getElementById("aa3").type = 'hidden';
+        document.getElementById("aa4").type = 'hidden';
+        document.getElementById("aa5").type = 'hidden';
+        document.getElementById("aadel").type = 'hidden';
+        document.getElementById("aac").type = 'hidden';
+        document.getElementById("aa6").type = 'hidden';
+        document.getElementById("aa7").type = 'hidden';
+        document.getElementById("aa8").type = 'hidden';
+        document.getElementById("aa9").type = 'hidden';
+        document.getElementById("aa0").type = 'hidden';
+        document.getElementById("aacomma").type = 'hidden';
+        document.getElementById("conlvl").type = 'hidden';
+        document.getElementById("aachange").type = 'hidden';
+        document.getElementById("Button1").type = 'button';
+        document.getElementById("Button2").type = 'button';
+        document.getElementById("Button3").type = 'button';
+        document.getElementById("Button4").type = 'button';
+        document.getElementById("Button5").type = 'button';
+        document.getElementById("Button6").type = 'button';
+        document.getElementById("Button7").type = 'button';
+        document.getElementById("Button8").type = 'button';
+        document.getElementById("Button9").type = 'button';
+        document.getElementById("Button10").type = 'button';
+        document.getElementById("Button11").type = 'button';
+        document.getElementById("Button12").type = 'button';
+        document.getElementById("Button13").type = 'button';
+        document.getElementById("Button14").type = 'button';
+        document.getElementById("Button15").type = 'button';
+        document.getElementById("Button16").type = 'button';
+        document.getElementById("Button17").type = 'button';
+        document.getElementById("Button18").type = 'button';
+        document.getElementById("Button19").type = 'button';
+        document.getElementById("Button20").type = 'button';
+        document.getElementById("Button21").type = 'button';
+        document.getElementById("Button22").type = 'button';
+        document.getElementById("Button23").type = 'button';
+        document.getElementById("conusd").type = 'hidden';
+        document.getElementById("congbp").type = 'hidden';
+        document.getElementById("coneur").type = 'hidden';
+        document.getElementById("concad").type = 'hidden';
+        document.getElementById("conaud").type = 'hidden';
+        document.getElementById("conrub").type = 'hidden';
+        document.getElementById("coneek").type = 'hidden';
+        document.getElementById("conclp").type = 'hidden';
+        document.getElementById("connok").type = 'hidden';
+        document.getElementById("coninr").type = 'hidden';
+        document.getElementById("consek").type = 'hidden';
+        document.getElementById("conltl").type = 'hidden';
+        document.getElementById("conpln").type = 'hidden';
+        document.getElementById("conchf").type = 'hidden';
+        document.getElementById("conugx").type = 'hidden';
+        document.getElementById("conjpy").type = 'hidden';
+        document.getElementById("conegp").type = 'hidden';
+        document.getElementById("concny").type = 'hidden';
+        document.getElementById("connzd").type = 'hidden';
+        document.getElementById("conbyr").type = 'hidden';
+        document.getElementById("conczk").type = 'hidden';
+        document.getElementById("condkk").type = 'hidden';
+    }
+
+
+    function mainmenu() {   // GO TO MAIN MENU, EXCLUDES CONVERT BUTTON
+    document.getElementById("aa1").type = 'button';
+    document.getElementById("aa2").type = 'button';
+    document.getElementById("aa3").type = 'button';
+    document.getElementById("aa4").type = 'button';
+    document.getElementById("aa5").type = 'button';
+    document.getElementById("aadel").type = 'button';
+    document.getElementById("aac").type = 'button';
+    document.getElementById("aa6").type = 'button';
+    document.getElementById("aa7").type = 'button';
+    document.getElementById("aa8").type = 'button';
+    document.getElementById("aa9").type = 'button';
+    document.getElementById("aa0").type = 'button';
+    document.getElementById("aacomma").type = 'button';
+    document.getElementById("aachange").type = 'button';
+    document.getElementById("Button1").type = 'hidden';
+    document.getElementById("Button2").type = 'hidden';
+    document.getElementById("Button3").type = 'hidden';
+    document.getElementById("Button4").type = 'hidden';
+    document.getElementById("Button5").type = 'hidden';
+    document.getElementById("Button6").type = 'hidden';
+    document.getElementById("Button7").type = 'hidden';
+    document.getElementById("Button8").type = 'hidden';
+    document.getElementById("Button9").type = 'hidden';
+    document.getElementById("Button10").type = 'hidden';
+    document.getElementById("Button11").type = 'hidden';
+    document.getElementById("Button12").type = 'hidden';
+    document.getElementById("Button13").type = 'hidden';
+    document.getElementById("Button14").type = 'hidden';
+    document.getElementById("Button15").type = 'hidden';
+    document.getElementById("Button16").type = 'hidden';
+    document.getElementById("Button17").type = 'hidden';
+    document.getElementById("Button18").type = 'hidden';
+    document.getElementById("Button19").type = 'hidden';
+    document.getElementById("Button20").type = 'hidden';
+    document.getElementById("Button21").type = 'hidden';
+    document.getElementById("Button22").type = 'hidden';
+    document.getElementById("Button23").type = 'hidden';
+}
+
+    function usd() {
+    nook.getEink().loadUrl("javascript:usd()");
+    mainmenu();
+    document.getElementById("conusd").type = 'button';
+    nook.getEink().loadUrl("javascript:conusd()");
+    }
+
+    function conusd() {
+        nook.getEink().loadUrl("javascript:conusd()");
+    }
+
+    function eur() {
+        nook.getEink().loadUrl("javascript:eur()");
+        mainmenu();
+        document.getElementById("coneur").type = 'button';
+        nook.getEink().loadUrl("javascript:coneur()");
+    }
+
+    function gbp() {
+        nook.getEink().loadUrl("javascript:gbp()");
+        mainmenu();
+        document.getElementById("congbp").type = 'button';
+        nook.getEink().loadUrl("javascript:congbp()");
+    }
+
+    function cad() {
+        nook.getEink().loadUrl("javascript:cad()");
+        mainmenu();
+        document.getElementById("concad").type = 'button';
+        nook.getEink().loadUrl("javascript:concad()");
+    }
+
+    function aud() {
+        nook.getEink().loadUrl("javascript:aud()");
+        mainmenu();
+        document.getElementById("conaud").type = 'button';
+        nook.getEink().loadUrl("javascript:conaud()");
+    }
+
+    function rub() {
+        nook.getEink().loadUrl("javascript:rub()");
+        mainmenu();
+        document.getElementById("conrub").type = 'button';
+        nook.getEink().loadUrl("javascript:conrub()");
+    }
+
+    function eek() {
+        nook.getEink().loadUrl("javascript:eek()");
+        mainmenu();
+        document.getElementById("coneek").type = 'button';
+        nook.getEink().loadUrl("javascript:coneek()");
+    }
+
+    function clp() {
+        nook.getEink().loadUrl("javascript:clp()");
+        mainmenu();
+        document.getElementById("conclp").type = 'button';
+        nook.getEink().loadUrl("javascript:conclp()");
+    }
+
+    function nok() {
+        nook.getEink().loadUrl("javascript:nok()");
+        mainmenu();
+        document.getElementById("connok").type = 'button';
+        nook.getEink().loadUrl("javascript:connok()");
+    }
+
+    function inr() {
+        nook.getEink().loadUrl("javascript:inr()");
+        mainmenu();
+        document.getElementById("coninr").type = 'button';
+        nook.getEink().loadUrl("javascript:coninr()");
+    }
+
+    function sek() {
+        nook.getEink().loadUrl("javascript:sek()");
+        mainmenu();
+        document.getElementById("consek").type = 'button';
+        nook.getEink().loadUrl("javascript:consek()");
+    }
+
+    function ltl() {
+        nook.getEink().loadUrl("javascript:ltl()");
+        mainmenu();
+        document.getElementById("conltl").type = 'button';
+        nook.getEink().loadUrl("javascript:conltl()");
+    }
+
+    function pln() {
+        nook.getEink().loadUrl("javascript:pln()");
+        mainmenu();
+        document.getElementById("conpln").type = 'button';
+        nook.getEink().loadUrl("javascript:conpln()");
+    }
+
+    function chf() {
+        nook.getEink().loadUrl("javascript:chf()");
+        mainmenu();
+        document.getElementById("conchf").type = 'button';
+        nook.getEink().loadUrl("javascript:conchf()");
+    }
+
+    function ugx() {
+        nook.getEink().loadUrl("javascript:ugx()");
+        mainmenu();
+        document.getElementById("conugx").type = 'button';
+        nook.getEink().loadUrl("javascript:conugx()");
+    }
+
+    function jpy() {
+        nook.getEink().loadUrl("javascript:jpy()");
+        mainmenu();
+        document.getElementById("conjpy").type = 'button';
+        nook.getEink().loadUrl("javascript:conjpy()");
+    }
+
+    function egp() {
+        nook.getEink().loadUrl("javascript:egp()");
+        mainmenu();
+        document.getElementById("conegp").type = 'button';
+        nook.getEink().loadUrl("javascript:conegp()");
+    }
+
+    function cny() {
+        nook.getEink().loadUrl("javascript:cny()");
+        mainmenu();
+        document.getElementById("concny").type = 'button';
+        nook.getEink().loadUrl("javascript:concny()");
+    }
+
+    function nzd() {
+        nook.getEink().loadUrl("javascript:nzd()");
+        mainmenu();
+        document.getElementById("connzd").type = 'button';
+        nook.getEink().loadUrl("javascript:connzd()");
+    }
+
+    function byr() {
+        nook.getEink().loadUrl("javascript:byr()");
+        mainmenu();
+        document.getElementById("conbyr").type = 'button';
+        nook.getEink().loadUrl("javascript:conbyr()");
+    }
+
+    function czk() {
+        nook.getEink().loadUrl("javascript:czk()");
+        mainmenu();
+        document.getElementById("conczk").type = 'button';
+        nook.getEink().loadUrl("javascript:conczk()");
+    }
+
+    function dkk() {
+        nook.getEink().loadUrl("javascript:dkk()");
+        mainmenu();
+        document.getElementById("condkk").type = 'button';
+        nook.getEink().loadUrl("javascript:condkk()");
+    }
+
+    function lvl() {
+        nook.getEink().loadUrl("javascript:lvl()");
+        mainmenu();
+        document.getElementById("conlvl").type = 'button';
+        nook.getEink().loadUrl("javascript:conlvl()");
+    }
+
+    function coneur() {
+        nook.getEink().loadUrl("javascript:coneur()");
+    }
+
+    function congbp() {
+        nook.getEink().loadUrl("javascript:congbp()");
+    }
+
+    function concad() {
+        nook.getEink().loadUrl("javascript:concad()");
+    }
+
+    function conaud() {
+        nook.getEink().loadUrl("javascript:conaud()");
+    }
+
+    function conrub() {
+        nook.getEink().loadUrl("javascript:conrub()");
+    }
+
+    function coneek() {
+        nook.getEink().loadUrl("javascript:coneek()");
+    }
+
+    function conclp() {
+        nook.getEink().loadUrl("javascript:conclp()");
+    }
+
+    function connok() {
+        nook.getEink().loadUrl("javascript:connok()");
+    }
+
+    function coninr() {
+        nook.getEink().loadUrl("javascript:coninr()");
+    }
+
+    function consek() {
+        nook.getEink().loadUrl("javascript:consek()");
+    }
+
+    function conltl() {
+        nook.getEink().loadUrl("javascript:conltl()");
+    }
+
+    function conpln() {
+        nook.getEink().loadUrl("javascript:conpln()");
+    }
+
+    function conchf() {
+        nook.getEink().loadUrl("javascript:conchf()");
+    }
+
+    function conugx() {
+        nook.getEink().loadUrl("javascript:conugx()");
+    }
+
+    function conjpy() {
+        nook.getEink().loadUrl("javascript:conjpy()");
+    }
+
+    function conegp() {
+        nook.getEink().loadUrl("javascript:conegp()");
+    }
+
+    function concny() {
+        nook.getEink().loadUrl("javascript:concny()");
+    }
+
+    function connzd() {
+        nook.getEink().loadUrl("javascript:connzd()");
+    }
+
+    function conbyr() {
+        nook.getEink().loadUrl("javascript:conbyr()");
+    }
+
+    function conczk() {
+        nook.getEink().loadUrl("javascript:conczk()");
+    }
+
+    function condkk() {
+        nook.getEink().loadUrl("javascript:condkk()");
+    }
+
+    function conlvl() {
+        nook.getEink().loadUrl("javascript:conlvl()");
+    }
+ </script>
+
+
+
+    <style type="text/css">
+        redblock
+        {
+            background-color: #000000;
+            border: medium solid #FF0000;
+        }
+        .style4
+        {
+            width: 345px;
+            top: 146px;
+            left: 0px;
+            position: absolute;
+            height: 39px;
+            border-style: solid;
+            border-width: 1px;
+            padding: 1px 4px;
+        }
+        .style5
+        {
+            height: 35px;
+            border-style: solid;
+            border-width: 1px;
+            padding: 1px 4px;
+        }
+    </style>
+
+    
+    
+
+
+ </head> 
+<body style="width: 49px; height: 56px; font-size: medium;"> 
+
+        <input type="button" onclick="conusd()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conusd" />
+
+        <input type="hidden" onclick="coneur()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="coneur" />
+
+        <input type="hidden" onclick="congbp()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="congbp" />
+
+        <input type="hidden" onclick="concad()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="concad" />
+
+        <input type="hidden" onclick="conaud()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conaud" />
+
+        <input type="hidden" onclick="conrub()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conrub" />
+
+        <input type="hidden" onclick="coneek()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="coneek" />
+
+        <input type="hidden" onclick="conclp()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conclp" />
+
+        <input type="hidden" onclick="connok()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="connok" />
+
+        <input type="hidden" onclick="coninr()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="coninr" />
+
+        <input type="hidden" onclick="consek()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="consek" />
+
+        <input type="hidden" onclick="conltl()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conltl" />
+
+        <input type="hidden" onclick="conpln()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conpln" />
+
+        <input type="hidden" onclick="conchf()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conchf" />
+
+        <input type="hidden" onclick="conugx()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conugx" />
+
+        <input type="hidden" onclick="conjpy()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conjpy" />
+
+        <input type="hidden" onclick="conegp()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conegp" />
+
+        <input type="hidden" onclick="concny()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="concny" />
+
+        <input type="hidden" onclick="connzd()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="connzd" />
+
+        <input type="hidden" onclick="conbyr()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conbyr" />
+
+        <input type="hidden" onclick="conczk()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conczk" />
+
+        <input type="hidden" onclick="condkk()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="condkk" />
+
+
+
+
+<input type="button" onclick="a1()" value="1" 
+        
+        
+        
+        
+        
+        style="height: 57px; width: 61px; font-size: medium; top: 1px; left: -1px; position: absolute; right: 973px;" 
+        id="aa1" />
+<input type="button" onclick="a2()" value="2" 
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 1px; left: 57px; position: absolute; bottom: 292px;" id="aa2" />
+<input type="button" onclick="a3()" value="3" 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 1px; left: 115px; position: absolute;" 
+        id="aa3" />
+<input type="button" onclick="a4()" value="4" 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 1px; left: 173px; position: absolute; bottom: 292px;" 
+        id="aa4" />
+<input type="button" onclick="a5()" value="5" 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 1px; left: 231px; position: absolute; right: 741px;" 
+        id="aa5" />
+<input type="button" onclick="a6()" value="6"   
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 55px; left: -1px; position: absolute;" 
+        id="aa6" />
+<input type="button" onclick="a7()" value="7" 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 55px; left: 57px; position: absolute;" 
+        id="aa7" />&nbsp;
+<input type="button" onclick="a8()" value="8" 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 55px; left: 115px; position: absolute; right: 857px;" 
+        id="aa8" />
+<input type="button" onclick="a9()" value="9" 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 55px; left: 173px; position: absolute;" 
+        id="aa9" />
+<input type="button" onclick="a0()" value="0" 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 55px; left: 231px; position: absolute;" 
+        id="aa0" />
+<input type="button" onclick="acomma()" value="." 
+        
+        
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 55px; left: 289px; position: absolute; right: 683px;" 
+        id="aacomma" />
+
+        <input type="button" onclick="clr()" value="C" 
+        
+        
+        
+        
+        
+        style="width: 61px; height: 57px; font-size: medium; top: 1px; left: 375px; position: absolute;" 
+        id="aac" />
+
+<input type="button" onclick="del()" value="Delete" 
+        
+        
+        
+        
+        
+        
+        style="height: 57px; width: 89px; top: 1px; left: 289px; position: absolute;" 
+        id="aadel" />
+<input type="hidden" onclick="conlvl()" value="Convert" 
+        style="height: 57px; width: 89px; top: 55px; left: 347px; position: absolute;" 
+        id="conlvl" />
+
+        <input type="button" onclick="cc()" value="Change currency" 
+        
+        style="width: 438px; height: 8px; font-size: medium; top: 110px; left: -1px; position: absolute;" 
+        id="aachange" /> 
+
+        <input type="hidden" onclick="usd()" value="USD - United States Dollar" 
+        style="width: 329px; height: 40px; font-size: medium; top: 2px; left: 0px; position: absolute;" 
+        id="Button1" />
+
+        <input type="hidden" onclick="eur()" value="Eur - Euro" 
+        style="width: 329px; height: 40px; font-size: medium; top: 39px; left: 0px; position: absolute;" 
+        id="Button2" />
+
+        <input type="hidden" onclick="gbp()" value="GBP - United Kingdom Pound" 
+        style="width: 329px; height: 40px; font-size: medium; top: 76px; left: 0px; position: absolute;" 
+        id="Button3" />
+
+        <input type="hidden" onclick="cad()" value="CAD - Canadian Dollar"
+        style="width: 329px; height: 40px; font-size: medium; top: 113px; left: 0px; position: absolute;" 
+        id="Button4" />
+        <input type="hidden" onclick="aud()" value="AUD - Australian Dollar" 
+        style="width: 329px; height: 40px; font-size: medium; top: 150px; left: 0px; position: absolute;" 
+        id="Button5" />
+        <input type="hidden" onclick="rub()" value="RUB - Russian Ruble" 
+        style="width: 329px; height: 40px; font-size: medium; top: 187px; left: 0px; position: absolute;" 
+        id="Button6" />
+        <input type="hidden" onclick="eek()" value="EEK - Estonian Kroon" 
+        style="width: 329px; height: 40px; font-size: medium; top: 224px; left: 0px; position: absolute;" 
+        id="Button7" />
+        <input type="hidden" onclick="clp()" value="CLP - Chilean Peso" 
+        style="width: 329px; height: 40px; font-size: medium; top: 261px; left: 0px; position: absolute;" 
+        id="Button8" />
+        <input type="hidden" onclick="nok()" value="NOK - Norwegian Kroner" 
+        style="width: 329px; height: 40px; font-size: medium; top: 298px; left: 0px; position: absolute;" 
+        id="Button9" />
+        <input type="hidden" onclick="inr()" value="INR - Indian Rupee" 
+        style="width: 329px; height: 40px; font-size: medium; top: 335px; left: 0px; position: absolute;" 
+        id="Button10" />
+        <input type="hidden" onclick="sek()" value="SEK - Swedish Krona" 
+        style="width: 329px; height: 40px; font-size: medium; top: 372px; left: 0px; position: absolute;" 
+        id="Button11" />
+        <input type="hidden" onclick="ltl()" value="LTL - Lithuanian Litas" 
+        style="width: 329px; height: 40px; font-size: medium; top: 409px; left: 0px; position: absolute;" 
+        id="Button12" />
+        <input type="hidden" onclick="pln()" value="PLN - Polish Zloty" 
+        style="width: 329px; height: 40px; font-size: medium; top: 446px; left: 0px; position: absolute;" 
+        id="Button13" />
+        <input type="hidden" onclick="chf()" value="CHF - Swiss Franc" 
+        style="width: 329px; height: 40px; font-size: medium; top: 483px; left: 0px; position: absolute;" 
+        id="Button14" />
+        <input type="hidden" onclick="ugx()" value="UGX - Uganda Shilling" 
+        style="width: 329px; height: 40px; font-size: medium; top: 520px; left: 0px; position: absolute;" 
+        id="Button15" />
+        <input type="hidden" onclick="jpy()" value="JPY - Japanese Yen" 
+        style="width: 329px; height: 40px; font-size: medium; top: 557px; left: 0px; position: absolute;" 
+        id="Button16" />
+        <input type="hidden" onclick="egp()" value="EGP - Egyptian Pound" 
+        style="width: 329px; height: 40px; font-size: medium; top: 594px; left: 0px; position: absolute;" 
+        id="Button17" />
+        <input type="hidden" onclick="cny()" value="CNY - Chinese Yuan" 
+        style="width: 329px; height: 40px; font-size: medium; top: 631px; left: 0px; position: absolute;" 
+        id="Button18" />
+        <input type="hidden" onclick="nzd()" value="NZD - New Zealand Dollar" 
+        style="width: 329px; height: 40px; font-size: medium; top: 668px; left: 0px; position: absolute;" 
+        id="Button19" />
+        <input type="hidden" onclick="byr()" value="BYR - Belarusian Ruble" 
+        style="width: 329px; height: 40px; font-size: medium; top: 705px; left: 0px; position: absolute;" 
+        id="Button20" />
+        <input type="hidden" onclick="czk()" value="CZK - Czech Koruna" 
+        style="width: 329px; height: 40px; font-size: medium; top: 742px; left: 0px; position: absolute;" 
+        id="Button21" />
+        <input type="hidden" onclick="dkk()" value="DKK - Danish Krone" 
+        style="width: 329px; height: 40px; font-size: medium; top: 779px; left: 0px; position: absolute;" 
+        id="Button22" />
+        <input type="hidden" onclick="lvl()" value="LVL - Latvian Lat" 
+        style="width: 329px; height: 40px; font-size: medium; top: 816px; left: 0px; position: absolute;" 
+        id="Button23" />
+
+
+
+</body> 
+</html>

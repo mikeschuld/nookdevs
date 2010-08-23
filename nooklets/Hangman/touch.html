@@ -1,0 +1,859 @@
+<html>
+<head><title>touch</title>
+
+<!-------------------------HANGMAN------------------------------------------
+----------------------------------------------------------------------------
+------------------------VERSION: 0.1.0--------------------------------------
+------------------------MADE BY ATOMIX--------------------------------------
+----------------------------------------------------------------------------
+--------------------THE  START OF TOUCH  SCREEN-----------------------------
+----------------------------------------------------------------------------
+-----------You can contact me via e-mail: atomixs@inbox.lv------------------
+----------------------------------------------------------------------------
+--------------------------------------------------------------------------->
+
+
+ 
+<script type="text/javascript">
+//----------------------------TEXT TYPER SCRIPT---------------------
+//-- ******************** -->
+    
+//**************//
+// USER SETTINGS//
+////////////////////////////////START OF RED MESSAGES/////////////////////////////////////
+    var msg3 = new Array()
+    msg3[0] = 'GAME OVER!';
+    msg3[1] = 'Is that the best you can do?';
+    msg3[2] = 'YOU FAIL!';
+    msg3[3] = 'I cannot believe you failed!';
+    msg3[4] = 'Oh my god! You failed.';
+    msg3[5] = 'Better luck next time!';
+    msg3[6] = 'Shall we play again?';
+    msg3[7] = 'This must be a very difficult word...';
+    msg3[8] = 'OH NO, THE RED SCREEN OF DEATH. You know what that means right?';
+    msg3[9] = 'How come you lost?';
+    msg3[10] = 'Are you brain-dead?';
+    msg3[11] = 'Any similarity between you and a human is purely coincidental!';
+    msg3[12] = 'Are you always so stupid or is today a special occasion?';
+    msg3[13] = 'Calling you stupid would be an insult to stupid people.';
+    msg3[14] = 'Did the mental hospital test too many drugs on you today?';
+    msg3[15] = 'Do you want to die stupid?';
+    msg3[16] = 'Don\'t feel bad. A lot of people have no talent!';
+    msg3[17] = 'Don\'t you have a terribly empty feeling - in your skull?';
+    msg3[18] = 'Forgot to pay your brain bill?';
+    msg3[19] = 'Have you considered suing your brains for nonsupport?';
+    msg3[20] = 'Ordinarily people live and learn. You just live.';
+    msg3[21] = 'Perhaps your whole purpose in life is simply to serve as a warning to others.';
+    msg3[22] = 'I bet your brain feels as good as new, seeing that you\'ve never used it.';
+    msg3[23] = 'I don\'t know what makes you so stupid, but it really works!';
+    msg3[24] = 'I like you. People say I\'ve no taste, but I like you';
+    msg3[25] = 'I would ask you how old you are but I know you can\'t count that high.';
+    msg3[26] = 'I would have liked to insult you, but with your intelligence you wouldn\'t get offended.';
+    ///////////////////END OF RED MESSAGES////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    var speed = 20;                   // scroller speed
+    var msg_delay = 10;             // delay between messages
+
+
+var cursor_color = '#FFFFFF'
+var ticker_top = 80
+var ticker_left = 80
+ 
+//**************//
+ 
+var pics = new Array()
+pics[0] = ''
+var temp = "";
+var temp2 = "";
+var count = 0;
+var count2 = 1;
+var count3 = 0;
+var tag = 0;
+ 
+ 
+function set_scroller()
+ {
+  document.all.scroll_holder.style.top   = ticker_top; 
+  document.all.scroll_holder.style.left  = ticker_left;
+  
+  var tr = Math.random();
+  tr = 25 * tr
+  tr = Math.floor(tr);
+  
+  var msg = new Array()
+  msg[0] = msg3[tr]
+  document.getElementById("msgdup").innerHTML = msg[0];
+
+  scroller();
+
+
+}
+
+function set_scroller2() {
+    document.all.scroll_holder.style.top = ticker_top;
+    document.all.scroll_holder.style.left = ticker_left;
+
+    var tr = Math.random();
+    tr = 25 * tr
+    tr = Math.floor(tr);
+
+    var msg = new Array()
+    msg[0] = greenmsg[tr]
+    document.getElementById("msgdup").innerHTML = msg[0];
+
+    scroller();
+
+
+}
+
+
+ function scroller() {
+     var msg = new Array()
+     msg[0] = document.getElementById("msgdup").innerHTML;      
+     
+  switch (count3) // change timings for different parts of message
+  {
+      case 0: msg_delay = 200; break
+      case 3: msg_delay = 200; break
+      case 7: msg_delay = 200; break
+
+  }  
+  if (count3 < msg.length)
+   {   
+	if (count2 < msg[count3].length + 1)
+     {
+      temp = msg[count3].substring(count,count2);
+	  temp2+=temp;
+      count++;
+	  count2++;
+	  if(temp=="<"||temp==">")status = temp
+      document.all.scroller.innerHTML = temp2 + "<font color='"+cursor_color+"'>_</font>";
+      setTimeout('scroller();',speed);
+     } 
+	else
+	 {
+      document.all.scroller.innerHTML = temp2 + "<font color='"+cursor_color+"'><blink>_</blink></font>";
+	  count = 0;
+	  count2 = 1;
+	  count3++;
+	  setTimeout('scroller();',msg_delay);
+	 }
+   }
+  else
+   {
+    count = 0;
+	count2 = 1;
+	temp2 = ""; // reset the entire message
+	count3 = 0;
+	 
+   }
+ }
+
+
+
+
+ //////////////////////////////////////////////////////////////////////////////////////
+ ////////////////////////START OF GREEN MESSAGES//////////////////////////
+ var greenmsg = new Array()
+ greenmsg[0] = 'SUCCESS!';
+ greenmsg[1] = 'I like the way your mind works!';
+ greenmsg[2] = 'You are fantastic';
+ greenmsg[3] = 'Beautifully done!';
+ greenmsg[4] = 'Excellent!';
+ greenmsg[5] = 'You are the best player I have ever played with';
+ greenmsg[6] = 'Very good! Let\'s go on, shall we?';
+ greenmsg[7] = 'You are incredible!';
+ greenmsg[8] = 'Perfect!';
+ greenmsg[9] = 'I am happy to be held in your hands! :)';
+ greenmsg[10] = 'Are you cheating by any chance? This word wasn\'t supposed to be easy.';
+ greenmsg[11] = 'You are victorious!';
+ greenmsg[12] = 'Very well played! :)';
+ greenmsg[13] = 'Congratulations!';
+ greenmsg[14] = 'YOU WIN!<br>YOU WIN!<br>YOU WIN!';
+ greenmsg[15] = 'You are one smart person, aint ya?';
+ greenmsg[16] = 'This wasn\'t too difficult, was it?';
+ greenmsg[17] = 'I love when you smile! <br><br> ^_^  ^_^  ^_^';
+ greenmsg[18] = 'You are the smartest person in this room!';
+ greenmsg[19] = 'You are superb!!!';
+ greenmsg[20] = 'Outstanding!';
+ greenmsg[21] = 'You are smarter than I thought!';
+ greenmsg[22] = 'I am happy to see that you got this right!';
+ greenmsg[23] = 'Brilliant!';
+ greenmsg[24] = 'You are very skilled in this game!';
+ greenmsg[25] = 'I admire you.';
+ greenmsg[26] = 'Marvellous!';
+//////////////END OF GREEN MESSAGES/////////////////
+
+ 
+
+</script>
+
+
+
+<script type="text/javascript">
+
+
+
+    function newgame() {
+        nook.getEink().loadUrl("javascript:optionshide()");
+        nook.getEink().loadUrl("javascript:newgame()");
+        document.getElementById("new").type = "hidden";
+        document.getElementById("scroll_holder").style.visibility = "hidden";
+        document.body.style.backgroundColor = "white";
+        keyboard();
+        document.getElementById("adump").innerHTML = "V";
+        document.getElementById("bdump").innerHTML = "V";
+        document.getElementById("cdump").innerHTML = "V";
+        document.getElementById("ddump").innerHTML = "V";
+        document.getElementById("edump").innerHTML = "V";
+        document.getElementById("fdump").innerHTML = "V";
+        document.getElementById("gdump").innerHTML = "V";
+        document.getElementById("hdump").innerHTML = "V";
+        document.getElementById("idump").innerHTML = "V";
+        document.getElementById("jdump").innerHTML = "V";
+        document.getElementById("kdump").innerHTML = "V";
+        document.getElementById("ldump").innerHTML = "V";
+        document.getElementById("mdump").innerHTML = "V";
+        document.getElementById("ndump").innerHTML = "V";
+        document.getElementById("odump").innerHTML = "V";
+        document.getElementById("pdump").innerHTML = "V";
+        document.getElementById("qdump").innerHTML = "V";
+        document.getElementById("rdump").innerHTML = "V";
+        document.getElementById("sdump").innerHTML = "V";
+        document.getElementById("tdump").innerHTML = "V";
+        document.getElementById("udump").innerHTML = "V";
+        document.getElementById("vdump").innerHTML = "V";
+        document.getElementById("wdump").innerHTML = "V";
+        document.getElementById("xdump").innerHTML = "V";
+        document.getElementById("ydump").innerHTML = "V";
+        document.getElementById("zdump").innerHTML = "V";
+        document.getElementById("newgame").type = "hidden";
+        document.getElementById("log").type = "hidden";
+        document.getElementById("howto").type = "hidden";
+       
+    }
+
+    function log() {
+        document.getElementById("newgame").type = "hidden";
+        document.getElementById("howto").type = "hidden";
+        document.getElementById("log").type = "hidden";
+        nook.getEink().loadUrl("javascript:log()");
+    }
+
+    function howto() {
+        document.getElementById("newgame").type = "hidden";
+        document.getElementById("log").type = "hidden";
+        document.getElementById("howto").type = "hidden";
+        nook.getEink().loadUrl("javascript:howto()");
+     
+    }
+
+    function menu() {  // V = visible;  H = hidden (on keyboard screen)
+        noletters();
+        document.getElementById("menu2").type = "image"
+        document.getElementById("newgame").type = "button";
+        nook.getEink().loadUrl("javascript:options()");
+        document.getElementById("log").type = "button";
+        document.body.style.backgroundColor = "#FF9900"
+        document.getElementById("howto").type = "button";
+        
+   
+    }
+
+
+    function menu2() {
+        document.getElementById("howto").type = "hidden";
+        document.body.style.backgroundColor = "white";
+        document.getElementById("menu2").type = "hidden";
+        document.getElementById("log").type = "hidden";
+        document.getElementById("menu").type = "image"
+        document.getElementById("newgame").type = "hidden";
+        nook.getEink().loadUrl("javascript:optionshide()");
+
+        if (document.getElementById("adump").innerHTML == "V") {
+            document.getElementById("A").type = "button"
+        }
+        if (document.getElementById("bdump").innerHTML == "V") {
+            document.getElementById("B").type = "button"
+        }
+        if (document.getElementById("cdump").innerHTML == "V") {
+            document.getElementById("C").type = "button"
+        }
+        if (document.getElementById("ddump").innerHTML == "V") {
+            document.getElementById("D").type = "button"
+        }
+        if (document.getElementById("edump").innerHTML == "V") {
+            document.getElementById("E").type = "button"
+        }
+        if (document.getElementById("fdump").innerHTML == "V") {
+            document.getElementById("F").type = "button"
+        }
+        if (document.getElementById("gdump").innerHTML == "V") {
+            document.getElementById("G").type = "button"
+        }
+        if (document.getElementById("hdump").innerHTML == "V") {
+            document.getElementById("H").type = "button"
+        }
+        if (document.getElementById("idump").innerHTML == "V") {
+            document.getElementById("I").type = "button"
+        }
+        if (document.getElementById("jdump").innerHTML == "V") {
+            document.getElementById("J").type = "button"
+        }
+        if (document.getElementById("kdump").innerHTML == "V") {
+            document.getElementById("K").type = "button"
+        }
+        if (document.getElementById("ldump").innerHTML == "V") {
+            document.getElementById("L").type = "button"
+        }
+        if (document.getElementById("mdump").innerHTML == "V") {
+            document.getElementById("M").type = "button"
+        }
+        if (document.getElementById("ndump").innerHTML == "V") {
+            document.getElementById("N").type = "button"
+        }
+        if (document.getElementById("odump").innerHTML == "V") {
+            document.getElementById("O").type = "button"
+        }
+        if (document.getElementById("pdump").innerHTML == "V") {
+            document.getElementById("P").type = "button"
+        }
+        if (document.getElementById("qdump").innerHTML == "V") {
+            document.getElementById("Q").type = "button"
+        }
+        if (document.getElementById("rdump").innerHTML == "V") {
+            document.getElementById("R").type = "button"
+        }
+        if (document.getElementById("sdump").innerHTML == "V") {
+            document.getElementById("S").type = "button"
+        }
+        if (document.getElementById("tdump").innerHTML == "V") {
+            document.getElementById("T").type = "button"
+        }
+        if (document.getElementById("udump").innerHTML == "V") {
+            document.getElementById("U").type = "button"
+        }
+        if (document.getElementById("vdump").innerHTML == "V") {
+            document.getElementById("V").type = "button"
+        }
+        if (document.getElementById("wdump").innerHTML == "V") {
+            document.getElementById("W").type = "button"
+        }
+        if (document.getElementById("xdump").innerHTML == "V") {
+            document.getElementById("X").type = "button"
+        }
+        if (document.getElementById("ydump").innerHTML == "V") {
+            document.getElementById("Y").type = "button"
+        }
+        if (document.getElementById("zdump").innerHTML == "V") {
+            document.getElementById("Z").type = "button"
+        }
+
+    }
+
+
+    function noletters() {  //HIDES ALL KEYBOARD BUTTONS
+        document.getElementById("A").type = "hidden";
+        document.getElementById("B").type = "hidden";
+        document.getElementById("C").type = "hidden";
+        document.getElementById("D").type = "hidden";
+        document.getElementById("E").type = "hidden";
+        document.getElementById("F").type = "hidden";
+        document.getElementById("G").type = "hidden";
+        document.getElementById("H").type = "hidden";
+        document.getElementById("I").type = "hidden";
+        document.getElementById("J").type = "hidden";
+        document.getElementById("K").type = "hidden";
+        document.getElementById("L").type = "hidden";
+        document.getElementById("M").type = "hidden";
+        document.getElementById("N").type = "hidden";
+        document.getElementById("O").type = "hidden";
+        document.getElementById("P").type = "hidden";
+        document.getElementById("Q").type = "hidden";
+        document.getElementById("R").type = "hidden";
+        document.getElementById("S").type = "hidden";
+        document.getElementById("T").type = "hidden";
+        document.getElementById("U").type = "hidden";
+        document.getElementById("V").type = "hidden";
+        document.getElementById("W").type = "hidden";
+        document.getElementById("X").type = "hidden";
+        document.getElementById("Y").type = "hidden";
+        document.getElementById("Z").type = "hidden";
+        document.getElementById("menu").type = "hidden";
+        document.getElementById("menu2").type = "hidden";
+        document.getElementById("newgame").type = "hidden";
+        document.getElementById("log").type = "hidden";
+        document.getElementById("howto").type = "hidden";
+    }
+
+    function keyboard() {     //SHOWS ALL KEYBOARD BUTTONS
+        document.getElementById("A").type = "button";
+        document.getElementById("B").type = "button";
+        document.getElementById("C").type = "button";
+        document.getElementById("D").type = "button";
+        document.getElementById("E").type = "button";
+        document.getElementById("F").type = "button";
+        document.getElementById("G").type = "button";
+        document.getElementById("H").type = "button";
+        document.getElementById("I").type = "button";
+        document.getElementById("J").type = "button";
+        document.getElementById("K").type = "button";
+        document.getElementById("L").type = "button";
+        document.getElementById("M").type = "button";
+        document.getElementById("N").type = "button";
+        document.getElementById("O").type = "button";
+        document.getElementById("P").type = "button";
+        document.getElementById("Q").type = "button";
+        document.getElementById("R").type = "button";
+        document.getElementById("S").type = "button";
+        document.getElementById("T").type = "button";
+        document.getElementById("U").type = "button";
+        document.getElementById("V").type = "button";
+        document.getElementById("W").type = "button";
+        document.getElementById("X").type = "button";
+        document.getElementById("Y").type = "button";
+        document.getElementById("Z").type = "button";
+        document.getElementById("menu").type = "image";
+        document.getElementById("menu2").type = "hidden";
+    }
+
+    function A() {
+        nook.getEink().loadUrl("javascript:A()");
+        document.getElementById("A").type = "hidden";
+        document.getElementById("adump").innerHTML = "H";
+    }
+    function B() {
+        nook.getEink().loadUrl("javascript:B()");
+        document.getElementById("B").type = "hidden";
+        document.getElementById("bdump").innerHTML = "H";
+    }
+    function C() {
+        nook.getEink().loadUrl("javascript:C()");
+        document.getElementById("C").type = "hidden";
+        document.getElementById("cdump").innerHTML = "H";
+    }
+    function D() {
+        nook.getEink().loadUrl("javascript:D()");
+        document.getElementById("D").type = "hidden";
+        document.getElementById("ddump").innerHTML = "H";
+    }
+    function E() {
+        nook.getEink().loadUrl("javascript:E()");
+        document.getElementById("E").type = "hidden";
+        document.getElementById("edump").innerHTML = "H";
+    }
+    function F() {
+        nook.getEink().loadUrl("javascript:F()");
+        document.getElementById("F").type = "hidden";
+        document.getElementById("fdump").innerHTML = "H";
+    }
+    function G() {
+        nook.getEink().loadUrl("javascript:G()");
+        document.getElementById("G").type = "hidden";
+        document.getElementById("gdump").innerHTML = "H";
+    }
+    function H() {
+        nook.getEink().loadUrl("javascript:H()");
+        document.getElementById("H").type = "hidden";
+        document.getElementById("hdump").innerHTML = "H";
+    }
+    function I() {
+        nook.getEink().loadUrl("javascript:I()");
+        document.getElementById("I").type = "hidden";
+        document.getElementById("idump").innerHTML = "H";
+    }
+    function J() {
+        nook.getEink().loadUrl("javascript:J()");
+        document.getElementById("J").type = "hidden";
+        document.getElementById("jdump").innerHTML = "H";
+    }
+    function K() {
+        nook.getEink().loadUrl("javascript:K()");
+        document.getElementById("K").type = "hidden";
+        document.getElementById("kdump").innerHTML = "H";
+    }
+    function L() {
+        nook.getEink().loadUrl("javascript:L()");
+        document.getElementById("L").type = "hidden";
+        document.getElementById("ldump").innerHTML = "H";
+    }
+    function M() {
+        nook.getEink().loadUrl("javascript:M()");
+        document.getElementById("M").type = "hidden";
+        document.getElementById("mdump").innerHTML = "H";
+    }
+    function N() {
+        nook.getEink().loadUrl("javascript:N()");
+        document.getElementById("N").type = "hidden";
+        document.getElementById("ndump").innerHTML = "H";
+    }
+    function O() {
+        nook.getEink().loadUrl("javascript:O()");
+        document.getElementById("O").type = "hidden";
+        document.getElementById("odump").innerHTML = "H";
+    }
+    function P() {
+        nook.getEink().loadUrl("javascript:P()");
+        document.getElementById("P").type = "hidden";
+        document.getElementById("pdump").innerHTML = "H";
+    }
+    function Q() {
+        nook.getEink().loadUrl("javascript:Q()");
+        document.getElementById("Q").type = "hidden";
+        document.getElementById("qdump").innerHTML = "H";
+    }
+    function R() {
+        nook.getEink().loadUrl("javascript:R()");
+        document.getElementById("R").type = "hidden";
+        document.getElementById("rdump").innerHTML = "H";
+    }
+    function S() {
+        nook.getEink().loadUrl("javascript:S()");
+        document.getElementById("S").type = "hidden";
+        document.getElementById("sdump").innerHTML = "H";
+    }
+    function T() {
+        nook.getEink().loadUrl("javascript:T()");
+        document.getElementById("T").type = "hidden";
+        document.getElementById("tdump").innerHTML = "H";
+    }
+    function U() {
+        nook.getEink().loadUrl("javascript:U()");
+        document.getElementById("U").type = "hidden";
+        document.getElementById("udump").innerHTML = "H";
+    }
+    function V() {
+        nook.getEink().loadUrl("javascript:V()");
+        document.getElementById("V").type = "hidden";
+        document.getElementById("vdump").innerHTML = "H";
+    }
+    function W() {
+        nook.getEink().loadUrl("javascript:W()");
+        document.getElementById("W").type = "hidden";
+        document.getElementById("wdump").innerHTML = "H";
+    }
+    function X() {
+        nook.getEink().loadUrl("javascript:X()");
+        document.getElementById("X").type = "hidden";
+        document.getElementById("xdump").innerHTML = "H";
+    }
+    function Y() {
+        nook.getEink().loadUrl("javascript:Y()");
+        document.getElementById("Y").type = "hidden";
+        document.getElementById("ydump").innerHTML = "H";
+    }
+    function Z() {
+        nook.getEink().loadUrl("javascript:Z()");
+        document.getElementById("Z").type = "hidden";
+        document.getElementById("zdump").innerHTML = "H";
+    }
+
+
+    function string() {
+        nook.getEink().loadUrl("javascript:string()");
+    }
+
+    function string2() {
+        nook.getEink().loadUrl("javascript:string2()");
+    }
+
+    function end() {   //GAME OVER SCREEN
+        noletters();
+        document.getElementById("new").type = "button";
+        document.getElementById("dlength").type = "hidden";
+        document.getElementById("wlength").type = "hidden";
+        document.getElementById("scroll_holder").style.visibility = "visible";
+        document.bgColor = "red";
+        document.getElementById("scroll_holder").style.backgroundColor = "red"
+        document.getElementById("scroll_holder").style.color = "black"
+        set_scroller();
+
+    }
+
+    function end2() { //SUCCESS SCREEN
+        noletters();
+        document.getElementById("new").type = "button";
+        document.getElementById("dlength").type = "hidden";
+        document.getElementById("wlength").type = "hidden";
+        document.getElementById("scroll_holder").style.visibility = "visible";
+        document.bgColor = "green";
+        document.getElementById("scroll_holder").style.backgroundColor = "green"
+        document.getElementById("scroll_holder").style.color = "white"
+        set_scroller2();
+
+
+    }
+
+    
+</script>
+
+    <style type="text/css">
+        .style4
+        {
+            font-size: 50pt;
+            text-align: left;
+            font-family: "Courier10 TL";
+            height: 140px;
+             
+        }
+        .style111
+        {
+            visibility:hidden;
+            font-size: 1pt;
+            height: 0px;
+            width: 0px;
+            top:1px;
+            left:1px;
+            position:absolute;
+        }
+        
+        #scroller
+        {
+            font-family: "Courier New";
+            font-size: 20pt;
+            color: #000000;
+        }
+        #msgdup
+        {
+            visibility: hidden;
+            top: 11px;
+            left: 195px;
+            position: absolute;
+            height: 1px;
+            width: 1px;
+            z-index: -1;
+            font-size: 1pt;
+        }
+    </style>
+
+    <style type="text/css"> 
+body  {border:0;margin:0;overflow:hidden;background-color:transparent}
+ .ticker{font-size:12;color:#A85400;font-family:verdana;cursor:default;visibility:hidden;
+        height: 144px;
+        width: 442px;
+       }
+
+        
+
+        #adump
+        {
+            border: 1px solid #FF0000;
+            padding: 1px 4px;
+top: 23px;
+            left: 70px;
+            position: absolute;
+            height: 0px;
+            width: 0px;
+            
+        }
+                
+        
+
+    </style>
+
+</head> 
+
+<body>
+
+<input type="hidden" onclick="newgame()" value="Next"        
+        style="width: 100px; height: 32px; font-size: medium; top: 1px; left: 332px; position: absolute;" 
+        id="new" />
+
+        <input type="hidden" onclick="newgame()" value="New word"        
+        style="width: 142px; height: 50px; font-size: large; top: 1px; left: 49px; position: absolute;" 
+        id="newgame" />
+
+<input type="button" onclick="C()" value="C"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 96px; position: absolute;" 
+        id="C" />
+
+<input type="button" onclick="A()" value="A"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: -2px; position: absolute; right: 1012px;" 
+        id="A" />
+
+        <input type="button" onclick="B()" value="B"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 47px; position: absolute; right: 963px;" 
+        id="B" />
+
+        <input type="button" onclick="D()" value="D"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 145px; position: absolute; right: 865px;" 
+        id="D" />
+
+        <input type="button" onclick="E()" value="E"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 194px; position: absolute; right: 816px;" 
+        id="E" />
+
+        <input type="button" onclick="F()" value="F"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 243px; position: absolute; right: 767px;" 
+        id="F" />
+
+        <input type="button" onclick="G()" value="G"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 292px; position: absolute; right: 718px;" 
+        id="G" />
+
+        <input type="button" onclick="H()" value="H"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 341px; position: absolute; right: 669px;" 
+        id="H" />
+
+        <input type="button" onclick="I()" value="I"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 390px; position: absolute; " 
+        id="I" />
+
+        <input type="button" onclick="J()" value="J"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: -2px; position: absolute; " 
+        id="J" />
+
+        <input type="button" onclick="K()" value="K"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 47px; position: absolute; " 
+        id="K" />
+
+        <input type="button" onclick="L()" value="L"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 96px; position: absolute; " 
+        id="L" />
+
+        <input type="button" onclick="M()" value="M"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 145px; position: absolute; " 
+        id="M" />
+
+        <input type="button" onclick="N()" value="N"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 194px; position: absolute; " 
+        id="N" />
+
+        <input type="button" onclick="O()" value="O"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 243px; position: absolute; " 
+        id="O" />
+
+        <input type="button" onclick="P()" value="P"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 292px; position: absolute; " 
+        id="P" />
+
+        <input type="button" onclick="Q()" value="Q"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 341px; position: absolute; " 
+        id="Q" />
+
+        <input type="button" onclick="R()" value="R"        
+        style="width: 50px; height: 50px; font-size: medium; top: 48px; left: 390px; position: absolute; " 
+        id="R" />
+
+        <input type="button" onclick="S()" value="S"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: -2px; position: absolute; " 
+        id="S" />
+
+        <input type="button" onclick="T()" value="T"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 47px; position: absolute; " 
+        id="T" />
+
+        <input type="button" onclick="U()" value="U"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 96px; position: absolute; " 
+        id="U" />
+
+        <input type="button" onclick="V()" value="V"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 145px; position: absolute; " 
+        id="V" />
+        <input type="button" onclick="W()" value="W"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 194px; position: absolute; " 
+        id="W" />
+
+        <input type="button" onclick="X()" value="X"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 243px; position: absolute; " 
+        id="X" />
+
+        <input type="button" onclick="Y()" value="Y"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 292px; position: absolute; " 
+        id="Y" />
+
+        <input type="button" onclick="Z()" value="Z"        
+        style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 341px; position: absolute; " 
+        id="Z" />
+
+        <input name="button" type="image" src="gbutton.png" onclick="menu()"        
+        style="width: 50px; height: 50px; font-size: medium; top: 94px; left: 390px; position: absolute; " 
+        id="menu" />
+
+        <input name="button" type="hidden" src="gbutton3.png" onclick="menu2()"        
+        style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 390px; position: absolute; " 
+        id="menu2" />
+
+        <input type="hidden" onclick="log()" value="ChangeLog"        
+        style="width: 142px; height: 50px; font-size: large; top: 50px; left: 49px; position: absolute;" 
+        id="log" />
+
+        <input type="hidden" onclick="howto()" value="Instructions"        
+        style="width: 142px; height: 50px; font-size: large; top: 100px; left: 49px; position: absolute;" 
+        id="howto" />
+        
+<input type="hidden" onclick="string()" value="wlength"        
+        style="width: 89px; height: 59px; font-size: medium; top: 6px; left: 195px; position: absolute;" 
+        id="wlength" />
+
+<input type="hidden" onclick="string2()" value="dlength"        
+        style="width: 92px; height: 50px; font-size: medium; top: 84px; left: 192px; position: absolute;" 
+        id="dlength" />
+    <table class="ticker" bgcolor="Red" id="scroll_holder" style="z-index: 1">
+        <tr>
+            <td id="scroller" class="style4">
+               </td>
+
+        </tr>
+    </table>
+
+    
+    
+
+    <p id="msgdup"></p>
+    <p id="adump" class="style111">V</p>
+    <p id="bdump" class="style111">V</p>
+    <p id="cdump" class="style111">V</p>
+    <p id="ddump" class="style111">V</p>
+    <p id="edump" class="style111">V</p>
+    <p id="fdump" class="style111">V</p>
+    <p id="gdump" class="style111">V</p>
+    <p id="hdump" class="style111">V</p>
+    <p id="idump" class="style111">V</p>
+    <p id="jdump" class="style111">V</p>
+    <p id="kdump" class="style111">V</p>
+    <p id="ldump" class="style111">V</p>
+    <p id="mdump" class="style111">V</p>
+    <p id="ndump" class="style111">V</p>
+    <p id="odump" class="style111">V</p>
+    <p id="pdump" class="style111">V</p>
+    <p id="qdump" class="style111">V</p>
+    <p id="rdump" class="style111">V</p>
+    <p id="sdump" class="style111">V</p>
+    <p id="tdump" class="style111">V</p>
+    <p id="udump" class="style111">V</p>
+    <p id="vdump" class="style111">V</p>
+    <p id="wdump" class="style111">V</p>
+    <p id="xdump" class="style111">V</p>
+    <p id="ydump" class="style111">V</p>
+    <p id="zdump" class="style111">V</p>
+
+
+
+
+
+
+
+
+<!-------------------------HANGMAN------------------------------------------
+----------------------------------------------------------------------------
+------------------------VERSION: 0.1.0--------------------------------------
+------------------------MADE BY ATOMIX--------------------------------------
+----------------------------------------------------------------------------
+-----------------------THIS IS TOUCH SCREEN FILE----------------------------
+----------------------------------------------------------------------------
+-----------You can contact me via e-mail: atomixs@inbox.lv------------------
+----------------------------------------------------------------------------
+------------------------THE END OF TOUCH SCREEN---------------------------->
+ 
+</body> 
+</html>
+
+
+
