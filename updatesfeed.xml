@@ -178,4 +178,12 @@ and copying it to your internal SD card. Download the samples separately from th
     <id>http://nookdevs.googlecode.com/files/nookNotes.apk</id>
     <content type="text">Simple note-taking application.  Notes are made up of individual items which can optionally be check-marked.</content>
   </entry>
+  <entry>
+    <title>nooklet apps</title>
+    <link type="application/atom+xml"
+          href="http://nookdevs.googlecode.com/svn/trunk/nooklets/version.xml"/>
+    <id>http://nookdevs.googlecode.com/svn/trunk/nooklets/version.xml</id>
+    <content type="text">Nooklet javascript apps for nook.</content>
+  </entry>
+  
 </feed>
