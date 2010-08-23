@@ -3,7 +3,7 @@
 <resources>
     <!-- general strings... -->
     <string name="app_name">nookNotes</string>
-    <string name="app_title">Notes</string>
+    <string name="app_title">nookNotes</string>
 
     <!-- component labels... -->
     <string name="activity_note_add">Add Note</string>
