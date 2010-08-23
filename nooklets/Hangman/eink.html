@@ -1,7 +1,7 @@
 ﻿<html><head><title>eink</title>
 <!-------------------------HANGMAN------------------------------------------
 ----------------------------------------------------------------------------
-------------------------VERSION: 0.1.0--------------------------------------
+------------------------VERSION: 0.2.1--------------------------------------
 ------------------------MADE BY ATOMIX--------------------------------------
 ----------------------------------------------------------------------------
 -----------------------E-INK  SCREEN----------------------------------------
@@ -62,6 +62,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function B() {
@@ -102,6 +103,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function C() {
@@ -142,6 +144,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function D() {
@@ -182,6 +185,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function E() {
@@ -222,6 +226,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function F() {
@@ -262,6 +267,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function G() {
@@ -302,6 +308,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function H() {
@@ -342,6 +349,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function I() {
@@ -382,6 +390,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function J() {
@@ -422,6 +431,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function K() {
@@ -462,6 +472,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function L() {
@@ -502,6 +513,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function M() {
@@ -542,6 +554,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function N() {
@@ -582,6 +595,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function O() {
@@ -622,6 +636,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function P() {
@@ -662,6 +677,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function Q() {
@@ -702,6 +718,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function R() {
@@ -742,6 +759,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function S() {
@@ -782,6 +800,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function T() {
@@ -822,6 +841,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function U() {
@@ -862,6 +882,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function V() {
@@ -902,6 +923,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function W() {
@@ -942,6 +964,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function X() {
@@ -982,6 +1005,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function Y() {
@@ -1022,6 +1046,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     function Z() {
@@ -1062,6 +1087,7 @@
             reveal();
         }
         success();
+        hangman();
     }
 
     /////END//////////////////END//////////////////END///////////////////END///////////////END///////
@@ -1080,10 +1106,9 @@
 <script type="text/javascript">
 
     function newgame() {
-        
 
-        
-
+        hidehangman()
+        document.getElementById("m1").style.display = "block"
         var i = Math.random();
         i = 501 * i
         i = Math.floor(i);
@@ -1188,7 +1213,19 @@
         document.getElementById("used2").style.visibility = "hidden";
         document.getElementById("usedtext").style.visibility = "hidden";
         document.getElementById("options").className = "style255"
-
+        document.getElementById("m1").style.display = "none"
+        document.getElementById("m2").style.display = "none"
+        document.getElementById("m2a").style.display = "none"
+        document.getElementById("m2b").style.display = "none"
+        document.getElementById("m2c").style.display = "none"
+        document.getElementById("m2d").style.display = "none"
+        document.getElementById("m2e").style.display = "none"
+        document.getElementById("m3").style.display = "none"
+        document.getElementById("m4").style.display = "none"
+        document.getElementById("m5").style.display = "none"
+        document.getElementById("m6").style.display = "none"
+        document.getElementById("m7").style.display = "none"
+        
     }
 
     function optionshide() {
@@ -1201,11 +1238,111 @@
         document.getElementById("options").className = "style201"
         document.getElementById("log").className = "style201"
         document.getElementById("howto").className = "style274a"
-        
+        document.getElementById("m1").style.display = "block"
+        if (document.getElementById("dumpm2").innerHTML == "V") {
+        document.getElementById("m2").style.display = "block"
+        }
+        if (document.getElementById("dumpm2a").innerHTML == "V") {
+        document.getElementById("m2a").style.display = "block"
+        }
+        if (document.getElementById("dumpm2b").innerHTML == "V") {
+        document.getElementById("m2b").style.display = "block"
+        }
+        if (document.getElementById("dumpm2c").innerHTML == "V") {
+        document.getElementById("m2c").style.display = "block"
+        }
+        if (document.getElementById("dumpm2d").innerHTML == "V") {
+        document.getElementById("m2d").style.display = "block"
+        }
+        if (document.getElementById("dumpm2e").innerHTML == "V") {
+        document.getElementById("m2e").style.display = "block"
+        }
+        if (document.getElementById("dumpm3").innerHTML == "V") {
+        document.getElementById("m3").style.display = "block"
+        }
+        if (document.getElementById("dumpm4").innerHTML == "V") {
+        document.getElementById("m4").style.display = "block"
+        }
+        if (document.getElementById("dumpm5").innerHTML == "V") {
+        document.getElementById("m5").style.display = "block"
+        }
+        if (document.getElementById("dumpm6").innerHTML == "V") {
+        document.getElementById("m6").style.display = "block"
+        }
+        if (document.getElementById("dumpm7").innerHTML == "V") {
+        document.getElementById("m7").style.display = "block"
+        }
 
     }
-    
+  
 
+    function hidehangman() {
+    document.getElementById("m2").style.display = "none"
+    document.getElementById("m2a").style.display = "none"
+    document.getElementById("m2b").style.display = "none"
+    document.getElementById("m2c").style.display = "none"
+    document.getElementById("m2d").style.display = "none"
+    document.getElementById("m2e").style.display = "none"
+    document.getElementById("m3").style.display = "none"
+    document.getElementById("m4").style.display = "none"
+    document.getElementById("m5").style.display = "none"
+    document.getElementById("m6").style.display = "none"
+    document.getElementById("m7").style.display = "none"
+    document.getElementById("dumpm2").innerHTML = "H"
+    document.getElementById("dumpm2a").innerHTML = "H"
+    document.getElementById("dumpm2b").innerHTML = "H"
+    document.getElementById("dumpm2c").innerHTML = "H"
+    document.getElementById("dumpm2d").innerHTML = "H"
+    document.getElementById("dumpm2e").innerHTML = "H"
+    document.getElementById("dumpm3").innerHTML = "H"
+    document.getElementById("dumpm4").innerHTML = "H"
+    document.getElementById("dumpm5").innerHTML = "H"
+    document.getElementById("dumpm6").innerHTML = "H"
+    document.getElementById("dumpm7").innerHTML = "H"
+ 
+    }
+    
+    function hangman() {
+        if (document.getElementById("attempts").innerHTML == 5) {
+            document.getElementById("m2").style.display = "block"
+            document.getElementById("dumpm2").innerHTML = "V"
+        }
+        if (document.getElementById("attempts").innerHTML == 4) {
+            document.getElementById("m3").style.display = "block"
+            document.getElementById("m2a").style.display = "block"
+            document.getElementById("m2").style.display = "none"
+            document.getElementById("dumpm2a").innerHTML = "V"
+            document.getElementById("dumpm3").innerHTML = "V"
+        }
+        if (document.getElementById("attempts").innerHTML == 3) {
+            document.getElementById("m4").style.display = "block"
+            document.getElementById("m2a").style.display = "none"
+            document.getElementById("m2b").style.display = "block"
+            document.getElementById("dumpm2b").innerHTML = "V"
+            document.getElementById("dumpm4").innerHTML = "V"
+        }
+        if (document.getElementById("attempts").innerHTML == 2) {
+            document.getElementById("m5").style.display = "block"
+            document.getElementById("m2b").style.display = "none"
+            document.getElementById("m2c").style.display = "block"
+            document.getElementById("dumpm2c").innerHTML = "V"
+            document.getElementById("dumpm5").innerHTML = "V"
+        }
+        if (document.getElementById("attempts").innerHTML == 1) {
+            document.getElementById("m6").style.display = "block"
+            document.getElementById("m2c").style.display = "none"
+            document.getElementById("m2d").style.display = "block"
+            document.getElementById("dumpm2d").innerHTML = "V"
+            document.getElementById("dumpm6").innerHTML = "V"
+        }
+        if (document.getElementById("attempts").innerHTML == 0) {
+            document.getElementById("m7").style.display = "block"
+            document.getElementById("m2d").style.display = "none"
+            document.getElementById("m2e").style.display = "block"
+            document.getElementById("dumpm2e").innerHTML = "V"
+            document.getElementById("dumpm7").innerHTML = "V"
+        }
+    }
 </script>
 
 
@@ -1317,11 +1454,11 @@
             }
             #wordbox
             {
-                top: 252px;
-                left: 198px;
+                top: 23px;
+                left: 27px;
                 position: absolute;
-                height: 49px;
-                width: 246px;
+                height: 11px;
+                width: 84px;
             }
             
             #success
@@ -1347,11 +1484,11 @@
             }
             #dbox
             {
-                top: 349px;
-                left: 195px;
+                top: 56px;
+                left: 26px;
                 position: absolute;
-                height: 51px;
-                width: 229px;
+                height: 19px;
+                width: 82px;
             }
             #duplicate
             {
@@ -1382,19 +1519,19 @@
             }
             #check
             {
-                top: 492px;
-                left: 370px;
+                top: 128px;
+                left: 435px;
                 position: absolute;
-                height: 204px;
-                width: 201px;
+                height: 119px;
+                width: 118px;
             }
             #check2
             {
-                top: 492px;
-                left: 369px;
+                top: 129px;
+                left: 445px;
                 position: absolute;
-                height: 222px;
-                width: 191px;
+                height: 116px;
+                width: 98px;
             }
            
             
@@ -1500,12 +1637,27 @@
             {
                 font-family: "Courier New", Courier, monospace;
             }
+            #hangman
+            {
+                top: 331px;
+                left: 323px;
+                height: 312px;
+                width: 355px;
+            }
+            #m1
+            {
+                top: 2449px;
+                left: 15px;
+                position: absolute;
+                height: 473px;
+                width: 381px;
+            }
             </style>
 
 
 
 </head> 
-<body style="width: 592px; height: 600px; margin-left: 15px;" 
+<body style="width: 6px; height: 7px; margin-left: 15px;" 
     onload="newgame()">
    
 
@@ -1520,16 +1672,43 @@
     <h2 id="end" class="style100"></h2>
     <h3 id="wordbox"></h3>
     <h3 id="dbox"></h3>
-    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.1.0</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <h3 id="dumpm2" class="styledump">H</h3>
+    <h3 id="dumpm2a" class="styledump">H</h3>
+    <h3 id="dumpm2b" class="styledump">H</h3>
+    <h3 id="dumpm2c" class="styledump">H</h3>
+    <h3 id="dumpm2d" class="styledump">H</h3>
+    <h3 id="dumpm2e" class="styledump">H</h3>
+    <h3 id="dumpm3" class="styledump">H</h3>
+    <h3 id="dumpm4" class="styledump">H</h3>
+    <h3 id="dumpm5" class="styledump">H</h3>
+    <h3 id="dumpm6" class="styledump">H</h3>
+    <h3 id="dumpm7" class="styledump">H</h3>
+    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.2.1</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <span class="style105">made by Atomix</span></h4>
 
 
        <img src="ch2.png" alt="checkmark" id="check" style="display:none"/>
        <img src="chh4.png" alt="checkmark" id="check2" style="display:none"/>
+       <img src="m1.png" alt="hangman" id="m1" style="display:block; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m2.png" alt="hangman" id="m2" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m2a.png" alt="hangman" id="m2a" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m2b.png" alt="hangman" id="m2b" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m2c.png" alt="hangman" id="m2c" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m2d.png" alt="hangman" id="m2d" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m2e.png" alt="hangman" id="m2e" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m3.png" alt="hangman" id="m3" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m4.png" alt="hangman" id="m4" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m5.png" alt="hangman" id="m5" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m6.png" alt="hangman" id="m6" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="m7.png" alt="hangman" id="m7" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+  
+
+        
+        
      
 <!-------------------------HANGMAN------------------------------------------
 ----------------------------------------------------------------------------
-------------------------VERSION: 0.1.0--------------------------------------
+------------------------VERSION: 0.2.1--------------------------------------
 ------------------------MADE BY ATOMIX--------------------------------------
 ----------------------------------------------------------------------------
 -----------------------E-INK  SCREEN----------------------------------------
@@ -1546,24 +1725,21 @@
         </tr>
         <tr>
             <td class="style203">
-                version: 0.1.0</td>
+                version: 0.2.1</td>
             <td>
                 &nbsp;</td>
         </tr>
         <tr>
             <td>
-                <span class="style104"><br />Please note: I will keep updating this application quite frequently, so please check 
-                for new updates here:
-                </span>
-                <br class="style104" />
+                <span class="style104"><br />Please note: Now you can check for updates using 
+                nookMarket! Or if you wish also here:</span><br class="style104" />
                 <span class="style104">http://nookdevs.com/Hangman</span></td>
             <td>
                 &nbsp;</td>
         </tr>
         <tr>
             <td class="style104">
-                There will be new features, such as upgraded design, enlarged vocabulary and 
-                some surprises that I have in mind.</td>
+                I am releasing new features when I have some spare time for programming.</td>
             <td>
                 &nbsp;</td>
         </tr>
@@ -1614,9 +1790,17 @@
             <td class="style263" style="font-size: 20pt;">
                 0.1.0</td>
             <td class="style259" style="font-size: 20pt;">
-                Created hangman exclusively for the nook device</td>
+                initial release&nbsp;</td>
             <td class="style258" style="font-size: 20pt;">
                 22nd August, 2010</td>
+        </tr>
+        <tr>
+            <td class="style263" style="font-size: 20pt;">
+                0.2.1</td>
+            <td class="style259" style="font-size: 20pt;">
+                Added gallow&#39;s anim. Fixed minor issues</td>
+            <td class="style258" style="font-size: 20pt;">
+                23rd August, 2010</td>
         </tr>
         <tr>
             <td class="style264" style="font-size: 20pt;">
@@ -1625,7 +1809,7 @@
                 <ul>
                     <li>+1000 new words</li>
                     <li>&#39;did you know?&#39; quotes</li>
-                    <li>Gallows&#39; animation</li>
+                    
                 </ul>
             </td>
             <td class="style261" style="font-size: 20pt;">
@@ -1636,12 +1820,13 @@
                 &nbsp;</td>
         </tr>
         <tr>
-            <td class="style264" style="font-size: 20pt;" colspan="3">
-                &nbsp;</td>
+            <td class="style264" style="font-size: 16pt;" colspan="3">
+                <strong>Attention: Hangman can be updated via nookMarket application from now 
+                on!</strong></td>
         </tr>
         <tr>
             <td class="style264" style="font-size: 20pt;" colspan="3">
-                <span class="style268">Check for new updates here:</span><span class="style269"> http://nookdevs.com/Hangman</span></td>
+                <span class="style268">Official website for this application:</span><span class="style269"> http://nookdevs.com/Hangman</span></td>
         </tr>
         </table>
 
@@ -1667,6 +1852,6 @@
             <span class="style273">Hope you like it !&nbsp; </span> </span>
             </h1>
 
-        </body>
+            </body>
 </html>
 
