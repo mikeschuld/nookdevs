@@ -15,19 +15,26 @@
 package com.nookdevs.market;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -62,6 +69,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -78,6 +86,7 @@ import android.widget.Toast;
 import com.nookdevs.common.nookBaseActivity;
 
 public class NookMarket extends nookBaseActivity {
+    //protected static String FEED_URL="http://nookdevs.googlecode.com/svn/trunk/nookMarket/updatesfeed_test.xml";
     protected static String FEED_URL="http://nookdevs.googlecode.com/svn/trunk/updatesfeed.xml";
     ConnectivityManager.WakeLock lock;
     LinkedList<AppInfo> availableApps = new LinkedList<AppInfo>();
@@ -87,7 +96,8 @@ public class NookMarket extends nookBaseActivity {
     private static String m_BaseDir="";
     Handler m_Handler = new Handler();
     String lastApk=null;
-    
+    private boolean m_NookletInstalled=false;
+    private String m_NookletFolder = null;
     static {
         try {
             File file = new File(nookBaseActivity.EXTERNAL_SDFOLDER + "/" + "my packages/");
@@ -122,6 +132,19 @@ public class NookMarket extends nookBaseActivity {
                             });
                         }
                     };
+                    if( app.pkg.startsWith("Nooklet")) {
+                        int idx = app.pkg.lastIndexOf("/");
+                        String name = app.pkg.substring(idx+1);
+                        File f = new File( m_NookletFolder +"/" + name);
+                        if( f.exists()) {
+                           boolean status = deleteDir(f);
+                           Log.e(LOGTAG, "Deleting " + app.pkg + " status =" + status);
+                           try {
+                               observer.packageDeleted(status);
+                           } catch(Exception ex) {
+                           }
+                        }
+                    }
                     NookMarket.this.getPackageManager().deletePackage(app.pkg, observer, 0);
                 }
             });
@@ -130,6 +153,36 @@ public class NookMarket extends nookBaseActivity {
         }
          
      };
+     Comparator myComp = new Comparator<AppInfo>() {
+         public int compare(AppInfo arg0, AppInfo arg1) {
+             if( arg0.updateAvailable && !arg1.updateAvailable)
+                     return -1;
+             else if( arg1.updateAvailable && !arg0.updateAvailable)
+                     return 1;
+             else if( !arg0.installed && arg1.installed)
+                     return -1;
+             else if( !arg1.installed && arg0.installed)
+                     return 1;
+             return arg0.title.compareToIgnoreCase(arg1.title);
+         }
+         
+     };
+     //Copied from exampledepot.com & modified
+     public static boolean deleteDir(File dir) {
+         if (dir.isDirectory()) {
+             File[] children = dir.listFiles();
+             for (int i=0; i<children.length; i++) {
+                 boolean success = deleteDir(children[i]);
+                 if (!success) {
+                     return false;
+                 }
+             }
+         }
+
+         // The directory is now empty so delete it
+         return dir.delete();
+     }
+
      private View.OnClickListener appListener = new View.OnClickListener() {
         public void onClick(final View v) {
             if( v.getTag() instanceof AppInfo) {
@@ -139,6 +192,65 @@ public class NookMarket extends nookBaseActivity {
                     public void run() {
                         try {
                             final String apk = downloadPackage( app.url);
+                            if( app.pkg.startsWith("Nooklet")) {
+                                try {
+                                    String name=null;
+                                    int idx = app.pkg.lastIndexOf('/');
+                                    name = app.pkg.substring(idx+1);
+                                    //zip unzip Logic from java-tips.org
+                                    ZipInputStream zipinputstream = null;
+                                    ZipEntry zipentry;
+                                    zipinputstream = new ZipInputStream(
+                                        new FileInputStream(apk));
+                                    zipentry = zipinputstream.getNextEntry();
+                                    while (zipentry != null) 
+                                    { 
+                                        //for each entry to be extracted
+                                        String entryName = zipentry.getName();
+                                        if( zipentry.isDirectory()) {
+                                            File tmp = new File(m_NookletFolder + "/" + entryName);
+                                            tmp.mkdir();
+                                            zipentry = zipinputstream.getNextEntry();
+                                            continue;
+                                        }
+                                        int n;
+                                        FileOutputStream fileoutputstream;
+                                        File newFile = new File(entryName);
+                                        byte[] buf = new byte[1024];
+                                        fileoutputstream = new FileOutputStream(
+                                           m_NookletFolder+"/" + entryName);             
+    
+                                        while ((n = zipinputstream.read(buf, 0, 1024)) > -1)
+                                            fileoutputstream.write(buf, 0, n);
+    
+                                        fileoutputstream.close(); 
+                                        zipinputstream.closeEntry();
+                                        zipentry = zipinputstream.getNextEntry();
+    
+                                    }//while
+                                    zipinputstream.close();
+                                    File f = new File(m_NookletFolder + "/" + name +  "/version.txt");
+                                    FileOutputStream fout = new FileOutputStream(f);
+                                    fout.write( app.version.getBytes());
+                                    fout.close();
+                                    m_Handler.post( new Runnable() {
+                                       public void run() {
+                                           Toast.makeText(NookMarket.this, R.string.install_complete, Toast.LENGTH_SHORT).show();
+                                           init();
+                                       }
+                                    });
+                                    return;
+                                } catch(Exception ex) {
+                                    Log.e(LOGTAG, ex.getMessage(), ex);
+                                    m_Handler.post( new Runnable() {
+                                        public void run() {
+                                            Toast.makeText(NookMarket.this, R.string.install_failed, Toast.LENGTH_SHORT).show();
+                                        }
+                                     });
+                                    return;
+                                }
+
+                            }
                             final PackageManager pm = getPackageManager();
                             if( apk != null) {
                                 if( app.installed && !allowUpgrades()) {
@@ -174,7 +286,7 @@ public class NookMarket extends nookBaseActivity {
                 Bitmap bMap = BitmapFactory.decodeFile(wallPaperFile);
                 img.setImageBitmap(bMap);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Log.e(LOGTAG, ex.getMessage(), ex);
             }
         }
     }
@@ -242,6 +354,7 @@ public class NookMarket extends nookBaseActivity {
             httpClient.getConnectionManager().closeExpiredConnections();
             return name;
         } catch(Exception ex) {
+            Log.e(LOGTAG, ex.getMessage(), ex);
             ex.printStackTrace();
             return null;
         }
@@ -288,10 +401,20 @@ public class NookMarket extends nookBaseActivity {
                 Log.e(LOGTAG, ex.getMessage(),ex);
             }
         }
+        if( isAirplaneModeOn()) {
+            displayAlert(getString(R.string.network), getString(R.string.network_error), 2, 
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                       finish();
+                    }
+                },-1);
+            return;
+        } 
         lock.acquire();
         init();
     }
     private void init() {
+        displayAlert(getString(R.string.connecting), getString(R.string.please_wait), 1, null, -1);
         installedApps.clear();
         availableApps.clear();
         documents.clear();
@@ -300,6 +423,18 @@ public class NookMarket extends nookBaseActivity {
         final List<PackageInfo> apps = 
             manager.getInstalledPackages(PackageManager.GET_ACTIVITIES);
         for(PackageInfo app:apps) {
+            if( app.packageName.equals("com.kbs.nooklet")) {
+                m_NookletInstalled=true;
+                File f = new File(SDFOLDER+"/nooklets");
+                if( !f.exists()) {
+                    f = new File(EXTERNAL_SDFOLDER+"/nooklets");
+                    if( !f.exists()) {
+                        m_NookletInstalled=false;
+                    }
+                    System.out.println("Nook Installed =" + m_NookletInstalled);
+                }
+                m_NookletFolder=f.getAbsolutePath();
+            }
             installedApps.put( app.packageName, app);
         }
         WifiTask task = new WifiTask();
@@ -329,6 +464,7 @@ public class NookMarket extends nookBaseActivity {
             String title=null;
             boolean entry=false;
             boolean apk = false;
+            boolean nooklet=false;
             while ((type = parser.next()) != XmlPullParser.END_DOCUMENT) {
                 if (type == XmlPullParser.START_TAG) {
                     name = parser.getName();
@@ -346,7 +482,14 @@ public class NookMarket extends nookBaseActivity {
                             entry=false;
                             title=null;
                             continue;
-                   //     } else if( val != null && val.equals("text/html")) {
+                        } else if("application/zip".equals(val)) {
+                            if( m_NookletInstalled) {
+                                nooklet=true;
+                            } else {
+                                entry=false;
+                                title=null;
+                                continue;
+                            }
                         } else {
                             entry=false;
                             title=null;
@@ -375,39 +518,52 @@ public class NookMarket extends nookBaseActivity {
                     }
                 } else if( entry && type == XmlPullParser.END_TAG && parser.getName().equals("entry")){
                     entry=false;
-                    if( apk) {
-                        apk=false;
-                        if( installedApps.containsKey(app.pkg)){
-                            PackageInfo info = installedApps.get(app.pkg);
-                            app.installed=true;
+                    final String orgPkg = app.pkg;
+                    if( apk || nooklet) {
+                        if(nooklet) {
+                            String currVersion=null;
+                            File f = new File( m_NookletFolder +"/" + app.pkg + "/" + "version.txt");
+                            if( f.exists()) {
+                                BufferedReader fin = new BufferedReader(new FileReader(f));
+                                currVersion = fin.readLine();
+                                fin.close();
+                                app.installed=true;
+                            }
                             if( app.version != null) {
                                 if( !app.title.contains(app.version))
                                     app.title = app.title + " " + app.version;
-                                if(!app.version.trim().equals(info.versionName)) {
+                                if(currVersion != null && !app.version.trim().equals(currVersion)) {
                                     app.updateAvailable=true;
                                     app.text ="***Update Available***\n" + app.text;
                                 }
                             }
-                        } else if( app.version != null && !app.title.contains(app.version)) {
-                            app.title = app.title + " " + app.version;
-                        }
-                        Comparator myComp = new Comparator<AppInfo>() {
-                            public int compare(AppInfo arg0, AppInfo arg1) {
-                                if( arg0.updateAvailable && !arg1.updateAvailable)
-                                        return -1;
-                                else if( arg1.updateAvailable && !arg0.updateAvailable)
-                                        return 1;
-                                else if( !arg0.installed && arg1.installed)
-                                        return -1;
-                                else if( !arg1.installed && arg0.installed)
-                                        return 1;
-                                return arg0.title.compareToIgnoreCase(arg1.title);
+                            app.pkg = "Nooklet/" + app.pkg;
+                        } else {
+                            apk=false;
+                            if( "MyNook.Ru Launcher".equals(app.title) && 
+                                "1.5.6".equals(app.version)) {
+                                app=null;
+                                continue;
                             }
-                            
-                        };
+                            if( installedApps.containsKey(app.pkg)){
+                                PackageInfo info = installedApps.get(app.pkg);
+                                app.installed=true;
+                                if( app.version != null) {
+                                    if( !app.title.contains(app.version))
+                                        app.title = app.title + " " + app.version;
+                                    if(!app.version.trim().equals(info.versionName)) {
+                                        app.updateAvailable=true;
+                                        app.text ="***Update Available***\n" + app.text;
+                                    }
+                                }
+                            } else if( app.version != null && !app.title.contains(app.version)) {
+                                app.title = app.title + " " + app.version;
+                            }
+                        }
                         final int idx =-Collections.binarySearch(availableApps, app, myComp)-1;
                         availableApps.add(idx,app);
                         final AppInfo app1 = app;
+                        final boolean nooklet1 = nooklet;
                         Runnable run = new Runnable() {
                             public void run() {
                                 RelativeLayout appdetails =
@@ -417,9 +573,15 @@ public class NookMarket extends nookBaseActivity {
                                 if( !app1.installed) {
                                     icon.setImageResource(R.drawable.icon);
                                 } else {
-                                    icon.setOnLongClickListener(appdelListener);
+                                   icon.setOnLongClickListener(appdelListener);
                                     try {
-                                        if( installedApps.get(app1.pkg).activities[0] != null)
+                                        if( nooklet1) {
+                                            File f = new File(m_NookletFolder+"/"+ orgPkg + "/icon.png");
+                                            if( f.exists()) 
+                                                icon.setImageURI(Uri.parse(m_NookletFolder+"/"+ orgPkg + "/icon.png"));
+                                            else
+                                                icon.setImageResource(R.drawable.icon);
+                                        } else if( installedApps.get(app1.pkg).activities[0] != null)
                                             icon.setImageDrawable( installedApps.get(app1.pkg).activities[0].loadIcon(getPackageManager()));
                                         else
                                             icon.setImageDrawable( installedApps.get(app1.pkg).applicationInfo.loadIcon(getPackageManager()));
@@ -434,9 +596,12 @@ public class NookMarket extends nookBaseActivity {
                                 title1.setText(app1.title);
                                 
                                 m_Content.addView(appdetails, idx);
+                                if( idx ==0) 
+                                    closeAlert();
                             }
                         };
                         m_Handler.post(run);
+                        nooklet=false;
                     } else {
                         app.installed=false;
                         app.updateAvailable=false;
@@ -454,6 +619,7 @@ public class NookMarket extends nookBaseActivity {
             if( availableApps.size() ==0)
                 m_Handler.post( new Runnable() {
                     public void run() {
+                        closeAlert();
                         displayAlert(getString(R.string.network), getString(R.string.feed_error), 2, 
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
@@ -467,7 +633,6 @@ public class NookMarket extends nookBaseActivity {
     class WifiTask extends AsyncTask<Void, Integer, Boolean> {
         @Override
         protected void onPreExecute() {
-            displayAlert(getString(R.string.start_wifi), getString(R.string.please_wait), 1, null, -1);
         }
         
         @Override
@@ -494,10 +659,10 @@ public class NookMarket extends nookBaseActivity {
         
         @Override
         protected void onPostExecute(Boolean result) {
-            closeAlert();
             if( result) {
                 loadApps(FEED_URL);
             } else {
+                closeAlert();
                 displayAlert(getString(R.string.network), getString(R.string.network_error), 2, 
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -507,5 +672,17 @@ public class NookMarket extends nookBaseActivity {
             }
         }
 
+    }
+    private boolean isAirplaneModeOn() {
+        try {
+            int mode = android.provider.Settings.System.getInt(getApplicationContext().getContentResolver(),android.provider.Settings.System.AIRPLANE_MODE_ON); 
+            if( mode ==1) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch(Exception ex) {
+            return true;
+        }
     }
 }
