@@ -39,10 +39,11 @@ public class Item implements ListItem
     /** The item's index in its note's list of items (may be <code>null</code>). */
     @Nullable private final Integer mIndex;
     /** The item's text (may be <code>null</code>). */
-    @Nullable
-    private final String mText;
+    @Nullable private final String mText;
     /** The item's "checked" attribute. */
     private final int mChecked;
+    /** The item's cached display height (may be <code>null</code>). */
+    @Nullable private final Integer mHeight;
 
     /////////////////////////////////////////// METHODS ///////////////////////////////////////////
 
@@ -55,18 +56,21 @@ public class Item implements ListItem
      * @param text    the item's text (may be <code>null</code>)
      * @param checked the item's "checked" attribute, one of the <code>Notes.ITEM_CHECKED_*</code>
      *                constants
+     * @param height  the item's cached display height
      */
     public Item(@Nullable Integer index,
                 @Nullable String text,
-                int checked)
+                int checked,
+                @Nullable Integer height)
     {
         mIndex = index;
         mText = text;
         mChecked = Math.min(Math.max(checked, 0), 2);
+        mHeight = height;
     }
 
     /**
-     * Creates an index-less {@link Item} with a given text.
+     * Creates an index-less {@link Item} with a given text and checked state.
      *
      * @param text    the item's text (may be <code>null</code>)
      * @param checked the item's "checked" attribute, one of the <code>Notes.ITEM_CHECKED_*</code>
@@ -75,7 +79,7 @@ public class Item implements ListItem
     public Item(@Nullable String text,
                 int checked)
     {
-        this(null, text, checked);
+        this(null, text, checked, null);
     }
 
     // inherited methods...
@@ -141,5 +145,15 @@ public class Item implements ListItem
      */
     public int getChecked() {
         return mChecked;
+    }
+
+    /**
+     * Returns the item's cached display height.
+     *
+     * @return the item's cached display height
+     */
+    @Nullable
+    public Integer getHeight() {
+        return mHeight;
     }
 }

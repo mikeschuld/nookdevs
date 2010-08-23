@@ -79,6 +79,16 @@
         index).<br/>
         Use with <code>update()</code>.
     </li>
+    <li>
+        <code>content://com.nookdevs.provider.notes/notes/#/items/#/height</code><br/>
+        URI for updating the cached display height of an item of a note (the first placeholder
+        being the note's ID, the second the item's 0-based index in its list of items).  Updating
+        the height this way will neither update the note's
+        {@link com.nookdevs.notes.provider.Notes.KEY_NOTE_ORDER_EDITED} field nor notify
+        observers; conversely, the attribute is reset to <code>NULL</code> whenever the item is
+        touched.<br/>
+        Use with <code>update()</code>.
+    </li>
 </ul>
 
 </body>

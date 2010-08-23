@@ -150,9 +150,13 @@ public abstract class NotesUtils
      */
     @NotNull
     public static Item getItem(@NotNull Cursor cursor) {
+        Integer height = null;
+        int heightIdx = cursor.getColumnIndexOrThrow(KEY_ITEM_HEIGHT);
+        if (!cursor.isNull(heightIdx)) height = cursor.getInt(heightIdx);
         return new Item(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_INDEX)),
                         cursor.getString(cursor.getColumnIndexOrThrow(KEY_ITEM_TEXT)),
-                        cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_CHECKED)));
+                        cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_CHECKED)),
+                        height);
     }
 
     /**
@@ -175,9 +179,13 @@ public abstract class NotesUtils
             cursor.close();
             return null;
         }
+        Integer height = null;
+        int heightIdx = cursor.getColumnIndexOrThrow(KEY_ITEM_HEIGHT);
+        if (!cursor.isNull(heightIdx)) height = cursor.getInt(heightIdx);
         Item item = new Item(cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_INDEX)),
                              cursor.getString(cursor.getColumnIndexOrThrow(KEY_ITEM_TEXT)),
-                             cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_CHECKED)));
+                             cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ITEM_CHECKED)),
+                             height);
         cursor.close();
         return item;
     }

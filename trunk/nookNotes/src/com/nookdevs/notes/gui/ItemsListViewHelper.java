@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -32,10 +34,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nookdevs.notes.R;
-import com.nookdevs.notes.data.ListItemsProvider;
 import com.nookdevs.notes.provider.Item;
 import com.nookdevs.notes.provider.Note;
 import com.nookdevs.notes.provider.Notes;
+import com.nookdevs.notes.provider.NotesUris;
 import com.nookdevs.notes.util.NookSpecifics;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,19 +67,19 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
     // constructors/destructors...
 
     /**
-     * Creates a {@link com.nookdevs.notes.gui.ItemsListViewHelper}.
+     * Creates a {@link com.nookdevs.notes.gui.ItemsListViewHelper}.  The list view will have no
+     * data until a provider has been set via
+     * {@link #setProvider(com.nookdevs.notes.data.ListItemsProvider)}.
      *
      * @param activity the activity on behalf of which this instance is created
      * @param view     the view component into which to render
      * @param noteUri  the note's URI
-     * @param notes    list of the note's items
      */
     public ItemsListViewHelper(@NotNull Activity activity,
                                @NotNull LinearLayout view,
-                               @NotNull Uri noteUri,
-                               @NotNull ListItemsProvider<Item> notes)
+                               @NotNull Uri noteUri)
     {
-        super(activity, view, notes, getNoteTitle(activity, noteUri));
+        super(activity, view, getNoteTitle(activity, noteUri));
         assert isSingleNoteUri(noteUri);
         mNoteId = noteIdOfUri(noteUri);
     }
@@ -91,15 +93,25 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
         mFirstItemsInPages.clear();
         int itemCount = mItems.getItemCount();
         int firstPageHeight = 0;
+        ContentResolver cr = mActivity.getContentResolver();
         for (int i = 0, pageHeight = 0; i < itemCount; i++) {  // for each item...
-            if (pageHeight == 0) {
-                mFirstItemsInPages.add(i);
-            }
+            if (pageHeight == 0) mFirstItemsInPages.add(i);
 
-            // prepare item for display, measure its height...
-            View vItem = createItemView(i);
-            vItem.measure(NookSpecifics.EINK_WIDTH, MAX_PAGE_HEIGHT);
-            int height = vItem.getMeasuredHeight();
+            // if the item's height is cached, use it; otherwise measure it and then store it in
+            // the database, caching it...
+            Item item = mItems.getItem(i);
+            Integer height = item.getHeight();
+            if (height == null) {  // not cached?
+                // prepare item for display, measure its height...
+                View vItem = createItemView(i, item);
+                vItem.measure(NookSpecifics.EINK_WIDTH, MAX_PAGE_HEIGHT);
+                height = vItem.getMeasuredHeight();
+
+                // cache the height...
+                ContentValues values = new ContentValues();
+                values.put(Notes.KEY_ITEM_HEIGHT, height);
+                cr.update(NotesUris.itemHeightUri(mNoteId, i), values, null, null);
+            }
 
             // update data structure...
             if (pageHeight > 0 && pageHeight + height >= MAX_PAGE_HEIGHT) {
@@ -117,8 +129,9 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
 
         // add a usage hint if there are only few notes and items (indicating that the user has not
         // yet extensively used the application) and there's room for it...
-        if (notesCount(mActivity.getContentResolver()) <= ITEMS_PER_PAGE / 2 &&
-            mItems.getItemCount() <= ITEMS_PER_PAGE / 2 &&
+        if (mNoteId >= 0 &&
+            notesCount(cr) <= ITEMS_PER_PAGE / 2 &&
+            itemCount <= ITEMS_PER_PAGE / 2 &&
             pageCount() < 2)
         {
             View vUsageHint =
@@ -134,11 +147,12 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
 
     /** {@inheritDoc} */
     @NotNull @Override
-    protected View createItemView(int index) {
+    protected View createItemView(int index,
+                                  @NotNull Item item)
+    {
         LayoutInflater inflater = mActivity.getLayoutInflater();
         View vItem = inflater.inflate(R.layout.items_list_item_note_items, mvMain, false);
         TextView vTitle = (TextView) vItem.findViewById(R.id.items_list_title);
-        Item item = mItems.getItem(index);
         String text = item.getText();
         vTitle.setText(
             TextUtils.isEmpty(text) ? mActivity.getString(R.string.item_list_no_text) : text);

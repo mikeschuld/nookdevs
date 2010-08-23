@@ -29,10 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nookdevs.notes.R;
-import com.nookdevs.notes.data.ListItem;
-import com.nookdevs.notes.data.ListItemsChange;
-import com.nookdevs.notes.data.ListItemsClient;
-import com.nookdevs.notes.data.ListItemsProvider;
+import com.nookdevs.notes.data.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,6 +81,23 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
     /** The maximum number of "dots" to use to indicate the current page and total page count. */
     public static final int MAX_DOTS = 10;
 
+    /**
+     * Dummy list items provider used while no actual provider is set.  Facilitates internal
+     * handling of this case.
+     */
+    @NotNull protected final ListItemsProvider<T> NULL_PROVIDER =
+        new AbstractListItemsProvider<T>() {
+            @Override
+            public int getItemCount() {
+                return 0;
+            }
+
+            @NotNull @Override
+            public T getItem(int idx) throws IndexOutOfBoundsException {
+                throw new IndexOutOfBoundsException();
+            }
+        };
+
     //....................................................................................... views
 
     /** The view into which we render. */
@@ -114,7 +128,7 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
     /** The activity on behalf of which the helper operates. */
     @NotNull protected final Activity mActivity;
     /** The items storage. */
-    @NotNull protected final ListItemsProvider<T> mItems;
+    @NotNull protected ListItemsProvider<T> mItems = NULL_PROVIDER;
 
     /** The list title to display. */
     @NotNull protected String mTitle;
@@ -134,25 +148,24 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
     // constructors/destructors...
 
     /**
-     * Creates a {@link com.nookdevs.notes.gui.ListViewHelper}.
+     * Creates a {@link com.nookdevs.notes.gui.ListViewHelper}.  The list view will have no data
+     * until a provider has been set via
+     * {@link #setProvider(com.nookdevs.notes.data.ListItemsProvider)}.
      *
      * @param activity the activity on behalf of which this instance is created
      * @param view     the view component into which to render
-     * @param items    the items provider
      * @param title    the list's title
      */
     public ListViewHelper(@NotNull Activity activity,
                           @NotNull LinearLayout view,
-                          @NotNull ListItemsProvider<T> items,
                           @NotNull String title)
     {
         mActivity = activity;
         mvMain = view;
-        mItems = items;
         mTitle = title;
 
         initView(0);
-        if (items.getItemCount() > 0) setSelectedIndex(0);
+        if (mItems.getItemCount() > 0) setSelectedIndex(0);
         mItems.addListItemsClient(this);
     }
 
@@ -173,6 +186,26 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
     }
 
     // own methods...
+
+    //.................................................................................... provider
+
+    /**
+     * Sets the list view's items provider.
+     *
+     * @param provider the provider (may be <code>null</code>, which will clear the list)
+     */
+    public void setProvider(@Nullable ListItemsProvider<T> provider) {
+        // unregister as client of the old provider...
+        mItems.removeListItemsClient(this);
+
+        // set the new provider...
+        mItems = (provider != null ? provider : NULL_PROVIDER);
+
+        // re-initialize...
+        initView(0);
+        if (mItems.getItemCount() > 0) setSelectedIndex(0);
+        mItems.addListItemsClient(this);
+    }
 
     //............................................................................. list navigation
 
@@ -414,7 +447,8 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
                 mvDividers[i] = (ImageView)
                     inflater.inflate(R.layout.items_list_divider, mvMain, false);
                 mvMain.addView(mvDividers[i]);
-                View vItem = createItemView(firstItemInPage(page) + i);
+                int idx = firstItemInPage(page) + i;
+                View vItem = createItemView(idx, mItems.getItem(idx));
                 mvArrows[i] = (ImageView) vItem.findViewById(R.id.items_list_arrow);
                 mvMain.addView(vItem);
             }
@@ -444,15 +478,17 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
      * selection-indicating arrow with ID <code>items_list_arrow</code>.
      *
      * @param index the item's (absolute, 0-based) index
+     * @param item  the item
      * @return a view for the item
      */
     @NotNull
-    protected View createItemView(int index) {
+    protected View createItemView(int index,
+                                  @NotNull T item)
+    {
         LayoutInflater inflater = mActivity.getLayoutInflater();
         View vItem = inflater.inflate(R.layout.items_list_item, mvMain, false);
         TextView vTitle = (TextView) vItem.findViewById(R.id.items_list_title);
         TextView vSubTitle = (TextView) vItem.findViewById(R.id.items_list_subtitle);
-        T item = mItems.getItem(index);
         String title = item.getListTitle(mActivity);
         vTitle.setText(title != null ? title : item.toString());
         vSubTitle.setText(item.getListSubTitle(mActivity));

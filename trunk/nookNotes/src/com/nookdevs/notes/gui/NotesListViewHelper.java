@@ -30,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nookdevs.notes.R;
-import com.nookdevs.notes.data.ListItemsProvider;
 import com.nookdevs.notes.provider.Note;
 import com.nookdevs.notes.provider.NotesUtils;
 import com.nookdevs.notes.util.NookSpecifics;
@@ -52,17 +51,17 @@ public class NotesListViewHelper extends ListViewHelper<Note>
     // constructors/destructors...
 
     /**
-     * Creates a {@link NotesListViewHelper}.
+     * Creates a {@link NotesListViewHelper}.  The list view will have no data
+     * until a provider has been set via
+     * {@link #setProvider(com.nookdevs.notes.data.ListItemsProvider)}.
      *
      * @param activity the activity on behalf of which this instance is created
      * @param view     the view component into which to render
-     * @param notes    list of notes
      */
     public NotesListViewHelper(@NotNull Activity activity,
-                               @NotNull LinearLayout view,
-                               @NotNull ListItemsProvider<Note> notes)
+                               @NotNull LinearLayout view)
     {
-        super(activity, view, notes, activity.getString(R.string.notes_list_title));
+        super(activity, view, activity.getString(R.string.notes_list_title));
     }
 
     // inherited methods...
@@ -85,9 +84,9 @@ public class NotesListViewHelper extends ListViewHelper<Note>
 
     /** {@inheritDoc} */
     @NotNull @Override
-    protected View createItemView(int index) {
+    protected View createItemView(int index,
+                                  @NotNull Note note) {
         // gather data...
-        Note note = mItems.getItem(index);
         Map<Integer,Integer> counts = NotesUtils.checkedCounts(note);
         int checked =
             counts.containsKey(ITEM_CHECKED_CHECKED) ? counts.get(ITEM_CHECKED_CHECKED) : 0;
