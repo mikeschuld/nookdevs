@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
     <entry>
-        <title>Nooklet app - Hangman</title>
+        <title>Hangman</title>
         <link type="application/zip"
     href="http://nookdevs.googlecode.com/files/Hangman.zip"/>
         <id>http://nookdevs.googlecode.com/files/Hangman.zip</id>
@@ -12,7 +12,7 @@
     </entry>
 
     <entry>
-      <title>Nooklet app - Currency Converter</title>
+      <title>Currency Converter</title>
        <link type="application/zip"
     href="http://nookdevs.googlecode.com/files/Currency_converter.zip"/>
        <id>http://nookdevs.googlecode.com/files/Currency_converter.zip</id>
