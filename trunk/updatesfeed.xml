@@ -107,7 +107,7 @@
     <title>nookMarket</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookMarket.apk"/>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <pkg>com.nookdevs.market</pkg>
     <id>http://nookdevs.googlecode.com/files/nookMarket.apk</id>
     <content type="text">Lists available apps for Nook.Provides version details for the apps,allow you to install,uninstall and upgrade.</content>
