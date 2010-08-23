@@ -171,7 +171,7 @@ and copying it to your internal SD card. Download the samples separately from th
     <link type="application/zip" href="http://nookdevs.com/images/6/68/Currency_converter.zip"/>
     <id>http://nookdevs.com/images/6/68/Currency_converter.zip</id>
     <version>1.0</version>
-    <pkg>CurrencyConverter</pkg>
+    <pkg>Currency converter</pkg>
     <content type="text">Currency Converter nooklet app</content>
   </entry>
 </feed>
