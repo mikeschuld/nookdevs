@@ -23,6 +23,7 @@ package com.nookdevs.notes.gui;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -80,6 +81,8 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
     /** The number of items shown per page. */
     protected static final int ITEMS_PER_PAGE =
         (MAX_PAGE_HEIGHT - 1) / (ITEM_HEIGHT + 1);  // + divider
+    /** The maximum number of "dots" to use to indicate the current page and total page count. */
+    public static final int MAX_DOTS = 10;
 
     //....................................................................................... views
 
@@ -420,15 +423,17 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
             mvMain.addView(mvDividers[mLastItem + 1]);
         }
         // list footer...
-        if (mPageCount > 1 && mPageCount <= 10) {
-            LinearLayout vFooter = (LinearLayout) inflater.inflate(R.layout.dots, mvMain, false);
-            for (int i = 0; i < 10; i++) {
-                vFooter.findViewWithTag("dot_filled_" + i)
-                       .setVisibility(i <= mCurrentPage ? View.VISIBLE : View.GONE);
-            }
-            for (int i = 0; i < 9; i++) {
-                vFooter.findViewWithTag("dot_empty_" + i)
-                       .setVisibility(i < mPageCount - mCurrentPage - 1 ? View.VISIBLE : View.GONE);
+        if (mPageCount > 1 && mPageCount <= MAX_DOTS) {
+            ViewGroup vFooter = (ViewGroup)
+                inflater.inflate(R.layout.pagination_dots, mvMain, false);
+            ViewGroup vDots = (ViewGroup) vFooter.findViewById(R.id.pagination_dots);
+            for (int i = 0; i < mPageCount; i++) {
+                vDots.addView(
+                    inflater.inflate(
+                        i <= mCurrentPage ? R.layout.pagination_dot_filled
+                                          : R.layout.pagination_dot_empty,
+                        vDots,
+                        false));
             }
             mvMain.addView(vFooter);
         }

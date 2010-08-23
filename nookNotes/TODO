@@ -2,6 +2,8 @@ ISSUES
 
 IMMEDIATE
 
+- cache item heights in database (update heights with a special URI that doesn't update the "edited" order field)
+
 FEATURES
 
 - automatically replace arrows, long dash, some markup for umlauts? -> provide an option then to toggle this

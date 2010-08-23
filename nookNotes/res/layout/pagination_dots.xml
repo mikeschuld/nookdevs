@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent" android:layout_height="fill_parent"
+              android:layout_marginTop="13px" android:layout_marginBottom="13px"
+              android:gravity="bottom">
+    <LinearLayout android:id="@+id/pagination_dots"
+                  android:layout_width="fill_parent" android:layout_height="14px"
+                  android:gravity="center_horizontal"/>
+</LinearLayout>
