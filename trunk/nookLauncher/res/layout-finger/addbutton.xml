@@ -1,3 +1,3 @@
 <Button android:id="@+id/addButton" xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="25.0px" android:layout_height="25.0px"
-	android:background="@drawable/small_add_button" />
+	android:background="@drawable/button_add_top_left_pressable" />

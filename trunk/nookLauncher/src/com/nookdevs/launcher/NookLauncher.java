@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright 2010 nookDevs
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * 		http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package com.nookdevs.launcher;
 
@@ -42,7 +42,7 @@ import com.nookdevs.common.nookBaseActivity;
 
 public class NookLauncher extends nookBaseActivity {
     private String m_WallPaperFile = null;
-    
+
     String[] apps =
         {
             "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
@@ -52,7 +52,7 @@ public class NookLauncher extends nookBaseActivity {
             "com.nookdevs.launcher.LauncherSelector", "com.bravo.chess.ChessActivity",
             "com.bravo.sudoku.SudokuActivity", "com.bravo.app.browser.BrowserActivity"
         };
-    
+
     int[] appIcons =
         {
             R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
@@ -61,26 +61,26 @@ public class NookLauncher extends nookBaseActivity {
             R.drawable.select_home_bnhome, R.drawable.select_default_launcher, R.drawable.select_home_chess,
             R.drawable.select_home_sudoku, R.drawable.select_home_browser
         };
-    
+
     final static String readingNowUri = "content://com.reader.android/last";
     ImageButton m_LastButton = null;
     private Uri m_LastImageUri=null;
-    
-    public final static int DB_VERSION = 11;
+
+    public final static int DB_VERSION = 12;
     private boolean m_SettingsChanged = false;
     private HashMap<ImageButton,String> m_UriMap = new HashMap<ImageButton,String>();
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         LOGTAG = "nookLauncher";
         NAME = null;
-        
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
+
         loadApps();
     }
-    
+
     @Override
     public void onResume() {
         NAME=null;
@@ -96,7 +96,7 @@ public class NookLauncher extends nookBaseActivity {
                 m_LastButton.setImageURI(Uri.parse(icon));
         }
     }
-    
+
     private void loadWallpaper() {
         m_WallPaperFile = getWallpaperFile();
         if (m_WallPaperFile != null) {
@@ -105,27 +105,29 @@ public class NookLauncher extends nookBaseActivity {
                 m_WallPaperFile = m_WallPaperFile.substring(7);
                 Bitmap bMap = BitmapFactory.decodeFile(m_WallPaperFile);
                 img.setImageBitmap(bMap);
-                
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
     }
-    
+
     private final synchronized void loadApps() {
         LinearLayout ll = (LinearLayout) (findViewById(R.id.appcontainer));
         ll.removeAllViews();
-        
+
         final LayoutInflater inflater = getLayoutInflater();
         DBHelper db = new DBHelper(this, null, DB_VERSION);
         Cursor cursor = db.getApps();
         if (cursor == null || cursor.getCount() == 0) {
             db.addInitData(apps, appIcons);
-            if (cursor != null) {
-                cursor.close();
-            }
-            cursor = db.getApps();
+        } else {
+            db.updateInitData(apps, appIcons);  // internal IDs may have changed
         }
+        if (cursor != null) {
+            cursor.close();
+        }
+        cursor = db.getApps();
         int count = cursor.getCount();
         for (int i = 0; i < count; i++) {
             ImageButton bnv = (ImageButton) inflater.inflate(R.layout.appbutton, ll, false);
@@ -137,7 +139,7 @@ public class NookLauncher extends nookBaseActivity {
         db.close();
         inflater.inflate(R.layout.appbutton, ll, false);
     }
-    
+
     private final void fillButton(ImageButton b, String appName, int appIconId, String iconpath) {
         boolean systemApp = false;
         Intent intent = null;
@@ -157,7 +159,7 @@ public class NookLauncher extends nookBaseActivity {
         if (appName.endsWith("LauncherSettings")) {
             settings = true;
         }
-        
+
         boolean readingNow = false;
         if (appName.endsWith("ReaderActivity")) {
             readingNow = true;
@@ -210,7 +212,7 @@ public class NookLauncher extends nookBaseActivity {
                                     if( f.exists()) {
                                         img.setImageURI( Uri.parse(icon1));
                                     }
-                                    else    
+                                    else
                                         img.setImageURI(Uri.parse(icon));
                                 }
                             }
@@ -221,20 +223,20 @@ public class NookLauncher extends nookBaseActivity {
         }
         b.setBackgroundResource(android.R.color.transparent);
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // doesn't matter what happens. just reload the apps again.
         // loadApps();
     }
-    
+
     private final class ClickListener implements View.OnClickListener {
         private ClickListener(Intent i, boolean readingNow, boolean settings) {
             m_intent = i;
             m_readingNow = readingNow;
             m_Settings = settings;
         }
-        
+
         public void onClick(View v) {
             v.setBackgroundResource(android.R.color.darker_gray);
             m_LastButton = (ImageButton) v;
@@ -258,12 +260,12 @@ public class NookLauncher extends nookBaseActivity {
                 }
             }
         }
-        
+
         private final Intent m_intent;
         private final boolean m_readingNow;
         private final boolean m_Settings;
     }
-    
+
     // This logic is from B&N dex file. We may have to check this after each new
     // B&N firmware upgrade.
     private Intent getReadingNowIntent() {
