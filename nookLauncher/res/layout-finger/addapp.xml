@@ -15,7 +15,7 @@
 	<Button android:layout_width="40.0px" android:layout_height="40.0px"
 		android:layout_marginTop="15.0px" android:layout_marginLeft="90.0px"
 		android:layout_toRightOf="@id/addappicon" android:layout_below="@id/addapptext"
-		android:id="@+id/appaddbutton" android:background="@drawable/small_add_button" />
+		android:id="@+id/appaddbutton" android:background="@drawable/button_add_bottom_pressable" />
 
 	<ImageView android:layout_width="1.0px"
 		android:layout_height="144.0px" android:src="@drawable/black_white_gradient" />

@@ -1,16 +1,16 @@
-/* 
+/*
  * Copyright 2010 nookDevs
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * 		http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package com.nookdevs.launcher;
 
@@ -24,17 +24,17 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
     private SQLiteDatabase m_ReadDb;
     private SQLiteDatabase m_WriteDb;
-    
+
     public DBHelper(Context context, CursorFactory factory, int version) {
         super(context, DATABASE_NAME, factory, version);
     }
-    
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
-        
+
     }
-    
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         try {
@@ -53,9 +53,9 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL(DROP_TABLE);
             onCreate(db);
         }
-        
+
     }
-    
+
     public Cursor getApps() {
         Cursor cursor = null;
         try {
@@ -65,7 +65,7 @@ public class DBHelper extends SQLiteOpenHelper {
             cursor =
                 m_ReadDb.rawQuery("SELECT NAME, resources, iconpath, keyboard FROM " + TABLE_NAME
                     + " ORDER BY ORDERNUM", null);
-            
+
             if (cursor != null) {
                 cursor.moveToFirst();
             }
@@ -74,7 +74,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return cursor;
     }
-    
+
     public void removeData(String name) {
         try {
             if (m_WriteDb == null) {
@@ -92,7 +92,7 @@ public class DBHelper extends SQLiteOpenHelper {
             m_WriteDb.endTransaction();
         }
     }
-    
+
     public void addInitData(String[] apps, int[] resources) {
         try {
             if (m_WriteDb == null) {
@@ -114,7 +114,29 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return;
     }
-    
+
+    public void updateInitData(String[] apps, int[] resources) {
+        try {
+            if (m_WriteDb == null) {
+                m_WriteDb = getWritableDatabase();
+            }
+            m_WriteDb.beginTransaction();
+            for (int i = 0; i < apps.length; i++) {
+                String[] values = {
+                    String.valueOf(resources[i]), apps[i]
+                };
+                m_WriteDb.execSQL(
+                    "update " + TABLE_NAME + " set resources=? where name=?", values);
+            }
+            m_WriteDb.setTransactionSuccessful();
+            m_WriteDb.endTransaction();
+        } catch (Exception ex) {
+            Log.e(TAG, "error inserting into db -", ex);
+            m_WriteDb.endTransaction();
+        }
+        return;
+    }
+
     public void addData(String app, int id, String uri, String keyboard) {
         try {
             int order = getMaxOrder() + 1;
@@ -134,7 +156,7 @@ public class DBHelper extends SQLiteOpenHelper {
             m_WriteDb.endTransaction();
         }
     }
-    
+
     public int getMaxOrder() {
         try {
             if (m_ReadDb == null) {
@@ -149,7 +171,7 @@ public class DBHelper extends SQLiteOpenHelper {
             return 0;
         }
     }
-    
+
     public int getAppCount() {
         try {
             if (m_ReadDb == null) {
@@ -164,7 +186,7 @@ public class DBHelper extends SQLiteOpenHelper {
             return 0;
         }
     }
-    
+
     public int getOrderNumber(String app) {
         int order = 0;
         try {
@@ -179,11 +201,11 @@ public class DBHelper extends SQLiteOpenHelper {
             order = cursor.getInt(0);
             cursor.close();
         } catch (Exception ex) {
-            
+
         }
         return order;
     }
-    
+
     public void updateData(String app, String appPrev) {
         try {
             int order = getOrderNumber(appPrev);
@@ -204,9 +226,9 @@ public class DBHelper extends SQLiteOpenHelper {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        
+
     }
-    
+
     private static final String TAG = "DBHelper";
     private static String DATABASE_NAME = "LAUNCH_SETTINGS";
     private String TABLE_NAME = "APPS";
@@ -214,5 +236,5 @@ public class DBHelper extends SQLiteOpenHelper {
     private String CREATE_TABLE =
         " CREATE TABLE " + TABLE_NAME + " ( _id integer primary key autoincrement, name text not null,"
             + "ordernum integer not null, resources int , iconpath string, keyboard integer not null)";
-    
+
 }

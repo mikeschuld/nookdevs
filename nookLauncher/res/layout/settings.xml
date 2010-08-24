@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-	xmlns:android="http://schemas.android.com/apk/res/android"    
-	android:layout_width="fill_parent" 
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:orientation="vertical"
 	android:background="#808080"
 	>
-<WebView android:id="@+id/webview"        
-	android:layout_width="fill_parent"        
+<WebView android:id="@+id/webview"
+	android:layout_width="fill_parent"
 	android:layout_height="760.0px"
 	android:imeOptions="actionDone"
 	/>
 
  <RelativeLayout android:layout_width="fill_parent"
- 				android:layout_height="fill_parent"> 	
+ 				android:layout_height="fill_parent">
 
     <ViewAnimator  android:layout_width="480px"
        android:layout_height="144px"
@@ -22,10 +22,11 @@
      android:layout_width="480px"
      android:layout_height="144px"
      android:orientation="horizontal"
-     android:background="#808080"
+     android:background="#6b6d7b"
      android:scrollbars="none"
      android:scrollbarStyle="outsideOverlay"
-     android:fadingEdge="none"
+     android:fadingEdge="horizontal"
+     android:fadingEdgeLength="12px"
      android:id="@+id/horizontalscroll01"
      >
 
@@ -34,16 +35,17 @@
        android:layout_height="fill_parent"
        android:id="@+id/settingscontainer"
        />
-       
+
   </HorizontalScrollView>
    <HorizontalScrollView
      android:layout_width="480px"
      android:layout_height="144px"
      android:orientation="horizontal"
-     android:background="#808080"
+     android:background="#6b6d7b"
      android:scrollbars="none"
      android:scrollbarStyle="outsideOverlay"
-     android:fadingEdge="none"
+     android:fadingEdge="horizontal"
+     android:fadingEdgeLength="12px"
      android:id="@+id/horizontalscroll02"
      >
        <LinearLayout
@@ -52,7 +54,7 @@
      	android:id="@+id/addappcontainer"
      	/>
     </HorizontalScrollView>
-  
+
   </ViewAnimator>
     <ViewAnimator android:id="@+id/settingsanim"
     	android:layout_height="144px"
@@ -60,20 +62,20 @@
     	<Button android:id="@+id/addButton"
     		   android:layout_width="40.0px"
 			   android:layout_height="40.0px"
-			   android:background="@drawable/small_add_button"
+			   android:background="@drawable/button_add_top_left_pressable"
     	/>
     	<ImageButton android:id="@+id/imgbutton"
     		android:layout_width="fill_parent"
     		android:layout_height="fill_parent"
     		android:background="#808080"
    			android:gravity="center_horizontal|center_vertical"
-    	/> 
+    	/>
     </ViewAnimator>
     <Button android:id="@+id/backbutton"
     	android:layout_width="40.0px"
     	android:layout_height="40.0px"
-    	android:background="@drawable/back_button"
-		android:layout_marginTop="100.0px"   	
+    	android:background="@drawable/button_back_bottom_left_pressable"
+		android:layout_marginTop="104.0px"
     	/>
     <com.nookdevs.common.CustomGallery android:id="@+id/icongallery"
     		 android:layout_width="480px"
@@ -88,5 +90,5 @@
    	 	android:layout_height="40.0px"
    	 	android:background="@drawable/close_button"
    	 	/>
- </RelativeLayout> 
+ </RelativeLayout>
 </LinearLayout>
