@@ -75,7 +75,8 @@ $::NOOKAPP_GOOGLEREADER = "$ENV{HOME}/git/nookapp-googlereader";
           "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings.png", "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings_focus.png" ],
   17 => [ "nd_wifi_locker",
           "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_normal.PNG", "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_pressed.PNG" ],
-  # 18
+  18 => [ "folder_games",
+          "/dev/null", "/dev/null" ],
   19 => [ "nd_crosswords",
           "/dev/null", "/dev/null" ],
   20 => [ "cc_media",
@@ -88,6 +89,13 @@ $::NOOKAPP_GOOGLEREADER = "$ENV{HOME}/git/nookapp-googlereader";
           "$::NOOKAPP_GOOGLEREADER/res/drawable/icon.png", "$::NOOKAPP_GOOGLEREADER/res/drawable/icon_pressed.png" ],
   24 => [ "nd_tasks",
           "$::NOOKDEVS/nookTaskManager/res/drawable/icon.png", "$::NOOKDEVS/nookTaskManager/res/drawable/icon_pressed.png" ],
+  # 25
+  # 26
+  # 27
+  28 => [ "folder_template",
+          "/dev/null", "/dev/null" ],
+  29 => [ "nd_notes",
+          "$::NOOKDEVS/nookNotes/res/drawable/nd_notes.png", "$::NOOKDEVS/nookNotes/res/drawable/nd_notes_focus.png" ],
 );
 
 # parse command-line arguments, validate context...
