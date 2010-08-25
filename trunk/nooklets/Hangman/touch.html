@@ -3,7 +3,7 @@
 
 <!-------------------------HANGMAN------------------------------------------
 ----------------------------------------------------------------------------
-------------------------VERSION: 0.1.0--------------------------------------
+----------------------------------------------------------------------------
 ------------------------MADE BY ATOMIX--------------------------------------
 ----------------------------------------------------------------------------
 --------------------THE  START OF TOUCH  SCREEN-----------------------------
@@ -236,20 +236,33 @@ function set_scroller2() {
         document.getElementById("newgame").type = "hidden";
         document.getElementById("log").type = "hidden";
         document.getElementById("howto").type = "hidden";
+        document.getElementById("hg").type = "hidden";
+        document.getElementById("howto").disabled = false;
+        document.getElementById("hg").disabled = false;
+        document.getElementById("log").disabled = false;
        
     }
 
     function log() {
-        document.getElementById("newgame").type = "hidden";
-        document.getElementById("howto").type = "hidden";
-        document.getElementById("log").type = "hidden";
+        document.getElementById("howto").disabled = false;
+        document.getElementById("hg").disabled = false;
+        document.getElementById("log").disabled = true;
         nook.getEink().loadUrl("javascript:log()");
     }
 
+    function readhighscores() {
+        document.getElementById("howto").disabled = false;
+        document.getElementById("hg").disabled = true;
+        document.getElementById("log").disabled = false;
+        nook.getEink().loadUrl("javascript:readhighscores()");
+    }
+
+
+
     function howto() {
-        document.getElementById("newgame").type = "hidden";
-        document.getElementById("log").type = "hidden";
-        document.getElementById("howto").type = "hidden";
+        document.getElementById("howto").disabled = true;
+        document.getElementById("hg").disabled = false;
+        document.getElementById("log").disabled = false;   
         nook.getEink().loadUrl("javascript:howto()");
      
     }
@@ -262,12 +275,18 @@ function set_scroller2() {
         document.getElementById("log").type = "button";
         document.body.style.backgroundColor = "#FF9900"
         document.getElementById("howto").type = "button";
+        document.getElementById("hg").type = "button";
         
    
     }
 
 
+
     function menu2() {
+        document.getElementById("howto").disabled = false;
+        document.getElementById("hg").disabled = false;
+        document.getElementById("log").disabled = false;
+        document.getElementById("hg").type = "hidden";
         document.getElementById("howto").type = "hidden";
         document.body.style.backgroundColor = "white";
         document.getElementById("menu2").type = "hidden";
@@ -772,11 +791,11 @@ top: 23px;
         style="width: 50px; height: 50px; font-size: medium; top: 96px; left: 341px; position: absolute; " 
         id="Z" />
 
-        <input name="button" type="image" src="gbutton.png" onclick="menu()"        
+        <input name="button" type="image" src="images/gbutton.png" onclick="menu()"        
         style="width: 50px; height: 50px; font-size: medium; top: 94px; left: 390px; position: absolute; " 
         id="menu" />
 
-        <input name="button" type="hidden" src="gbutton3.png" onclick="menu2()"        
+        <input name="button" type="hidden" src="images/gbutton3.png" onclick="menu2()"        
         style="width: 50px; height: 50px; font-size: medium; top: 0px; left: 390px; position: absolute; " 
         id="menu2" />
 
@@ -787,6 +806,11 @@ top: 23px;
         <input type="hidden" onclick="howto()" value="Instructions"        
         style="width: 142px; height: 50px; font-size: large; top: 100px; left: 49px; position: absolute;" 
         id="howto" />
+
+        <input type="hidden" onclick="readhighscores()" value="Highscores"        
+        style="width: 142px; height: 50px; font-size: large; top: 50px; left: 198px; position: absolute;" 
+        id="hg" />
+        
         
 <input type="hidden" onclick="string()" value="wlength"        
         style="width: 89px; height: 59px; font-size: medium; top: 6px; left: 195px; position: absolute;" 
@@ -843,7 +867,7 @@ top: 23px;
 
 <!-------------------------HANGMAN------------------------------------------
 ----------------------------------------------------------------------------
-------------------------VERSION: 0.1.0--------------------------------------
+----------------------------------------------------------------------------
 ------------------------MADE BY ATOMIX--------------------------------------
 ----------------------------------------------------------------------------
 -----------------------THIS IS TOUCH SCREEN FILE----------------------------

@@ -1,7 +1,7 @@
 ﻿<html><head><title>eink</title>
 <!-------------------------HANGMAN------------------------------------------
 ----------------------------------------------------------------------------
-------------------------VERSION: 0.2.1--------------------------------------
+----------------------------------------------------------------------------
 ------------------------MADE BY ATOMIX--------------------------------------
 ----------------------------------------------------------------------------
 -----------------------E-INK  SCREEN----------------------------------------
@@ -60,6 +60,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -101,6 +102,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -142,6 +144,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -183,6 +186,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -224,6 +228,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -265,6 +270,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -306,6 +312,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -347,6 +354,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -388,6 +396,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -429,6 +438,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -470,6 +480,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -511,6 +522,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -552,6 +564,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -593,6 +606,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -634,6 +648,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -675,6 +690,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -716,6 +732,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -757,6 +774,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -798,6 +816,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -839,6 +858,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -880,6 +900,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -921,6 +942,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -962,6 +984,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -1003,6 +1026,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -1044,6 +1068,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -1085,6 +1110,7 @@
             document.getElementById("check2").style.display = "block";
             nook.getTouch().loadUrl("javascript:end()");
             reveal();
+            writefail();
         }
         success();
         hangman();
@@ -1168,14 +1194,34 @@
     }
 
     function log() {
-        document.getElementById("log").className = "style255"
-        document.getElementById("options").className = "style201"
+        clearoptions();
+        document.getElementById("log").className = "style255";
+
 
     }
 
     function howto() {
-        document.getElementById("howto").className = "style274"
-        document.getElementById("options").className = "style201"
+        clearoptions();
+        document.getElementById("howto").className = "style274";
+   
+
+    }
+
+    function clearoptions() {
+        if (document.getElementById("options").className == "style255") {
+            document.getElementById("options").className = "style201"
+        }
+        if (document.getElementById("howto").className == "style274") {
+            document.getElementById("howto").className = "style274a"
+        }
+        if (document.getElementById("log").className == "style255") {
+            document.getElementById("log").className = "style201"
+        }
+        if (document.getElementById("hg").className == "stylehg") {
+            document.getElementById("hg").className = "stylehg2"
+            document.getElementById("hgscr").className = "stylehgscr2"
+        }
+
 
     }
 
@@ -1201,7 +1247,7 @@
             document.getElementById("check").style.display = "block";
             document.getElementById("end").innerHTML = "SUCCESS!";
             nook.getTouch().loadUrl("javascript:end2()");
-
+            writesuccess();
         }
     }
 
@@ -1235,6 +1281,8 @@
         document.getElementById("used").style.visibility = "visible";
         document.getElementById("used2").style.visibility = "visible";
         document.getElementById("usedtext").style.visibility = "visible";
+        document.getElementById("hg").className = "stylehg2"
+        document.getElementById("hgscr").className = "stylehgscr2"
         document.getElementById("options").className = "style201"
         document.getElementById("log").className = "style201"
         document.getElementById("howto").className = "style274a"
@@ -1343,6 +1391,41 @@
             document.getElementById("dumpm7").innerHTML = "V"
         }
     }
+
+
+    function writefail() {
+        var read = nook.readData("fail");
+        var parsed = parseInt(read) + 1
+        nook.writeData("fail", parsed);
+        if (nook.readData("fail") == "NaN") {
+            nook.writeData("fail", 1);
+        }
+    }
+    
+    function writesuccess() {        
+        var read2 = nook.readData("success");
+        var parsed2 = parseInt(read2) + 1
+        nook.writeData("success", parsed2);
+        if (nook.readData("success") == "NaN") {
+            nook.writeData("success", 1);
+        }
+    }
+
+    function readhighscores() {
+        clearoptions();
+        if (nook.readData("success") == "") {
+            nook.writeData("success", 0);
+        }
+        if (nook.readData("fail") == "") {
+            nook.writeData("fail", 0);
+        }
+        document.getElementById("hgscr").innerHTML = "You have succeeded " + nook.readData("success") + " times" + "<br>" + "<br>" + "You have failed " + nook.readData("fail") + " times";
+        document.getElementById("hg").className = "stylehg"
+        document.getElementById("hgscr").className = "stylehgscr"
+    }
+    
+
+
 </script>
 
 
@@ -1549,23 +1632,6 @@
             {
                 text-decoration: underline;
             }
-            .style258
-            {
-                width: 33px;
-                text-align: left;
-                border-style: solid;
-                border-width: 1px;
-                padding: 1px 4px;
-                height: 89px;
-            }
-            .style259
-            {
-                width: 387px;
-                border-style: solid;
-                border-width: 1px;
-                padding: 1px 4px;
-                height: 89px;
-            }
             .style260
             {
                 width: 33px;
@@ -1574,24 +1640,15 @@
                 border-width: 1px;
                 padding: 1px 4px;
                 height: 44px;
+                font-family: "Courier New", Courier, monospace;
             }
             .style261
             {
-                width: 33px;
+                width: 114px;
                 text-align: left;
+                font-family: "Courier New", Courier, monospace;
             }
             .style262
-            {
-            }
-            .style263
-            {
-                width: 99px;
-                border-style: solid;
-                border-width: 1px;
-                padding: 1px 4px;
-                height: 89px;
-            }
-            .style264
             {
             }
             .style265
@@ -1601,6 +1658,8 @@
                 border-width: 1px;
                 padding: 1px 4px;
                 height: 22px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
             }
             .style266
             {
@@ -1609,29 +1668,25 @@
                 border-width: 1px;
                 padding: 1px 4px;
                 height: 22px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
             }
             .style267
             {
-                width: 33px;
+                width: 114px;
                 text-align: left;
                 border-style: solid;
                 border-width: 1px;
                 padding: 1px 4px;
                 height: 22px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
             }
-            .style268
-            {
-                font-size: 15pt;
-            }
-            .style269
-            {
-                font-size: 16pt;
-            }
-            
+                        
             .style271
             {
                 font-weight: normal;
-                font-size: 18pt;
+                font-size: 17pt;
             }
             .style273
             {
@@ -1651,6 +1706,99 @@
                 position: absolute;
                 height: 473px;
                 width: 381px;
+            }
+            .style278
+            {
+                width: 99px;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 30px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style279
+            {
+                width: 387px;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 30px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style280
+            {
+                width: 114px;
+                text-align: left;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 30px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style281
+            {
+                width: 99px;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 28px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style282
+            {
+                width: 387px;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 28px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style283
+            {
+                width: 114px;
+                text-align: left;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 28px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style284
+            {
+                width: 99px;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 25px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style285
+            {
+                width: 387px;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 25px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style286
+            {
+                width: 114px;
+                text-align: left;
+                border-style: solid;
+                border-width: 1px;
+                padding: 1px 4px;
+                height: 25px;
+                font-size: 18pt;
+                font-family: "Courier New", Courier, monospace;
             }
             </style>
 
@@ -1683,39 +1831,34 @@
     <h3 id="dumpm5" class="styledump">H</h3>
     <h3 id="dumpm6" class="styledump">H</h3>
     <h3 id="dumpm7" class="styledump">H</h3>
-    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.2.1</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <h3 id="highscores" class="styledump2"></h3>
+    <h3 id="highscores2" class="styledump2"></h3>
+    <h3 id="dumphigh" class="styledump">H</h3>
+    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.3.2</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <span class="style105">made by Atomix</span></h4>
 
 
-       <img src="ch2.png" alt="checkmark" id="check" style="display:none"/>
-       <img src="chh4.png" alt="checkmark" id="check2" style="display:none"/>
-       <img src="m1.png" alt="hangman" id="m1" style="display:block; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m2.png" alt="hangman" id="m2" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m2a.png" alt="hangman" id="m2a" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m2b.png" alt="hangman" id="m2b" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m2c.png" alt="hangman" id="m2c" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m2d.png" alt="hangman" id="m2d" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m2e.png" alt="hangman" id="m2e" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m3.png" alt="hangman" id="m3" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m4.png" alt="hangman" id="m4" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m5.png" alt="hangman" id="m5" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m6.png" alt="hangman" id="m6" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
-       <img src="m7.png" alt="hangman" id="m7" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/ch2.png" alt="checkmark" id="check" style="display:none"/>
+       <img src="images/chh4.png" alt="checkmark" id="check2" style="display:none"/>
+       <img src="images/m1.png" alt="hangman" id="m1" 
+        style="display:block; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 693px;"/>
+       <img src="images/m2.png" alt="hangman" id="m2" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m2a.png" alt="hangman" id="m2a" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m2b.png" alt="hangman" id="m2b" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m2c.png" alt="hangman" id="m2c" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m2d.png" alt="hangman" id="m2d" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m2e.png" alt="hangman" id="m2e" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m3.png" alt="hangman" id="m3" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m4.png" alt="hangman" id="m4" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m5.png" alt="hangman" id="m5" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m6.png" alt="hangman" id="m6" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m7.png" alt="hangman" id="m7" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
   
 
         
         
      
-<!-------------------------HANGMAN------------------------------------------
-----------------------------------------------------------------------------
-------------------------VERSION: 0.2.1--------------------------------------
-------------------------MADE BY ATOMIX--------------------------------------
-----------------------------------------------------------------------------
------------------------E-INK  SCREEN----------------------------------------
-----------------------------------------------------------------------------
------------You can contact me via e-mail: atomixs@inbox.lv------------------
-----------------------------------------------------------------------------
-------------------------THE END OF E-INK SCREEN---------------------------->
+
     <table class="style201" id="options">
         <tr>
             <td class="style202" style="text-align: center">
@@ -1725,7 +1868,7 @@
         </tr>
         <tr>
             <td class="style203">
-                version: 0.2.1</td>
+                version: 0.3.2</td>
             <td>
                 &nbsp;</td>
         </tr>
@@ -1779,36 +1922,46 @@
                 ChangeLog</td>
         </tr>
         <tr>
-            <td class="style265" style="font-size: 20pt;">
+            <td class="style265">
                 Version</td>
-            <td class="style266" style="font-size: 20pt;">
+            <td class="style266">
                 Description</td>
-            <td class="style267" style="font-size: 20pt;">
+            <td class="style267">
                 Release date</td>
         </tr>
         <tr>
-            <td class="style263" style="font-size: 20pt;">
+            <td class="style278">
                 0.1.0</td>
-            <td class="style259" style="font-size: 20pt;">
+            <td class="style279">
                 initial release&nbsp;</td>
-            <td class="style258" style="font-size: 20pt;">
-                22nd August, 2010</td>
+            <td class="style280">
+                22.08.10</td>
         </tr>
         <tr>
-            <td class="style263" style="font-size: 20pt;">
+            <td class="style284">
                 0.2.1</td>
-            <td class="style259" style="font-size: 20pt;">
-                Added gallow&#39;s anim. Fixed minor issues</td>
-            <td class="style258" style="font-size: 20pt;">
-                23rd August, 2010</td>
+            <td class="style285">
+                Added gallows</td>
+            <td class="style286">
+                23.08.10</td>
         </tr>
         <tr>
-            <td class="style264" style="font-size: 20pt;">
+            <td class="style281">
+                0.3.2</td>
+            <td class="style282">
+                Added highscores</td>
+            <td class="style283">
+                25.08.10</td>
+        </tr>
+        <tr>
+            <td class="style273" style="font-size: 20pt;">
                 Upcoming releases:</td>
             <td class="style262" style="font-size: 20pt;">
+                <p class="style273">
+                    &nbsp;</p>
                 <ul>
-                    <li>+1000 new words</li>
-                    <li>&#39;did you know?&#39; quotes</li>
+                    <li class="style273">+1000 new words</li>
+                    <li class="style273">&#39;did you know?&#39; quotes</li>
                     
                 </ul>
             </td>
@@ -1816,21 +1969,18 @@
                 &nbsp;</td>
         </tr>
         <tr>
-            <td class="style264" style="font-size: 20pt;" colspan="3">
+            <td class="style273" style="font-size: 20pt;" colspan="3">
                 &nbsp;</td>
         </tr>
         <tr>
-            <td class="style264" style="font-size: 16pt;" colspan="3">
-                <strong>Attention: Hangman can be updated via nookMarket application from now 
-                on!</strong></td>
-        </tr>
-        <tr>
-            <td class="style264" style="font-size: 20pt;" colspan="3">
-                <span class="style268">Official website for this application:</span><span class="style269"> http://nookdevs.com/Hangman</span></td>
+            <td class="style273" style="font-size: 16pt;" colspan="3">
+                <strong><span class="style273">Please use nookMarket to update Hangman.</span><br class="style273" />
+                <span class="style273">(You need the latest nookMarket installed - v.0.3)</span></strong></td>
         </tr>
         </table>
 
-        <h1 id="howto" class="style274a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hangman<br />
+        <h1 id="howto" class="style274a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+            Instructions<br />
             <span class="style271"><span class="style273">Hangman is a word guessing game,</span><br 
                 class="style273" />
             <span class="style273">where you are given 6 chances to reveal a word that is hidden behind a black 
@@ -1851,6 +2001,10 @@
                 class="style273" />
             <span class="style273">Hope you like it !&nbsp; </span> </span>
             </h1>
+
+            <h1 id="hg" class="stylehg2">Highscores</h1>
+            <h1 id="hgscr" class="stylehgscr2"></h1>
+
 
             </body>
 </html>
