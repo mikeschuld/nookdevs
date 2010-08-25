@@ -45,6 +45,8 @@ public class DBHelper extends SQLiteOpenHelper {
                     + " WHERE name=\'" + apps + "\'");
             }
             db.execSQL("update " + TABLE_NAME + " set name=\'com.bravo.app.settings.wifi.WifiActivity\' where name=\'com.bravo.app.settings.WifiActivity\'");
+            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN LEVEL INT DEFAULT 0");
+            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN FOLDER INT DEFAULT 0");
             db.setTransactionSuccessful();
             db.endTransaction();
         } catch (Exception ex) {
@@ -55,16 +57,16 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
     }
-
-    public Cursor getApps() {
+    public Cursor getApps(int level) {
         Cursor cursor = null;
         try {
             if (m_ReadDb == null) {
                 m_ReadDb = getReadableDatabase();
             }
+            String[] args = { String.valueOf(level) };
             cursor =
-                m_ReadDb.rawQuery("SELECT NAME, resources, iconpath, keyboard FROM " + TABLE_NAME
-                    + " ORDER BY ORDERNUM", null);
+                m_ReadDb.rawQuery("SELECT NAME, resources, iconpath, level, folder FROM " + TABLE_NAME
+                    + " WHERE LEVEL=? ORDER BY ORDERNUM ", args);
 
             if (cursor != null) {
                 cursor.moveToFirst();
@@ -75,16 +77,21 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public void removeData(String name) {
+    public void removeData(String name, int folder) {
         try {
             if (m_WriteDb == null) {
                 m_WriteDb = getWritableDatabase();
             }
             m_WriteDb.beginTransaction();
             String[] values = {
-                name
+                name, String.valueOf(folder)
             };
-            m_WriteDb.delete(TABLE_NAME, " name =?", values);
+            m_WriteDb.delete(TABLE_NAME, " name =? and folder=?", values);
+            String[] values2 = {
+                String.valueOf(folder)
+            };
+            if( folder >0)
+                m_WriteDb.execSQL("update " + TABLE_NAME + " set level=0 where level=?", values2);
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
         } catch (Exception ex) {
@@ -115,29 +122,21 @@ public class DBHelper extends SQLiteOpenHelper {
         return;
     }
 
-    public void updateInitData(String[] apps, int[] resources) {
+    public int getNextLevel() {
         try {
-            if (m_WriteDb == null) {
-                m_WriteDb = getWritableDatabase();
+            if (m_ReadDb == null) {
+                m_ReadDb = getReadableDatabase();
             }
-            m_WriteDb.beginTransaction();
-            for (int i = 0; i < apps.length; i++) {
-                String[] values = {
-                    String.valueOf(resources[i]), apps[i]
-                };
-                m_WriteDb.execSQL(
-                    "update " + TABLE_NAME + " set resources=? where name=?", values);
-            }
-            m_WriteDb.setTransactionSuccessful();
-            m_WriteDb.endTransaction();
+            Cursor cursor = m_ReadDb.rawQuery("SELECT max(level) FROM " + TABLE_NAME, null);
+            cursor.moveToFirst();
+            int l = cursor.getInt(0);
+            cursor.close();
+            return l+1;
         } catch (Exception ex) {
-            Log.e(TAG, "error inserting into db -", ex);
-            m_WriteDb.endTransaction();
+            return 1;
         }
-        return;
     }
-
-    public void addData(String app, int id, String uri, String keyboard) {
+    public void addData(String app, int id, String uri, int level, int folder) {
         try {
             int order = getMaxOrder() + 1;
             if (m_WriteDb == null) {
@@ -145,10 +144,10 @@ public class DBHelper extends SQLiteOpenHelper {
             }
             m_WriteDb.beginTransaction();
             String[] values = {
-                app, String.valueOf(order), String.valueOf(id), uri, keyboard
+                app, String.valueOf(order), String.valueOf(id), uri, String.valueOf(level), String.valueOf(folder), "0"
             };
             m_WriteDb.execSQL("insert into " + TABLE_NAME
-                + "(name, ordernum, resources, iconpath, keyboard ) values(?,?,?,?,?)", values);
+                + "(name, ordernum, resources, iconpath, level, folder, keyboard ) values(?,?,?,?,?,?,?)", values);
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
         } catch (Exception ex) {
@@ -187,16 +186,16 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public int getOrderNumber(String app) {
+    public int getOrderNumber(String app , int folder ) {
         int order = 0;
         try {
             if (m_ReadDb == null) {
                 m_ReadDb = getReadableDatabase();
             }
             String[] values = {
-                app
+                app, String.valueOf(folder)
             };
-            Cursor cursor = m_ReadDb.rawQuery("SELECT ordernum FROM " + TABLE_NAME + " WHERE NAME=?", values);
+            Cursor cursor = m_ReadDb.rawQuery("SELECT ordernum FROM " + TABLE_NAME + " WHERE NAME=? and FOLDER=?", values);
             cursor.moveToFirst();
             order = cursor.getInt(0);
             cursor.close();
@@ -206,9 +205,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return order;
     }
 
-    public void updateData(String app, String appPrev) {
+    public void updateData(String app, String appPrev, int folder) {
         try {
-            int order = getOrderNumber(appPrev);
+            int order = getOrderNumber(appPrev, folder);
             if (m_WriteDb == null) {
                 m_WriteDb = getWritableDatabase();
             }
@@ -228,13 +227,31 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
     }
-
+    public void updateLevel(String app, int level, int folder) {
+        try {
+            System.out.println("Updating level for " + app + " to " + level);
+            if (m_WriteDb == null) {
+                m_WriteDb = getWritableDatabase();
+            }
+            m_WriteDb.beginTransaction();
+            String[] values2 = {
+                String.valueOf(level), app, String.valueOf(folder)
+            };
+            m_WriteDb.execSQL("update " + TABLE_NAME + " set level=? where name=? and folder=?", values2);
+            m_WriteDb.setTransactionSuccessful();
+            m_WriteDb.endTransaction();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+    }
+    
     private static final String TAG = "DBHelper";
     private static String DATABASE_NAME = "LAUNCH_SETTINGS";
     private String TABLE_NAME = "APPS";
     private String DROP_TABLE = " DROP TABLE IF EXISTS " + TABLE_NAME;
     private String CREATE_TABLE =
         " CREATE TABLE " + TABLE_NAME + " ( _id integer primary key autoincrement, name text not null,"
-            + "ordernum integer not null, resources int , iconpath string, keyboard integer not null)";
+            + "ordernum integer not null, resources int , iconpath string, keyboard integer not null, level integer default 0, folder integer default 0)";
 
 }

@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Stack;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -31,8 +32,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,7 +46,6 @@ import com.nookdevs.common.nookBaseActivity;
 
 public class NookLauncher extends nookBaseActivity {
     private String m_WallPaperFile = null;
-
     String[] apps =
         {
             "com.bravo.thedaily.Daily", "com.bravo.library.LibraryActivity", "com.bravo.store.StoreFrontActivity",
@@ -52,7 +55,6 @@ public class NookLauncher extends nookBaseActivity {
             "com.nookdevs.launcher.LauncherSelector", "com.bravo.chess.ChessActivity",
             "com.bravo.sudoku.SudokuActivity", "com.bravo.app.browser.BrowserActivity"
         };
-
     int[] appIcons =
         {
             R.drawable.select_home_dailyedition, R.drawable.select_home_library, R.drawable.select_home_store,
@@ -65,11 +67,12 @@ public class NookLauncher extends nookBaseActivity {
     final static String readingNowUri = "content://com.reader.android/last";
     ImageButton m_LastButton = null;
     private Uri m_LastImageUri=null;
-
-    public final static int DB_VERSION = 11;
+    private static Stack<Integer> m_Levels = new Stack<Integer>();
+    public final static int DB_VERSION = 17;
     private boolean m_SettingsChanged = false;
     private HashMap<ImageButton,String> m_UriMap = new HashMap<ImageButton,String>();
-
+    private int m_Level =0;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         LOGTAG = "nookLauncher";
@@ -77,8 +80,7 @@ public class NookLauncher extends nookBaseActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
-        loadApps();
+        loadApps(m_Level);
     }
 
     @Override
@@ -86,7 +88,7 @@ public class NookLauncher extends nookBaseActivity {
         NAME=null;
         super.onResume();
         if (m_SettingsChanged) {
-            loadApps();
+            loadApps(m_Level);
         }
         loadWallpaper();
         if (m_LastButton != null) {
@@ -96,7 +98,10 @@ public class NookLauncher extends nookBaseActivity {
                 m_LastButton.setImageURI(Uri.parse(icon));
         }
     }
-
+    protected void setLevel(int l) {
+        m_Level=l;
+    }
+    
     private void loadWallpaper() {
         m_WallPaperFile = getWallpaperFile();
         if (m_WallPaperFile != null) {
@@ -111,27 +116,47 @@ public class NookLauncher extends nookBaseActivity {
             }
         }
     }
-
-    private final synchronized void loadApps() {
+    private synchronized void loadApps(int level) {
         LinearLayout ll = (LinearLayout) (findViewById(R.id.appcontainer));
         ll.removeAllViews();
 
         final LayoutInflater inflater = getLayoutInflater();
+        if( level >0) {
+            // add back button
+            Button back = (Button) inflater.inflate(R.layout.backbutton, ll, false);
+            back.setOnClickListener( new OnClickListener() {
+
+                public void onClick(View v) {
+                    int prev = m_Levels.isEmpty()?0:m_Levels.pop();
+                    setLevel(prev);
+                    loadApps(prev);
+                }
+                
+            });
+            ll.addView(back);
+        }
         DBHelper db = new DBHelper(this, null, DB_VERSION);
-        Cursor cursor = db.getApps();
+        Cursor cursor = db.getApps(level);
         if (cursor == null || cursor.getCount() == 0) {
-            db.addInitData(apps, appIcons);
-        } else {
-            db.updateInitData(apps, appIcons);  // internal IDs may have changed
+            if( m_Level ==0) {
+                db.addInitData(apps, appIcons);
+            } else {
+                //launch settings
+                m_SettingsChanged=true;
+                Intent intent = new Intent();
+                intent.putExtra("FOLDER", m_Level);
+                intent.setComponent(new ComponentName("com.nookdevs.launcher","com.nookdevs.launcher.LauncherSettings"));
+                startActivityForResult(intent,1);
+            }
         }
         if (cursor != null) {
             cursor.close();
         }
-        cursor = db.getApps();
+        cursor = db.getApps(m_Level);
         int count = cursor.getCount();
         for (int i = 0; i < count; i++) {
             ImageButton bnv = (ImageButton) inflater.inflate(R.layout.appbutton, ll, false);
-            fillButton(bnv, cursor.getString(0), cursor.getInt(1), cursor.getString(2));
+            fillButton(bnv, cursor.getString(0), cursor.getInt(1), cursor.getString(2), cursor.getInt(4));
             ll.addView(bnv);
             cursor.moveToNext();
         }
@@ -140,14 +165,13 @@ public class NookLauncher extends nookBaseActivity {
         inflater.inflate(R.layout.appbutton, ll, false);
     }
 
-    private final void fillButton(ImageButton b, String appName, int appIconId, String iconpath) {
-        boolean systemApp = false;
+    protected final void fillButton(ImageButton b, String appName, int appIconId, String iconpath, int folder ) {
         Intent intent = null;
         int idx = appName.lastIndexOf(".");
         String pkgName = appName.substring(0, idx);
         if (pkgName.equals("com.bravo.app.settings.wifi")) {
             pkgName = "com.bravo.app.settings";
-       }
+        }
         intent = new Intent(Intent.ACTION_MAIN);
         if (appName.endsWith("HomeActivity")) {
             intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -159,16 +183,35 @@ public class NookLauncher extends nookBaseActivity {
         if (appName.endsWith("LauncherSettings")) {
             settings = true;
         }
-
         boolean readingNow = false;
         if (appName.endsWith("ReaderActivity")) {
             readingNow = true;
         }
-        b.setOnClickListener(new ClickListener(intent, readingNow, settings));
+        b.setOnLongClickListener( new OnLongClickListener() {
+            public boolean onLongClick(View arg0) {
+                m_SettingsChanged=true;
+                Intent intent = new Intent();
+                intent.putExtra("FOLDER", m_Level);
+                intent.setComponent(new ComponentName("com.nookdevs.launcher","com.nookdevs.launcher.LauncherSettings"));
+                startActivityForResult(intent,1);
+                return true;
+            }
+            
+        });
+        b.setOnClickListener(new ClickListener(intent, readingNow, settings, folder));
+        if( iconpath == null) {
+            String pkgIcon = SDFOLDER+"/my icons/"+ appName +".png";
+            if( readingNow) {
+                pkgIcon = SDFOLDER+"/my icons/"+"com.bravo.ReadingNow.png";
+            }
+            File f = new File(pkgIcon);
+            if( f.exists()) {
+                iconpath = pkgIcon;
+            }
+        }
         if (iconpath == null) {
             if (appIconId > 0) {
                 b.setImageResource(appIconId);
-                systemApp = true;
             } else {
                 PackageManager manager = getPackageManager();
                 try {
@@ -207,7 +250,7 @@ public class NookLauncher extends nookBaseActivity {
                                 if( f.exists()) {
                                     img.setImageURI( Uri.parse(icon1));
                                 } else {
-                                    icon1 =icon.replace(ext, "_focused"+ext);
+                                    icon1 =icon.replace(ext, "_focus"+ext);
                                     f = new File(icon1);
                                     if( f.exists()) {
                                         img.setImageURI( Uri.parse(icon1));
@@ -227,14 +270,15 @@ public class NookLauncher extends nookBaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // doesn't matter what happens. just reload the apps again.
-        // loadApps();
+        //loadApps();
     }
 
-    private final class ClickListener implements View.OnClickListener {
-        private ClickListener(Intent i, boolean readingNow, boolean settings) {
+    protected final class ClickListener implements View.OnClickListener {
+        private ClickListener(Intent i, boolean readingNow, boolean settings, int folder) {
             m_intent = i;
             m_readingNow = readingNow;
             m_Settings = settings;
+            m_folder = folder;
         }
 
         public void onClick(View v) {
@@ -249,10 +293,18 @@ public class NookLauncher extends nookBaseActivity {
                 }
             } else {
                 try {
+                    if( m_folder >0) {
+                        int prev=m_Level;
+                        m_Levels.push(prev);
+                        setLevel(m_folder);
+                        loadApps(m_folder);
+                        return;
+                    } else
                     if (!m_Settings) {
                         startActivity(m_intent);
                     } else {
                         m_SettingsChanged = true;
+                        m_intent.putExtra("FOLDER", m_Level);
                         startActivityForResult(m_intent, 1);
                     }
                 } catch (Exception ex) {
@@ -264,11 +316,12 @@ public class NookLauncher extends nookBaseActivity {
         private final Intent m_intent;
         private final boolean m_readingNow;
         private final boolean m_Settings;
+        private final int m_folder;
     }
 
     // This logic is from B&N dex file. We may have to check this after each new
     // B&N firmware upgrade.
-    private Intent getReadingNowIntent() {
+    protected Intent getReadingNowIntent() {
         Intent intent = null;
         try {
             Cursor c =
