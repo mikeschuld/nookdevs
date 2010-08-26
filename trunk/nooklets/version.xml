@@ -6,9 +6,9 @@
         <link type="application/zip"
     href="http://nookdevs.googlecode.com/files/Hangman.zip"/>
         <id>http://nookdevs.googlecode.com/files/Hangman.zip</id>
-        <version>0.3.2</version>
+        <version>0.4.2</version>
         <pkg>Hangman</pkg>
-        <content type="text">Classical Hangman game made by Atomix. update: ADDED HIGHSCORES!. Note: Nooklets appear under the nooklet application.</content>
+        <content type="text">Classical Hangman game made by Atomix. VOCABULARY UPDATE! Note: Nooklets appear under the nooklet application.</content>
     </entry>
 
     <entry>
