@@ -185,5 +185,24 @@ and copying it to your internal SD card. Download the samples separately from th
     <id>http://nookdevs.googlecode.com/svn/trunk/nooklets/version.xml</id>
     <content type="text">Nooklet javascript apps for nook.</content>
   </entry>
-  
+  <entry>
+    <title>FileSelector</title>
+    <link type="application/vnd.android.package-archive"
+          href="http://nookdevs.googlecode.com/files/FileSelector.apk"/>
+    <version>1.0</version>
+    <pkg>com.nookdevs.fileselector</pkg>
+    <id>http://nookdevs.googlecode.com/files/FileSelector.apk</id>
+    <content type="text">File Selector utility.  Used by some nook apps to select files to open.</content>
+  </entry>
+  <entry>
+    <title>nookCrossWord</title>
+    <link type="application/vnd.android.package-archive"
+          href="http://nookdevs.googlecode.com/files/nookCrossWord.apk"/>
+    <version>1.0</version>
+    <pkg>com.nookdevs.crossword</pkg>
+    <id>http://nookdevs.googlecode.com/files/nookCrossWord.apk</id>
+    <content type="text">CrossWord player.  Requires you to install FileSelector, too!
+Puzzles not included; you must download them from the internet.
+</content>
+  </entry>
 </feed>
