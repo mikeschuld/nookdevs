@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="hello">Hello World, customLibrary!</string>
-	<string name="app_name">customLibrary</string>
+	<string name="app_name">FileSelector</string>
 	<string name="please_wait">Please Wait!</string>
 	<string name="my_documents">My Documents</string>
 	<string name="no_result">No Items Found</string>
