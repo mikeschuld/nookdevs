@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="fill_parent" android:layout_height="wrap_content"
+>
+    
+    
+    <!-- A blank table entry, beneath the clue number on the row above this one: -->
+    <!--  
+    <TextView android:text=" " android:textSize="24px"
+    		  android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:background="#000000" android:textColor="#FFFFFF" />
+    -->
+    <LinearLayout android:id="@+id/direction_indicator"
+                  android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:layout_gravity="left"
+                  />
+    
+    <!--  The crossword cells will be added in here:  -->
+    <LinearLayout android:id="@+id/cellslayout"
+    			  android:orientation="horizontal"      
+    			  android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:gravity="left"
+    />
+    
+</TableRow>

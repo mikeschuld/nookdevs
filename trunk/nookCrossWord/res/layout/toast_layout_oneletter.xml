@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  When the user asks for a single letter hint,
+      we use this layout to display that one letter   -->
+<TextView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:id="@+id/toast_layout_root"
+  android:textSize="150px"
+  android:typeface="serif"
+  android:textColor="#000000"
+  android:background="#FFFFFF"
+  android:padding="30px"
+  >
+</TextView>

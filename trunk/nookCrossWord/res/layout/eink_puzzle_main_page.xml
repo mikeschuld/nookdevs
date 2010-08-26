@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:scrollbars="none"
+    android:background="#FFFFFF"
+    android:id="@+id/puzzle_main_page"
+    >
+
+  <!-- The crossword puzzle:  -->
+  <!-- (We wrap the table in a black-background LinearLayout, so that if there's a small gap between
+  		the crossword and the edge of the screen (which is surrounded by a strip of black plastic),
+  		the gap is black, not white, so it matches the plastic case surrounding the screen) -->
+  <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
+  				android:background="#000000">
+  <TableLayout android:id="@+id/xwordgrid"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:stretchColumns="*"
+               />
+  </LinearLayout>
+
+  <!-- The two clues displayed beneath the puzzle:  -->
+  <TextView android:id="@+id/selected_clue_across"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#FFFFFF" android:textColor="#000000"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="26px" />
+  <TextView android:id="@+id/selected_clue_down"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#FFFFFF" android:textColor="#000000"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="26px" />
+
+</LinearLayout>
