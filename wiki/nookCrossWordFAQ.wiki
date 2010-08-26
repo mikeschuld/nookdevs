@@ -1,0 +1,24 @@
+#summary nookCrossWord
+
+= Introduction =
+
+An app for playing crossword puzzles on the nook.  Puzzles not included.
+
+= Dependencies =
+
+*Please install the FileSelector package as well.*  nookCrossWord depends on it.
+
+= Supported Formats =
+
+Currently, nookCrossWord can read Across Lite and XPF puzzle files.  (Across Lite is probably the most common format; these are files that end in the .puz extension.)
+
+Puzzles with Rebus entries are not supported yet.
+
+= Getting Puzzles =
+
+Most puzzles are copyrighted, which is why this app does not ship with any.  But many can be downloaded free of charge for non-commercial use.  For example:
+
+http://chronicle.com/section/Crosswords/43
+http://thinks.com/daily_crossword.htm  (click the "Across Lite Download" link)
+
+To play on your nook, download the puzzle (usually ending in a .puz extension), and copy it into the "my crosswords" folder on your nook.  (This folder should be created for you automatically the first time you run the nookCrossWord app.)
