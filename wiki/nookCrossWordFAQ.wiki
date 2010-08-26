@@ -1,4 +1,5 @@
 #summary nookCrossWord
+#labels Featured
 
 = Introduction =
 
@@ -20,5 +21,7 @@ Most puzzles are copyrighted, which is why this app does not ship with any.  But
 
 || http://chronicle.com/section/Crosswords/43 ||
 || http://thinks.com/daily_crossword.htm (click the "Across Lite Download" link) ||
+|| http://www.fleetingimage.com/wij/xyzzy/nyt-links.html ||
+|| http://crosswords.tea.ch/crossword-sources.html ||
 
 To play on your nook, download the puzzle (usually ending in a .puz extension), and copy it into the "my crosswords" folder on your nook.  (This folder should be created for you automatically the first time you run the nookCrossWord app.)
