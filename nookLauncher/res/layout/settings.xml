@@ -71,6 +71,12 @@
    			android:gravity="center_horizontal|center_vertical"
     	/>
     </ViewAnimator>
+    <Button android:id="@+id/iconbutton"
+    	android:layout_width="40.0px"
+    	android:layout_height="40.0px"
+    	android:layout_marginTop="52.0px"
+    	android:background="@drawable/button_folder_icon_middle_left_pressable"
+    	/>
     <Button android:id="@+id/backbutton"
     	android:layout_width="40.0px"
     	android:layout_height="40.0px"

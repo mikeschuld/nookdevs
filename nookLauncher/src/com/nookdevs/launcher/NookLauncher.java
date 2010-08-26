@@ -63,12 +63,15 @@ public class NookLauncher extends nookBaseActivity {
             R.drawable.select_home_bnhome, R.drawable.select_default_launcher, R.drawable.select_home_chess,
             R.drawable.select_home_sudoku, R.drawable.select_home_browser
         };
+    
+    public static int[] folderResources = {
+        R.drawable.select_folder_games, R.drawable.select_folder_bn,R.drawable.select_folder_advanced, R.drawable.select_folder_tools, R.drawable.select_folder_nooklet 
+    };
 
     final static String readingNowUri = "content://com.reader.android/last";
     ImageButton m_LastButton = null;
-    private Uri m_LastImageUri=null;
     private static Stack<Integer> m_Levels = new Stack<Integer>();
-    public final static int DB_VERSION = 17;
+    public final static int DB_VERSION = 20;
     private boolean m_SettingsChanged = false;
     private HashMap<ImageButton,String> m_UriMap = new HashMap<ImageButton,String>();
     private int m_Level =0;
@@ -210,8 +213,14 @@ public class NookLauncher extends nookBaseActivity {
             }
         }
         if (iconpath == null) {
-            if (appIconId > 0) {
-                b.setImageResource(appIconId);
+            if (appIconId >=0) {
+                if( appIconId < appIcons.length)
+                    b.setImageResource( appIcons[appIconId]);
+                else if( appIconId -appIcons.length < folderResources.length) {
+                    b.setImageResource(folderResources[ appIconId- appIcons.length]);
+                }
+                else
+                    b.setImageResource(appIconId);
             } else {
                 PackageManager manager = getPackageManager();
                 try {

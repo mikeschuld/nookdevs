@@ -40,17 +40,22 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             int i = 0;
             db.beginTransaction();
-            for (String apps : LauncherSettings.apps) {
-                db.execSQL("update " + TABLE_NAME + " set resources = " + LauncherSettings.appIcons[i++]
-                    + " WHERE name=\'" + apps + "\'");
+            for (String app : LauncherSettings.apps) {
+                String [] values = { String.valueOf(i++), app}; 
+                db.execSQL("update " + TABLE_NAME + " set resources=? WHERE name=?", values);
             }
             db.execSQL("update " + TABLE_NAME + " set name=\'com.bravo.app.settings.wifi.WifiActivity\' where name=\'com.bravo.app.settings.WifiActivity\'");
-            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN LEVEL INT DEFAULT 0");
-            db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN FOLDER INT DEFAULT 0");
             db.setTransactionSuccessful();
             db.endTransaction();
-        } catch (Exception ex) {
-            Log.w(TAG, "Upgrading db from " + oldVersion + " to " + newVersion + ". All data will be lost");
+            db.beginTransaction();
+            if( oldVersion <= 12) {
+                db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN LEVEL INT DEFAULT 0");
+                db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN FOLDER INT DEFAULT 0");
+                db.setTransactionSuccessful();
+                db.endTransaction();
+            }
+        } catch (Throwable ex) {
+            Log.w(TAG, "Upgrading db from " + oldVersion + " to " + newVersion + ". All data will be lost", ex);
             db.endTransaction();
             db.execSQL(DROP_TABLE);
             onCreate(db);
@@ -99,6 +104,29 @@ public class DBHelper extends SQLiteOpenHelper {
             m_WriteDb.endTransaction();
         }
     }
+    public void updateIcon(String appName,int folder,String imageUri, int resid) {
+        try {
+            if (m_WriteDb == null) {
+                m_WriteDb = getWritableDatabase();
+            }
+            m_WriteDb.beginTransaction();
+            String[] values = {
+                    imageUri, appName, String.valueOf(folder)
+            };
+            m_WriteDb.execSQL(
+                    "UPDATE " + TABLE_NAME + " SET iconpath=? where NAME=? and FOLDER=?", values);
+            values[0] = String.valueOf(resid);
+            m_WriteDb.execSQL(
+                "UPDATE " + TABLE_NAME + " SET resources=? where NAME=? and FOLDER=?", values);
+            m_WriteDb.setTransactionSuccessful();
+            m_WriteDb.endTransaction();
+        } catch (Exception ex) {
+            Log.e(TAG, "error updating icon detail in db -", ex);
+            m_WriteDb.endTransaction();
+        }
+        return;
+        
+    }
 
     public void addInitData(String[] apps, int[] resources) {
         try {
@@ -108,7 +136,7 @@ public class DBHelper extends SQLiteOpenHelper {
             m_WriteDb.beginTransaction();
             for (int i = 0; i < apps.length; i++) {
                 String[] values = {
-                    apps[i], String.valueOf(i + 1), String.valueOf(resources[i]), "0"
+                    apps[i], String.valueOf(i + 1), String.valueOf(i), "0"
                 };
                 m_WriteDb.execSQL(
                     "insert into " + TABLE_NAME + "(name, ordernum, resources, keyboard) values(?,?,?,?)", values);
@@ -205,9 +233,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return order;
     }
 
-    public void updateData(String app, String appPrev, int folder) {
+    public void updateData(String app, String appPrev, int folder, int prevFolder) {
         try {
-            int order = getOrderNumber(appPrev, folder);
+            int order = getOrderNumber(appPrev, prevFolder);
             if (m_WriteDb == null) {
                 m_WriteDb = getWritableDatabase();
             }
@@ -217,9 +245,9 @@ public class DBHelper extends SQLiteOpenHelper {
             };
             m_WriteDb.execSQL("update " + TABLE_NAME + " set ordernum=ordernum+1 where ordernum >=?", values);
             String[] values2 = {
-                String.valueOf(order), app
+                String.valueOf(order), app, String.valueOf(folder)
             };
-            m_WriteDb.execSQL("update " + TABLE_NAME + " set ordernum=? where name=?", values2);
+            m_WriteDb.execSQL("update " + TABLE_NAME + " set ordernum=? where name=? and folder=?", values2);
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
         } catch (Exception ex) {
