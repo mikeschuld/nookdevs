@@ -16,7 +16,7 @@ Puzzles with Rebus entries are not supported yet.
 
 = Getting Puzzles =
 
-Most puzzles are copyrighted, which is why this app does not ship with any.  But many can be downloaded free of charge for non-commercial use.  For example:
+Most puzzles are copyrighted, which is why this app does not ship with any.  But many can be downloaded free of charge for personal use.  For example:
 
 || http://chronicle.com/section/Crosswords/43 ||
 || http://thinks.com/daily_crossword.htm (click the "Across Lite Download" link) ||
