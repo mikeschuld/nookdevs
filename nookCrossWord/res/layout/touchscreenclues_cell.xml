@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="#FFFFFF"
+>
+
+<Button android:id="@+id/cellbutton"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="30px"
+        android:textColor="#000000"
+        android:typeface="monospace"
+        android:background="@drawable/touchscreencell_selector"
+        
+/>
+
+</LinearLayout>

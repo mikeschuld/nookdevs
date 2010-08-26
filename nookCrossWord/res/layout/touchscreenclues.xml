@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id="@+id/touchscreen_clues_scroller"
+        	android:orientation="vertical"
+        	android:layout_width="fill_parent" android:layout_height="fill_parent"
+        	android:background="#000000"
+        	android:scrollbars="vertical"
+        	android:scrollbarStyle="insideOverlay"
+        	android:scrollbarSize="20.0px"
+        	>
+        	
+	<LinearLayout android:id="@+id/layout"
+					android:orientation="vertical"
+        			android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+	<!-- 
+    	<TextView android:id="@+id/label"
+              android:textColor="#0000FF"
+              android:textSize="20px"
+              android:gravity="left"
+              android:layout_width="fill_parent" android:layout_height="wrap_content" />
+     -->
+
+    	<HorizontalScrollView android:id="@+id/top_navbuttons"
+    					  android:gravity="center" android:layout_gravity="center"
+    					  android:layout_width="fill_parent" android:layout_height="wrap_content" />
+  
+    	<TableLayout android:id="@+id/table"
+              android:gravity="left"
+              android:layout_width="fill_parent" android:layout_height="wrap_content"
+              android:stretchColumns="1"
+              android:paddingBottom="20px" />
+    
+    	<HorizontalScrollView android:id="@+id/bottom_navbuttons"
+    					  android:gravity="center" android:layout_gravity="center"
+    					  android:layout_width="fill_parent" android:layout_height="wrap_content" />
+
+	</LinearLayout>        	
+</ScrollView>
