@@ -31,70 +31,83 @@ $::SVG = "$::BASEDIR/buttons.svg";
 $::BUTTON_WIDTH = 96;
 $::BUTTON_HEIGHT = 144;
 $::COUNTX = 10;
-$::COUNTY = 3;
+$::COUNTY = 4;
 
 $::NOOKDEVS = "$ENV{HOME}/git/nookdevs";
 $::NOOKAPPS = "$ENV{HOME}/git/nookapps";
 $::NOOKAPP_GOOGLEREADER = "$ENV{HOME}/git/nookapp-googlereader";
 
 %::MAPPING = (  # button index => [ name, normal PNG path, pressed PNG path, [ normal PNG path, pressed PNG path, [...] ] ]
-  0 => [ "bn_home",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_home.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_home_focus.png" ],
-  1 => [ "bn_reading_now",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_readingnow.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_readingnow_focus.png" ],
-  2 => [ "bn_my_library",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_mylibrary.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_mylibrary_focus.png" ],
-  3 => [ "bn_the_daily",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_thedaily.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_thedaily_focus.png" ],
-  4 => [ "bn_shop",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_shop.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_shop_focus.png" ],
-  5 => [ "bn_web",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_browser.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_browser_focus.png",
-         "$::NOOKDEVS/nookBrowser/res/drawable/nookbrowser.png", "$::NOOKDEVS/nookBrowser/res/drawable/nookbrowser_focus.png" ],
-  6 => [ "bn_settings",
-          "$::NOOKDEVS/nookLauncher/res/drawable/bn_settings.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_settings_focus.png" ],
-  7 => [ "bn_wifi",
-          "$::NOOKDEVS/nookLauncher/res/drawable/bn_wifi.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_wifi_focus.png" ],
-  8 => [ "bn_chess",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess_focus.png" ],
-  9 => [ "bn_sudoku",
-         "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku_focus.png" ],
-  10 => [ "na_trook",
-          "$::NOOKAPPS/trook/res/drawable/trook_icon.png", "$::NOOKAPPS/trook/res/drawable/trook_icon_selected.png" ],
-  11 => [ "nd_files",
-          "$::NOOKDEVS/nookFileManager/res/drawable/filemgr_normal.PNG", "$::NOOKDEVS/nookFileManager/res/drawable/filemgr_pressed.PNG" ],
-  12 => [ "nd_my_books",
-          "$::NOOKDEVS/nookLibrary/res/drawable/mybooks.png", "$::NOOKDEVS/nookLibrary/res/drawable/mybooks_focus.png" ],
-  13 => [ "nd_default_launcher",
-          "$::NOOKDEVS/nookLauncher/res/drawable/nd_defaultlauncher.png", "$::NOOKDEVS/nookLauncher/res/drawable/nd_defaultlauncher_focus.png" ],
-  14 => [ "na_nooklets",
-          "$::NOOKAPPS/nookletcontainer/res/drawable/nooklet_icon.png", "$::NOOKAPPS/nookletcontainer/res/drawable/nooklet_icon_selected.png" ],
-  15 => [ "nd_browser",
+  0 => [ "folder_template",
+         "$::NOOKDEVS/nookLauncher/res/drawable/folder_template.png", "$::NOOKDEVS/nookLauncher/res/drawable/folder_template_focus.png" ],
+  1 => [ "folder_games",
+         "/dev/null", "/dev/null" ],
+  2 => [ "folder_advanced",
+         "/dev/null", "/dev/null" ],
+  3 => [ "folder_tools",
+         "/dev/null", "/dev/null" ],
+  4 => [ "folder_b&n",
+         "/dev/null", "/dev/null" ],
+  # 5
+  # 6
+  # 7
+  # 8
+  # 9
+  10 => [ "bn_home",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_home.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_home_focus.png" ],
+  11 => [ "bn_reading_now",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_readingnow.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_readingnow_focus.png" ],
+  12 => [ "bn_my_library",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_mylibrary.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_mylibrary_focus.png" ],
+  13 => [ "bn_the_daily",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_thedaily.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_thedaily_focus.png" ],
+  14 => [ "bn_shop",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_shop.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_shop_focus.png" ],
+  15 => [ "bn_web",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_browser.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_browser_focus.png",
           "$::NOOKDEVS/nookBrowser/res/drawable/nookbrowser.png", "$::NOOKDEVS/nookBrowser/res/drawable/nookbrowser_focus.png" ],
-  16 => [ "nd_launcher_settings",
+  16 => [ "bn_settings",
+           "$::NOOKDEVS/nookLauncher/res/drawable/bn_settings.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_settings_focus.png" ],
+  17 => [ "bn_wifi",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_wifi.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_wifi_focus.png" ],
+  18 => [ "bn_chess",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_chess_focus.png" ],
+  19 => [ "bn_sudoku",
+          "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku.png", "$::NOOKDEVS/nookLauncher/res/drawable/bn_sudoku_focus.png" ],
+  20 => [ "na_trook",
+          "$::NOOKAPPS/trook/res/drawable/trook_icon.png", "$::NOOKAPPS/trook/res/drawable/trook_icon_selected.png" ],
+  21 => [ "nd_files",
+          "$::NOOKDEVS/nookFileManager/res/drawable/filemgr_normal.PNG", "$::NOOKDEVS/nookFileManager/res/drawable/filemgr_pressed.PNG" ],
+  22 => [ "nd_my_books",
+          "$::NOOKDEVS/nookLibrary/res/drawable/mybooks.png", "$::NOOKDEVS/nookLibrary/res/drawable/mybooks_focus.png" ],
+  23 => [ "nd_default_launcher",
+          "$::NOOKDEVS/nookLauncher/res/drawable/nd_defaultlauncher.png", "$::NOOKDEVS/nookLauncher/res/drawable/nd_defaultlauncher_focus.png" ],
+  24 => [ "na_nooklets",
+          "$::NOOKAPPS/nookletcontainer/res/drawable/nooklet_icon.png", "$::NOOKAPPS/nookletcontainer/res/drawable/nooklet_icon_selected.png" ],
+  25 => [ "nd_browser",
+          "$::NOOKDEVS/nookBrowser/res/drawable/nookbrowser.png", "$::NOOKDEVS/nookBrowser/res/drawable/nookbrowser_focus.png" ],
+  26 => [ "nd_launcher_settings",
           "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings.png", "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings_focus.png" ],
-  17 => [ "nd_wifi_locker",
+  27 => [ "nd_wifi_locker",
           "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_normal.PNG", "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_pressed.PNG" ],
-  18 => [ "folder_games",
+  # 28
+  29 => [ "nd_crosswords",
           "/dev/null", "/dev/null" ],
-  19 => [ "nd_crosswords",
-          "/dev/null", "/dev/null" ],
-  20 => [ "cc_media",
+  30 => [ "cc_media",
           "$::NOOKDEVS/nookMedia/res/drawable/cc_media.png", "$::NOOKDEVS/nookMedia/res/drawable/cc_media_focus.png" ],
-  21 => [ "nd_market",
+  31 => [ "nd_market",
           "$::NOOKDEVS/nookMarket/res/drawable/nd_market.jpg", "$::NOOKDEVS/nookMarket/res/drawable/nd_market_sel.jpg" ],
-  22 => [ "nd_calculator",
+  32 => [ "nd_calculator",
           "$::NOOKDEVS/nookCalculator/res/drawable/icon.png", "$::NOOKDEVS/nookCalculator/res/drawable/icon_pressed.png" ],
-  23 => [ "mz_googlereader",
+  33 => [ "mz_googlereader",
           "$::NOOKAPP_GOOGLEREADER/res/drawable/icon.png", "$::NOOKAPP_GOOGLEREADER/res/drawable/icon_pressed.png" ],
-  24 => [ "nd_tasks",
+  34 => [ "nd_tasks",
           "$::NOOKDEVS/nookTaskManager/res/drawable/icon.png", "$::NOOKDEVS/nookTaskManager/res/drawable/icon_pressed.png" ],
-  # 25
-  # 26
-  # 27
-  28 => [ "folder_template",
-          "/dev/null", "/dev/null" ],
-  29 => [ "nd_notes",
+  # 35
+  # 36
+  # 37
+  # 38
+  39 => [ "nd_notes",
           "$::NOOKDEVS/nookNotes/res/drawable/nd_notes.png", "$::NOOKDEVS/nookNotes/res/drawable/nd_notes_focus.png" ],
 );
 
