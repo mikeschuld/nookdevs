@@ -18,7 +18,7 @@ Puzzles with Rebus entries are not supported yet.
 
 Most puzzles are copyrighted, which is why this app does not ship with any.  But many can be downloaded free of charge for non-commercial use.  For example:
 
-|| http://chronicle.com/section/Crosswords/43 ||
-|| http://thinks.com/daily_crossword.htm (click the "Across Lite Download" link) ||
+* http://chronicle.com/section/Crosswords/43
+* http://thinks.com/daily_crossword.htm (click the "Across Lite Download" link)
 
 To play on your nook, download the puzzle (usually ending in a .puz extension), and copy it into the "my crosswords" folder on your nook.  (This folder should be created for you automatically the first time you run the nookCrossWord app.)
