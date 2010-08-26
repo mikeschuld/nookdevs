@@ -6,7 +6,7 @@ An app for playing crossword puzzles on the nook.  Puzzles not included.
 
 = Dependencies =
 
-*Please install the FileSelector package as well.*  nookCrossWord depends on it.
+*Please install the fileSelector package as well.*  nookCrossWord depends on it.
 
 = Supported Formats =
 
