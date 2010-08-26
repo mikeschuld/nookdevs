@@ -50,9 +50,9 @@ import com.nookdevs.common.nookBaseActivity;
  */
 public class PDFViewerActivity extends nookBaseActivity {
     // private final static String TAG = "PDFViewerActivity";
-    
+
     private static final int ABOUT = 1;
-    
+
     PDFView m_pdf_view;
     ViewAnimator m_animator;
     private SeekBar m_seek_view;
@@ -64,17 +64,17 @@ public class PDFViewerActivity extends nookBaseActivity {
     private static final int SCROLL_PX_X = 650;
     Handler m_Handler = new Handler();
     CurrentPageInfo pageInfo;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         setContentView(R.layout.main);
-        
+
         // Check the intent for the content to view
         Intent intent = getIntent();
         if (intent.getData() == null) { return; }
-        
+
         Uri uri = intent.getData();
         m_pdf_view = (PDFView) findViewById(R.id.view);
         String file = uri.getPath();
@@ -115,14 +115,14 @@ public class PDFViewerActivity extends nookBaseActivity {
                 }
                 m_text.setText(progress + "");
             }
-            
+
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
-            
+
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        
+
         ImageButton close = (ImageButton) findViewById(R.id.page_picker_close);
         ImageButton plus = (ImageButton) findViewById(R.id.page_picker_plus);
         plus.setOnClickListener(new View.OnClickListener() {
@@ -149,25 +149,25 @@ public class PDFViewerActivity extends nookBaseActivity {
             }
         });
     }
-    
+
     private void initListener() {
         m_pdf_view.setStatusListener(new StatusListener() {
-            
+
             public void onError(PDFView v, String msg) {
                 // TODO Auto-generated method stub
-                
+
             }
-            
+
             public void onLoadingEnd(PDFView v) {
                 // TODO Auto-generated method stub
-                
+
             }
-            
+
             public void onLoadingStart(PDFView v) {
                 // TODO Auto-generated method stub
-                
+
             }
-            
+
             public void onPageChanged(PDFView v, int page) {
                 // TODO Auto-generated method stub
                 ImageButton prev = (ImageButton) findViewById(R.id.prev_page);
@@ -176,29 +176,29 @@ public class PDFViewerActivity extends nookBaseActivity {
                 next.setEnabled(true);
                 TextView tv = (TextView) findViewById(R.id.page_number_view);
                 tv.setText(page + "/" + v.getPagesCount());
-                
+
             }
-            
+
             public void onRenderingEnd(PDFView v) {
                 // TODO Auto-generated method stub
-                
+
             }
-            
+
             public void onRenderingStart(PDFView v) {
                 // TODO Auto-generated method stub
-                
+
             }
         });
     }
-    
+
     private void pageUp() {
         m_pdf_view.prevPage();
     }
-    
+
     private void pageDown() {
         m_pdf_view.nextPage();
     }
-    
+
     private void initButtons() {
         ImageButton btn = (ImageButton) findViewById(R.id.exit);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -220,14 +220,14 @@ public class PDFViewerActivity extends nookBaseActivity {
             }
         });
         btn.setOnLongClickListener(new View.OnLongClickListener() {
-            
+
             public boolean onLongClick(View v) {
                 m_seek_view.setProgress(m_pdf_view.getCurrentPage() + 1);
                 m_animator.showNext();
                 return true;
             }
         });
-        
+
         btn = (ImageButton) findViewById(R.id.next_page);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -240,14 +240,14 @@ public class PDFViewerActivity extends nookBaseActivity {
             }
         });
         btn.setOnLongClickListener(new View.OnLongClickListener() {
-            
+
             public boolean onLongClick(View v) {
                 m_seek_view.setProgress(m_pdf_view.getCurrentPage() + 1);
                 m_animator.showNext();
                 return true;
             }
         });
-        
+
         btn = (ImageButton) findViewById(R.id.switch_page);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -277,14 +277,14 @@ public class PDFViewerActivity extends nookBaseActivity {
             }
         });
     }
-    
+
     private void initZoomSpinner() {
         Spinner s = (Spinner) findViewById(R.id.zoom);
-        
+
         s.setOnItemSelectedListener(new OnItemSelectedListener() {
             public void onNothingSelected(AdapterView<?> view) {
             }
-            
+
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 float factor = 1.0F;
                 switch (pos) {
@@ -323,27 +323,28 @@ public class PDFViewerActivity extends nookBaseActivity {
             }
         });
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
+        updateTitle(NAME);
     }
-    
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
-    
+
     @Override
     protected void onStop() {
         super.onStop();
     }
-    
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
     }
-    
+
     /**
      * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
      */
@@ -351,7 +352,7 @@ public class PDFViewerActivity extends nookBaseActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
     }
-    
+
     private void saveData() {
         Runnable run = new Runnable() {
             public void run() {
@@ -372,9 +373,9 @@ public class PDFViewerActivity extends nookBaseActivity {
             }
         };
         (new Thread(run)).start();
-        
+
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         boolean handled = false;
@@ -384,7 +385,7 @@ public class PDFViewerActivity extends nookBaseActivity {
                 pageUp();
                 handled = true;
                 break;
-            
+
             case NOOK_PAGE_DOWN_KEY_LEFT:
             case NOOK_PAGE_DOWN_KEY_RIGHT:
                 pageDown();
@@ -411,11 +412,11 @@ public class PDFViewerActivity extends nookBaseActivity {
         }
         return handled;
     }
-    
+
     class MediaScannerNotifier implements MediaScannerConnectionClient {
         private MediaScannerConnection mConnection;
         private String mPath;
-        
+
         public synchronized void scanFile(String path) {
             if (path == null) { return; }
             String mime = "ebook/";
@@ -423,17 +424,17 @@ public class PDFViewerActivity extends nookBaseActivity {
             mime += ext;
             mConnection.scanFile(path, mime);
         }
-        
+
         public MediaScannerNotifier(String path) {
             mConnection = new MediaScannerConnection(PDFViewerActivity.this, this);
             mConnection.connect();
             mPath = path;
         }
-        
+
         public void onMediaScannerConnected() {
             scanFile(mPath);
         }
-        
+
         public void onScanCompleted(String path, Uri arg1) {
             System.out.println("On Scan completed" + path + "  " + arg1);
             String[] columns = {
@@ -444,7 +445,7 @@ public class PDFViewerActivity extends nookBaseActivity {
             m_Handler.post(new Runnable() {
                 public void run() {
                     // m_name.setText(dbCursor.getString(0));
-                    updateTitle(dbCursor.getString(0));
+                    updateTitle(NAME = dbCursor.getString(0));
                     dbCursor.close();
                 }
             });
@@ -460,5 +461,5 @@ class CurrentPageInfo implements Serializable {
     int scrollX = 0;
     int scrollY = 0;
     String file;
-    
+
 }
