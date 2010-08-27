@@ -15,8 +15,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.0 r9654"
-   sodipodi:docname="button_folder_icon_middle.svg"
-   inkscape:export-filename="/home/gomar/hari/button_folder_icon_middle_left.png"
+   sodipodi:docname="button_folder_icon_middle_left.svg"
+   inkscape:export-filename="/home/gomar/git/nookdevs/nookLauncher/res/drawable/button_folder_icon_middle_left.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -105,7 +105,7 @@
        x2="18"
        y2="1014.3622"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.86841998,0,0,0.97368603,1018.0333,-1020.6834)" />
+       gradientTransform="matrix(0.97368548,0,0,0.86842231,-1.0658475,135.40176)" />
     <filter
        inkscape:collect="always"
        id="filter4630"
@@ -467,10 +467,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="12.421875"
-     inkscape:cx="14.948082"
+     inkscape:cx="4.2009122"
      inkscape:cy="20.779186"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="1860"
      inkscape:window-height="1057"
@@ -524,13 +524,12 @@
     <rect
        style="fill:url(#linearGradient4128);fill-opacity:1;stroke:#cecbce;stroke-width:1.00000012;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect2860"
-       width="32.999916"
-       height="37.000015"
-       x="1015.8623"
-       y="-33.5"
+       width="37"
+       height="33"
+       x="-3.5"
+       y="1015.8622"
        rx="3.0000002"
-       ry="3.0000002"
-       transform="matrix(0,1,-1,0,0,0)" />
+       ry="3.0000002" />
     <g
        id="g4809"
        mask="url(#mask4840)">
