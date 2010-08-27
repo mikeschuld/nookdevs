@@ -288,13 +288,14 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         if( appName.equals(FOLDER_APP)) {
             b.setOnLongClickListener( new OnLongClickListener() {
                 public boolean onLongClick(View v) {
+                    if( m_CurrentButton == null) return false;
                     ImageButton button = (ImageButton)v;
                     AppDetail app = m_IntentsList.get(m_CurrentButton);
                     m_CurrentButton = null;
                     setMainImage(null);
                     AppDetail appFolder = m_IntentsList.get(button);
-                    m_DBHelper.updateData(app.appName, appFolder.appName, app.folder, appFolder.folder);
-                    m_DBHelper.updateLevel(app.appName, appFolder.folder, app.folder);
+                    m_DBHelper.updateData(app.appName, appFolder.appName, app.folder, appFolder.folder, m_CurrentFolder);
+                    m_DBHelper.updateLevel(app.appName, app.folder, appFolder.folder, m_CurrentFolder);
                     m_BackBtn.setVisibility(View.VISIBLE);
                     return true;
                 }
@@ -338,7 +339,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         } catch (Exception ex) {
             btn.setImageResource(android.R.drawable.sym_def_app_icon);
         }
-        m_DBHelper.removeData(name, folder);
+        m_DBHelper.removeData(name, folder, m_CurrentFolder);
         name = name.substring(idx + 1);
         txt.setText(pkgName + "\n" + name);
         m_AddAppLayout.addView(addApp);
@@ -420,7 +421,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 } else {
                     folder = 0;
                 }
-                m_DBHelper.addData(appName, resid, imageUri,level,folder);
+                m_DBHelper.addData(appName, resid, imageUri,folder,level);
                 LayoutInflater inflater = getLayoutInflater();
                 ImageButton btn1 = (ImageButton) inflater.inflate(R.layout.settingsbutton, m_LinearLayout, false);
                 fillButton(btn1, pkg + "." + name, resid, imageUri, folder);
@@ -667,7 +668,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                 m_CurrentButton = null;
                 setMainImage(null);
                 AppDetail appPrev = m_IntentsList.get(button);
-                m_DBHelper.updateData(app.appName, appPrev.appName, app.folder, appPrev.folder);
+                m_DBHelper.updateData(app.appName, appPrev.appName, app.folder, appPrev.folder, m_CurrentFolder);
                 m_BackBtn.setVisibility(View.VISIBLE);
                 if( m_CurrentFolder >0)
                     m_IconBtn.setVisibility(View.VISIBLE);
@@ -707,7 +708,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                     }
                 }
 
-                m_DBHelper.updateIcon(appName,folder,imageUri, resid);
+                m_DBHelper.updateIcon(appName,folder,imageUri, resid, m_CurrentFolder);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

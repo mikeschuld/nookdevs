@@ -82,21 +82,22 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public void removeData(String name, int folder) {
+    public void removeData(String name, int folder, int level) {
         try {
             if (m_WriteDb == null) {
                 m_WriteDb = getWritableDatabase();
             }
             m_WriteDb.beginTransaction();
             String[] values = {
-                name, String.valueOf(folder)
+                name, String.valueOf(level), String.valueOf(folder)
             };
-            m_WriteDb.delete(TABLE_NAME, " name =? and folder=?", values);
+            m_WriteDb.delete(TABLE_NAME, " name =? and level=? and folder=?", values);
             String[] values2 = {
                 String.valueOf(folder)
             };
-            if( folder >0)
-                m_WriteDb.execSQL("update " + TABLE_NAME + " set level=0 where level=?", values2);
+            if( folder >0) {
+                m_WriteDb.delete(TABLE_NAME, "folder=0 and level=?", values2);
+            }
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
         } catch (Exception ex) {
@@ -104,20 +105,20 @@ public class DBHelper extends SQLiteOpenHelper {
             m_WriteDb.endTransaction();
         }
     }
-    public void updateIcon(String appName,int folder,String imageUri, int resid) {
+    public void updateIcon(String appName,int folder,String imageUri, int resid, int level) {
         try {
             if (m_WriteDb == null) {
                 m_WriteDb = getWritableDatabase();
             }
             m_WriteDb.beginTransaction();
             String[] values = {
-                    imageUri, appName, String.valueOf(folder)
+                    imageUri, appName, String.valueOf(folder), String.valueOf(level)
             };
             m_WriteDb.execSQL(
-                    "UPDATE " + TABLE_NAME + " SET iconpath=? where NAME=? and FOLDER=?", values);
+                    "UPDATE " + TABLE_NAME + " SET iconpath=? where NAME=? and FOLDER=? and level=?", values);
             values[0] = String.valueOf(resid);
             m_WriteDb.execSQL(
-                "UPDATE " + TABLE_NAME + " SET resources=? where NAME=? and FOLDER=?", values);
+                "UPDATE " + TABLE_NAME + " SET resources=? where NAME=? and FOLDER=? and level=?", values);
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
         } catch (Exception ex) {
@@ -164,7 +165,7 @@ public class DBHelper extends SQLiteOpenHelper {
             return 1;
         }
     }
-    public void addData(String app, int id, String uri, int level, int folder) {
+    public void addData(String app, int id, String uri, int folder, int level) {
         try {
             int order = getMaxOrder() + 1;
             if (m_WriteDb == null) {
@@ -214,16 +215,16 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public int getOrderNumber(String app , int folder ) {
+    public int getOrderNumber(String app , int folder , int level) {
         int order = 0;
         try {
             if (m_ReadDb == null) {
                 m_ReadDb = getReadableDatabase();
             }
             String[] values = {
-                app, String.valueOf(folder)
+                app, String.valueOf(folder), String.valueOf(level)
             };
-            Cursor cursor = m_ReadDb.rawQuery("SELECT ordernum FROM " + TABLE_NAME + " WHERE NAME=? and FOLDER=?", values);
+            Cursor cursor = m_ReadDb.rawQuery("SELECT ordernum FROM " + TABLE_NAME + " WHERE NAME=? and FOLDER=? and LEVEL=?", values);
             cursor.moveToFirst();
             order = cursor.getInt(0);
             cursor.close();
@@ -233,9 +234,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return order;
     }
 
-    public void updateData(String app, String appPrev, int folder, int prevFolder) {
+    public void updateData(String app, String appPrev, int folder, int prevFolder, int level) {
         try {
-            int order = getOrderNumber(appPrev, prevFolder);
+            int order = getOrderNumber(appPrev, prevFolder, level);
             if (m_WriteDb == null) {
                 m_WriteDb = getWritableDatabase();
             }
@@ -245,9 +246,9 @@ public class DBHelper extends SQLiteOpenHelper {
             };
             m_WriteDb.execSQL("update " + TABLE_NAME + " set ordernum=ordernum+1 where ordernum >=?", values);
             String[] values2 = {
-                String.valueOf(order), app, String.valueOf(folder)
+                String.valueOf(order), app, String.valueOf(folder), String.valueOf(level)
             };
-            m_WriteDb.execSQL("update " + TABLE_NAME + " set ordernum=? where name=? and folder=?", values2);
+            m_WriteDb.execSQL("update " + TABLE_NAME + " set ordernum=? where name=? and folder=? and level=?", values2);
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
         } catch (Exception ex) {
@@ -255,7 +256,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
     }
-    public void updateLevel(String app, int level, int folder) {
+    public void updateLevel(String app, int folder, int level, int currLevel) {
         try {
             System.out.println("Updating level for " + app + " to " + level);
             if (m_WriteDb == null) {
@@ -265,7 +266,11 @@ public class DBHelper extends SQLiteOpenHelper {
             String[] values2 = {
                 String.valueOf(level), app, String.valueOf(folder)
             };
-            m_WriteDb.execSQL("update " + TABLE_NAME + " set level=? where name=? and folder=?", values2);
+            m_WriteDb.delete(TABLE_NAME, "level=? and name=? and folder=?", values2);
+            String[] values3 = {
+                String.valueOf(level), app, String.valueOf(folder), String.valueOf(currLevel)
+            };
+            m_WriteDb.execSQL("update " + TABLE_NAME + " set level=? where name=? and folder=? and level=?", values3);
             m_WriteDb.setTransactionSuccessful();
             m_WriteDb.endTransaction();
         } catch (Exception ex) {
