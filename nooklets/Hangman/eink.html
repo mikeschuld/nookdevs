@@ -1265,14 +1265,20 @@
         var dlength = duplicate.length; //1  --> 1
         var complete = (dlength*60);  // 30 - 1 = 29
         if (wlength == complete) {
+            document.getElementById("m4").style.display = "none"
             document.getElementById("check").style.display = "block";
             document.getElementById("end").innerHTML = "SUCCESS!";
             nook.getTouch().loadUrl("javascript:end2()");
             writesuccess();
-            document.getElementById("m2f").style.display = "block";
-            hidehangman();
-            
+            document.getElementById("m2f").style.display = "block"
+            setTimeout("hhh()", 1);
+ 
         }
+    }
+
+    function hhh() {
+        document.getElementById("m6").style.display = "none"
+
     }
 
     function options() {
@@ -1427,14 +1433,14 @@
             nook.writeData("fail", 1);
         }
     }
-    
-    function writesuccess() {        
+
+    function writesuccess() {      
         var read2 = nook.readData("success");
         var parsed2 = parseInt(read2) + 1
         nook.writeData("success", parsed2);
         if (nook.readData("success") == "NaN") {
             nook.writeData("success", 1);
-        }
+        }    
     }
 
     function readhighscores() {
@@ -1499,8 +1505,8 @@
         }
         #used2
         {
-            top: 0px;
-            left: 0px;
+            top: 239px;
+            left: 98px;
             position: absolute;
             height: 403px;
             width: 29px;
@@ -1916,7 +1922,7 @@
     <h3 id="highscores" class="styledump2"></h3>
     <h3 id="highscores2" class="styledump2"></h3>
     <h3 id="dumphigh" class="styledump">H</h3>
-    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.5.3</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.5.4</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <span class="style105">made by Atomix</span></h4>
 
 
@@ -1951,7 +1957,7 @@
         </tr>
         <tr>
             <td class="style203">
-                version: 0.5.3</td>
+                version: 0.5.4</td>
             <td>
                 &nbsp;</td>
         </tr>
@@ -2043,6 +2049,14 @@
                 0.5.3</td>
             <td class="style288">
                 Added reset feature and happy face</td>
+            <td class="style289">
+                27.08.10</td>
+        </tr>
+        <tr>
+            <td class="style287">
+                0.5.4</td>
+            <td class="style288">
+                Fixed alot of stuff</td>
             <td class="style289">
                 27.08.10</td>
         </tr>
