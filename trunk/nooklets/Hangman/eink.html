@@ -4,7 +4,7 @@
 ----------------------------------------------------------------------------
 ------------------------MADE BY ATOMIX--------------------------------------
 ----------------------------------------------------------------------------
-------------------------E-INK  SCREEN---------------------------------------
+-----------------------E-INK  SCREEN----------------------------------------
 ----------------------------------------------------------------------------
 -----------You can contact me via e-mail: atomixs@inbox.lv------------------
 ----------------------------------------------------------------------------
@@ -1134,6 +1134,7 @@
     function newgame() {
 
         hidehangman()
+        document.getElementById("m2f").style.display = "none";
         document.getElementById("m1").style.display = "block"
         var i = Math.random();
         i = 1500 * i
@@ -1203,9 +1204,27 @@
     function howto() {
         clearoptions();
         document.getElementById("howto").className = "style274";
-   
 
     }
+
+    function resetmsg() {
+        clearoptions();
+        document.getElementById("reset").className = "style297";
+
+    }
+
+    function reset() {
+        nook.writeData("fail", 0);
+        nook.writeData("success", 0);
+        clearoptions();
+        readhighscores();
+    }
+
+    function cancel() {
+        clearoptions();
+        readhighscores()
+    }
+
 
     function clearoptions() {
         if (document.getElementById("options").className == "style255") {
@@ -1221,7 +1240,9 @@
             document.getElementById("hg").className = "stylehg2"
             document.getElementById("hgscr").className = "stylehgscr2"
         }
-
+        if (document.getElementById("reset").className == "style297") {
+            document.getElementById("reset").className = "style297a"
+        }
 
     }
 
@@ -1248,6 +1269,9 @@
             document.getElementById("end").innerHTML = "SUCCESS!";
             nook.getTouch().loadUrl("javascript:end2()");
             writesuccess();
+            document.getElementById("m2f").style.display = "block";
+            hidehangman();
+            
         }
     }
 
@@ -1349,8 +1373,10 @@
     document.getElementById("dumpm7").innerHTML = "H"
  
     }
-    
+
     function hangman() {
+        
+
         if (document.getElementById("attempts").innerHTML == 5) {
             document.getElementById("m2").style.display = "block"
             document.getElementById("dumpm2").innerHTML = "V"
@@ -1838,6 +1864,24 @@
             {
                 font-size: 19pt;
             }
+            
+            .style294
+            {
+                font-size: 50pt;
+                font-family: "Courier New", Courier, monospace;
+            }
+            .style295
+            {
+                font-family: "Courier New", Courier, monospace;
+                font-size: 35pt;
+            }
+            .style296
+            {
+                font-size: 42pt;
+                font-family: "Courier New", Courier, monospace;
+                text-align: center;
+            }
+            
             </style>
 
 
@@ -1872,7 +1916,7 @@
     <h3 id="highscores" class="styledump2"></h3>
     <h3 id="highscores2" class="styledump2"></h3>
     <h3 id="dumphigh" class="styledump">H</h3>
-    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.4.2</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <h4 id="version" class="style103">&nbsp; <span class="style104">Hangman v.0.5.3</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <span class="style105">made by Atomix</span></h4>
 
 
@@ -1886,6 +1930,7 @@
        <img src="images/m2c.png" alt="hangman" id="m2c" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
        <img src="images/m2d.png" alt="hangman" id="m2d" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
        <img src="images/m2e.png" alt="hangman" id="m2e" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
+       <img src="images/m2f.png" alt="hangman" id="m2f" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
        <img src="images/m3.png" alt="hangman" id="m3" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
        <img src="images/m4.png" alt="hangman" id="m4" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
        <img src="images/m5.png" alt="hangman" id="m5" style="display:none; top: 252px; left: 170px; position: absolute; height: 473px; width: 381px; right: 482px;"/>
@@ -1906,7 +1951,7 @@
         </tr>
         <tr>
             <td class="style203">
-                version: 0.4.2</td>
+                version: 0.5.3</td>
             <td>
                 &nbsp;</td>
         </tr>
@@ -1994,6 +2039,14 @@
                 26.08.10</td>
         </tr>
         <tr>
+            <td class="style287">
+                0.5.3</td>
+            <td class="style288">
+                Added reset feature and happy face</td>
+            <td class="style289">
+                27.08.10</td>
+        </tr>
+        <tr>
             <td class="style287" colspan="3">
                 <em>Currently the vocabulary contains: 1500 words</em></td>
         </tr>
@@ -2029,6 +2082,19 @@
 
             <h1 id="hg" class="stylehg2">Highscores</h1>
             <h1 id="hgscr" class="stylehgscr2"></h1>
+            <h1 id="reset" class="style297a"><span class="style296">
+                <br />
+                Are you sure you want to reset 
+                <br />
+                your highscores?</span><span class="style294">
+                </span>
+                <br class="style273" />
+                <br />
+                <br />
+                <br />
+                <br class="style273" />
+                <span class="style295">Your highscores will be reset to 0 (zero) and you will NOT be able to undo this 
+                action.</span></h1>
 
 
             </body>
