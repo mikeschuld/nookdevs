@@ -87,9 +87,10 @@ public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
     }
     
     public String getImageUri(int pos) {
-        if (pos == 0) { return null; }
-        if (pos <= m_Resources.length) { return null; }
-        return m_AppIcons.get(pos - m_Resources.length - 1);
+        int curr = (m_CurrentImage != null) ? 1 : 0;
+        if (curr ==1 && pos == 0) { return null; }
+        if (pos < m_Resources.length+curr) { return null; }
+        return m_AppIcons.get(pos - m_Resources.length - curr);
     }
     
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -102,9 +103,9 @@ public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
         int curr = (m_CurrentImage != null) ? 1 : 0;
         if (position == 0 && m_CurrentImage != null) {
             i.setImageDrawable(m_CurrentImage);
-        } else if (position > 0 && position <= m_Resources.length) {
-            i.setImageResource(m_Resources[position - 1]);
-        } else if (position - m_Resources.length - 1 < m_AppIcons.size()) {
+        } else if (position >= 0 && position < m_Resources.length+curr) {
+            i.setImageResource(m_Resources[position - curr]);
+        } else if (position - m_Resources.length - curr < m_AppIcons.size()) {
             if (m_AppIcons.get(position - m_Resources.length - curr) == null) {
                 i.setImageResource(m_Default);
             } else {
