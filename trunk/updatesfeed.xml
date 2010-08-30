@@ -13,10 +13,10 @@
     <title>nookLauncher</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookLauncher.apk" />
-    <version>0.0.9</version>
+    <version>0.1.0</version>
     <pkg>com.nookdevs.launcher</pkg>
     <id>http://nookdevs.googlecode.com/files/nookLauncher.apk</id>
-    <content type="text">A replacement app launcher for the Nook. 0.0.9 has new icons and bug fixes.
+    <content type="text">A replacement app launcher for the Nook. 0.1.0 has option to add sub-folder, support for custom icons.
 </content>
   </entry>
 
