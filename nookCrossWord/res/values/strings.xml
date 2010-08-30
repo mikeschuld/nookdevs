@@ -36,4 +36,7 @@
 <string name="ok">OK</string>
 <string name="resume_current_puzzle">Continue Latest Puzzle</string>
 <string name="my_puzzles">My Puzzles</string>
+<string name="puzzles_help">Help</string>
+<string name="puzzles_help_dialog_title">Puzzles Help</string>
+<string name="puzzles_help_dialog_text">nookCrossWord does not include any puzzles.\n\nYou must download puzzles from the internet and place them into the \&quot;my crosswords\&quot; folder on your nook.\n\nFor more information:\nhttp://code.google.com/p/nookdevs/wiki/nookCrossWordFAQ</string>
 </resources>
