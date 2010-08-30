@@ -21,10 +21,9 @@ import android.view.View;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.util.TypedValue;
 import android.util.Log;
-//import android.widget.Button;
-//import android.view.View.OnClickListener;
 
 //  TODO: we're creating circled cells with is_a_circle=false, then changing
 //        it to true with setCircle(true).
@@ -42,10 +41,9 @@ public class Cell extends Activity {
     */
     // The Views for displaying the cell on the e-ink screen:
     private LinearLayout bg = null;  // The View behind the cell, for changing the bg shade
-    private View cv = null; // The View for the cell, for changing the bg image
+    private RelativeLayout cv = null; // The View for the cell, e.g. for changing the bg image
     private TextView tv = null; // The TextView where the letter is drawn
     private TextView numtv = null; // The little TextView where the clue number goes
-    private LinearLayout cellnumbercontainer = null ;
     // The crossword stuff:
     String answertext = ""; // the answer (or "."/"~" for a blocked-out cell)
     String usertext = " "; // the answer entered by the user (or " " if unset)
@@ -86,23 +84,25 @@ public class Cell extends Activity {
             LayoutInflater inflater = crossword_activity.getLayoutInflater();
             //  The e-ink Views for this cell:
             bg = (LinearLayout) inflater.inflate(R.layout.eink_cell, null);
-            cv = (View) bg.findViewById(R.id.cellview);
+            cv = (RelativeLayout) bg.findViewById(R.id.cellview);
             
             tv = (TextView) bg.findViewById(R.id.celltext);
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.cell_textsize );
-            
-            cellnumbercontainer = (LinearLayout) bg.findViewById(R.id.cellnumber_container);
             
             drawEverything();
             //Log.d(this.toString(), "DEBUG: Leaving Cell.buildViews().");
     } // buildViews
     
+    // This should only be called once:
     private void buildNumberView() {
-    	cellnumbercontainer.removeAllViews() ;
         LayoutInflater inflater = crossword_activity.getLayoutInflater();
         numtv = (TextView) inflater.inflate(R.layout.eink_cell_number, null);
         numtv.setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.cellnum_textsize );
-        cellnumbercontainer.addView(numtv);
+        // Hack: If we're in the left-most column, move the number a little to the right:
+        if ( col == 0 ) {
+        	numtv.setPadding(2,0,0,0);
+        }
+        cv.addView(numtv);
     } // buildNumberView
     
     void drawCellNumber() {

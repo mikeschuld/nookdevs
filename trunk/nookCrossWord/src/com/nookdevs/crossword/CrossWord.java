@@ -61,7 +61,6 @@ import java.io.*;
 // TODO: support entering symbols, too, and maybe numbers
 // TODO: What to put in "About this puzzle" when the puzzle has no metadata?
 // TODO: Don't save user answers if they're all blank
-// TODO: first time we're launched, "mkdir ../my crosswords"
 // TODO: load time is *way* too slow
 // TODO: hide the keyboard when exiting
 // TODO: should I be using onKeyDown, or onKeyUp?
@@ -142,6 +141,7 @@ public class CrossWord extends Activity {
 		eink_cluespagescroller.setSmoothScrollingEnabled(false);  // smooth scrolling is awful on e-ink
 		//
 		touchscreenanimator = (ViewAnimator) findViewById(R.id.touchscreen_animator);
+		touchscreenanimator.setInAnimation(this, R.anim.fromright);
 		touchscreen_submenu_play = (ScrollView) findViewById(R.id.touchscreen_submenu_play);
 		touchscreen_clues_container = (LinearLayout) findViewById(R.id.touchscreen_clues_container);
 		puzzlelist = (LinearLayout) findViewById(R.id.puzzlelist);
@@ -151,6 +151,7 @@ public class CrossWord extends Activity {
 		b = (Button) findViewById(R.id.back);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
 			  	if ( touchscreenanimator.getDisplayedChild() == MAIN_MENU_VIEWNUM ) {
 				    goBack();
 			  	} else if ( touchscreenanimator.getDisplayedChild() == CLUESSCROLLERS_SUBMENU_VIEWNUM ) {
@@ -160,6 +161,7 @@ public class CrossWord extends Activity {
 			  	} else {
 			  		touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
 			  	}
+			  	touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
 			}
 		});
 
@@ -171,6 +173,7 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
+				touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
 		  		touchscreenanimator.setDisplayedChild(PLAY_SUBMENU_VIEWNUM);
 			}
 		});
@@ -185,6 +188,7 @@ public class CrossWord extends Activity {
 					return;
 				}
 				activePuzzle.prepareTouchScreenClues( ACROSS );
+				touchscreenanimator.setInAnimation(v.getContext(), R.anim.noanim);
 				touchscreenanimator.setDisplayedChild(CLUESSCROLLERS_SUBMENU_VIEWNUM);
 			}
 		});
@@ -197,6 +201,7 @@ public class CrossWord extends Activity {
 					return;
 				}
 				activePuzzle.prepareTouchScreenClues( DOWN );
+				touchscreenanimator.setInAnimation(v.getContext(), R.anim.noanim);
 				touchscreenanimator.setDisplayedChild(CLUESSCROLLERS_SUBMENU_VIEWNUM);
 			}
 		});
@@ -254,6 +259,7 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
+				touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
 				touchscreenanimator.setDisplayedChild( HINTS_SUBMENU_VIEWNUM );
 			}
 		});
@@ -324,10 +330,11 @@ public class CrossWord extends Activity {
 		b = (Button) findViewById(R.id.file_button);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
 				touchscreenanimator.setDisplayedChild( PUZZLES_SUBMENU_VIEWNUM );
 			}
 		});
-				
+		
 		// Open puzzle button:
 		b = (Button) findViewById(R.id.open_puzzle_button);
 		b.setOnClickListener(new OnClickListener() {
@@ -342,7 +349,11 @@ public class CrossWord extends Activity {
 			public void onClick(View v) {
 				try {
 					resumeCurrentPuzzle() ;
-					touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM  );
+					if ( activePuzzle != null ) {
+						touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
+						touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM  );
+						touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
+					}
 				} catch (Exception ex) {
 					Log.e( this.toString(), "Error: unexpected exception: " + ex );
 				}
@@ -375,7 +386,26 @@ public class CrossWord extends Activity {
 			}
 		});
 		
+		// Puzzles Help button:
+		b = (Button) findViewById(R.id.puzzles_help_button);
+		b.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+				alertdialogbuilder.setMessage( getString(R.string.puzzles_help_dialog_text) )
+				.setCancelable(false)
+				.setTitle( getString(R.string.puzzles_help_dialog_title) )
+				.setNegativeButton( getString(R.string.ok), new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
+				alertdialogbuilder.show();
+			}
+		});
+		
+		
 		updateTitle(TITLE);
+		
         File f = new File( EXTERNAL_SD_FOLDER);
 	    if( !f.exists()) {
 	        f = new File(INTERNAL_SD_FOLDER);
@@ -477,7 +507,11 @@ public class CrossWord extends Activity {
 	            String file = b.getString("FILE");
 	            if( file != null) {
 	                loadCrossWord(file);
-	                touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
+	                if ( activePuzzle != null ) {
+	                	touchscreenanimator.setInAnimation(this, R.anim.fromleft);
+	                	touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
+	                	touchscreenanimator.setInAnimation(this, R.anim.fromright);
+	                }
 	            }
 	        }
 	    }
@@ -536,12 +570,15 @@ public class CrossWord extends Activity {
 				b.setOnClickListener(new OnClickListener() {
 					public void onClick(View v) {
 						loadCrossWord( (String) v.getTag() );
+						touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
 						touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM  );
+						touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
 					}
 				});
 				puzzlelist.addView( b );
 			}
 		}
+		touchscreenanimator.setInAnimation(this, R.anim.fromright);
 		touchscreenanimator.setDisplayedChild( PUZZLE_LIST_SUBMENU_VIEWNUM );
 	} // my_crosswords_file_menu
 	

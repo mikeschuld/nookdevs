@@ -235,6 +235,13 @@
                 android:background="@drawable/list_selector_background"
                 android:text="@string/clear_puzzle"
                 />
+                <Button
+                android:id="@+id/puzzles_help_button"
+                android:layout_width="fill_parent"
+                android:layout_height="35.0px"
+                android:background="@drawable/list_selector_background"
+                android:text="@string/puzzles_help"
+                />
             
             </LinearLayout>
         </ScrollView>
