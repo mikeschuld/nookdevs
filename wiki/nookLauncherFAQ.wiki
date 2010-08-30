@@ -1,4 +1,14 @@
 #labels Featured,Phase-Deploy
+nookLauncher 0.1.0
+Includes option to add Sub-folders like Games, tools etc.
+
+More support for custom icons - Uses the same logic as Mynook.ru launcher now and Icons can be updated automatically from my icons folder.
+
+Ability to remove Launcher Settings and B&N Home buttons. Long-pressing on any of the icons will start the Settings module.
+
+Other bug fixes.
+
+
 nookLauncher 0.0.8 
 
 Includes option to modify icons ( refer to Issues 72 and 74).
