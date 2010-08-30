@@ -8,6 +8,13 @@ Ability to remove Launcher Settings and B&N Home buttons. Long-pressing on any o
 
 Other bug fixes.
 
+Steps for creating a sub menu:
+In Launcher Settings, enter Add apps & select sub menu app. You can change the icon by clicking on it.
+
+To add apps to sub-menu, pick the app in Launcher Settings and long-press on the sub-menu icon.
+
+Inside the sub-menu, Launcher settings can be started by long-pressing on any of the app icons.
+
 
 nookLauncher 0.0.8 
 
