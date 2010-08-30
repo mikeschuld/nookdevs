@@ -2,15 +2,15 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="600.0px"
-  android:layout_height="110.0px"
+  android:layout_height="120.0px"
   android:background="#C8C8C8"
   >
   <TextView android:layout_width="fill_parent"
-  	android:layout_height="30.0px"
+  	android:layout_height="40.0px"
   	android:paddingLeft="15.0px"
   	android:id="@+id/TextView04"
 	android:textStyle="bold"
-	android:textSize="12px"
+	android:textSize="20px"
 	android:paddingTop="10.0px"
 	android:text="@string/file_name"
   	/>

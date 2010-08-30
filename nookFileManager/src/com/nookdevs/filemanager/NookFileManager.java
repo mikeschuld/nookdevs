@@ -15,8 +15,10 @@
 package com.nookdevs.filemanager;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +26,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileFilter;
 import jcifs.smb.SmbFileInputStream;
+import jcifs.smb.SmbFilenameFilter;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -46,6 +51,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
@@ -79,7 +85,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     public static final int BROWSE = 1;
     public static final int OPEN = 2;
     public static final int SAVE = 3;
-    public static final int MAX_FILES_PER_VIEW = 50;
+    public static final int MAX_FILES_PER_VIEW = 60;
     
     private int m_Type = BROWSE;
     private FileSelectListener m_FileSelectListener = new FileSelectListener();
@@ -131,7 +137,10 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     ListView m_PasteMenu = null;
     ArrayAdapter m_PasteAdapter = null;
     ArrayList<String> m_PasteMenuItems = new ArrayList<String>(10);
-    
+    private boolean m_Filter=false;
+    private String m_filterValue="*";
+    private String m_InternalFilter="";
+    private SmbFile m_CurrentFolderRemote;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         LOGTAG = "nookFileManager";
@@ -276,6 +285,27 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 m_PasteMenu.setVisibility(View.VISIBLE);
             }
         });
+        m_Add.setOnLongClickListener(new OnLongClickListener() {
+            public boolean onLongClick(View arg0) {
+                if( m_AtRoot) return false;
+                if( m_CurrentFolder == null) return false;
+                m_Dialog = new Dialog(NookFileManager.this, android.R.style.Theme_Panel);
+                m_Dialog.setContentView(R.layout.folderinput);
+                TextView txt1  = (TextView) m_Dialog.findViewById(R.id.TextView04);
+                txt1.setText( getString(R.string.folder_name));
+                EditText txt = (EditText) m_Dialog.findViewById(R.id.EditText04);
+                txt.setOnKeyListener(m_TextListener);
+                m_Dialog.setCancelable(true);
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                m_Handler.postDelayed(new Runnable() {
+                    public void run() {
+                        m_Dialog.show();
+                    }
+                }, 200);
+                return true;
+            }
+        });
         m_Add.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 m_Dialog = new Dialog(NookFileManager.this, android.R.style.Theme_Panel);
@@ -288,17 +318,25 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     txt = (EditText) m_Dialog.findViewById(R.id.EditText03);
                     txt.setOnKeyListener(m_TextListener);
                 } else {
+                    m_Dialog = new Dialog(NookFileManager.this, android.R.style.Theme_Panel);
                     m_Dialog.setContentView(R.layout.folderinput);
+                    TextView txt1  = (TextView) m_Dialog.findViewById(R.id.TextView04);
+                    txt1.setText( getString(R.string.filter));
                     EditText txt = (EditText) m_Dialog.findViewById(R.id.EditText04);
+                    txt.setText(m_filterValue);
                     txt.setOnKeyListener(m_TextListener);
+                    m_Filter = true;
                 }
                 m_Dialog.setCancelable(true);
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                m_Dialog.show();
+                m_Handler.postDelayed(new Runnable() {
+                    public void run() {
+                        m_Dialog.show();
+                    }
+                }, 200);
                 
             }
-            
         });
         if (m_externalMyDownloads.exists()) {
             m_CurrentTarget = m_externalMyDownloads;
@@ -457,6 +495,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
     
     private void loadNetwork(SmbFile folder) {
         try {
+            m_CurrentFolderRemote = folder;
             LayoutInflater inflater = getLayoutInflater();
             SmbFile smb = null;
             if (folder == null) {
@@ -472,17 +511,32 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     icon.setOnLongClickListener(m_FileSelectListener);
                     text.setTag(icon);
                     text.setOnClickListener(m_FileSelectListener);
-                    icon.setOnLongClickListener(m_FileSelectListener);
+                    text.setOnLongClickListener(m_FileSelectListener);
                     m_Content.addView(filedetails);
                 }
                 return;
             }
             smb = folder;
             m_Content.removeAllViews();
-            SmbFile[] files = smb.listFiles();
+            SmbFile[] files = smb.listFiles(new SmbFileFilter() {
+                public boolean accept(SmbFile arg0) throws SmbException {
+                    if( m_filterValue.equals("*")) return true;
+                    if( arg0.isDirectory()) return true;
+                    if( arg0.getName().contains(m_InternalFilter)) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
             Arrays.sort(files, new Comparator<SmbFile>() {
                 public int compare(SmbFile object1, SmbFile object2) {
-                    return object1.getName().compareTo(object2.getName());
+                    try {
+                        if( object1.isDirectory() && !object2.isDirectory()) return -1;
+                        if( object2.isDirectory() && !object1.isDirectory()) return 1;
+                        return object1.getName().compareToIgnoreCase(object2.getName());
+                    } catch(Exception ex) {
+                        return 1;
+                    }
                 }
             });
             m_CurrentSmbFiles = files;
@@ -511,35 +565,38 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 
                 m_Content.addView(filedetails);
             }
-            for (i = index; i < m_CurrentSmbFiles.length && i < index + MAX_FILES_PER_VIEW; i++) {
-                SmbFile f = m_CurrentSmbFiles[i];
+            for (i = index; i < m_CurrentSmbFiles.length && i < index + MAX_FILES_PER_VIEW;) {
                 RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
-                ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
-                TextView text = (TextView) filedetails.findViewById(R.id.text);
-                String name = f.getName();
-                String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
-                if (!f.isDirectory()) {
-                    name += "\nSize: " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
-                }
-                text.setText(name);
-                int id = getResource(type);
-                if (id != -1) {
-                    icon.setImageResource(id);
-                } else {
-                    icon.setImageResource(R.drawable.image);
-                }
-                icon.setTag(f);
-                icon.setOnClickListener(m_FileSelectListener);
-                text.setTag(icon);
-                text.setOnClickListener(m_FileSelectListener);
-                
-                if (f.isDirectory()) {
-                    icon.setOnLongClickListener(m_FileSelectListener);
+                for(int j=0; j< 2; j++) {
+                    if( i >= m_CurrentSmbFiles.length || i >= index + MAX_FILES_PER_VIEW) break;
+                    SmbFile f = m_CurrentSmbFiles[i++];
+                    ImageButton icon = (j==0)?((ImageButton) filedetails.findViewById(R.id.icon)):((ImageButton) filedetails.findViewById(R.id.icon1));
+                    TextView text = (j==0)? ((TextView) filedetails.findViewById(R.id.text)):((TextView)filedetails.findViewById(R.id.text1));
+                    String name = f.getName();
+                    String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
+                    if (!f.isDirectory()) {
+                        name += " " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
+                    }
+                    text.setText(name);
+                    int id = getResource(type);
+                    if (id != -1) {
+                        icon.setImageResource(id);
+                    } else {
+                        icon.setImageResource(R.drawable.image);
+                    }
+                    icon.setTag(f);
+                    icon.setOnClickListener(m_FileSelectListener);
+                    text.setTag(icon);
+                    text.setOnClickListener(m_FileSelectListener);
                     
+                    if (f.isDirectory()) {
+                        icon.setOnLongClickListener(m_FileSelectListener);
+                        text.setOnLongClickListener(m_FileSelectListener);
+                    }
                 }
                 m_Content.addView(filedetails);
             }
-            if (i == m_CurrentSmbFiles.length) { return; }
+            if (i >= m_CurrentSmbFiles.length) { return; }
             // add More
             RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
             ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
@@ -574,39 +631,42 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 text.setOnClickListener(m_FileSelectListener);
                 m_Content.addView(filedetails);
             }
-            for (i = index; i < m_CurrentFiles.length && i < index + MAX_FILES_PER_VIEW; i++) {
-                File f = m_CurrentFiles[i];
+            for (i = index; i < m_CurrentFiles.length && i < index + MAX_FILES_PER_VIEW;) {
                 RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
-                ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
-                TextView text = (TextView) filedetails.findViewById(R.id.text);
-                String name = f.getName();
-                String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
-                if (!f.isDirectory()) {
-                    name += "\nSize: " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
-                }
-                text.setText(name);
-                int id = getResource(type);
-                if (id != -1) {
-                    icon.setImageResource(id);
-                } else {
-                    try {
-                        icon.setImageURI(Uri.parse(f.getAbsolutePath()));
-                    } catch(Throwable err) {
-                        icon.setImageResource(R.drawable.image);
+                for(int j=0; j< 2; j++) {
+                    if( i >= m_CurrentFiles.length || i >= index + MAX_FILES_PER_VIEW) break;
+                    File f = m_CurrentFiles[i++];
+                    ImageButton icon = (j==0)?((ImageButton) filedetails.findViewById(R.id.icon)):((ImageButton) filedetails.findViewById(R.id.icon1));
+                    TextView text = (j==0)? ((TextView) filedetails.findViewById(R.id.text)):((TextView)filedetails.findViewById(R.id.text1));
+                    String name = f.getName();
+                    String type = f.isDirectory() ? "dir" : name.substring(name.lastIndexOf('.') + 1);
+                    if (!f.isDirectory()) {
+                        name += " " + (((int) (f.length() / 1024.0 * 100)) / 100.0) + "K";
                     }
-                }
-                icon.setTag(f);
-                icon.setOnClickListener(m_FileSelectListener);
-                text.setTag(icon);
-                text.setOnClickListener(m_FileSelectListener);
-                
-                if (f.isDirectory()) {
-                    icon.setOnLongClickListener(m_FileSelectListener);
+                    text.setText(name);
+                    int id = getResource(type);
+                    if (id != -1) {
+                        icon.setImageResource(id);
+                    } else {
+                        try {
+                            icon.setImageURI(Uri.parse(f.getAbsolutePath()));
+                        } catch(Throwable err) {
+                            icon.setImageResource(R.drawable.image);
+                        }
+                    }
+                    icon.setTag(f);
+                    icon.setOnClickListener(m_FileSelectListener);
+                    text.setTag(icon);
+                    text.setOnClickListener(m_FileSelectListener);
                     
+                    if (f.isDirectory()) {
+                        icon.setOnLongClickListener(m_FileSelectListener);
+                        text.setOnLongClickListener(m_FileSelectListener);    
+                    }
                 }
                 m_Content.addView(filedetails);
             }
-            if (i == m_CurrentFiles.length) { return; }
+            if (i >= m_CurrentFiles.length) { return; }
             // add More
             RelativeLayout filedetails = (RelativeLayout) inflater.inflate(R.layout.filedetail, m_Content, false);
             ImageButton icon = (ImageButton) filedetails.findViewById(R.id.icon);
@@ -645,6 +705,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                 text.setOnClickListener(m_FileSelectListener);
                 if (f1.isDirectory()) {
                     icon.setOnLongClickListener(m_FileSelectListener);
+                    text.setOnLongClickListener(m_FileSelectListener);
                     
                 }
                 m_Content.addView(filedetails);
@@ -652,10 +713,22 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             return;
         }
         String folder = folders[0];
-        File[] files = (new File(folder)).listFiles();
+        File[] files = (new File(folder)).listFiles(new FileFilter() {
+            public boolean accept(File arg0) {
+                if( m_filterValue.equals("*")) return true;
+                if( arg0.isDirectory()) return true;
+                if( arg0.getName().contains(m_InternalFilter)) {
+                    return true;
+                }
+                return false;
+            }
+            
+        });
         Arrays.sort(files, new Comparator<File>() {
             public int compare(File object1, File object2) {
-                return object1.getName().compareTo(object2.getName());
+                if( object1.isDirectory() && !object2.isDirectory()) return -1;
+                if( object2.isDirectory() && !object1.isDirectory()) return 1;
+                return object1.getName().compareToIgnoreCase(object2.getName());
             }
         });
         m_CurrentFiles = files;
@@ -691,6 +764,22 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     if (keyCode == nookBaseActivity.SOFT_KEYBOARD_CLEAR) {
                         editTxt.setText("");
                     } else if (keyCode == nookBaseActivity.SOFT_KEYBOARD_SUBMIT) {
+                        if( m_Filter) {
+                            String name = editTxt.getText().toString();
+                            m_filterValue = name;
+                            m_InternalFilter = name.replace("*","");
+                            m_Dialog.cancel();
+                            m_Filter = false;
+                            if( m_CurrentFolder != null) {
+                                String[] subfolder = {
+                                    m_CurrentFolder
+                                };
+                                loadFolders(subfolder, false);
+                            } else {
+                                loadNetwork(m_CurrentFolderRemote);
+                            }
+                            return false;
+                        }
                         if (m_Rename) {
                             String name = editTxt.getText().toString();
                             if (!m_Current.renameTo(new File(m_Current.getParent() + "/" + name))) {
@@ -736,7 +825,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                         if (m_Rename) {
                             m_Rename = false;
                             clickAction(m_Back);
-                        }
+                        } else if( m_Filter) 
+                            m_Filter=false;
                         m_Dialog.cancel();
                     }
                 }
@@ -800,7 +890,8 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
             try {
                 m_Back.setText(" < ");
                 m_Back.setTag(new File("/"));
-                m_Add.setVisibility(View.INVISIBLE);
+                m_Add.setText(R.string.add_folder);
+                m_Add.setVisibility(View.VISIBLE);
                 RemotePC pc = (RemotePC) v.getTag();
                 m_Title.setText(pc.ip);
                 if (m_DirDetails) { // file details.
@@ -841,7 +932,7 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
         if (v.getTag() instanceof SmbFile) {
             SmbFile sf = (SmbFile) v.getTag();
             m_Add.setText(R.string.add_folder);
-            m_Add.setVisibility(View.INVISIBLE);
+            m_Add.setVisibility(View.VISIBLE);
             m_AtRoot = false;
             try {
                 String parent = sf.getParent();
@@ -1009,13 +1100,20 @@ public class NookFileManager extends nookBaseActivity implements OnItemClickList
                     }
                     m_Dialog = new Dialog(NookFileManager.this, android.R.style.Theme_Panel);
                     m_Dialog.setContentView(R.layout.folderinput);
+                    TextView txt1  = (TextView) m_Dialog.findViewById(R.id.TextView04);
+                    txt1.setText( getString(R.string.file_name));
                     EditText txt = (EditText) m_Dialog.findViewById(R.id.EditText04);
                     txt.setOnKeyListener(m_TextListener);
+                    txt.setText(m_Current.getName());
                     m_Dialog.setCancelable(true);
                     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                     m_Rename = true;
-                    m_Dialog.show();
+                    m_Handler.postDelayed(new Runnable() {
+                        public void run() {
+                            m_Dialog.show();
+                        }
+                    }, 200);
                     break;
                 case SET_AS_TARGET:
                     m_RemoteMenuItems.remove(1);
