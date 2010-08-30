@@ -58,7 +58,7 @@
 	<title>nookFileManager</title>
 	 <link type="application/vnd.android.package-archive"
        href="http://nookdevs.googlecode.com/files/nookFileManager.apk" />
-       <version>0.0.4</version>
+       <version>0.0.5</version>
        <pkg>com.nookdevs.filemanager</pkg>
     	 <id>http://nookdevs.googlecode.com/files/nookFileManager.apk</id>
        <content type="text">File manager app - access sdcard folders and network shares.</content>
