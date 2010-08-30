@@ -2,14 +2,15 @@
 <resources>
     <string name="app_name">nookFileManager</string>
     <string name="back">Back</string>
-    <string name="add_pc">Add PC</string>
-    <string name="add_folder">Add Folder</string>
+    <string name="add_pc">PC</string>
+    <string name="add_folder">Filter/Folder</string>
     <string name="browse">Browse Files</string>
     <string name="open">Open File</string>
     <string name="save">Save File</string>
     <string name="ip_addr">IP Address:</string>
     <string name="userid">User:</string>
     <string name="password">Password:</string>
+    <string name="folder_name">New Folder:</string>
     <string name="file_name">New Name:</string>
     <string name="error_folder">Error creating folder...</string>
     <string name="operation_invalid">Invalid Operation. Only Delete is supported.</string>
@@ -35,6 +36,7 @@
     <string name="paste">Paste Menu</string>
     <string name="paste_all">Paste All</string>
     <string name="clear_all">Clear All</string>
+    <string name="filter">Filter:</string>
      
     <string-array name="localmenu">
 	    <item>Cut</item>
