@@ -122,7 +122,6 @@ public class CrossWord extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		Button b;
-		AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder(this);
 
 		// android power management screen stuff:
 		initializeScreenLock();
@@ -237,7 +236,6 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
-				//showLongToast( activePuzzle.aboutThisPuzzle() );
 				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
 		        alertdialogbuilder.setMessage( activePuzzle.aboutThisPuzzle() )
 		        .setCancelable(false)
@@ -297,33 +295,30 @@ public class CrossWord extends Activity {
 			}
 		});
 		// The hint/cheat button to just solve the entire puzzle:
-		alertdialogbuilder.setMessage( R.string.giveup_areyousure )
-				.setCancelable(false)
-				.setPositiveButton( R.string.giveup_yes, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							activePuzzle.justSolveTheWholeThing();
-							showLongToast( getString(R.string.giveup_wedidit) );
-						}
-
-				})
-				.setNegativeButton( R.string.giveup_no, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-		AlertDialog justsolveitdialog = alertdialogbuilder.create();
 		b = (Button) findViewById(R.id.i_give_up_button);
-		b.setTag(justsolveitdialog);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if ( activePuzzle == null ) {
 					showToast_No_Active_Puzzle();
 					return;
 				}
-				((AlertDialog)v.getTag()).show();
+				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+				alertdialogbuilder.setMessage( R.string.giveup_areyousure )
+				.setCancelable(false)
+				.setPositiveButton( R.string.giveup_yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							activePuzzle.justSolveTheWholeThing();
+							showLongToast( getString(R.string.giveup_wedidit) );
+						}
+				})
+				.setNegativeButton( R.string.giveup_no, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
+				alertdialogbuilder.show();
 			}
 		});
-
 		
 
 		// The Puzzles ("File") button:
@@ -361,28 +356,27 @@ public class CrossWord extends Activity {
 		});
 
 		// Clear puzzle button:
-		alertdialogbuilder.setMessage( R.string.clear_puzzle_areyousure )
-		.setCancelable(false)
-		.setPositiveButton( R.string.clear_puzzle_yes, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					activePuzzle.clearAllAnswers();
-				}
-		})
-		.setNegativeButton( R.string.clear_puzzle_no, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				dialog.cancel();
-			}
-		});
-		AlertDialog clearpuzzledialog = alertdialogbuilder.create();
 		b = (Button) findViewById(R.id.clear_puzzle_button);
-		b.setTag(clearpuzzledialog);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if ( activePuzzle == null ) {
 					showToast_No_Active_Puzzle();
 					return;
 				}
-				((AlertDialog)v.getTag()).show();
+				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+				alertdialogbuilder.setMessage( R.string.clear_puzzle_areyousure )
+				.setCancelable(false)
+				.setPositiveButton( R.string.clear_puzzle_yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							activePuzzle.clearAllAnswers();
+						}
+				})
+				.setNegativeButton( R.string.clear_puzzle_no, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
+				alertdialogbuilder.show();
 			}
 		});
 		
