@@ -112,16 +112,24 @@ public class OtherBooks extends SQLiteOpenHelper {
             return new Date(0);
         }
     }
-    
     private boolean deleteBooks() {
+        return deleteBooks(false);
+    }
+    private boolean deleteBooks(boolean path) {
         try {
             String[] values = m_DeleteBooks.toArray(new String[1]);
             String whereclause = "";
             for (int i = 0; i < values.length; i++) {
                 if (i == 0) {
-                    whereclause += "path=?";
+                    if( path)
+                        whereclause += "path=?";
+                    else
+                        whereclause +="id=?";
                 } else {
-                    whereclause += " or path=?";
+                    if(path)
+                        whereclause += " or path=?";
+                    else
+                        whereclause +="or id=?";
                 }
             }
             m_Db.beginTransaction();
@@ -200,7 +208,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                 File file = new File(path);
                 File skip = new File(file.getParent() + "/" + ".skip");
                 if (!file.exists() || skip.exists()) {
-                    m_DeleteBooks.add(cursor.getString(10));
+                    m_DeleteBooks.add(cursor.getString(0));
                     cursor.moveToNext();
                     continue;
                 }
@@ -296,7 +304,7 @@ public class OtherBooks extends SQLiteOpenHelper {
     public boolean deleteBook(ScannedFile file) {
         m_DeleteBooks.clear();
         m_DeleteBooks.add(file.getPathName());
-        deleteBooks();
+        deleteBooks(true);
         m_DeleteBooks.clear();
         
         File f = new File(file.getPathName());

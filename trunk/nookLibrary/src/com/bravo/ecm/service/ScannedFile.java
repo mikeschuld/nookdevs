@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -72,7 +73,8 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private static ArrayList<String> m_KeyWordsDupList = new ArrayList<String>(200);
     private static ArrayList<String> m_AuthorsList = new ArrayList<String>(100);
     public static final String ReservedChars = "|\\?*<\":>+[]/'#";
-    
+    private static HashMap<String,ScannedFile> m_FilesMap = new HashMap<String,ScannedFile>();
+    private boolean m_Dummy=false;
     public static List<String> getAuthors() {
         return m_AuthorsList;
     }
@@ -212,6 +214,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             if( type.equals("zip"))
                 type="fb2";
             addKeywords(type);
+            m_FilesMap.put( path, this);
         }
     }
     
@@ -371,7 +374,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 book.readMetaInfo();
                 return book;
             }
-        } catch(Exception ex) {
+        } catch(Error ex) {
             return null;
         }
         
@@ -380,21 +383,31 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public ScannedFile(String pathName) {
         this(pathName, true);
     }
-    
     public ScannedFile(String pathName, boolean update) {
+        this( pathName, update, false);
+    }
+    public ScannedFile(String pathName, boolean update, boolean dummy) {
         pathname = pathName;
-        if (pathname != null) {
+        m_Dummy =dummy;
+        if (!dummy && pathname != null) {
             int idx = pathname.lastIndexOf('.');
-            type = pathname.substring(idx + 1).toLowerCase();
+            if( idx == -1) 
+                type="";
+            else
+                type = pathname.substring(idx + 1).toLowerCase();
             if (type.equals("html")) {
                 type = "htm";
             }
+            if( type.equals("zip"))
+                type="fb2";
             addKeywords(type);
             if (update) {
                 updateMetaData();
             }
+            m_FilesMap.put(pathname, this);
         }
     }
+
     
     public ScannedFile(android.os.Parcel parcel) {
         readFromParcel(parcel);
@@ -445,8 +458,14 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (ext.equals("html")) {
             ext = "htm";
         }
+        if( type.equals("zip"))
+            type="fb2";
         type = ext;
         addKeywords(ext);
+    }
+    
+    public static ScannedFile getFile(String path) {
+        return m_FilesMap.get(path);
     }
     
     public void updateLastAccessDate() {
@@ -588,6 +607,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public String getTitle() {
+        if( m_Dummy) return pathname;
         String title = m_Series == null ? "" : m_Series + " ";
         if (titles == null || titles.size() == 0) {
             int idx = pathname.lastIndexOf("/");
@@ -692,6 +712,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public String getAuthorLast() {
+        if( m_Dummy) return "";
         if (contributors == null || contributors.size() == 0) {
             return "No Author Info";
         } else {
@@ -702,6 +723,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public String getAuthor() {
+        if( m_Dummy) return "";
         if (contributors == null || contributors.size() == 0) {
             return "No Author Info";
         } else {
@@ -753,7 +775,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         
         @Override
         public String toString() {
-            return firstName + " " + lastName;
+            return (firstName + " " + lastName).trim();
         }
         
         @Override

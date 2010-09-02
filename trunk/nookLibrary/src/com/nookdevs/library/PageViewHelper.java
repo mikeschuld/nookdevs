@@ -14,6 +14,14 @@
  */
 package com.nookdevs.library;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
@@ -27,7 +35,7 @@ import com.bravo.ecm.service.ScannedFile;
 
 public class PageViewHelper {
     LinearLayout m_PageViewMain;
-    Activity m_Activity;
+    NookLibrary m_Activity;
     int m_NumPages;
     int m_NumItems;
     public static final int ITEMS_PER_PAGE = 10;
@@ -42,8 +50,60 @@ public class PageViewHelper {
     TextView m_Header2;
     LinearLayout m_Footer;
     List<ScannedFile> m_Files;
-    
-    public PageViewHelper(Activity activity, LinearLayout mainLayout, List<ScannedFile> files) {
+    List<ScannedFile> m_OrgFiles;
+    String[] m_Folders = null;
+    String [] EXTS = { "epub", "pdb", "pdf", "html", "htm", "txt", "fb2", "fb2.zip"};
+    public static final int BOOKS=0;
+    public static final int FOLDERS=1;
+    public static final int TAGS=2;
+    public static final int CALIBRE=3;
+    int m_View;
+    private Comparator<ScannedFile> m_FileComparator = new Comparator<ScannedFile>() {
+
+        public int compare(ScannedFile arg0, ScannedFile arg1) {
+            if( arg0 == null) 
+                return -1;
+            if( arg1 == null)
+                return 1;
+            String s1 = arg0.getPathName();
+            String s2 = arg0.getPathName();
+            File f1,f2;
+            if( s1.charAt(0) == '[') {
+                s1 = s1.substring(1,s1.length()-1);
+                f1 = new File( m_Folders[0], s1);
+            } else if( s1.charAt(0) == '/') {
+                f1 = new File(s1);
+            } else {
+                f1 = new File(m_Folders[0]+"/" + s1);
+            }
+            if( s2.charAt(0) == '[') {
+                s2 = s2.substring(1,s2.length()-1);
+                f2 = new File( m_Folders[0], s2);
+            } else if( s2.charAt(0) == '/') {
+                f2 = new File(s2);
+            } else {
+                f2 = new File(m_Folders[0]+"/" + s2);
+            }
+            if( f1.isDirectory() && !f2.isDirectory()) {
+                return -1;
+            }
+            if( f2.isDirectory() && !f1.isDirectory()) {
+                return 1;
+            }
+            if( ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {
+                long d1 = f1.lastModified();
+                long  d2 = f1.lastModified();
+                if(d1 > d2) return -1;
+                else if( d1 == d2) return 0;
+                else return 1;
+            } else {
+                return f1.getName().compareToIgnoreCase(f2.getName());
+            }
+        }
+        
+    };
+ 
+    public PageViewHelper(NookLibrary activity, LinearLayout mainLayout, List<ScannedFile> files) {
         m_PageViewMain = mainLayout;
         m_Activity = activity;
         m_Files = files;
@@ -52,12 +112,75 @@ public class PageViewHelper {
     
     public void setFiles(List<ScannedFile> files) {
         m_Files = files;
+        m_OrgFiles = files;
         if (m_CurrentItem > 0) {
             m_Dividers[m_CurrentItem].setVisibility(View.INVISIBLE);
             m_Dividers[m_CurrentItem - 1].setVisibility(View.INVISIBLE);
             m_Pointers[m_CurrentItem - 1].setVisibility(View.INVISIBLE);
         }
         initPage();
+    }
+    public void setFolders(String[] files) {
+        m_Folders = files;
+    }
+    public void setView(int view) {
+        setView(view, false);
+    }
+    public void setView(int view, boolean refresh) {
+        if( m_View != view || refresh) {
+            m_View = view;
+            if( m_View == BOOKS) {
+                m_Files = m_OrgFiles;
+            } else if(m_View == FOLDERS) {
+                if( m_Folders.length ==2) {
+                    List<ScannedFile> files = new ArrayList<ScannedFile>(2);
+                    files.add( new ScannedFile(m_Folders[0],false,true));
+                    files.add( new ScannedFile(m_Folders[1],false,true));
+                    m_Files=files;
+                } else {
+                    File f = new File( m_Folders[0]);
+                    String[] fileStrs = f.list(new FilenameFilter() {
+                        public boolean accept(File dir, String file) {
+                            File f1 = new File(dir, file);
+                            if( f1.isDirectory()) return true;
+                            int idx = file.indexOf('.');
+                            String ext = file.substring(idx+1);
+                            for (String type: EXTS) {
+                                if( ext.equalsIgnoreCase(type)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        }
+                    });
+                    List<ScannedFile> files = new ArrayList<ScannedFile>(fileStrs.length);
+                    for( String file:fileStrs) {
+                        ScannedFile f1 =ScannedFile.getFile(f.getAbsolutePath() + "/" + file);
+                        if( f1 == null) {
+                            File tmp = new File( f, file);
+                            if( tmp.isDirectory())
+                                f1 = new ScannedFile( "["+file+"]", false, true);
+                            else
+                                f1 = new ScannedFile(file, false, true);
+                        }
+                        files.add(f1);
+                    }
+                    Collections.sort( files, m_FileComparator);
+                    m_Files=files;
+                }
+            } else if( m_View == CALIBRE) {
+                //not supported yet
+            } else if( m_View == TAGS) {
+                List<CharSequence> keywords = m_Activity.getShowValues();
+                List<ScannedFile> files = new ArrayList<ScannedFile>(keywords.size());
+                for( CharSequence file:keywords) {
+                    files.add( new ScannedFile(file.toString(),false,true));
+                }
+                m_Files=files;
+            }
+            clearData();
+            initPage();
+        }
     }
     
     public List<ScannedFile> getFiles() {
@@ -357,5 +480,20 @@ public class PageViewHelper {
         int currentOffset = (m_CurrentPage - 1) * ITEMS_PER_PAGE;
         if (m_Files == null || m_Files.size() < (currentOffset + m_CurrentItem - 1)) { return null; }
         return m_Files.get(currentOffset + m_CurrentItem - 1);
+    }
+    public File getCurrentFolder() {
+        ScannedFile f = getCurrent();
+        if( m_Folders.length ==1) {
+            return new File(m_Folders[0]);
+        } else {
+            return new File(f.getPathName());
+        }
+    }
+    public String getCurrentTag() {
+        ScannedFile f = getCurrent();
+        return f.getPathName();
+    }
+    public String getCurrentCalibreTag() {
+        return null;
     }
 }

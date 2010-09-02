@@ -58,7 +58,6 @@ public class PdfMetaReader {
             }
         } catch (Throwable e) {
             // TODO Auto-generated catch block
-            Log.w("PdfMetaReader", "No Metadata for " + m_File.getPathName());
             return false;
         }
         
