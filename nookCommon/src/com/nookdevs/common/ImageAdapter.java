@@ -119,10 +119,11 @@ public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
         /* Image should be scaled as width/height are set. */
         i.setScaleType(ImageView.ScaleType.FIT_XY);
         /* Set the Width/Height of the ImageView. */
-        i.setLayoutParams(new Gallery.LayoutParams(87, 130)); // 0.9 of 96x144.
+        i.setLayoutParams(new Gallery.LayoutParams(77, 115)); // 0.8 of 96x144.
+        //i.setLayoutParams(new Gallery.LayoutParams(96, 144));
         i.setDrawingCacheEnabled(true);
         i.setDrawingCacheQuality(1);
-        i.setBackgroundResource(m_GalleryItemBackground);
+     //   i.setBackgroundResource(m_GalleryItemBackground);
         return i;
     }
     

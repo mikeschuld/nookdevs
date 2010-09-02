@@ -24,7 +24,7 @@ import android.widget.Gallery;
 public class CustomGallery extends Gallery {
     
     float m_Alpha = 1.0f;
-    float m_Size = 0.8f;
+    float m_Size = 1.25f;
     
     public CustomGallery(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -51,12 +51,15 @@ public class CustomGallery extends Gallery {
     @Override
     public boolean getChildStaticTransformation(View child, Transformation t) {
         View view = getSelectedView();
-        if (view != null && view.equals(child)) {
+        if (view != null && !view.equals(child)) {
             t.clear();
             t.setAlpha(m_Alpha);
             t.setTransformationType(Transformation.TYPE_BOTH);
-            Matrix mat = t.getMatrix();
-            mat.postTranslate(39, 0);
+//            int idx = this.getSelectedItemPosition();
+//            int idxc = this.getPositionForView(child);
+//            Matrix mat = t.getMatrix();
+//            if( idxc < idx)
+//                mat.postTranslate(-29,0);
         } else {
             t.clear();
             t.setAlpha(m_Alpha);
@@ -72,6 +75,8 @@ public class CustomGallery extends Gallery {
             mat1 = new Matrix();
             mat1.postTranslate(centerx, centery);
             mat.postConcat(mat1);
+            mat.postTranslate(50, 5);
+      
         }
         return true;
         // return false;
