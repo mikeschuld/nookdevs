@@ -43,8 +43,16 @@
 		<item>Show</item>
 		<item>Authors</item>
 		<item>Refresh</item>
+		<item>View By</item>
 		<item>Show Archived</item>
+		<item>Help</item>
 		<item>Close</item>
+	</string-array>
+	<string-array name="viewmenu">
+		<item>Books</item>
+		<item>Folders</item>
+		<item>Tags</item>
+		<item>Calibre</item>
 	</string-array>
 	<string-array name="sortmenu">
 		<item>Title</item>
@@ -56,4 +64,5 @@
 		<item>Local Books</item>
 		<item>B&amp;N Books</item>
 	</string-array>
+	<string name="not_allowed_error">This is only allowed in Books mode.</string>
 </resources>
