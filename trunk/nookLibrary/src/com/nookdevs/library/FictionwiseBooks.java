@@ -373,9 +373,18 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             m_ArchivedFiles.add(file);
             File f = new File(file.getPathName());
             f.delete();
+            f = new File( m_BaseDir +"/" +  "." + file.getBookID() + ".archive");
+            try {
+                f.createNewFile();
+            }catch(Exception ex) {
+                Log.e("Error Archiving:", ex.getMessage(), ex);
+            }
         } else {
             file.setStatus(BNBooks.DOWNLOAD);
             m_ArchivedFiles.remove(file);
+            File f = new File( m_BaseDir + "." + file.getBookID() + ".archive");
+            if( f.exists()) 
+                f.delete();
         }
         if (m_Db == null) {
             m_Db = getWritableDatabase();
@@ -454,6 +463,10 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
                 }
                 sf.setSeries(cursor.getString(11));
                 sf.setBookInDB(true);
+                File f = new File( m_BaseDir + "." + sf.getBookID() + ".archive");
+                if( f.exists()) {
+                    sf.setStatus(BNBooks.ARCHIVED);
+                }
                 if (BNBooks.ARCHIVED.equals(sf.getStatus())) {
                     m_ArchivedFiles.add(sf);
                 } else {

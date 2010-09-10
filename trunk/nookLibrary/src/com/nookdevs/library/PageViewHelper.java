@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -158,10 +157,13 @@ public class PageViewHelper {
                         ScannedFile f1 =ScannedFile.getFile(f.getAbsolutePath() + "/" + file);
                         if( f1 == null) {
                             File tmp = new File( f, file);
-                            if( tmp.isDirectory())
+                            if( tmp.isDirectory()) {
                                 f1 = new ScannedFile( "["+file+"]", false, true);
-                            else
+                                f1.setCoverId(R.drawable.folder);
+                            }
+                            else {
                                 f1 = new ScannedFile(file, false, true);
+                            }
                         }
                         files.add(f1);
                     }
@@ -468,6 +470,9 @@ public class PageViewHelper {
     
     public void gotoBottom() {
         int item = (m_CurrentPage - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
+        if( m_NumItems < item) {
+            item = m_NumItems;
+        }
         gotoItem(item);
     }
     
