@@ -14,11 +14,12 @@
  */
 package com.nookdevs.library;
 
+import java.io.File;
+import java.io.FileDescriptor;
 import java.util.StringTokenizer;
 
-import org.icepdf.core.pobjects.Document;
-import org.icepdf.core.pobjects.PInfo;
-
+import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import com.bravo.ecm.service.ScannedFile;
@@ -26,8 +27,9 @@ import com.bravo.util.AdobeNativeInterface;
 
 public class PdfMetaReader {
     ScannedFile m_File;
-    
-    public PdfMetaReader(ScannedFile file, boolean quick) {
+    Context m_Context;
+    public PdfMetaReader(Context context, ScannedFile file, boolean quick) {
+        m_Context = context;
         m_File = file;
         readMetadata(quick);
     }
@@ -43,21 +45,45 @@ public class PdfMetaReader {
                 m_File.setEan(AdobeNativeInterface.getMetaData("DC.identifier"));
                 AdobeNativeInterface.closePDF();
             } else {
-                Document doc = new Document();
-                try {
-                    doc.setFile(m_File.getPathName());
-                } catch (Throwable er) {
-                    
+                FileDescriptor fd = m_Context.getContentResolver().openAssetFileDescriptor(
+                                    Uri.fromFile(new File(m_File.getPathName())),"r").getFileDescriptor();
+                PDFDocument doc = new PDFDocument(fd,"","");
+                if( !doc.isOk()) {
+                    return false;
                 }
-                PInfo info = doc.getInfo();
-                m_File.setDescription(info.getSubject());
-                StringTokenizer token = new StringTokenizer(info.getKeywords(), ",; ");
-                while (token.hasMoreTokens()) {
-                    m_File.addKeywords(token.nextToken());
-                }
+                String xml = doc.getMetadata();
+                //we only need desc and keywords. so, no need to do xml parsing here.
+                int idx1,idx2;
+                idx1 = xml.indexOf("<dc:description>");
+                if( idx1 >=0) {
+                    idx2 = xml.indexOf("</dc:description>");
+                    String tmp = xml.substring(idx1, idx2);
+                    StringBuffer desc=new StringBuffer();
+                    int len = tmp.length();
+                    for(int i=0; i< len; i++) {
+                        if( tmp.charAt(i) =='<') {
+                            i++;
+                            while( i < len && tmp.charAt(i) != '>') {
+                                i++;
+                            }
+                        } else {
+                            desc.append(tmp.charAt(i));
+                        }
+                    }
+                    m_File.setDescription( desc.toString());
+                } 
+                idx1 = xml.indexOf("<pdf:Keywords>");
+                idx2 = xml.indexOf("</pdf:Keywords>");
+                if( idx1 >=0) {
+                    String tmp = xml.substring(idx1+14, idx2);
+                    StringTokenizer token = new StringTokenizer(tmp,";,\n");
+                    while( token.hasMoreTokens()) {
+                        m_File.addKeywords( token.nextToken());
+                    }
+                } 
             }
         } catch (Throwable e) {
-            // TODO Auto-generated catch block
+            Log.e("PDFMetaReader", e.getMessage(), e);
             return false;
         }
         

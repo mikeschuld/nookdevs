@@ -15,6 +15,7 @@
 package com.nookdevs.library;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -47,11 +49,10 @@ public class BNBooks {
     public static final String SYNC_COMPLETE = "com.bravo.intent.action.SYNC_COMPLETE";
     public static final String DOWNLOAD_COMPLETE = "com.bravo.intent.action.DOWNLOAD_COMPLETE";
     public static final String DOWNLOAD_ACTION = "com.bravo.intent.action.DOWNLOAD";
+    public static final String STATUS_ACTION = "com.nookdevs.intent.action.UPDATE_STATUS";
     public static final String DOWNLOAD_PROGRESS = "com.bravo.intent.action.DOWNLOAD_PROGRESS";
     public static final String APP_DB = "/data/data/com.bravo.home/theDB.db";
     public static final String LOCAL_BOOKS_TABLE = "appInfo_table";
-    // public static final String FILES_DB =
-    // "/data/data/com.bravo.library/AppInfoDB.db";
     public static final String PRODUCT_TABLE = "bn_client_products";
     public static final String PRODUCT_STATE_TABLE = "bn_client_product_states";
     public static final String LOCAL_PRODUCT_STATE_TABLE = "bn_client_local_product_state";
@@ -284,18 +285,61 @@ public class BNBooks {
             return false;
         }
     }
-    
+    private boolean archiveBookInServer(String ean, boolean archive) {
+        try {
+            Intent intent = new Intent(STATUS_ACTION);
+            if( archive)
+                intent.putExtra("status", "ARCHIVED");
+            else
+                intent.putExtra("status","DOWNLOAD");
+            intent.putExtra("ean", ean);
+            ComponentName ret = m_Context.startService(intent);
+            if( ret == null) {
+                return false;
+            }
+        } catch(Exception ex) {
+            Log.e("BNBooks", "archive book:" + ex.getMessage(), ex);
+            return false;
+        }
+        return true;
+    }
     public boolean archiveBook(ScannedFile file, boolean val) {
+        boolean ret = archiveBookInServer(file.getEan(),val);
+        if( !ret) return ret;
         if (val) {
             m_ArchivedBooks.add(file);
+            deleteBook( file.getPathName());
         } else {
             m_ArchivedBooks.remove(file);
+            file.setStatus(BNBooks.DOWNLOAD);
         }
         return true;
     }
     
-    public boolean deleteBook(ScannedFile file) {
+    private boolean deleteBookInServer(String id) {
+        try {
+            Intent intent = new Intent(STATUS_ACTION);
+            intent.putExtra("status", "DELETED");
+            intent.putExtra("ean", id);
+            ComponentName ret = m_Context.startService(intent);
+            if( ret ==null)
+                return false;
+        } catch(Exception ex) {
+            Log.e("BNBooks", "delete book :" + ex.getMessage(), ex);
+            return false;
+        }
         return true;
+    }
+    private boolean deleteBook(String path) {
+        File f = new File(path);
+        return f.delete();
+    }
+    public boolean deleteBook(ScannedFile file) {
+        boolean ret= deleteBookInServer(file.getEan()) && deleteBook(file.getPathName());
+        if( ret) {
+            m_ArchivedBooks.remove(file);
+        }
+        return ret;
     }
     
     public List<ScannedFile> getArchived() {
@@ -411,11 +455,11 @@ public class BNBooks {
                 if (l != null) {
                     file.setPublishedDate(new Date(l));
                 }
-                l = cursor.getLong(16);
+                l = cursor.getLong(17);
                 if (l != null) {
                     file.setCreatedDate(new Date(l));
                 }
-                l = cursor.getLong(17);
+                l = cursor.getLong(18);
                 if (l != null) {
                     file.setLastAccessedDate(new Date(l));
                 }

@@ -212,9 +212,14 @@ public class OtherBooks extends SQLiteOpenHelper {
                     cursor.moveToNext();
                     continue;
                 }
+                String status=null;
+                File f = new File( file.getParent(), "." + file.getName() + ".archive");
+                if( f.exists()) 
+                    status=BNBooks.ARCHIVED;
                 Date lastModified = new Date(file.lastModified());
                 
-                if (lastModified.after(lastScan) && !BNBooks.ARCHIVED.equalsIgnoreCase(cursor.getString(12))) {
+                if (lastModified.after(lastScan) && !BNBooks.ARCHIVED.equalsIgnoreCase(cursor.getString(12))
+                        && status == null) {
                     m_DeleteBooks.add(cursor.getString(0));
                     cursor.moveToNext();
                     continue;
@@ -254,7 +259,10 @@ public class OtherBooks extends SQLiteOpenHelper {
                     }
                 }
                 sf.setSeries(cursor.getString(11));
-                sf.setStatus(cursor.getString(12));
+                if( status != null)
+                    sf.setStatus(status);
+                else
+                    sf.setStatus(cursor.getString(12));
                 sf.setBookInDB(true);
                 if (sf.getStatus() != null && sf.getStatus().equalsIgnoreCase(BNBooks.ARCHIVED)) {
                     m_ArchivedFiles.add(sf);
@@ -309,6 +317,10 @@ public class OtherBooks extends SQLiteOpenHelper {
         
         File f = new File(file.getPathName());
         f.delete();
+        f = new File( f.getParent(), "." + f.getName() + ".archive");
+        if( f.exists()) {
+            f.delete();
+        }
         if (file.getCover() != null) {
             try {
                 f = new File(file.getCover());
@@ -328,9 +340,22 @@ public class OtherBooks extends SQLiteOpenHelper {
         if (val) {
             file.setStatus(BNBooks.ARCHIVED);
             m_ArchivedFiles.add(file);
+            File f = new File( file.getPathName());
+            f = new File( f.getParent(), "." + f.getName() + ".archive");
+            try {
+                f.createNewFile();
+            } catch(Exception ex) {
+                Log.e("OtherBooks", ex.getMessage(), ex);
+            }
+       
         } else {
             file.setStatus(null);
             m_ArchivedFiles.remove(file);
+            File f = new File( file.getPathName());
+            f = new File( f.getParent(), "." + f.getName() + ".archive");
+            if( f.exists()) {
+                f.delete();
+            }
         }
         return updateStatusInDB(file);
     }
@@ -399,7 +424,13 @@ public class OtherBooks extends SQLiteOpenHelper {
                     ScannedFile file1 = new ScannedFile(file.getAbsolutePath());
                     file1.setLastAccessedDate(new Date(file.lastModified()));
                     file1.setBookInDB(false);
-                    m_Files.add(file1);
+                    File f1 = new File( file.getParent(), "." + file.getName()+ ".archive");
+                    if( f1.exists()) {
+                        file1.setStatus(BNBooks.ARCHIVED);
+                        m_ArchivedFiles.add(file1);
+                        continue;
+                    } else
+                        m_Files.add(file1);
                     if (m_Files.size() % 100 == 0) {
                         nookLib.updatePageView(m_Files);
                         m_Files.clear();

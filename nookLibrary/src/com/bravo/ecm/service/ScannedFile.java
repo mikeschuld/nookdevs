@@ -44,6 +44,7 @@ import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -51,6 +52,7 @@ import com.nookdevs.common.nookBaseActivity;
 import com.nookdevs.library.BNBooks;
 import com.nookdevs.library.EpubMetaReader;
 import com.nookdevs.library.FictionwiseBooks;
+import com.nookdevs.library.NookLibrary;
 import com.nookdevs.library.PdfMetaReader;
 import com.nookdevs.library.Smashwords;
 
@@ -78,6 +80,11 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public static List<String> getAuthors() {
         return m_AuthorsList;
     }
+    private static Context m_NookLibrary;
+    
+    public static void setContext(Context ctx) {
+        m_NookLibrary = ctx;
+    }
     
     public static synchronized void setSortType(int type) {
         if (type >= 0 && type <= 3) {
@@ -87,6 +94,9 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     
     public static void loadStandardKeywords() {
         try {
+            m_KeyWordsList.clear();
+            m_KeyWordsDupList.clear();
+            m_AuthorsList.clear();
             File f = new File(nookBaseActivity.SDFOLDER + "/" + "mybooks.xml");
             if (!f.exists()) {
                 f = new File(nookBaseActivity.EXTERNAL_SDFOLDER + "/" + "mybooks.xml");
@@ -343,7 +353,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if ("epub".equals(type)) {
             epub = new EpubMetaReader(this);
         } else if ("pdf".equalsIgnoreCase(type)) {
-            pdf = new PdfMetaReader(this, quick);
+            pdf = new PdfMetaReader(m_NookLibrary, this, quick);
         } else if ("fb2".equalsIgnoreCase(type)) { 
             Book book = tryGetFB2Book(ZLFile.createFileByPath(pathname)); 
             if( book != null) {
@@ -389,7 +399,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public ScannedFile(String pathName, boolean update, boolean dummy) {
         pathname = pathName;
         m_Dummy =dummy;
-        if (!dummy && pathname != null) {
+        if (pathname != null) {
             int idx = pathname.lastIndexOf('.');
             if( idx == -1) 
                 type="";
@@ -400,11 +410,12 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             }
             if( type.equals("zip"))
                 type="fb2";
-            addKeywords(type);
-            if (update) {
+            if( !dummy)
+                addKeywords(type);
+            if (!dummy && update) {
                 updateMetaData();
             }
-            m_FilesMap.put(pathname, this);
+            if(!dummy) m_FilesMap.put(pathname, this);
         }
     }
 
@@ -419,6 +430,13 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     
     public void writeToParcel(Parcel arg0, int arg1) {
         // Not required for the client side.
+    }
+    private int coverId;
+    public void setCoverId(int id) {
+        coverId=id;
+    }
+    public int getCoverId() {
+        return coverId;
     }
     
     public void readFromParcel(Parcel parcel) {
