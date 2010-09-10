@@ -64,7 +64,7 @@
        <content type="text">File manager app - access sdcard folders and network shares.</content>
   </entry>
   <entry>
-    <title>Trook craftycoder 1.2</title>
+    <title>Trook craftycoder 1.3</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/trook.apk" />
     <pkg>com.kbs.trook</pkg>
@@ -73,6 +73,7 @@
     Version 1.0 - Calibre, Authenticated Feeds
     Version 1.1 - Wifi Lock released return to Launcher
     Version 1.2 - Pause at startup fixed
+    Version 1.3 - Major improvement in calibre2opds consumption.
     </content>
   </entry>
   <entry>
