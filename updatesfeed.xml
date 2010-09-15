@@ -64,7 +64,7 @@
        <content type="text">File manager app - access sdcard folders and network shares.</content>
   </entry>
   <entry>
-    <title>Trook craftycoder 1.3</title>
+    <title>Trook craftycoder 1.4</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/trook.apk" />
     <pkg>com.kbs.trook</pkg>
