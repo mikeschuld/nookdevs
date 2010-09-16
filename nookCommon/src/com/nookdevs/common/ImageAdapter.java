@@ -28,19 +28,18 @@ import android.widget.SpinnerAdapter;
 
 public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
     
-    // just for testing
-    Vector<String> m_AppIcons;
+    Vector<Object> m_AppIcons;
     int[] m_Resources;
     Drawable m_CurrentImage;
     Context m_Context;
     int m_GalleryItemBackground;
     int m_Default;
     
-    public ImageAdapter(Context context, Vector<String> icons, int[] resources) {
+    public ImageAdapter(Context context, Vector<Object> icons, int[] resources) {
         super();
         m_Context = context;
         if (icons == null) {
-            m_AppIcons = new Vector<String>();
+            m_AppIcons = new Vector<Object>();
         } else {
             m_AppIcons = icons;
         }
@@ -64,7 +63,7 @@ public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
         m_CurrentImage = img;
     }
     
-    public void setImageUrls(Vector<String> images) {
+    public void setImageUrls(Vector images) {
         if (images != null) {
             m_AppIcons = images;
         }
@@ -90,7 +89,7 @@ public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
         int curr = (m_CurrentImage != null) ? 1 : 0;
         if (curr ==1 && pos == 0) { return null; }
         if (pos < m_Resources.length+curr) { return null; }
-        return m_AppIcons.get(pos - m_Resources.length - curr);
+        return (String)m_AppIcons.get(pos - m_Resources.length - curr);
     }
     
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -110,7 +109,11 @@ public class ImageAdapter extends BaseAdapter implements SpinnerAdapter {
                 i.setImageResource(m_Default);
             } else {
                 try {
-                    i.setImageURI(Uri.parse(m_AppIcons.get(position - m_Resources.length - curr)));
+                    Object imgUri = m_AppIcons.get(position - m_Resources.length - curr);
+                    if( imgUri instanceof Integer) {
+                        i.setImageResource( (Integer)imgUri);
+                    } else
+                        i.setImageURI(Uri.parse((String)(m_AppIcons.get(position - m_Resources.length - curr))));
                 } catch( Throwable ex) {
                     i.setImageResource(m_Default);
                 }
