@@ -426,9 +426,9 @@ public class BNBooks {
                         if( file == null) {
                             file = new ScannedFile();
                             file.setEan(ean1);
-                            file.setStatus(ARCHIVED);
                             addToList=false;
-                        }
+                        } 
+                        file.setStatus(ARCHIVED);
                         m_ArchivedBooks.add(file);
                         archived = true;
                     } else {
