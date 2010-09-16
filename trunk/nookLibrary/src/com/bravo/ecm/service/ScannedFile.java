@@ -45,8 +45,10 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.nookdevs.common.nookBaseActivity;
 import com.nookdevs.library.BNBooks;
@@ -80,9 +82,9 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public static List<String> getAuthors() {
         return m_AuthorsList;
     }
-    private static Context m_NookLibrary;
+    private static NookLibrary m_NookLibrary;
     
-    public static void setContext(Context ctx) {
+    public static void setContext(NookLibrary ctx) {
         m_NookLibrary = ctx;
     }
     
@@ -90,6 +92,13 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (type >= 0 && type <= 3) {
             m_SortType = type;
         }
+    }
+    private static boolean m_SortReversed=false;
+    public static void setSortReversed(boolean reversed) {
+        m_SortReversed=reversed;
+    }
+    public boolean isSortReversed() {
+        return m_SortReversed;
     }
     
     public static void loadStandardKeywords() {
@@ -227,15 +236,14 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
             m_FilesMap.put( path, this);
         }
     }
-    
-    public boolean loadCover() {
+    public boolean loadCover(ConnectivityManager.WakeLock lock) {
         try {
             if (getCover() != null) {
                 if (getCover().startsWith("http")) {
                     String name;
                     if (m_BookId != null) {
                         if (matchSubject("Fictionwise")) {
-                            if (pathname != null) {
+                            if (pathname != null && !pathname.trim().equals("")) {
                                 name = (new File(pathname)).getName();
                                 int idx = name.lastIndexOf('.');
                                 if (idx == -1) {
@@ -257,7 +265,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                             name = Smashwords.getBaseDir() + name + ".jpg";
                         }
                     } else {
-                        if (pathname != null) {
+                        if (pathname != null && !pathname.trim().equals("")) {
                             name = (new File(pathname)).getName();
                             int idx = name.lastIndexOf('.');
                             name = name.substring(0, idx);
@@ -274,7 +282,10 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                             setCover(name);
                             return true;
                         }
-                        URL aURL = new URL(getCover());
+                        if( lock != null && !lock.isHeld()) {
+                            boolean ret =m_NookLibrary.waitForNetwork(lock);
+                            if( !ret) return false;
+                        }
                         DefaultHttpClient httpClient = new DefaultHttpClient();
                         HttpGet request = new HttpGet(getCover());
                         HttpResponse response = httpClient.execute(request);
@@ -290,6 +301,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                         setCover(name);
                         return true;
                     } catch (Exception ex) {
+                        Log.e("loadCover", ex.getMessage(), ex);
                         File tmp = new File(name);
                         tmp.delete();
                         ex.printStackTrace();
@@ -338,8 +350,13 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                     attempt++;
                 }
             }
-            if (!"epub".equals(type) || !epub.loadCover()) { return false; }
+            if( "epub".equals(type)) {
+                if( epub == null)
+                    epub = new EpubMetaReader(this);
+                return epub.loadCover();
+            }
         } catch (Exception ex) {
+            Log.e("loadCover", ex.getMessage(), ex);
             return false;
         }
         return true;
@@ -399,7 +416,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public ScannedFile(String pathName, boolean update, boolean dummy) {
         pathname = pathName;
         m_Dummy =dummy;
-        if (pathname != null) {
+        if (pathname != null && !pathname.trim().equals("")) {
             int idx = pathname.lastIndexOf('.');
             if( idx == -1) 
                 type="";
@@ -511,27 +528,31 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public int compareTo(ScannedFile file1) {
+        int ret=0;
         try {
             switch (m_SortType) {
                 case SORT_BY_NAME:
-                    return getTitle().compareToIgnoreCase(file1.getTitle());
+                    ret=getTitle().compareToIgnoreCase(file1.getTitle());
+                    break;
                 case SORT_BY_AUTHOR:
                     int authsort = getAuthor().compareToIgnoreCase(file1.getAuthor());
                     if (authsort == 0) {
-                        return getTitle().compareToIgnoreCase(file1.getTitle());
+                        ret=getTitle().compareToIgnoreCase(file1.getTitle());
                     } else {
-                        return authsort;
+                        ret=authsort;
                     }
+                    break;
                 case SORT_BY_AUTHOR_LAST:
                     authsort = getAuthorLast().compareToIgnoreCase(file1.getAuthorLast());
                     if (authsort == 0) {
                         authsort = getAuthor().compareToIgnoreCase(file1.getAuthor());
                     }
                     if (authsort == 0) {
-                        return getTitle().compareToIgnoreCase(file1.getTitle());
+                        ret=getTitle().compareToIgnoreCase(file1.getTitle());
                     } else {
-                        return authsort;
+                        ret=authsort;
                     }
+                    break;
                 case SORT_BY_LATEST:
                     if (getLastAccessedDate() == null) {
                         if (file1.getLastAccessedDate() != null) {
@@ -540,20 +561,19 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                             return getTitle().compareToIgnoreCase(file1.getTitle());
                         }
                     } else {
-                        int ret = getLastAccessedDate().compareTo(file1.getLastAccessedDate());
+                        ret = getLastAccessedDate().compareTo(file1.getLastAccessedDate());
                         if (ret == 0) {
-                            return getTitle().compareToIgnoreCase(file1.getTitle());
+                            ret=getTitle().compareToIgnoreCase(file1.getTitle());
                         } else {
-                            return -ret;
+                            ret=-ret;
                         }
                     }
             }
         } catch (Exception ex) {
-            return getTitle().compareToIgnoreCase(file1.getTitle());
+            ret=getTitle().compareToIgnoreCase(file1.getTitle());
         }
-        if (file1.pathname != null) { return file1.pathname.compareTo(pathname); }
-        
-        return -1;
+        if( m_SortReversed) ret=-ret;
+        return ret;
     }
     
     public List<Contributors> getContributors() {
@@ -664,8 +684,19 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (m_Keywords.contains(keyword)) { return; }
         m_Keywords.add(keyword);
         // if (!m_KeyWordsList.contains(keyword)) {
-        m_KeyWordsDupList.add(keyword);
+        if( !BNBooks.ARCHIVED.equals(getStatus())) {
+            m_KeyWordsDupList.add(keyword);
+        }
         // }
+    }
+    public void updateKeywords() {
+        m_KeyWordsDupList.addAll(m_Keywords);
+        for(Contributors c:contributors) {
+            String tmp = c.toString().trim();
+            if (!m_AuthorsList.contains(tmp)) {
+                m_AuthorsList.add(tmp);
+            }
+        }
     }
     
     public void removeKeywords() {
@@ -763,7 +794,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (!contributors.contains(c)) {
             contributors.add(c);
             String tmp = c.toString().trim();
-            if (!m_AuthorsList.contains(tmp)) {
+            if (!BNBooks.ARCHIVED.equals(getStatus()) && !m_AuthorsList.contains(tmp)) {
                 m_AuthorsList.add(tmp);
             }
         }

@@ -56,9 +56,9 @@ import com.nookdevs.common.nookBaseActivity;
 public class FictionwiseBooks extends SQLiteOpenHelper {
     
     public static final String AUTH_URL =
-        "https://www.fictionwise.com/servlet/mw?action=login&si=0&continue=&mobile=mobile.fictionwise.com";
-    public static final String BOOKSHELF_URL = "http://www.fictionwise.com/servlet/mw?a=mv&t=m_bookshelf&si=0";
-    public static final String DOWNLOAD_URL = "http://www.fictionwise.com/servlet/mw?action=download";
+        "https://store.fictionwise.com/servlet/mw?action=login&si=0&continue=&mobile=mobile.fictionwise.com";
+    public static final String BOOKSHELF_URL = "http://store.fictionwise.com/servlet/mw?a=mv&t=m_bookshelf&si=0";
+    public static final String DOWNLOAD_URL = "http://store.fictionwise.com/servlet/mw?action=download";
     public static final String BOOKS_DB = "fictionwise.db";
     public static final String CREATE_BOOKS_TABLE =
         " create table books ( id integer primary key autoincrement, ean text, titles text not null, "
@@ -354,7 +354,9 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     }
     
     public boolean deleteBook(ScannedFile file) {
-        archiveBook(file, true);
+        if( m_ArchivedFiles.contains(file)) {
+            m_ArchivedFiles.remove(file);
+        }
         if (file.getCover() != null) {
             try {
                 File f = new File(file.getCover());
@@ -369,13 +371,16 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     public boolean archiveBook(ScannedFile file, boolean val) {
         if (!archiveInServer(file)) { return false; }
         if (val) {
-            file.setStatus(BNBooks.ARCHIVED);
-            m_ArchivedFiles.add(file);
+            if( file.getStatus() == null || !file.getStatus().equals(BNBooks.ARCHIVED)){
+                file.setStatus(BNBooks.ARCHIVED);
+                m_ArchivedFiles.add(file);
+            }
             File f = new File(file.getPathName());
             f.delete();
             f = new File( m_BaseDir +"/" +  "." + file.getBookID() + ".archive");
             try {
-                f.createNewFile();
+                if( !f.exists())
+                    f.createNewFile();
             }catch(Exception ex) {
                 Log.e("Error Archiving:", ex.getMessage(), ex);
             }
@@ -429,6 +434,15 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
                 }
                 m_BookIdMap.put(bookId, sf);
                 sf.setBookID(bookId);
+                File f = new File( m_BaseDir + "." + sf.getBookID() + ".archive");
+                if( f.exists()) {
+                    sf.setStatus(BNBooks.ARCHIVED);
+                }
+                if (BNBooks.ARCHIVED.equals(sf.getStatus())) {
+                    m_ArchivedFiles.add(sf);
+                } else {
+                    m_Files.add(sf);
+                }
                 sf.setDownloadUrl(cursor.getString(13));
                 sf.setStatus(cursor.getString(14));
                 sf.setEan(cursor.getString(1));
@@ -463,15 +477,6 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
                 }
                 sf.setSeries(cursor.getString(11));
                 sf.setBookInDB(true);
-                File f = new File( m_BaseDir + "." + sf.getBookID() + ".archive");
-                if( f.exists()) {
-                    sf.setStatus(BNBooks.ARCHIVED);
-                }
-                if (BNBooks.ARCHIVED.equals(sf.getStatus())) {
-                    m_ArchivedFiles.add(sf);
-                } else {
-                    m_Files.add(sf);
-                }
                 cursor.moveToNext();
             }
             cursor.close();

@@ -15,6 +15,8 @@
 package com.nookdevs.library;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.TypedArray;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -103,6 +106,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     private Toast m_Toast = null;
     private boolean m_ArchiveView = false;
     public static final String PREF_FILE = "NookLibrary";
+    public static final int SORT_REVERSE_ORDER=4;
+    private boolean m_Reversed=false;
+  
     private int[] icons =
         {
             -1, R.drawable.submenu_image, R.drawable.search_image, R.drawable.covers_image, R.drawable.submenu_image,
@@ -240,7 +246,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             public void onClick(View arg0) {    
                 ScannedFile file = pageViewHelper.getCurrent();
                 boolean success=false;
-                if (file.getStatus() == null || !file.getStatus().equals(BNBooks.ARCHIVED)) {
+                if (file.getStatus() == null || !(file.getStatus().equals(BNBooks.ARCHIVED) ||
+                    file.getStatus().equals(BNBooks.ARCHIVED + " " + BNBooks.SAMPLE))) {
                     // archive book
                     if (file.matchSubject(getString(R.string.fictionwise))) {
                         success = m_FictionwiseBooks.archiveBook(file, true);
@@ -451,12 +458,14 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         int sortType = ScannedFile.SORT_BY_NAME;
         try {
             sortType = getSharedPreferences(PREF_FILE, MODE_PRIVATE).getInt("SORT_BY", sortType);
+            m_Reversed = getSharedPreferences(PREF_FILE, MODE_PRIVATE).getBoolean("SORT_ORDER", false);
             m_View = getSharedPreferences(PREF_FILE, MODE_PRIVATE).getInt("VIEW_BY", m_View);
         } catch (Exception ex) {
             Log.e(LOGTAG, "preference exception: ", ex);
             
         }
         ScannedFile.setSortType(sortType);
+        ScannedFile.setSortReversed(m_Reversed);
         super.readSettings();
     }
     
@@ -494,12 +503,13 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     
     private void updatePageView(final boolean last) {
         List<String> tmpList = null;
+        List<String> authList =null;
         if (last) {
             Collections.sort(m_Files);
             tmpList = ScannedFile.getAvailableKeywords();
             m_ShowIndex = 0;
             m_AuthorIndex = 0;
-            List<String> authList = ScannedFile.getAuthors();
+            authList = ScannedFile.getAuthors();
             Comparator<String> c = new Comparator<String>() {
                 public int compare(String object1, String object2) {
                     if (object1 != null) {
@@ -526,6 +536,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         }
         if (last) {
             m_ShowValues.addAll(tmpList);
+            m_AuthorValues.addAll(authList);
         }
         m_ShowAdapter = new ArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem2, m_ShowValues);
         m_AuthorAdapter = new ArrayAdapter<String>(lview.getContext(), R.layout.listitem2, m_AuthorValues);
@@ -742,17 +753,24 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
         }, 400);
     }
-    
     private void loadCovers() {
+        loadCovers(false);
+    }
+    private void loadCovers(boolean archive) {
         List<ScannedFile> list = m_Files;
         try {
             for (ScannedFile file : list) {
-                file.loadCover();
+                if( file == null) continue;
+                file.loadCover(m_Lock);
+                if( archive) {
+                    file.updateKeywords();
+                }
             }
         } catch(Exception ex) {
             Log.e(LOGTAG, "Exception while loading cover -" + ex.getMessage(), ex);
         }
-        m_Lock.release();
+        if( m_Lock.isHeld()) 
+            m_Lock.release();
         try {
             for (ScannedFile file : list) {
                 if (!file.getBookInDB() && "pdf".equals(file.getType())) {
@@ -848,13 +866,23 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             if (m_SubMenuType == SORT_BY) {
                 int currvalue = ScannedFile.getSortType();
                 subicons[currvalue] = -1;
+                subicons[SORT_REVERSE_ORDER] = -1;
                 if (currvalue != position) {
-                    m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(position).toString());
+                    if( position == SORT_REVERSE_ORDER) {
+                        m_Reversed = !m_Reversed;
+                        Editor e = getSharedPreferences(PREF_FILE, MODE_PRIVATE).edit();
+                        e.putBoolean("SORT_ORDER", m_Reversed);
+                        e.commit();
+                        ScannedFile.setSortReversed(m_Reversed);
+                        position = ScannedFile.getSortType();
+                    } else {
+                        m_ListAdapter.setSubText(SORT_BY, m_SortMenuValues.get(position).toString());
+                        Editor e = getSharedPreferences(PREF_FILE, MODE_PRIVATE).edit();
+                        e.putInt("SORT_BY", position);
+                        e.commit();
+                    }
                     SortTask task = new SortTask();
                     task.execute(position);
-                    Editor e = getSharedPreferences(PREF_FILE, MODE_PRIVATE).edit();
-                    e.putInt("SORT_BY", position);
-                    e.commit();
                 }
             } else if (m_SubMenuType == SHOW) {
                 if (m_ShowIndex != position) {
@@ -960,6 +988,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 } 
                 int currvalue = ScannedFile.getSortType();
                 subicons[currvalue] = R.drawable.check_image;
+                subicons[SORT_REVERSE_ORDER] = m_Reversed?R.drawable.check:-1;
                 m_SortAdapter.setIcons(subicons);
                 submenu.setAdapter(m_SortAdapter);
                 animator.setInAnimation(this, R.anim.fromright);
@@ -988,6 +1017,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 break;
             case VIEW_BY:
                 if (m_ScanInProgress) { return; }
+                if( m_ArchiveView) { return; }
                 viewicons[m_View] = R.drawable.check_image;
                 submenu.setAdapter(m_ViewAdapter);
                 animator.setInAnimation(this, R.anim.fromright);
@@ -1007,6 +1037,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     m_ListAdapter.setSubText(SHOW_ARCHIVED, getString(R.string.off));
                     break;
                 }
+                m_ScanInProgress=true;
                 m_ListAdapter.setSubText(SHOW_ARCHIVED, getString(R.string.on));
                 m_ArchiveView = true;
                 pageViewHelper.setTitle(R.string.archived_books);
@@ -1023,6 +1054,29 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 m_ListAdapter.setSubText(SEARCH, " ");
                 SortTask task = new SortTask();
                 task.execute(ScannedFile.getSortType());
+                ScannedFile.loadStandardKeywords();
+                loadCovers(true);
+                break;
+            case HELP:
+                try {
+                    Intent intent = new Intent("com.bravo.intent.action.VIEW");
+                    File f = new File("/data/data/com.nookdevs.library/files/MyBooks"+m_Version+".epub");
+                    if( !f.exists()) {
+                        InputStream is = getAssets().open("MyBooks.epub");
+                        OutputStream fout =openFileOutput(f.getName(), MODE_WORLD_READABLE);
+                        byte[] buf = new byte[1024];
+                        int len=0;
+                        while( (len=is.read(buf)) > 0) {
+                            fout.write(buf, 0, len);
+                        }
+                        fout.close();
+                        is.close();
+                    }
+                    intent.setDataAndType(Uri.fromFile(f), "application/epub");
+                    startActivity(intent);
+                } catch(Exception ex) {
+                    Log.e(LOGTAG, "Help:" + ex.getMessage(), ex);
+                }
                 break;
             case CLOSE:
                 goHome();
@@ -1469,9 +1523,11 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     }
                 }
                 List<ScannedFile> list = pageViewHelper.getFiles();
-                Collections.sort(list);
+                if( list != null)
+                    Collections.sort(list);
                 if (m_SearchView || m_ShowIndex != 0 || m_AuthorIndex != 0) {
-                    Collections.sort(m_Files);
+                    if( m_Files != null)
+                        Collections.sort(m_Files);
                 }
                 return list;
             } catch (Exception ex) {

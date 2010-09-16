@@ -58,6 +58,7 @@
 		<item>Author First Name</item>
 		<item>Author Last Name</item>
 		<item>Most recent</item>
+		<item>Reverse Order</item>
 	</string-array>
 	<string-array name="refreshmenu">
 		<item>Local Books</item>
