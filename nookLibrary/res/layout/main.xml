@@ -42,13 +42,13 @@
 		android:id="@+id/icongallery" android:layout_below="@id/pageview"
 		android:layout_width="480px" android:layout_height="144px"
 		android:spacing="16.0px" android:fadingEdge="none" android:gravity="center_vertical"
-		android:background="#808080"/>
-	<TextView
-		android:id="@+id/gallery_title" android:layout_height="40.0px" android:layout_width="480.0px"
-		android:gravity="center" android:background="#99000000" android:textColor="#FFFFFF"
-		android:singleLine="true" android:layout_below="@id/pageview" android:layout_marginTop="104.0px"
-		>
-	</TextView>	
+		android:background="#808080" />
+	<TextView android:id="@+id/gallery_title"
+		android:layout_height="40.0px" android:layout_width="480.0px"
+		android:gravity="center" android:background="#99000000"
+		android:textColor="#FFFFFF" android:singleLine="true"
+		android:layout_below="@id/pageview" android:layout_marginTop="104.0px">
+	</TextView>
 	<Button android:id="@+id/closeButton" android:layout_below="@id/pageview"
 		android:layout_width="40.0px" android:layout_height="40.0px"
 		android:background="@drawable/close_button" />
