@@ -51,7 +51,7 @@ public class BNBooks {
     public static final String SYNC_COMPLETE = "com.bravo.intent.action.SYNC_COMPLETE";
     public static final String DOWNLOAD_COMPLETE = "com.bravo.intent.action.DOWNLOAD_COMPLETE";
     public static final String DOWNLOAD_ACTION = "com.bravo.intent.action.DOWNLOAD";
-    public static final String STATUS_ACTION = "com.nookdevs.nookSync.SyncService";
+    public static final String STATUS_ACTION = "com.nookdevs.nooksync.SyncService";
     public static final String DOWNLOAD_PROGRESS = "com.bravo.intent.action.DOWNLOAD_PROGRESS";
     public static final String APP_DB = "/data/data/com.bravo.home/theDB.db";
     public static final String PRODUCT_TABLE = "bn_client_products";

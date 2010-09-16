@@ -67,5 +67,6 @@
 	<string name="not_allowed_error">This is only allowed in Books mode.</string>
 	<string name="cover_flow_error">This is not allowed in TAGS mode.</string>
 	<string name="not_valid_error">Operation is not valid for the file type.</string>
-	<string name="archive_error">Operation Failed. Please install nookSync app to archive/delete B&amp;N books.</string>
+	<string name="archive_error">Operation Failed. Please install nookSync app to
+		archive/delete B&amp;N books.</string>
 </resources>
