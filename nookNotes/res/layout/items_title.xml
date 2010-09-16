@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/items_title"
-          android:layout_width="fill_parent" android:layout_height="40px"
-          android:layout_marginLeft="30px" android:layout_marginTop="10px"
-          android:textSize="30sp" android:textStyle="bold" android:textColor="#000000">
-</TextView>

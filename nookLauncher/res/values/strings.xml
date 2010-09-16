@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<string name="app_name">nookLauncher</string>
-	<string name="settings">Settings</string>
-	<string name="bn_home">B&amp;N\nHome</string>
-	<string name="please_wait">Please Wait...</string>
-	<string name="folder">App Folder</string>
-</resources>
