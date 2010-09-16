@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -49,10 +50,9 @@ public class BNBooks {
     public static final String SYNC_COMPLETE = "com.bravo.intent.action.SYNC_COMPLETE";
     public static final String DOWNLOAD_COMPLETE = "com.bravo.intent.action.DOWNLOAD_COMPLETE";
     public static final String DOWNLOAD_ACTION = "com.bravo.intent.action.DOWNLOAD";
-    public static final String STATUS_ACTION = "com.nookdevs.intent.action.UPDATE_STATUS";
+    public static final String STATUS_ACTION = "com.nookdevs.nookSync.SyncService";
     public static final String DOWNLOAD_PROGRESS = "com.bravo.intent.action.DOWNLOAD_PROGRESS";
     public static final String APP_DB = "/data/data/com.bravo.home/theDB.db";
-    public static final String LOCAL_BOOKS_TABLE = "appInfo_table";
     public static final String PRODUCT_TABLE = "bn_client_products";
     public static final String PRODUCT_STATE_TABLE = "bn_client_product_states";
     public static final String LOCAL_PRODUCT_STATE_TABLE = "bn_client_local_product_state";
@@ -67,7 +67,7 @@ public class BNBooks {
     public static final String AUTH_URL = "https://cart2.barnesandnoble.com/services/service.asp";
     public static final long TIMEOUT = 300000;
     private List<ScannedFile> m_Books = null;
-    private List<ScannedFile> m_ArchivedBooks = null;
+    private List<ScannedFile> m_ArchivedBooks = new ArrayList<ScannedFile>(10);
     private ScannedFile m_DownloadBook = null;
     private ConditionVariable m_SyncDone = new ConditionVariable();
     private ConditionVariable m_DownloadDone = new ConditionVariable();
@@ -83,6 +83,7 @@ public class BNBooks {
     private TimerTask m_TimerTask;
     protected ConnectivityManager cmgr;
     protected ConnectivityManager.WakeLock lock;
+    private static boolean m_DeviceRegistered=false;
     private BroadcastReceiver m_DownloadReceiver = new BroadcastReceiver() {
         
         @Override
@@ -152,13 +153,13 @@ public class BNBooks {
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
         // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
         // SQLiteDatabase.OPEN_READONLY);
-        if (refresh && !m_Auth) {
+        if ((refresh || !m_DeviceRegistered)&& !m_Auth) {
             if (!authenticate()) {
+                System.out.println("Not authenticated...");
                 refresh = false;
-            }
+            } 
         }
         if (refresh) {
-            m_Auth = true;
             m_SyncDone.close();
             m_Sync = true;
             registerSyncReceiver();
@@ -172,7 +173,11 @@ public class BNBooks {
             sync();
             m_SyncDone.block();
         } else {
-            loadBooksData();
+            if( m_DeviceRegistered) {
+                loadBooksData();
+            } else {
+                System.out.println("Device not registered!!");
+            }
         }
         // m_FilesDb.close();
         m_Db.close();
@@ -188,6 +193,7 @@ public class BNBooks {
             }
             return null;
         }
+        if( !m_DeviceRegistered) return null;
         m_DownloadEan = file.getEan();
         m_DownloadBook = file;
         m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
@@ -260,11 +266,21 @@ public class BNBooks {
             };
             Cursor cursor = db.query(DEVICE_TABLE, columns, null, null, null, null, null);
             cursor.moveToFirst();
-            if (cursor.isAfterLast()) { return false; }
+            if (cursor.isAfterLast()) { 
+                m_DeviceRegistered=false;
+                db.close();
+                return false; 
+            }
             user = cursor.getString(1);
             devId = cursor.getString(0);
             pass = cursor.getString(2);
             cursor.close();
+            if( pass == null || pass.trim().equals("")) {
+                m_DeviceRegistered=false;
+                db.close();
+                return false;
+            }
+            m_DeviceRegistered=true;
             url += "emailAddress=" + user + "&";
             url += "acctPassword" + pass;
             url += "&devId=" + devId;
@@ -279,6 +295,7 @@ public class BNBooks {
                 System.out.print(new String(buffer));
             }
             db.close();
+            m_Auth=true;
             return true;
         } catch (Exception ex) {
             Log.w("Exception during authenticate", ex);
@@ -291,10 +308,11 @@ public class BNBooks {
             if( archive)
                 intent.putExtra("status", "ARCHIVED");
             else
-                intent.putExtra("status","DOWNLOAD");
+                intent.putExtra("status","MAIN");
             intent.putExtra("ean", ean);
             ComponentName ret = m_Context.startService(intent);
             if( ret == null) {
+                Log.e("BNBooks", "unable to load nookSync");
                 return false;
             }
         } catch(Exception ex) {
@@ -311,7 +329,11 @@ public class BNBooks {
             deleteBook( file.getPathName());
         } else {
             m_ArchivedBooks.remove(file);
-            file.setStatus(BNBooks.DOWNLOAD);
+            if( file.getStatus() != null && file.getStatus().endsWith(SAMPLE))
+                file.setStatus(DOWNLOAD + " " + SAMPLE);
+            else
+                file.setStatus(DOWNLOAD);
+            file.setPathName(null);
         }
         return true;
     }
@@ -325,19 +347,25 @@ public class BNBooks {
             if( ret ==null)
                 return false;
         } catch(Exception ex) {
-            Log.e("BNBooks", "delete book :" + ex.getMessage(), ex);
+            Log.e("BNBooks", "delete book in server :" + ex.getMessage(), ex);
             return false;
         }
         return true;
     }
     private boolean deleteBook(String path) {
+        if( path == null || path.trim().equals(""))
+            return true;
         File f = new File(path);
+        if( !f.exists()) 
+            return true;
         return f.delete();
     }
     public boolean deleteBook(ScannedFile file) {
         boolean ret= deleteBookInServer(file.getEan()) && deleteBook(file.getPathName());
         if( ret) {
-            m_ArchivedBooks.remove(file);
+            if(m_ArchivedBooks.contains(file))
+                m_ArchivedBooks.remove(file);
+            file.setStatus("DELETED");
         }
         return ret;
     }
@@ -379,6 +407,12 @@ public class BNBooks {
                         m_Books.remove(file);
                     }
                     if (ARCHIVED.equals(lockerStatus)) {
+                        if( file == null) {
+                            file = new ScannedFile();
+                            file.setEan(ean1);
+                            file.setStatus(ARCHIVED);
+                            addToList=false;
+                        }
                         m_ArchivedBooks.add(file);
                         archived = true;
                     } else {
@@ -388,9 +422,8 @@ public class BNBooks {
                 }
                 if (file == null) { // not downloaded yet
                     file = new ScannedFile();
-                    if (!archived) {
-                        addToList = true;
-                    }
+                    file.setEan(ean1);
+                    addToList = true;
                 }
                 String titles = cursor.getString(2);
                 JSONArray array = new JSONArray(titles);
@@ -514,7 +547,7 @@ public class BNBooks {
     private void loadLocalBooks() {
         try {
             m_Books = new ArrayList<ScannedFile>(50);
-            m_ArchivedBooks = new ArrayList<ScannedFile>(10);
+            m_ArchivedBooks.clear();
             String[] columns = {
                 "local_product_ean", "downloaded_path"
             };
