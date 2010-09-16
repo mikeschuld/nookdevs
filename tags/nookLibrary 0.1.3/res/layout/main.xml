@@ -1,0 +1,98 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="600.0px" android:layout_height="904.0px"
+	android:orientation="vertical" android:background="#808080">
+
+	<ViewAnimator android:id="@+id/pageview"
+		android:layout_width="600.0px" android:layout_height="760.0px"
+		android:background="#FFFFFF">
+		<LinearLayout android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:orientation="vertical"
+			android:id="@+id/pageview1">
+		</LinearLayout>
+		<TextView android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:textColor="#000000"
+			android:textSize="22.0px" android:padding="10.0px" android:id="@+id/pageview2">
+		</TextView>
+	</ViewAnimator>
+
+	<Button android:id="@+id/back" android:layout_width="35.0px"
+		android:layout_height="144.0px" android:soundEffectsEnabled="true"
+		android:layout_below="@id/pageview" android:background="@drawable/back_button">
+	</Button>
+	<ImageButton android:id="@+id/cover" android:layout_width="80.0px"
+		android:layout_height="144.0px" android:layout_below="@id/pageview"
+		android:layout_toRightOf="@id/back" android:scaleType="centerInside"
+		android:background="@drawable/cover_button" />
+	<ScrollView android:layout_width="wrap_content"
+		android:layout_height="fill_parent" android:id="@+id/detailsscroll"
+		android:layout_below="@id/pageview" android:layout_toRightOf="@id/cover"
+		android:background="#FFFFFF" android:scrollbars="none">
+		<RelativeLayout android:layout_height="fill_parent"
+			android:layout_width="365.0px">
+			<TextView android:id="@+id/details" android:layout_width="330.0px"
+				android:layout_height="fill_parent" android:textColor="#000000"
+				android:background="#FFFFFF" android:padding="5.0px" />
+			<Button android:id="@+id/archive" android:layout_width="35.0px"
+				android:layout_height="35.0px" android:soundEffectsEnabled="true"
+				android:layout_toRightOf="@id/details" android:background="@drawable/archive_button">
+			</Button>
+		</RelativeLayout>
+	</ScrollView>
+	<com.nookdevs.common.CustomGallery
+		android:id="@+id/icongallery" android:layout_below="@id/pageview"
+		android:layout_width="480px" android:layout_height="144px"
+		android:spacing="16.0px" android:fadingEdge="none" android:gravity="center_vertical"
+		android:background="#808080"/>
+	<TextView
+		android:id="@+id/gallery_title" android:layout_height="40.0px" android:layout_width="480.0px"
+		android:gravity="center" android:background="#99000000" android:textColor="#FFFFFF"
+		android:singleLine="true" android:layout_below="@id/pageview" android:layout_marginTop="104.0px"
+		>
+	</TextView>	
+	<Button android:id="@+id/closeButton" android:layout_below="@id/pageview"
+		android:layout_width="40.0px" android:layout_height="40.0px"
+		android:background="@drawable/close_button" />
+
+	<ViewAnimator android:id="@+id/listviewanim"
+		android:layout_width="334.0px" android:layout_height="144.0px"
+		android:layout_toRightOf="@id/back" android:inAnimation="@anim/fromright"
+		android:layout_below="@id/pageview">
+
+		<ListView android:id="@+id/list" android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:divider="#808080"
+			android:dividerHeight="1.0px" android:choiceMode="singleChoice"
+			android:scrollbars="vertical" android:scrollbarStyle="insideOverlay"
+			android:scrollbarSize="20.0px" android:minHeight="250.0px"
+			android:fadingEdge="none" android:background="#C8C8C8"
+			android:listSelector="@android:color/transparent">
+		</ListView>
+
+		<ListView android:id="@+id/sublist" android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:divider="#808080"
+			android:dividerHeight="1.0px" android:choiceMode="singleChoice"
+			android:scrollbars="vertical" android:scrollbarStyle="insideOverlay"
+			android:scrollbarSize="20.0px" android:minHeight="250.0px"
+			android:fadingEdge="none" android:background="#C8C8C8"
+			android:listSelector="@android:color/transparent">
+		</ListView>
+	</ViewAnimator>
+	<Button android:id="@+id/up" android:layout_marginLeft="1.0px"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:soundEffectsEnabled="true" android:layout_below="@id/pageview"
+		android:layout_toRightOf="@id/listviewanim" android:background="@drawable/up_button">
+	</Button>
+	<Button android:id="@+id/down" android:layout_marginLeft="1.0px"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:soundEffectsEnabled="true" android:layout_below="@id/up"
+		android:layout_toRightOf="@id/listviewanim" android:background="@drawable/down_button">
+	</Button>
+	<ImageButton android:id="@+id/go"
+		android:layout_marginLeft="1.0px" android:layout_width="wrap_content"
+		android:layout_height="144.0px" android:scaleType="center"
+		android:soundEffectsEnabled="true" android:layout_below="@id/pageview"
+		android:layout_toRightOf="@id/up" android:src="@drawable/go_button"
+		android:background="@android:color/transparent">
+	</ImageButton>
+
+
+</RelativeLayout>
