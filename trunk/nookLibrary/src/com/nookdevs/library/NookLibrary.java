@@ -1123,11 +1123,13 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             m_CloseBtn.setVisibility(View.INVISIBLE);
             m_GalleryTitle.setVisibility(View.INVISIBLE);
             m_IconGallery.setVisibility(View.INVISIBLE);
-            lview.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.VISIBLE);
-            upButton.setVisibility(View.VISIBLE);
-            downButton.setVisibility(View.VISIBLE);
-            goButton.setVisibility(View.VISIBLE);
+            if( m_SubMenuType != VIEW_DETAILS) {
+                lview.setVisibility(View.VISIBLE);
+                upButton.setVisibility(View.VISIBLE);
+                downButton.setVisibility(View.VISIBLE);
+                goButton.setVisibility(View.VISIBLE);
+            }
         }
         if (button.equals(backButton)) {
             if (m_SubMenuType == VIEW_DETAILS) {
@@ -1198,7 +1200,10 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         } else if (button.equals(downButton)) {
             pageViewHelper.selectNext();
         } else if (button.equals(goButton) || button.equals(m_CoverBtn)) {
-            if (m_ArchiveView) { return; }
+            if (m_ArchiveView) { 
+                onItemClick(lview, null,VIEW_DETAILS,-1);
+                return; 
+            }
             final ScannedFile file = pageViewHelper.getCurrent();
             String path = file.getPathName();
             if( m_View == PageViewHelper.FOLDERS) {
@@ -1554,7 +1559,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             if (arg1.equals(selected)) {
                 onClick(goButton);
                 onClick(m_CloseBtn);
-                NookLibrary.this.onItemClick(lview, null, SHOW_COVERS, -1); 
+                if( !m_ArchiveView)
+                    NookLibrary.this.onItemClick(lview, null, SHOW_COVERS, -1); 
             }
         }
         

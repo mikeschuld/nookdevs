@@ -185,7 +185,14 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     private String m_Status;
     private String m_DownloadUrl;
     private String m_BookId;
+    private boolean m_Sample=false;
     
+    public void setSample(boolean sample) {
+        m_Sample=sample;
+    }
+    public boolean isSample() {
+        return m_Sample;
+    }
     public String getBookID() {
         return m_BookId;
     }
@@ -207,6 +214,12 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     }
     
     public String getStatus() {
+        if( m_Sample) {
+            if( m_Status == null || m_Status.trim().equals(""))
+                return BNBooks.SAMPLE;
+            else
+                return m_Status + " " + BNBooks.SAMPLE;
+        }
         return m_Status;
     }
     
@@ -663,6 +676,11 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         }
         if (m_Status != null && !BNBooks.ARCHIVED.equals(m_Status)) {
             title += "-" + m_Status;
+            if( m_Sample) {
+                title += " " + BNBooks.SAMPLE;
+            }
+        } else if( m_Sample) {
+            title += "-" + BNBooks.SAMPLE;
         }
         return title;
     }
@@ -684,7 +702,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (m_Keywords.contains(keyword)) { return; }
         m_Keywords.add(keyword);
         // if (!m_KeyWordsList.contains(keyword)) {
-        if( !BNBooks.ARCHIVED.equals(getStatus())) {
+        if( !BNBooks.ARCHIVED.equals(m_Status)) {
             m_KeyWordsDupList.add(keyword);
         }
         // }
@@ -794,7 +812,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         if (!contributors.contains(c)) {
             contributors.add(c);
             String tmp = c.toString().trim();
-            if (!BNBooks.ARCHIVED.equals(getStatus()) && !m_AuthorsList.contains(tmp)) {
+            if (!BNBooks.ARCHIVED.equals(m_Status) && !m_AuthorsList.contains(tmp)) {
                 m_AuthorsList.add(tmp);
             }
         }

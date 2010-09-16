@@ -37,6 +37,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
+import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.util.Log;
 import android.widget.Toast;
@@ -100,8 +101,23 @@ public class BNBooks {
                 path = arg1.getStringExtra(path);
             }
             if (path == null) {
-                m_DownloadBook.setStatus(DOWNLOAD);
-                Toast.makeText(m_Context, R.string.download_failed, Toast.LENGTH_LONG).show();
+                String ex = arg1.getStringExtra("exception");
+                if( ex != null && ex.contains("already downloaded")) {
+                    if( m_DownloadBook.getPathName() != null) {
+                        path = m_DownloadBook.getPathName();
+                        File f = new File(path);
+                        if( f.exists()) {
+                            m_DownloadBook.setStatus(null);
+                            Toast.makeText(m_Context, R.string.download_complete, Toast.LENGTH_SHORT).show();
+                        } else {
+                            m_DownloadBook.setStatus(DOWNLOAD);
+                            Toast.makeText(m_Context, R.string.download_failed, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                } else {
+                    m_DownloadBook.setStatus(DOWNLOAD);
+                    Toast.makeText(m_Context, R.string.download_failed, Toast.LENGTH_LONG).show();
+                }
             } else {
                 m_DownloadBook.setPathName(path);
                 m_DownloadBook.setStatus(null);
@@ -302,14 +318,16 @@ public class BNBooks {
             return false;
         }
     }
-    private boolean archiveBookInServer(String ean, boolean archive) {
+    private boolean archiveBookInServer(String ean, String path, boolean archive) {
         try {
             Intent intent = new Intent(STATUS_ACTION);
-            if( archive)
+            if( archive) {
                 intent.putExtra("status", "ARCHIVED");
+            }
             else
                 intent.putExtra("status","MAIN");
             intent.putExtra("ean", ean);
+            intent.putExtra("path", path);
             ComponentName ret = m_Context.startService(intent);
             if( ret == null) {
                 Log.e("BNBooks", "unable to load nookSync");
@@ -322,17 +340,15 @@ public class BNBooks {
         return true;
     }
     public boolean archiveBook(ScannedFile file, boolean val) {
-        boolean ret = archiveBookInServer(file.getEan(),val);
+        boolean ret = archiveBookInServer(file.getEan(),file.getPathName(),val);
         if( !ret) return ret;
         if (val) {
             m_ArchivedBooks.add(file);
-            deleteBook( file.getPathName());
+            file.setStatus(ARCHIVED);
+        //    deleteBook( file.getPathName());
         } else {
             m_ArchivedBooks.remove(file);
-            if( file.getStatus() != null && file.getStatus().endsWith(SAMPLE))
-                file.setStatus(DOWNLOAD + " " + SAMPLE);
-            else
-                file.setStatus(DOWNLOAD);
+            file.setStatus(DOWNLOAD);
             file.setPathName(null);
         }
         return true;
@@ -516,17 +532,18 @@ public class BNBooks {
                     file.setStatus(BORROWED);
                 } else if (file.getPathName() == null || file.getPathName().equals("")) {
                     file.setStatus(DOWNLOAD);
+                } else {
+                    File f= new File(file.getPathName());
+                    if( !f.exists()) {
+                        file.setStatus(DOWNLOAD);
+                    }
                 }
                 int sample = cursor.getInt(16);
                 if (sample == 1) {
-                    String tmp = file.getStatus();
-                    if (tmp == null) {
-                        tmp = SAMPLE;
-                    } else {
-                        tmp = tmp + " " + SAMPLE;
-                    }
-                    file.setStatus(tmp);
+                    file.setSample(true);
                     file.addKeywords("Sample");
+                } else {
+                    file.setSample(false);
                 }
                 file.addKeywords("B&N");
                 if (addToList) {
