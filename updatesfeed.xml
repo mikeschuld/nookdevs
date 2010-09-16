@@ -208,4 +208,13 @@ and copying it to your internal SD card. Download the samples separately from th
 Puzzles not included; you must download them from the internet.
 </content>
   </entry>
+  <entry>
+    <title>nookSync</title>
+    <link type="application/vnd.android.package-archive"
+          href="http://nookdevs.googlecode.com/files/nookSync.apk"/>
+    <version>1.0</version>
+    <pkg>com.nookdevs.nooksync</pkg>
+    <id>http://nookdevs.googlecode.com/files/nookSync.apk</id>
+    <content type="text">App used by nookLibrary to archive/delete BN books.</content>
+  </entry>
 </feed>
