@@ -1,4 +1,16 @@
 #labels Featured
+0.1.3 version-
+
+What's new?
+
+View by menu to change the display to Folders or Tags.
+
+Ability to archive and delete B&N books, including samples
+
+Improved cover flow
+
+bug fixes
+
 0.0.9 version - Supports B&N 1.3. This doesn't work in older versions. 
 
 Following changes are included in 0.0.8 version - updated on 04/05 with few more bug fixes.<br>
