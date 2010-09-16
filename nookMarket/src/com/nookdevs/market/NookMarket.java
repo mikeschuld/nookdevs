@@ -581,7 +581,8 @@ public class NookMarket extends nookBaseActivity {
                                                 icon.setImageURI(Uri.parse(m_NookletFolder+"/"+ orgPkg + "/icon.png"));
                                             else
                                                 icon.setImageResource(R.drawable.icon);
-                                        } else if( installedApps.get(app1.pkg).activities[0] != null)
+                                        } else if( installedApps.get(app1.pkg).activities != null && 
+                                            installedApps.get(app1.pkg).activities[0] != null)
                                             icon.setImageDrawable( installedApps.get(app1.pkg).activities[0].loadIcon(getPackageManager()));
                                         else
                                             icon.setImageDrawable( installedApps.get(app1.pkg).applicationInfo.loadIcon(getPackageManager()));
