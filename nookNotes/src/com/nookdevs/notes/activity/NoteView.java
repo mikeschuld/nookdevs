@@ -446,8 +446,7 @@ public class NoteView
                     break;
                 case 1:  // "Add above selection"
                     startActivityForResult(
-                        new Intent(Intent.ACTION_INSERT,
-                                   singleItemUri(mNoteId, Math.max(idx - 1, 0))),
+                        new Intent(Intent.ACTION_INSERT, singleItemUri(mNoteId, Math.max(idx, 0))),
                         REQUEST_ADD_ITEM);
                     break;
                 case 2:  // "Add below selection"
