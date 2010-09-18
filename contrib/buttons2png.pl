@@ -100,9 +100,9 @@ $::NOOKAPP_GOOGLEREADER = "$ENV{HOME}/git/nookapp-googlereader";
   32 => [ "nd_calculator",
           "$::NOOKDEVS/nookCalculator/res/drawable/icon.png", "$::NOOKDEVS/nookCalculator/res/drawable/icon_pressed.png" ],
   33 => [ "mz_googlereader",
-          "$::NOOKAPP_GOOGLEREADER/res/drawable/icon.png", "$::NOOKAPP_GOOGLEREADER/res/drawable/icon_pressed.png" ],
+          "$::NOOKAPP_GOOGLEREADER/res/drawable/icon.png", "$::NOOKAPP_GOOGLEREADER/res/drawable/icon_focus.png" ],
   34 => [ "nd_tasks",
-          "$::NOOKDEVS/nookTaskManager/res/drawable/icon.png", "$::NOOKDEVS/nookTaskManager/res/drawable/icon_pressed.png" ],
+          "$::NOOKDEVS/nookTaskManager/res/drawable/nd_taskmanager.png", "$::NOOKDEVS/nookTaskManager/res/drawable/nd_taskmanager_pressed.png" ],
   # 35
   # 36
   # 37
