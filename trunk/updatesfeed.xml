@@ -212,9 +212,9 @@ Puzzles not included; you must download them from the internet.
     <title>nookSync</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookSync.apk"/>
-    <version>1.0</version>
+    <version>1.1</version>
     <pkg>com.nookdevs.nooksync</pkg>
     <id>http://nookdevs.googlecode.com/files/nookSync.apk</id>
-    <content type="text">App used by nookLibrary to archive/delete BN books.</content>
+    <content type="text">App used by nookLibrary to archive/delete BN books. 1.0 version was not working in many cases and 1.1 fixes the problem.</content>
   </entry>
 </feed>
