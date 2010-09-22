@@ -94,6 +94,7 @@ public class ItemAdd extends BaseActivity implements View.OnKeyListener
         // set up views...
         vText = (EditText) findViewById(R.id.item_text_input);
         vText.requestFocus();
+        createAndRegisterInputStringReplacer(vText);
         vText.setOnKeyListener(this);
     }
 

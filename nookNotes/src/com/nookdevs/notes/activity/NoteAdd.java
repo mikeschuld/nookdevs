@@ -73,6 +73,7 @@ public class NoteAdd extends BaseActivity implements View.OnKeyListener
         // set up views...
         vTitle = (EditText) findViewById(R.id.note_title_input);
         vTitle.requestFocus();
+        createAndRegisterInputStringReplacer(vTitle);
         vTitle.setOnKeyListener(this);
     }
 

@@ -6,7 +6,6 @@ IMMEDIATE
 
 FEATURES
 
-- automatically replace arrows, long dash, some markup for umlauts? -> provide an option then to toggle this
 - make long-tapping left/right on the soft keyboard go the the next/previous word, up/down to top/bottom
 - add a transformation deleting all checked icons?
 

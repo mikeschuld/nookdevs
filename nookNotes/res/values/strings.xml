@@ -22,6 +22,7 @@
         <item>View note</item>
         <item>Delete note</item>
         <item>Sort by</item>
+        <item>Settings</item>
         <item>Help</item>
     </string-array>
     <string-array name="main_menu_sort_by">
@@ -33,6 +34,10 @@
         <item>Sort by last viewed</item>
         <item>Sort by last edited</item>
         <item>Sort by title</item>
+    </string-array>
+    <string-array name="main_settings_submenu">
+        <item>Replace umlauts on input</item>
+        <item>Replace symbols on input</item>
     </string-array>
     <string-array name="note_view_menu">
         <item>Add item</item>
@@ -167,6 +172,15 @@
         <item>
             In order to have a list of items sorted both alphabetically and by check marks, sort
             alphabetically first and by check marks second.
+        </item>
+        <item>
+            You can have __APPNAME__ replace certain sequences of characters on input; replacements
+            can be toggled in the “Settings” sub-menu of the main menu. “Replace umlauts on input”
+            will replace transliterations of German umlauts, i.e., “Ae” &#x2192; “Ä”, “ae” &#x2192;
+            “ä”, &#x2026;, “sz” &#x2192; “ß”.  “Replace symbols on input” will perform the
+            following replacements: “-&gt;” &#x2192; “&#x2192;”, “--” &#x2192; “&#x2015;”.  If a
+            replacement is unwanted in a given situation, press backspace once immediately after in
+            order to revert it.
         </item>
     </string-array>
 
