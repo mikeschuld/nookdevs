@@ -114,8 +114,8 @@
         </activity>
 
         <!-- activity for editing a note's title... -->
-        <activity android:name=".activity.NoteEditTitle"
-                  android:label="@string/activity_note_edit_title"
+        <activity android:name=".activity.NoteRename"
+                  android:label="@string/activity_note_rename"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <data android:mimeType="vnd.android.cursor.item/vnd.nookdevs.notes.note"/>

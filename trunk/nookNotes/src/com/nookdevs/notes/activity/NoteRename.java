@@ -49,7 +49,7 @@ import static com.nookdevs.notes.provider.NotesUris.noteIdOfUri;
  *
  * @author Marco Goetze
  */
-public class NoteEditTitle extends BaseActivity implements View.OnKeyListener
+public class NoteRename extends BaseActivity implements View.OnKeyListener
 {
     ///////////////////////////////////////// ATTRIBUTES //////////////////////////////////////////
 
@@ -70,7 +70,7 @@ public class NoteEditTitle extends BaseActivity implements View.OnKeyListener
     /** {@inheritDoc} */
     @NotNull @Override
     protected String getActivityTitle() {
-        return getString(R.string.activity_note_edit_title);
+        return getString(R.string.activity_note_rename);
     }
 
     /** {@inheritDoc} */

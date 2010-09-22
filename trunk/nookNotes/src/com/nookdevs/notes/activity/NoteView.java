@@ -430,7 +430,7 @@ public class NoteView
                     mvMenuAnimator.setInAnimation(NoteView.this, R.anim.from_right);
                     mvMenuAnimator.showNext();
                     break;
-                case 5:  // "Edit note title"
+                case 5:  // "Rename note"
                     startActivity(new Intent(Intent.ACTION_EDIT, singleNoteUri(mNoteId)));
                     break;
 
