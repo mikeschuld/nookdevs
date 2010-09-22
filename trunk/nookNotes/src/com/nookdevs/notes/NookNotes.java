@@ -274,6 +274,13 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
     protected void onResume() {
         super.onResume();
 
+        // if the main menu is not displaying, display it (this may be the case if the user
+        // viewed a note while a sub-menu was active)...
+        while (mvMenuAnimator.getDisplayedChild() > 0) {
+            mvMenuAnimator.setInAnimation(NookNotes.this, R.anim.none);
+            mvMenuAnimator.showPrevious();
+        }
+
         // requery data...
         if (mFirstRun) {
             mFirstRun = false;
