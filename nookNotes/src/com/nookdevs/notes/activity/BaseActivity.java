@@ -194,6 +194,31 @@ public abstract class BaseActivity extends Activity
      * {@link android.content.DialogInterface#dismiss()} unless that is done via the returned
      * dialog instance.
      *
+     * @param title       the title
+     * @param message     the message
+     * @param yesListener listener called when the user pressed "yes"
+     * @param noListener  listener called when the user pressed "no" (may be <code>null</code>)
+     * @return the dialog created
+     */
+    protected AlertDialog confirm(@NotNull String title,
+                                  @NotNull String message,
+                                  DialogInterface.OnClickListener yesListener,
+                                  DialogInterface.OnClickListener noListener)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton(android.R.string.yes, yesListener);
+        builder.setNegativeButton(android.R.string.no, noListener);
+        return builder.show();
+    }
+
+    /**
+     * Shows a yes/no confirmation dialog and performs actions in either case.  Note that the
+     * provided listeners should take care of closing the dialog via
+     * {@link android.content.DialogInterface#dismiss()} unless that is done via the returned
+     * dialog instance.
+     *
      * @param titleId     the title's string resource ID
      * @param messageId   the message's string resource ID
      * @param yesListener listener called when the user pressed "yes"
@@ -205,12 +230,7 @@ public abstract class BaseActivity extends Activity
                                   DialogInterface.OnClickListener yesListener,
                                   DialogInterface.OnClickListener noListener)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(titleId);
-        builder.setMessage(messageId);
-        builder.setPositiveButton(android.R.string.yes, yesListener);
-        builder.setNegativeButton(android.R.string.no, noListener);
-        return builder.show();
+        return confirm(getString(titleId), getString(messageId), yesListener, noListener);
     }
 
     /**
