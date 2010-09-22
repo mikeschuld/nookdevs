@@ -27,6 +27,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -84,6 +85,7 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         R.drawable.submenu_pressable,
         -1,
         R.drawable.submenu_pressable,
+        R.drawable.submenu_pressable,
         R.drawable.menu_icon_help_pressable
     };
 
@@ -120,6 +122,8 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
     @NotNull protected IconArrayAdapter<CharSequence> mMainMenuAdapter;
     /** Adapter for the sub-menu for changing the sort order. */
     @NotNull protected IconArrayAdapter<CharSequence> mSubMenuSortByAdapter;
+    /** Adapter for the settings sub-menu. */
+    @NotNull protected IconArrayAdapter<CharSequence> mSubMenuSettingsAdapter;
 
     /**
      * Flag set to <code>false</code> by {@link #onResume()}, indicating on subsequent runs that
@@ -208,7 +212,7 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
 
         // build sub-menus...
         mvMenuSub.setOnItemClickListener(this);
-        // adapter for a sub-menu for choosing where to add an item...
+        // adapter for the sub-menu for choosing the sort order...
         List<CharSequence> subMenuItems =
             Arrays.asList(getResources().getTextArray(R.array.main_sort_by_submenu));
         mSubMenuSortByAdapter =
@@ -217,6 +221,15 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
                 R.layout.menu_item_simple, subMenuItems, subMenuSortByIcons());
         mSubMenuSortByAdapter.setTextField(R.id.menu_item_text);
         mSubMenuSortByAdapter.setImageField(R.id.menu_item_image);
+        // adapter for the settings sub-menu...
+        subMenuItems =
+            Arrays.asList(getResources().getTextArray(R.array.main_settings_submenu));
+        mSubMenuSettingsAdapter =
+            new IconArrayAdapter<CharSequence>(
+                mvMenuSub.getContext(),
+                R.layout.menu_item_simple, subMenuItems, subMenuSettingsIcons());
+        mSubMenuSettingsAdapter.setTextField(R.id.menu_item_text);
+        mSubMenuSettingsAdapter.setImageField(R.id.menu_item_image);
 
         // create listeners...
         mvButtonBack.setOnClickListener(new View.OnClickListener() {
@@ -378,7 +391,13 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
                     mvMenuAnimator.setInAnimation(this, R.anim.from_right);
                     mvMenuAnimator.showNext();
                     break;
-                case 4: {  // "Help"
+                case 4:  // "Settings"
+                    mSubMenuSortByAdapter.setIcons(subMenuSettingsIcons());
+                    mvMenuSub.setAdapter(mSubMenuSettingsAdapter);
+                    mvMenuAnimator.setInAnimation(this, R.anim.from_right);
+                    mvMenuAnimator.showNext();
+                    break;
+                case 5: {  // "Help"
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(R.string.please_wait_while_generating_title);
                     builder.setMessage(R.string.please_wait_while_generating_message);
@@ -425,6 +444,7 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
             }
             storeSortBySetting(sortBy);
             mSubMenuSortByAdapter.setIcons(subMenuSortByIcons());
+            mvMenuSub.setAdapter(mSubMenuSortByAdapter);  // actually update menu display
             mMainMenuAdapter.setSubText(
                 3,
                 getResources().getStringArray(R.array.main_menu_sort_by)[
@@ -432,6 +452,28 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
             mvButtonBack.performClick();
             mNotesProvider.sortBy(sortBy);
             mListViewHelper.setSelectedIndex(0);
+        } else if (mSubMenuSettingsAdapter.equals(adapterView.getAdapter())) {
+            SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+            switch (position) {
+                case 0: {  // "Replace umlauts on input"
+                    boolean b = prefs.getBoolean(PKEY_REPLACE_UMLAUTS, false);
+                    prefs.edit().putBoolean(PKEY_REPLACE_UMLAUTS, !b).commit();
+                    break;
+                }
+                case 1: {  // "Replace symbols on input"
+                    boolean b = prefs.getBoolean(PKEY_REPLACE_SYMBOLS, false);
+                    prefs.edit().putBoolean(PKEY_REPLACE_SYMBOLS, !b).commit();
+                    break;
+                }
+
+                default:
+                    assert false : "Unexpected settings index: " + position + "!";
+            }
+
+            // update icons according to the changed setting...
+            int[] icons = subMenuSettingsIcons();
+            mSubMenuSettingsAdapter.setIcons(icons);
+            mvMenuSub.setAdapter(mSubMenuSettingsAdapter);  // actually update menu display
         }
     }
 
@@ -605,6 +647,22 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         for (int i = 0; i < icons.length; i++) {
             icons[i] = (i == idx ? R.drawable.check_mark_pressable : -1);
         }
+        return icons;
+    }
+
+    /**
+     * Returns the icons for the settings sub-menu.
+     *
+     * @return an array of item IDs
+     */
+    @NotNull
+    protected int[] subMenuSettingsIcons() {
+        int[] icons = new int[3];
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        icons[0] =
+            (prefs.getBoolean(PKEY_REPLACE_UMLAUTS, false) ? R.drawable.check_mark_pressable : -1);
+        icons[1] =
+            (prefs.getBoolean(PKEY_REPLACE_SYMBOLS, false) ? R.drawable.check_mark_pressable : -1);
         return icons;
     }
 }

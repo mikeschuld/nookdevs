@@ -98,6 +98,7 @@ public class NoteRename extends BaseActivity implements View.OnKeyListener
         String title = note.getTitle();
         vTitle.setText(TextUtils.isEmpty(title) ? "" : title);
         vTitle.requestFocus();
+        createAndRegisterInputStringReplacer(vTitle);
         vTitle.setOnKeyListener(this);
     }
 

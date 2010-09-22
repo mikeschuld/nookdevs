@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>Sub-classes need to start data acquisition by calling {@link #requery()} from their
  * constructor.</p>
  *
- * @author Marco Götze
+ * @author Marco Goetze
  */
 public abstract class CursorBasedListItemsProvider<T extends ListItem>
     extends AbstractListItemsProvider<T>

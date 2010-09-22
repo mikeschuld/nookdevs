@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
+import com.nookdevs.notes.NookNotes;
 import com.nookdevs.notes.R;
+import com.nookdevs.notes.gui.InputStringReplacer;
 import com.nookdevs.notes.util.NookSpecifics;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,10 +48,20 @@ public abstract class BaseActivity extends Activity
      */
     @NotNull protected static final String PKEY_EMULATOR = "emulator";
     /**
-     * Shared preferences key for a <code>int</code>-type value specifying the sort order for the
+     * Shared preferences key for an <code>int</code>-type value specifying the sort order for the
      * list of notes ((one of the <code>NoteListItemsProvider.SORT_BY_*</code> constants).
      */
     @NotNull protected static final String PKEY_NOTES_SORT_BY = "notesSortBy";
+    /**
+     * Shared preferences key for a <code>boolean</code>-type value specifying whether to replace
+     * umlauts in text input.
+     */
+    @NotNull public static String PKEY_REPLACE_UMLAUTS = "replaceUmlauts";
+    /**
+     * Shared preferences key for a <code>boolean</code>-type value specifying whether to replace
+     * symbols in text input.
+     */
+    @NotNull public static String PKEY_REPLACE_SYMBOLS = "replaceSymbols";
 
     /**
      * The default screensaver delay/screen lock period in milliseconds.  Used if fetching the
@@ -262,5 +276,27 @@ public abstract class BaseActivity extends Activity
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Creates an {@link com.nookdevs.notes.gui.InputStringReplacer} for a given editor, configured
+     * to perform replacements as per the corresponding settings, and registers it with the editor.
+     *
+     * @param editor the editor component for which to create the replacer
+     */
+    protected void createAndRegisterInputStringReplacer(@NotNull EditText editor) {
+        // configure replacements as per the settings...
+        int replacements = 0;
+        SharedPreferences prefs =
+            getSharedPreferences(NookNotes.class.getSimpleName(), MODE_PRIVATE);
+        if (prefs.getBoolean(PKEY_REPLACE_UMLAUTS, false)) {
+            replacements |= InputStringReplacer.REPLACE_UMLAUTS;
+        }
+        if (prefs.getBoolean(PKEY_REPLACE_SYMBOLS, false)) {
+            replacements |= InputStringReplacer.REPLACE_SYMBOLS;
+        }
+
+        // create and register the replacer...
+        editor.addTextChangedListener(new InputStringReplacer(this, editor, replacements));
     }
 }
