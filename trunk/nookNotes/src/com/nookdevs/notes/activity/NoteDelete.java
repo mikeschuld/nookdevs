@@ -26,9 +26,13 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.nookdevs.notes.R;
+import com.nookdevs.notes.provider.Note;
 import com.nookdevs.notes.provider.Notes;
+import com.nookdevs.notes.provider.NotesUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.nookdevs.notes.provider.NotesUris.noteIdOfUri;
 
 
 /**
@@ -78,6 +82,14 @@ public class NoteDelete extends BaseActivity
                 finish();
             }
         };
-        confirm(R.string.activity_note_delete, R.string.delete_note_message, yes, no);
+        Note note = NotesUtils.getNote(getContentResolver(), noteIdOfUri(uri));
+        String title = (note != null ? note.getTitle() : null);
+        if (title != null) {
+            confirm(getString(R.string.activity_note_delete),
+                    String.format(getString(R.string.delete_note_message_titled), title),
+                    yes, no);
+        } else {
+            confirm(R.string.activity_note_delete, R.string.delete_note_message_untitled, yes, no);
+        }
     }
 }

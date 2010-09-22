@@ -64,7 +64,12 @@
         <item quantity="other">%s items</item>
     </plurals>
     <string name="note_title_prompt">Note title:</string>
-    <string name="delete_note_message">Do you really want to delete the selected note?</string>
+    <string name="delete_note_message_titled">
+        Do you really want to delete the note titled “%s”?
+    </string>
+    <string name="delete_note_message_untitled">
+        Do you really want to delete the selected note?
+    </string>
     <string name="please_wait_while_generating_title">Please wait...</string>
     <string name="please_wait_while_generating_message">
         Please wait while notes are being generated...
