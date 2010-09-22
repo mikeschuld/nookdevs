@@ -9,7 +9,7 @@
     <string name="activity_note_add">Add Note</string>
     <string name="activity_note_view">View Note</string>
     <string name="activity_note_delete">Delete Note</string>
-    <string name="activity_note_edit_title">Edit Note Title</string>
+    <string name="activity_note_rename">Rename Note</string>
     <string name="activity_item_add">Add Item</string>
     <string name="activity_item_edit">Edit Item</string>
     <string name="activity_item_delete">Delete Item</string>
@@ -40,7 +40,7 @@
         <item>Edit item</item>
         <item>Delete item</item>
         <item>Transform list</item>
-        <item>Edit note title</item>
+        <item>Rename note</item>
     </string-array>
     <string-array name="note_view_add_item_submenu">
         <item>Add at top</item>
