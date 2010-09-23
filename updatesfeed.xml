@@ -82,9 +82,9 @@
     <title>Twook</title>
     <link type="application/vnd.android.package-archive"
           href="http://github.com/downloads/unchiujar/Twook/Twook-0.0.6.apk"/>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <pkg>com.nookdevs.twook.activities</pkg>
-    <id>http://github.com/downloads/unchiujar/Twook/Twook-0.0.6.apk</id>
+    <id>http://github.com/downloads/dpw13/Twook/Twook.apk</id>
     <content type="text">Twitter client for the Nook</content>
   </entry>
   <entry>
