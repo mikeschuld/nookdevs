@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_width="fill_parent"
+   android:layout_height="fill_parent"
+   android:orientation="vertical"
+   android:background="#ffffffff"
+   >
+  <!-- this Frame is used merely to block out the eink-display -->
+  <FrameLayout
+     android:layout_width="fill_parent"
+     android:layout_height="760px"
+     />
+  <!-- From here onwards is the real layout -->
+  <!-- It's probably simplest to use a Frame that explicitly
+       sets the width and height, but a HorizontalScrollView
+       is itself a Frame, so it's good enough to do it directly
+       in it. -->
+  <LinearLayout
+      android:orientation="horizontal"
+      android:layout_width="480px"
+      android:layout_height="144px">
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:background="@drawable/back_button"
+        />
+    <HorizontalScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal"
+        android:background="#fff"
+        >
+      <LinearLayout
+          android:layout_width="fill_parent"
+          android:layout_height="fill_parent"
+          android:background="#fff"
+          android:id="@+id/nookletcontainer"
+          />
+    </HorizontalScrollView>
+  </LinearLayout>
+</LinearLayout>

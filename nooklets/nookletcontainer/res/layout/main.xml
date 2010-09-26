@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <WebView android:id="@+id/einkview" android:background="#ffffffff" android:layout_width="fill_parent" android:layout_height="760.0px"
+      xmlns:android="http://schemas.android.com/apk/res/android" />
+    <LinearLayout android:orientation="horizontal" android:layout_width="480.0px" android:layout_height="144.0px">
+        <Button android:id="@id/back" android:background="@drawable/back_button" android:layout_width="wrap_content" android:layout_height="fill_parent" />
+        <ViewAnimator android:id="@+id/mediaflipper" android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <WebView android:id="@+id/touchview" android:layout_width="fill_parent" android:layout_height="fill_parent"
+              xmlns:android="http://schemas.android.com/apk/res/android" />
+            <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="fill_parent">
+                <VideoView android:id="@+id/videoview" android:layout_gravity="bottom" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <Button android:id="@+id/mediadone" android:background="@drawable/done_button" android:layout_width="wrap_content" android:layout_height="fill_parent" />
+            </LinearLayout>
+        </ViewAnimator>
+    </LinearLayout>
+</LinearLayout>
