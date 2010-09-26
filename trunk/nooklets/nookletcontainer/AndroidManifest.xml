@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.kbs.nooklet"
+      android:versionCode="4"
+      android:versionName="Rev 4" >
+  <uses-permission
+      android:name="android.permission.WAKE_LOCK" />
+  <application android:label="@string/app_name">
+    <activity android:name=".Nooklet"
+              android:theme="@android:style/Theme.Light.NoTitleBar"
+              android:icon="@drawable/nooklet"
+              android:label="@string/app_name">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <activity android:name=".NookletViewer"
+              android:theme="@android:style/Theme.Light.NoTitleBar">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:mimeType="application/nooklet"
+              android:scheme="file"/>
+      </intent-filter>
+    </activity>
+  </application>
+</manifest> 
