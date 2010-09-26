@@ -81,7 +81,7 @@
   <entry>
     <title>Twook</title>
     <link type="application/vnd.android.package-archive"
-          href="http://github.com/downloads/unchiujar/Twook/Twook-0.0.6.apk"/>
+          href="http://github.com/downloads/dpw13/Twook/Twook.apk"/>
     <version>0.0.7</version>
     <pkg>com.nookdevs.twook.activities</pkg>
     <id>http://github.com/downloads/dpw13/Twook/Twook.apk</id>
@@ -118,12 +118,13 @@
   <entry>
     <title>nooklets</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookapps.googlecode.com/files/Nooklet-debug.apk"/>
+          href="http://nookdevs.googlecode.com/files/nooklet.apk"/>
     <pkg>com.kbs.nooklet</pkg>
-    <id>http://nookapps.googlecode.com/files/Nooklet-debug.apk</id>
+    <version>Rev 4</version>
+    <id>http://nookdevs.googlecode.com/files/nooklet.apk</id>
     <content type="text">Nooklets is an application that creates a container to run HTML/Javascript apps (called nooklets.) 
-The sample set of nooklets includes a Sudoku game, and writing your own nooklet is as easy as creating a couple of html files 
-and copying it to your internal SD card. Download the samples separately from the website.</content>
+	Rev 4 is an unofficial version and not compatible with the old one. Uninstall the old version by long-pressing on the icon or from appManager and then install this.
+    </content>
   </entry>
   <entry>
     <title>APDFViewer</title>
