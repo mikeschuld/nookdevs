@@ -78,9 +78,13 @@ public class CrossWord extends Activity {
 	LinearLayout eink_xword_page;  // The main e-ink screen, contains the crossword grid, etc
 	ScrollView eink_cluespagescroller; // The Clues View on the e-ink screen (NOOK_PAGE_DOWN)
 	ViewAnimator touchscreenanimator; // The container for menus and submenus on the touchscreen
-	ScrollView touchscreen_submenu_play ; // The sub-menu for picking which direction clues to view on the touchscreen	
 	LinearLayout touchscreen_clues_container; // the touchscreen clues (populated dynamically)
 	LinearLayout puzzlelist;              // TODO: move this to another activity, on the e-ink screen
+	LinearLayout puzzles_submenu;
+	Button open_puzzle_button;
+	Button resume_current_puzzle_button;
+	Button clear_puzzle_button; 
+	Button puzzles_help_button;
 	
 	static final int STAYPUT = 0;
 	static final int ACROSS = 1;
@@ -139,9 +143,10 @@ public class CrossWord extends Activity {
 		//
 		touchscreenanimator = (ViewAnimator) findViewById(R.id.touchscreen_animator);
 		touchscreenanimator.setInAnimation(this, R.anim.fromright);
-		touchscreen_submenu_play = (ScrollView) findViewById(R.id.touchscreen_submenu_play);
 		touchscreen_clues_container = (LinearLayout) findViewById(R.id.touchscreen_clues_container);
 		puzzlelist = (LinearLayout) findViewById(R.id.puzzlelist);
+		puzzles_submenu = (LinearLayout) findViewById(R.id.puzzles_submenu );
+		//
 		
 		
 		// Touchscreen back button:
@@ -289,10 +294,16 @@ public class CrossWord extends Activity {
 				}				
 				int r = activePuzzle.eraseWrongAnswers();
 			    if ( r == 0 ) {
-			        showShortToast("No wrong answers");
+			        showShortToast( getString(R.string.no_wrong_answers) );
 			    } else {
-			        String s = "Erased " + r + " wrong answer" ;
-			        if ( r > 1 ) s = s + "s" ;
+			    	String s;
+			    	if ( r == 1 ) {
+			    		s = getString(R.string.erased_one_wrong_answer) ;
+			    	} else {
+			    		s = String.format( getString(R.string.erased_x_wrong_answers_fmt), r) ;
+			    	}
+			        //String s = "Erased " + r + " wrong answer" ;
+			        //if ( r > 1 ) s = s + "s" ;
 			        showShortToast(s);
 			    }
 			}
@@ -332,22 +343,23 @@ public class CrossWord extends Activity {
 		b = (Button) findViewById(R.id.file_button);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				preparePuzzleMenu();
 				touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
 				touchscreenanimator.setDisplayedChild( PUZZLES_SUBMENU_VIEWNUM );
 			}
 		});
 		
 		// Open puzzle button:
-		b = (Button) findViewById(R.id.open_puzzle_button);
-		b.setOnClickListener(new OnClickListener() {
+		open_puzzle_button = (Button) findViewById(R.id.open_puzzle_button);
+		open_puzzle_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				my_crosswords_file_menu() ;
 			}
 		});
 		
 		// Resume current puzzle button:
-		b = (Button) findViewById(R.id.resume_current_puzzle_button);
-		b.setOnClickListener(new OnClickListener() {
+		resume_current_puzzle_button = (Button) findViewById(R.id.resume_current_puzzle_button);
+		resume_current_puzzle_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				try {
 					resumeCurrentPuzzle() ;
@@ -363,8 +375,8 @@ public class CrossWord extends Activity {
 		});
 
 		// Clear puzzle button:
-		b = (Button) findViewById(R.id.clear_puzzle_button);
-		b.setOnClickListener(new OnClickListener() {
+		clear_puzzle_button = (Button) findViewById(R.id.clear_puzzle_button);
+		clear_puzzle_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if ( activePuzzle == null ) {
 					showToast_No_Active_Puzzle();
@@ -392,8 +404,8 @@ public class CrossWord extends Activity {
 		});
 		
 		// Puzzles Help button:
-		b = (Button) findViewById(R.id.puzzles_help_button);
-		b.setOnClickListener(new OnClickListener() {
+		puzzles_help_button = (Button) findViewById(R.id.puzzles_help_button);
+		puzzles_help_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				LayoutInflater inflater = getLayoutInflater();
 				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
@@ -504,7 +516,25 @@ public class CrossWord extends Activity {
 	
 	///////////////////////////////////////////////////////////////////////////////
 
+	//  This function dynamically generates the "Puzzles" submenu
+	void preparePuzzleMenu() {
+		puzzles_submenu.removeAllViews();
+		//  Open:
+		puzzles_submenu.addView(open_puzzle_button);
+		//  Resume latest:
+		if ( (activePuzzle == null) && mSettings.contains(CROSSWORD_PREFERENCES_CURRENT_PUZZLE  ) ) {
+			puzzles_submenu.addView(resume_current_puzzle_button);
+		}
+		//  Clear puzzle:
+		if ( activePuzzle != null ) {
+			puzzles_submenu.addView(clear_puzzle_button);
+		}
+		//  Help:
+		puzzles_submenu.addView(puzzles_help_button);
+	} // preparePuzzleMenu
 	
+	///////////////////////////////////////////////////////////////////////////////
+
 	@Override 
 	protected void onActivityResult(int requestCode,int resultCode,Intent data) 
 	{
@@ -550,7 +580,7 @@ public class CrossWord extends Activity {
 		//  com.nookdevs.fileselector intent can't be found.
 		//  When they click on the button to open a puzzle, we dynamically
 		//  populate the menu (by listing the files in "my crosswords"):
-	    showLongToast("FYI: This will work better if you install the nookdevs FileSelector package.");
+	    showLongToast( getString(R.string.install_fileselector) );
 
 		Button b ;
 		LayoutInflater inflater = getLayoutInflater();
@@ -603,7 +633,6 @@ public class CrossWord extends Activity {
 		destroyActivePuzzle();
 		
 		//  Load the puzzle:
-		//showShortToast("Loading puzzle...");
 	    puzzle = puzzleio.loadPuzzle( puzzlefilename );
 		if (puzzle == null) {
 			showLongToast( getString(R.string.error_could_not_open_puzzle) );
@@ -636,12 +665,12 @@ public class CrossWord extends Activity {
 		String fname ;
 		try {
 			if (! mSettings.contains(CROSSWORD_PREFERENCES_CURRENT_PUZZLE  ) ) {
-				showLongToast( "Cannot determine latest puzzle.  Open a new puzzle." );
+				showLongToast( getString(R.string.error_cannot_determine_latest_puzzle) );
 				return ;
 			}	
 			fname = mSettings.getString( CROSSWORD_PREFERENCES_CURRENT_PUZZLE, "" );
 			if ( (fname == null) || (fname.equals("")) ) {
-				showLongToast( "Cannot determine latest puzzle.  Open a new puzzle." );
+				showLongToast( getString(R.string.error_cannot_determine_latest_puzzle) );
 				return ;
 			}
 		} catch (Exception ex) {
@@ -689,8 +718,8 @@ public class CrossWord extends Activity {
 					if (y == 0) {
 						einkanimator.showPrevious();
 					} else {
-						((ScrollView) einkanimator.getCurrentView())
-								.pageScroll(View.FOCUS_UP);
+						//((ScrollView) einkanimator.getCurrentView()).pageScroll(View.FOCUS_UP);
+						((ScrollView) einkanimator.getCurrentView()).scrollBy(0, -(SizeDependent.EINK_WINDOW_HEIGHT - 30) );
 					}
 				} catch (Exception ex) {
 					//einkanimator.showPrevious();
@@ -702,8 +731,8 @@ public class CrossWord extends Activity {
 				try {
 					// If the current view is the main puzzle page, which is not
 					// a ScrollView, then this will throw an exception:
-				    ((ScrollView) einkanimator.getCurrentView())
-								.pageScroll(View.FOCUS_DOWN);
+				    //((ScrollView) einkanimator.getCurrentView()).pageScroll(View.FOCUS_DOWN);
+				    ((ScrollView) einkanimator.getCurrentView()).scrollBy(0, (SizeDependent.EINK_WINDOW_HEIGHT - 30) );
 				} catch (Exception ex) {
 					einkanimator.showNext();
 				}
@@ -796,11 +825,11 @@ public class CrossWord extends Activity {
 		}
 		
 		if (dir == ACROSS) {
-			msg = "ACROSS" ;
+			msg = getString( R.string.dir_is_across_toast ) ;
 		} else if (dir == DOWN) {
-			msg = "DOWN" ;
+			msg = getString( R.string.dir_is_down_toast ) ;
 		} else {
-			msg = "Direction: NONE" ;
+			msg = getString( R.string.dir_is_none_toast ) ;
 		}
 		try {
 			showShortToast( msg );

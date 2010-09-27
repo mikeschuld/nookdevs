@@ -518,8 +518,8 @@ public class Puzzle extends Activity {
 		Cell cell = getCell( cursor_row, cursor_col );
 		Clue ca = cell.acrossclue ;
 		Clue cd = cell.downclue ;
-		StringBuilder sa = new StringBuilder("Across: ");
-		StringBuilder sd = new StringBuilder("Down: ");
+		StringBuilder sa = new StringBuilder( crossword_activity.getString(R.string.eink_across_label) + " " );
+		StringBuilder sd = new StringBuilder( crossword_activity.getString(R.string.eink_down_label) + " " );
 		if (ca != null) {
 			sa.append( ca.num );
 			sa.append( ". " );
@@ -588,7 +588,8 @@ public class Puzzle extends Activity {
 		if (title==null || title.equals("")) {
 			s = "CROSSWORD PUZZLE";
 		} else {
-			s = title.toUpperCase() + "\n\n" ;
+			//s = title.toUpperCase() + "\n\n" ;
+			s = title + "\n\n" ;
 		}
 		if ((author != null) && (! author.equals(""))) {
 			s = s + "Author: " + author + "\n" ;
