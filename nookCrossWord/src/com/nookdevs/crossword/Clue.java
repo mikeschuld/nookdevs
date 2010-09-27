@@ -35,7 +35,7 @@ public class Clue implements Comparable<Clue> {
 		col = c ;
 	}
 	
-
+	//  For debugging:
 	@Override
 	public String toString() {
 		String s = "";

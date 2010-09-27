@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-    <string name="app_name">CrossWord</string>
-
-
+<string name="app_name">CrossWord</string>
 <string name="launchkeyboardbutton_label">Keyboard (spacebar switches direction)</string>
-
 <string name="play_button_label">Play</string>
 <string name="aboutthispuzzle_button_label">About This Puzzle</string>
 <string name="hints_button_label">Hints</string>
 <string name="file_button_label">Puzzles</string>
-
 <string name="direction_button_label">Toggle Direction</string>
 <string name="across_clues_button">Across Clues</string>
 <string name="down_clues_button">Down Clues</string>
@@ -28,6 +23,11 @@
 <string name="clear_puzzle_areyousure">Erase all answers?</string>
 <string name="clear_puzzle_yes">Yes</string>
 <string name="clear_puzzle_no">No</string>
+<string name="eink_across_label">Across:</string>
+<string name="eink_down_label">Down:</string>
+<string name="dir_is_across_toast">ACROSS</string>
+<string name="dir_is_down_toast">DOWN</string>
+<string name="dir_is_none_toast">Direction: NONE</string>
 <string name="error_could_not_open_puzzle">Error: could not open puzzle</string>
 <string name="warning_rebus_not_supported">WARNING: Puzzle uses unsupported features (rebus entries)\n\nThis may not work!!</string>
 <string name="you_solved_it">You solved it!</string>
@@ -35,7 +35,12 @@
 <string name="error_noactivepuzzle">You must load a puzzle first.</string>
 <string name="ok">OK</string>
 <string name="resume_current_puzzle">Continue Latest Puzzle</string>
-<string name="my_puzzles">My Puzzles</string>
+<string name="my_puzzles">My Crosswords</string>
+<string name="install_fileselector">FYI: This will work better if you install the nookdevs FileSelector package.</string>
+<string name="error_cannot_determine_latest_puzzle">Cannot determine latest puzzle.  Open a new puzzle.</string>
 <string name="puzzles_help">Help</string>
 <string name="puzzles_help_dialog_text">Puzzles Help\n\nnookCrossWord does not include any puzzles.\n\nYou must download puzzles from the internet and place them into the \&quot;my crosswords\&quot; folder on your nook.\n\nFor more information:\nhttp://code.google.com/p/nookdevs/wiki/nookCrossWordFAQ</string>
+<string name="no_wrong_answers">No wrong answers</string>
+<string name="erased_x_wrong_answers_fmt">Erased %d wrong answers</string>
+<string name="erased_one_wrong_answer">Erased 1 wrong answer</string>
 </resources>

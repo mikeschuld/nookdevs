@@ -57,6 +57,7 @@
       
         <!--   touchscreen_animator view 0, the main menu:  -->
       
+        <!--  
         <ScrollView android:id="@+id/touchscreen_mainmenu_scroller"
         android:orientation="vertical"
         android:layout_width="fill_parent" android:layout_height="fill_parent"
@@ -65,8 +66,10 @@
         android:scrollbarStyle="insideOverlay"
         android:scrollbarSize="20.0px"
         >
+        -->
             <LinearLayout android:orientation="vertical"
             android:layout_width="fill_parent" android:layout_height="fill_parent"
+            android:background="#F0F0F0"
             android:id="@+id/touchscreen_mainmenu"
             >
                 
@@ -84,15 +87,17 @@
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/file_button_label"
                 />
-                                
+
             </LinearLayout>
+        <!--
         </ScrollView>
+        -->
         
         <!-- ......................................................................................... -->
 
         <!--   touchscreen_animator view 1 (Play):  -->
         
-        <ScrollView android:id="@+id/touchscreen_submenu_play"
+        <ScrollView
         android:orientation="vertical"
         android:layout_width="fill_parent" android:layout_height="fill_parent"
         android:background="#F0F0F0"
@@ -100,7 +105,8 @@
         android:scrollbarStyle="insideOverlay"
         android:scrollbarSize="20.0px"
         >        
-            <LinearLayout android:orientation="vertical"
+            <LinearLayout
+            			  android:orientation="vertical"
                           android:layout_width="fill_parent" android:layout_height="fill_parent" >
             
                 <Button
@@ -162,6 +168,7 @@
      
         <!--   touchscreen_animator view 3 (Hints):  -->
         
+        <!-- 
         <ScrollView android:id="@+id/touchscreen_submenu_hints"
         android:orientation="vertical"
         android:layout_width="fill_parent" android:layout_height="fill_parent"
@@ -169,9 +176,12 @@
         android:scrollbars="vertical"
         android:scrollbarStyle="insideOverlay"
         android:scrollbarSize="20.0px"
-        >        
+        >  
+        -->      
             <LinearLayout android:orientation="vertical"
-            android:layout_width="fill_parent" android:layout_height="fill_parent" >
+            android:layout_width="fill_parent" android:layout_height="fill_parent"
+            android:background="#F0F0F0"
+            >
             
                 <Button
                 android:id="@+id/show_current_letter_button"
@@ -196,19 +206,25 @@
                 />
                 
             </LinearLayout>
+        <!--  
         </ScrollView>
+        -->
         
         <!-- ............................................................................................ -->
         
         <!--   touchscreen_animator view 4 (Puzzles/"File" submenu):  -->
         
+        <!--
         <ScrollView android:orientation="vertical"
                     android:layout_width="fill_parent" android:layout_height="fill_parent"
                     android:background="#F0F0F0"
                     android:scrollbars="vertical"
                     android:scrollbarStyle="insideOverlay"
                     android:scrollbarSize="20.0px" >
-            <LinearLayout android:orientation="vertical"
+        -->
+            <LinearLayout android:id="@+id/puzzles_submenu"
+            			  android:orientation="vertical"
+            			  android:background="#F0F0F0"
                           android:layout_width="fill_parent" android:layout_height="fill_parent" >
             
                 <Button
@@ -241,11 +257,14 @@
                 />
             
             </LinearLayout>
+        <!--
         </ScrollView>
+        -->
         
         <!-- ............................................................................................ -->
         
         <!--   touchscreen_animator view 5 (available puzzles):  -->
+        <!-- Not used any more; now we use the FileSelector app -->
         
         <ScrollView android:orientation="vertical"
                     android:layout_width="fill_parent" android:layout_height="fill_parent"
