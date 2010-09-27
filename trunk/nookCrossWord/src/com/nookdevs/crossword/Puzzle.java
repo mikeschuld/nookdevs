@@ -600,7 +600,7 @@ public class Puzzle extends Activity {
 			s = s + "Publisher: " + publisher + "\n" ;
 		}
 		if ( (copyright != null) && (! copyright.equals(""))) {
-			s = s + "© " + copyright + "\n" ;
+			s = s + copyright + "\n" ;
 		}
 		if ((date != null) && (! date.equals(""))) {
 			s = s + date + "\n" ;
