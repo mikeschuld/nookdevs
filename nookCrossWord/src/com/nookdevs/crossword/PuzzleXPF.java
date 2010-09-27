@@ -199,7 +199,7 @@ public class PuzzleXPF {
 		    	        editor = xpp.getText() ;
 			    	} else if ( currenttag.equalsIgnoreCase("Copyright") ) {
 	                    // /Puzzles/Puzzle/Size/Copyright
-		    	        copyright = xpp.getText() ;
+		    	        copyright = "© " + xpp.getText() ;
 			    	} else if ( currenttag.equalsIgnoreCase("Publisher") ) {
 	                    // /Puzzles/Puzzle/Size/Publisher
 		    	        publisher = xpp.getText() ;

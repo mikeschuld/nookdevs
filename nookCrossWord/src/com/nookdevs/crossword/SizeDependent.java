@@ -30,7 +30,10 @@ import android.app.Activity;
 
 
 public class SizeDependent extends Activity {
-	  static final double NOOK_SCREEN_DIMENSION = 600.0 ;
+	  // Hard-coded, based on nook hardware:
+	  static final double NOOK_SCREEN_DIMENSION = 600.0 ;  // the smaller of the two dimensions
+	  static final int max_cells_on_touchscreen_clues_scroller = 8 ;
+	  //  Determined dynamically, based on puzzle dimensions:
 	  float cell_textsize ;
 	  float cellnum_textsize ;
 	  int cell_icon_normal ;

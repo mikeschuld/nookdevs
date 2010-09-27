@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    This view is only used on those occasions where the number of cells
+    in a clue is too big to fit in one line on the touchscreen.  This
+    view is the second line, which is the same as the first, only without
+    the little arrow.
+ -->
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android"
           android:layout_width="fill_parent" android:layout_height="wrap_content"
 >
     
-    <LinearLayout android:id="@+id/direction_indicator"
+    <LinearLayout android:id="@+id/direction_indicator_placeholder"
                   android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:layout_gravity="left"
                   />

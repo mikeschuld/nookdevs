@@ -211,7 +211,9 @@ public class TouchScreenClues extends Activity {
                 dirind.setBackgroundResource(R.drawable.blue_down_arrow);
         }
         LinearLayout cellslayout = (LinearLayout) tablerow_cells.findViewById(R.id.cellslayout);
+        int cellcount = 0 ;
         for ( Cell cell : clue.cells  ) {
+        	cellcount++ ;
             LinearLayout cellbg = (LinearLayout) inflater.inflate(R.layout.touchscreenclues_cell, null);
             cellbg.setBackgroundColor( cell.shade );
             Button cellbutton = (Button) cellbg.findViewById(R.id.cellbutton);
@@ -243,6 +245,15 @@ public class TouchScreenClues extends Activity {
             	buttongrid_d[cell.row][cell.col] = cellbutton ;
             }
             cellslayout.addView( cellbg );
+            
+            //  If there are too many cells to fit on the screen, start a new row:
+        	if ( cellcount >= SizeDependent.max_cells_on_touchscreen_clues_scroller ) {
+        		Log.d( this.toString(), "DEBUG: in here for clue " + clue.num );
+        		table.addView(tablerow_cells);
+        		tablerow_cells = (TableRow) inflater.inflate(R.layout.touchscreenclues_row_cells_nextline, null);
+                cellslayout = (LinearLayout) tablerow_cells.findViewById(R.id.cellslayout);
+        		cellcount = 0 ;
+        	}
         }
         table.addView(tablerow_cells);
     } // addClueToTable
@@ -285,7 +296,11 @@ public class TouchScreenClues extends Activity {
     		Button b = (Button) inflater.inflate(R.layout.touchscreenclues_navbutton, null);
     		int startnum = clueslist.get(0).num ;
     		int endnum = clueslist.get( clueslist.size() - 1 ).num ;
-    		b.setText( startnum + "-" + endnum );
+    		if ( startnum == endnum ) {
+    			b.setText( "" + startnum );
+    		} else {
+    			b.setText( startnum + "-" + endnum );
+    		}
     		if ( n == mypagenum ) {
     			b.setTypeface(Typeface.DEFAULT_BOLD) ;
     		}

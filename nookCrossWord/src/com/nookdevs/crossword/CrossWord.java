@@ -18,7 +18,6 @@
  * Written by Kevin Vajk and Hariharan Swaminathan
  */
 package com.nookdevs.crossword;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.database.Cursor;
@@ -50,7 +49,6 @@ import java.util.Collections;
 import java.io.*;
 
 
-// TODO: common puzzle sizes are 12x12 through 21x21; test all of these and more
 // TODO: support rebus entries
 // TODO: this code is vulnerable to null pointer exceptions
 // TODO: when adding a Clue, make sure it's not already there
@@ -155,6 +153,8 @@ public class CrossWord extends Activity {
 				    goBack();
 			  	} else if ( touchscreenanimator.getDisplayedChild() == CLUESSCROLLERS_SUBMENU_VIEWNUM ) {
 			  		touchscreenanimator.setDisplayedChild( PLAY_SUBMENU_VIEWNUM );
+			  	} else if ( touchscreenanimator.getDisplayedChild() == HINTS_SUBMENU_VIEWNUM ) {
+			  		touchscreenanimator.setDisplayedChild( PLAY_SUBMENU_VIEWNUM );
 			  	} else if ( touchscreenanimator.getDisplayedChild() == PUZZLE_LIST_SUBMENU_VIEWNUM ) {
 			  		touchscreenanimator.setDisplayedChild( PUZZLES_SUBMENU_VIEWNUM );
 			  	} else {
@@ -236,8 +236,11 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
+				LayoutInflater inflater = getLayoutInflater();
+				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+				dialogtextview.setText( activePuzzle.aboutThisPuzzle() );
 				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-		        alertdialogbuilder.setMessage( activePuzzle.aboutThisPuzzle() )
+		        alertdialogbuilder.setCustomTitle( dialogtextview )
 		        .setCancelable(false)
 		        .setNegativeButton( getString(R.string.ok), new DialogInterface.OnClickListener() {
 		                        public void onClick(DialogInterface dialog, int id) {
@@ -302,10 +305,14 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
+				LayoutInflater inflater = getLayoutInflater();
+				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+				dialogtextview.setText( R.string.giveup_areyousure);
 				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-				alertdialogbuilder.setMessage( R.string.giveup_areyousure )
-				.setCancelable(false)
-				.setPositiveButton( R.string.giveup_yes, new DialogInterface.OnClickListener() {
+				alertdialogbuilder
+					.setCancelable(false)
+					.setCustomTitle( dialogtextview )
+					.setPositiveButton( R.string.giveup_yes, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							activePuzzle.justSolveTheWholeThing();
 							showLongToast( getString(R.string.giveup_wedidit) );
@@ -363,15 +370,19 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
+				LayoutInflater inflater = getLayoutInflater();
+				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+				dialogtextview.setText( R.string.clear_puzzle_areyousure );
+						
 				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-				alertdialogbuilder.setMessage( R.string.clear_puzzle_areyousure )
-				.setCancelable(false)
-				.setPositiveButton( R.string.clear_puzzle_yes, new DialogInterface.OnClickListener() {
+				alertdialogbuilder.setCustomTitle( dialogtextview )
+				  .setCancelable(false)
+				  .setPositiveButton( R.string.clear_puzzle_yes, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							activePuzzle.clearAllAnswers();
 						}
 				})
-				.setNegativeButton( R.string.clear_puzzle_no, new DialogInterface.OnClickListener() {
+				  .setNegativeButton( R.string.clear_puzzle_no, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						dialog.cancel();
 					}
@@ -384,10 +395,12 @@ public class CrossWord extends Activity {
 		b = (Button) findViewById(R.id.puzzles_help_button);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				LayoutInflater inflater = getLayoutInflater();
+				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+				dialogtextview.setText( R.string.puzzles_help_dialog_text );
 				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-				alertdialogbuilder.setMessage( getString(R.string.puzzles_help_dialog_text) )
+				alertdialogbuilder.setCustomTitle( dialogtextview )
 				.setCancelable(false)
-				.setTitle( getString(R.string.puzzles_help_dialog_title) )
 				.setNegativeButton( getString(R.string.ok), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						dialog.cancel();
@@ -449,7 +462,7 @@ public class CrossWord extends Activity {
 		} catch (Exception ex) {
 			Log.e(this.toString(), "Error: exception saving user work: " + ex );
 		}
-		
+				
 		releaseScreenLock();
 	} // onPause
 

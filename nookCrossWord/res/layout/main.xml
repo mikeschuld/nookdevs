@@ -76,24 +76,7 @@
                 android:layout_height="35.0px"
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/play_button_label"
-                />
-                
-                <Button
-                android:id="@+id/aboutthispuzzle_button"
-                android:layout_width="fill_parent"
-                android:layout_height="35.0px"
-                android:background="@drawable/list_selector_background"
-                android:text="@string/aboutthispuzzle_button_label"
-                />
-                
-                <Button
-                android:id="@+id/hints_button"
-                android:layout_width="fill_parent"
-                android:layout_height="35.0px"
-                android:background="@drawable/submenu_list_selector_background"
-                android:text="@string/hints_button_label"
-                />
-                
+                />                
                 <Button
                 android:id="@+id/file_button"
                 android:layout_width="fill_parent"
@@ -142,11 +125,25 @@
                 android:text="@string/launchkeyboardbutton_label"
                 />
                 <Button
+                android:id="@+id/aboutthispuzzle_button"
+                android:layout_width="fill_parent"
+                android:layout_height="35.0px"
+                android:background="@drawable/list_selector_background"
+                android:text="@string/aboutthispuzzle_button_label"
+                />
+                <Button
                 android:id="@+id/check_solution_button"
                 android:layout_width="fill_parent"
                 android:layout_height="35.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/check_solution_button_label"
+                />
+                <Button
+                android:id="@+id/hints_button"
+                android:layout_width="fill_parent"
+                android:layout_height="35.0px"
+                android:background="@drawable/submenu_list_selector_background"
+                android:text="@string/hints_button_label"
                 />
                                                 
             </LinearLayout>
