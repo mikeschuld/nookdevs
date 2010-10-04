@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+    <!-- The e-ink display: -->
+    <LinearLayout android:id="@+id/gamescreen"
+                  android:layout_width="600px" android:layout_height="760px"
+                  android:background="#FFFFFF" android:scrollbars="none"
+                  android:orientation="vertical"
+    />
+
+    <!--  The touchscreen: -->
+    <LinearLayout android:id="@+id/touchscreen"
+                  android:layout_width="480px" android:layout_height="144px"
+                  android:background="#000000" android:scrollbars="none"
+                  android:orientation="horizontal" />
+
+</LinearLayout>
