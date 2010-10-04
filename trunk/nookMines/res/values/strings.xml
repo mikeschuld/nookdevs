@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">nookMines</string>
+    <string name="play_button_label">Play</string>
+	<string name="settings_button_label">Preferences</string>
+	<string name="flags">Flags</string>
+	<string name="size_button_label_fmt">%d x %d, %d mines</string>
+	<string name="pick_size">Choose what size grid you\'d like to play:</string>
+	<string name="how_to_play">It\'s you against a grid of squares.\n\nSome squares have a mine hidden under them; clicking on one loses the game.  Other squares are safe; clicking on one clears the square, revealing a clue: a number indicating how many of its neighbors are mined.\n\nYour job is to clear all the safe squares, and plant a warning flag on all the mined squares.\n\nTo flag a square, click on the flag icon on the right side of the touchscreen and then click on the square.  (Or, if you feel brave, you can just long-click on the square.)\n\nTo start a new game, click on the robot icon.\n\nGood luck!</string>	
+    <string name="new_game_areyousure_title">New Game?</string>
+    <string name="new_game_areyousure_msg">Abandon current game and start a new one?</string>
+    <string name="new_game_areyousure_yes">New Game</string>
+    <string name="new_game_areyousure_no">Cancel</string>
+</resources>
