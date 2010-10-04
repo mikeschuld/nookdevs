@@ -11,4 +11,5 @@
     <string name="new_game_areyousure_msg">Abandon current game and start a new one?</string>
     <string name="new_game_areyousure_yes">New Game</string>
     <string name="new_game_areyousure_no">Cancel</string>
+    <string name="elapsed_time">Time</string>
 </resources>

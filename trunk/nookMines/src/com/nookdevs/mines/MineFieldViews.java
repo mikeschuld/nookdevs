@@ -399,10 +399,14 @@ public class MineFieldViews {
 	private void updateStatusText() {
 		if ( mineField.minefield_state == MineField.MINEFIELDSTATE_PLAYING ) {
 			statusline.setText( activity.getText(R.string.flags) + ": " + mineField.planted_flags + "/" + mineField.num_mines );
-		} else if ( mineField.minefield_state == MineField.MINEFIELDSTATE_WON ) {
-			statusline.setText("");  // TODO: elapsed time
-		} else if ( mineField.minefield_state == MineField.MINEFIELDSTATE_LOST ) {
-			statusline.setText("");
+		} else if ( mineField.minefield_state == MineField.MINEFIELDSTATE_WON ||
+					mineField.minefield_state == MineField.MINEFIELDSTATE_LOST ) {
+			long total_secs = mineField.elapsed_millisecs / 1000 ;
+			long hrs = total_secs / 3600 ;
+			long mins = ( total_secs / 60 ) % 60 ;
+			long secs = total_secs % 60 ;
+			String elapsedtimestr = String.format( "%02d:%02d:%02d", hrs, mins, secs );
+			statusline.setText( activity.getText(R.string.elapsed_time) + ": " + elapsedtimestr );
 		} else {
 			statusline.setText("");
 		}

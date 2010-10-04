@@ -93,6 +93,7 @@ public class SettingsActivity extends MinesActivity {
 		editor.putInt( MinesActivity.MINES_PREFERENCES_COLS, cols );
 		editor.putInt( MinesActivity.MINES_PREFERENCES_NUM_MINES, num_mines );
 		editor.commit();
+		finish();  // go back to the game
     } // setMineFieldSize
     
 	

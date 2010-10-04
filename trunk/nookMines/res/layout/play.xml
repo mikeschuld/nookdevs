@@ -83,26 +83,18 @@
 		            android:background="@drawable/newgamebutton"
 		            android:id="@+id/newgamebutton"
         />
-        <!--  
-        <Button android:layout_width="36px" android:layout_height="wrap_content"
-        			android:layout_alignParentRight="true" android:layout_centerVertical="true"
-        			android:gravity="center" android:background="#000000"
-		            android:text="\?" android:textColor="#808080" android:textSize="35px"
-		            android:id="@+id/helpbutton"
-        />
-        -->
         <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
         			android:layout_alignParentRight="true" android:layout_centerVertical="true"
 		            android:background="@drawable/flagmode_off"
 		            android:id="@+id/flagmodebutton"
         />
-        
         <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
         			android:layout_alignParentRight="true" android:layout_alignParentBottom="true"
 		            android:background="@drawable/settingsbutton"
+		            android:text="\?" android:textColor="#B0B0B0" android:textSize="25px"
+		            android:gravity="center" 
 		            android:id="@+id/settingsbutton"
         />
-        
         </RelativeLayout>
 
     </LinearLayout>
