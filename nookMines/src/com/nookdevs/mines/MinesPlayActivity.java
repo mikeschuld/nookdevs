@@ -25,7 +25,7 @@ import android.view.View.OnClickListener;
 import android.content.Intent;
 import android.content.DialogInterface;
 import android.app.AlertDialog;
-//import android.util.Log;
+import android.util.Log;
 
 
 public class MinesPlayActivity extends MinesActivity {
@@ -64,8 +64,6 @@ public class MinesPlayActivity extends MinesActivity {
 					newGame();
 				} else if ( mineField.minefield_state != MineField.MINEFIELDSTATE_PLAYING ) {
 					newGame();
-    			} else if ( (mineField.cleared_cells == 0) && (mineField.planted_flags == 0) ) {
-    				newGame();
 				} else {
 					AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
 					alertdialogbuilder
@@ -98,6 +96,11 @@ public class MinesPlayActivity extends MinesActivity {
 		settingsButton = (Button) findViewById(R.id.settingsbutton);
 		settingsButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				if ( mineField != null ) {
+					if ( mineField.minefield_state == MineField.MINEFIELDSTATE_PLAYING ) {
+						mineField.stopTimer();
+					}
+				}
 		    	startActivityForResult( new Intent(MinesPlayActivity.this, SettingsActivity.class), ACTIVITY_SETTINGS );
 			}
 		});
@@ -112,13 +115,20 @@ public class MinesPlayActivity extends MinesActivity {
         super.onResume();
         if ( mineField == null ) {
         	newGame();
+        } else if ( mineField.minefield_state == MineField.MINEFIELDSTATE_PLAYING ) {
+        	mineField.startTimer();
         }
     }  // onResume
 
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if ( mineField != null ) {
+        	 if ( mineField.minefield_state == MineField.MINEFIELDSTATE_PLAYING ) {
+        		 mineField.stopTimer();
+        	 }
+        }
+    }
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -128,10 +138,16 @@ public class MinesPlayActivity extends MinesActivity {
     		case ACTIVITY_SETTINGS:
     			if ( mineField == null ) {
     				newGame();
+    			} else if ( mineField.minefield_state == MineField.MINEFIELDSTATE_PLAYING ) {
+    				mineField.startTimer();
     			} else if (mineField.minefield_state != MineField.MINEFIELDSTATE_PLAYING ) {
-    				newGame();
-    			} else if ( (mineField.cleared_cells == 0) && (mineField.planted_flags == 0) ) {
-    				newGame();
+    				// determine whether or not they changed the game size.  If so, and
+    				// they're not currently playing, show them a new grid with the new size:
+    				int[] rcn = getMineFieldSizePrefs();
+    				int rows = rcn[0]; int cols = rcn[1]; int num_mines = rcn[2];
+    				if ( (mineField.rows != rows) || (mineField.cols != cols) || (mineField.num_mines != num_mines) ) {
+    					newGame();
+    				}
     			}
     		    break;
     	}
@@ -139,6 +155,25 @@ public class MinesPlayActivity extends MinesActivity {
     } // onActivityResult
     
     ////////////////////////////////////////////////////////////////////////
+    
+    //  returns {rows,cols,num_mines} based on users's stored preferences
+    private int[] getMineFieldSizePrefs() {
+    	int rows, cols, num_mines ;
+    	if ( mSettings.contains(MINES_PREFERENCES_ROWS) &&
+    	     mSettings.contains(MINES_PREFERENCES_COLS) &&
+    	     mSettings.contains(MINES_PREFERENCES_NUM_MINES) ) {
+    	    rows = mSettings.getInt(MINES_PREFERENCES_ROWS, DEFAULT_ROWS);
+    	    cols = mSettings.getInt(MINES_PREFERENCES_COLS, DEFAULT_COLS);
+    	    num_mines = mSettings.getInt(MINES_PREFERENCES_NUM_MINES,DEFAULT_NUM_MINES);
+    	} else {
+    	    rows=DEFAULT_ROWS ; cols=DEFAULT_COLS ; num_mines=DEFAULT_NUM_MINES ;
+    	}
+    	int r[] = { rows, cols, num_mines } ;
+    	return( r );
+    } // getMineFieldSizePrefs
+    
+    ////////////////////////////////////////////////////////////////////////
+
 
     //  Whether or not clicking on a cell clears it or plants a flag:
     private void clickModeNormal() {
@@ -160,8 +195,6 @@ public class MinesPlayActivity extends MinesActivity {
     
     //  Start a new game:
     public void newGame() {
-    	int rows, cols, num_mines ;
-    	// TODO: start timer
     	
     	clickModeNormal();
     	
@@ -174,15 +207,9 @@ public class MinesPlayActivity extends MinesActivity {
 		}
     	startActivity( new Intent(MinesPlayActivity.this, FlashEinkScreenActivity.class));
 
-        if ( mSettings.contains(MINES_PREFERENCES_ROWS) &&
-        		mSettings.contains(MINES_PREFERENCES_COLS) &&
-        		mSettings.contains(MINES_PREFERENCES_NUM_MINES) ) {
-        	rows = mSettings.getInt(MINES_PREFERENCES_ROWS, DEFAULT_ROWS);
-        	cols = mSettings.getInt(MINES_PREFERENCES_COLS, DEFAULT_COLS);
-        	num_mines = mSettings.getInt(MINES_PREFERENCES_NUM_MINES, DEFAULT_NUM_MINES);
-        } else {
-        	rows=DEFAULT_ROWS ; cols=DEFAULT_COLS ; num_mines=DEFAULT_NUM_MINES ;
-        }
+        int[] rcn = getMineFieldSizePrefs();
+        int rows = rcn[0]; int cols = rcn[1]; int num_mines = rcn[2];
+        
         mineField = new MineField( this, rows, cols, num_mines );
     } // newGame
 
@@ -215,7 +242,6 @@ public class MinesPlayActivity extends MinesActivity {
     }
 
     private void gameOver() {
-    	// TODO: stop timer
     } // gameOver
     
 }

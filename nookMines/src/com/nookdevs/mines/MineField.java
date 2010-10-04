@@ -23,10 +23,14 @@ import java.util.ArrayList;
 import android.util.Log;
 
 public class MineField {
+	  public static final int MINEFIELDSTATE_NEW=0;
 	  public static final int MINEFIELDSTATE_PLAYING=1;
 	  public static final int MINEFIELDSTATE_WON=2;
 	  public static final int MINEFIELDSTATE_LOST=3;
-	  public int minefield_state = MINEFIELDSTATE_PLAYING ;
+	  public int minefield_state = MINEFIELDSTATE_NEW ;
+	  public long elapsed_millisecs = 0 ;
+	  private long timerStart ;
+	  private boolean timerRunning = false ;
 	  public int rows ; public int cols; public int num_mines ;
 	  private Cell[][] cellgrid ;
 	  public MineFieldViews mineFieldViews;
@@ -150,25 +154,54 @@ public class MineField {
 
 	  /////////////////////////////////////////////////////////////////////////////
 
+	  public void startTimer() {
+		  if ( timerRunning ) {
+			  Log.e( this.toString(), "Internal error: timer already started");
+			  return;
+		  }
+		  timerStart = System.currentTimeMillis();
+		  timerRunning = true ;
+	  } // startTimer
+
+	  public void stopTimer() {
+		  if ( ! timerRunning ) {
+			  Log.e( this.toString(), "Internal error: timer not running");
+			  return;
+		  }
+		  elapsed_millisecs += ( System.currentTimeMillis() - timerStart );
+		  timerRunning = false ;
+	  } // stopTimer
+	  
+	  /////////////////////////////////////////////////////////////////////////////
+
+	  
 	  //  They clicked on a mine:
 	  private void gameLost(int r, int c) {
-	    minefield_state = MINEFIELDSTATE_LOST ;
-	    (cellgrid[r][c]).has_explosion = true ;
-	    mineFieldViews.gameLost();
+		  stopTimer();
+		  minefield_state = MINEFIELDSTATE_LOST ;
+	      (cellgrid[r][c]).has_explosion = true ;
+	      mineFieldViews.gameLost();
 	  }  // gameLost
 	  
 	  private void gameWon() {
+		  stopTimer();
 		  minefield_state = MINEFIELDSTATE_WON ;
 		  mineFieldViews.gameWon();
 	  } // gameWon
 
-	  private void have_we_won_yet() {
-		  if ( planted_flags + cleared_cells == (rows * cols) ) {
-			  gameWon();
+	  private void check_if_we_have_won_yet() {
+		  if ( planted_flags == num_mines ) {
+			  if ( planted_flags + cleared_cells == (rows * cols) ) {
+				  gameWon();
+			  }
 		  }
-	  } // private_void_have_we_won_yet
+	  } // check_if_we_have_won_yet
 	  
 	  public void toggleCellFlag( int row, int col ) {
+		  if ( minefield_state ==  MINEFIELDSTATE_NEW ) {
+			  minefield_state = MINEFIELDSTATE_PLAYING ;
+			  startTimer();
+		  }
 		  if ( minefield_state !=  MINEFIELDSTATE_PLAYING ) return ;
 		  if ( (cellgrid[row][col]).is_cleared ) return ;
 		  if ( (cellgrid[row][col]).is_flagged ) {
@@ -179,10 +212,14 @@ public class MineField {
 			  planted_flags++ ;
 		  }
 		  mineFieldViews.cellHasChanged(row,col);
-		  have_we_won_yet();
+		  check_if_we_have_won_yet();
 	  } // flagCell
 	  
 	  public void clearCell(int row, int col) {
+		  if ( minefield_state ==  MINEFIELDSTATE_NEW ) {
+			  minefield_state = MINEFIELDSTATE_PLAYING ;
+			  startTimer();
+		  }
 		  if ( minefield_state !=  MINEFIELDSTATE_PLAYING ) return ;  
 		  if ( (cellgrid[row][col]).is_cleared ) return ;		  
 		  if ( (cellgrid[row][col]).has_a_mine ) {
@@ -220,7 +257,7 @@ public class MineField {
 				  if ( ! cleared_anything ) break ;
 			  }
 		  }
-		  have_we_won_yet();
+		  check_if_we_have_won_yet();
 	  } // clearCell
 	  
 }
