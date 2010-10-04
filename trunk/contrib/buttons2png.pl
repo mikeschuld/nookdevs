@@ -90,7 +90,8 @@ $::NOOKAPP_GOOGLEREADER = "$ENV{HOME}/git/nookapp-googlereader";
           "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings.png", "$::NOOKDEVS/nookLauncher/res/drawable/nd_launchersettings_focus.png" ],
   27 => [ "nd_wifi_locker",
           "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_normal.PNG", "$::NOOKDEVS/nookWifiLocker/res/drawable/wifi_pressed.PNG" ],
-  # 28
+  28 => [ "nd_mines",
+          "$::NOOKDEVS/nookMines/res/drawable/minesicon.png", "$::NOOKDEVS/nookMines/res/drawable/minesicon_sel.png" ],
   29 => [ "nd_crosswords",
           "/dev/null", "/dev/null" ],
   30 => [ "cc_media",
