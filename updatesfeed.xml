@@ -207,7 +207,16 @@
     <id>http://nookdevs.googlecode.com/files/nookCrossWord.apk</id>
     <content type="text">CrossWord player.  Requires you to install FileSelector, too!
 Puzzles not included; you must download them from the internet.
-</content>
+    </content>
+  </entry>
+  <entry>
+    <title>nookMines</title>
+    <link type="application/vnd.android.package-archive"
+          href="http://nookdevs.googlecode.com/files/nookMines.apk"/>
+    <version>0.0.1</version>
+    <pkg>com.nookdevs.mines</pkg>
+    <id>http://nookdevs.googlecode.com/files/nookMines.apk</id>
+    <content type="text"> A well-known logic game. </content>
   </entry>
   <entry>
     <title>nookSync</title>
