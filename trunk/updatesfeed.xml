@@ -213,7 +213,7 @@ Puzzles not included; you must download them from the internet.
     <title>nookMines</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookMines.apk"/>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <pkg>com.nookdevs.mines</pkg>
     <id>http://nookdevs.googlecode.com/files/nookMines.apk</id>
     <content type="text"> A well-known logic game. </content>
