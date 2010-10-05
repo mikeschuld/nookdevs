@@ -244,7 +244,7 @@ public class MineField {
 						  Cell cell = cellgrid[r][c];
 						  if ( (cell.num == 0) && cell.is_cleared ) {
 							  for ( Cell neighbor : getNeighbors(cell) ) {
-								  if ( ! neighbor.is_cleared ) {
+								  if ( ! ( neighbor.is_cleared || neighbor.is_flagged ) ) {
 									  neighbor.clear();
 									  cleared_cells++ ;
 									  mineFieldViews.cellHasChanged(neighbor.row, neighbor.col);
