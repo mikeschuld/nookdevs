@@ -45,6 +45,7 @@ public class MinesActivity extends Activity {
 	public static final int[][] mineFieldSizes = {
 		{ 8, 8, 10 },
 		{ 10, 8, 13 },
+		{ 13, 10, 21 },
 		{ 16, 12, 30 },
 		{ 16, 16, 40 },
 		{ 22, 16, 55 },
