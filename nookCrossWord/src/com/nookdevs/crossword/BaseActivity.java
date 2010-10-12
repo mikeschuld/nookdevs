@@ -38,9 +38,13 @@ public abstract class BaseActivity extends Activity {
 	static final String CROSSWORD_PREFERENCES = "nookCrossWordPreferences" ;
 	static final String CROSSWORD_PREFERENCES_CURRENT_PUZZLE = "CURRENTPUZZLE" ;
 	static final String CROSSWORD_PREFERENCES_MARK_WRONG_ANSWERS = "MARK_WRONG_ANSWERS" ;
+	static final boolean CROSSWORD_PREFERENCES_MARK_WRONG_ANSWERS_DEFAULT = false ;
 	static final String CROSSWORD_PREFERENCES_FREEZE_RIGHT_ANSWERS = "FREEZE_RIGHT_ANSWERS" ;
+	static final boolean CROSSWORD_PREFERENCES_FREEZE_RIGHT_ANSWERS_DEFAULT = false ;
 	static final String CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE = "CURSOR_NEXT_CLUE" ;
+	static final boolean CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE_DEFAULT = false ;
 	static final String CROSSWORD_PREFERENCES_CURSOR_WRAPS = "CURSOR_WRAPS" ;
+	static final boolean CROSSWORD_PREFERENCES_CURSOR_WRAPS_DEFAULT = true ;    //  <-- this one is true by default
 
 	InputMethodManager keyboardim; // the pop-up keyboard
 

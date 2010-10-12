@@ -563,10 +563,10 @@ public class CrossWord extends BaseActivity {
 	///////////////////////////////////////////////////////////////////////////////
 
 	private void loadGameSettings() {
-		mark_wrong_answers = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_MARK_WRONG_ANSWERS, false) ;
-		freeze_right_answers = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_FREEZE_RIGHT_ANSWERS, false) ;
-		cursor_wraps = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_CURSOR_WRAPS, true) ;             // <-- default true
-		cursor_next_clue = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE, false) ;
+		mark_wrong_answers = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_MARK_WRONG_ANSWERS, CROSSWORD_PREFERENCES_MARK_WRONG_ANSWERS_DEFAULT) ;
+		freeze_right_answers = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_FREEZE_RIGHT_ANSWERS, CROSSWORD_PREFERENCES_FREEZE_RIGHT_ANSWERS_DEFAULT) ;
+		cursor_next_clue = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE, CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE_DEFAULT) ;
+		cursor_wraps = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_CURSOR_WRAPS, CROSSWORD_PREFERENCES_CURSOR_WRAPS_DEFAULT) ;
 	} // loadGameSettings
 	
 	///////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,13 @@ public class SettingsActivity extends BaseActivity {
 			CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE,
 			CROSSWORD_PREFERENCES_CURSOR_WRAPS,
 	} ;
-		
+	boolean[] settingDefaults = {
+			CROSSWORD_PREFERENCES_MARK_WRONG_ANSWERS_DEFAULT,
+			CROSSWORD_PREFERENCES_FREEZE_RIGHT_ANSWERS_DEFAULT,
+			CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE_DEFAULT,
+			CROSSWORD_PREFERENCES_CURSOR_WRAPS_DEFAULT,
+	} ;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +58,12 @@ public class SettingsActivity extends BaseActivity {
             	//  in that nextclue basically overrides cursorwrap, so if they select one,
             	//  unselect the other.  Both can be unset, though.
             	if ( settingNames[pos].equals( CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE ) ) {
-                	if ( mSettings.getBoolean(CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE, false) == true ) {
+                	if ( mSettings.getBoolean(CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE, CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE_DEFAULT) == true ) {
                 		setSetting( CROSSWORD_PREFERENCES_CURSOR_WRAPS, false );
                 	}
 
             	} else if ( settingNames[pos].equals( CROSSWORD_PREFERENCES_CURSOR_WRAPS ) ) {
-                	if ( mSettings.getBoolean(CROSSWORD_PREFERENCES_CURSOR_WRAPS, false) == true ) {
+                	if ( mSettings.getBoolean(CROSSWORD_PREFERENCES_CURSOR_WRAPS, CROSSWORD_PREFERENCES_CURSOR_WRAPS_DEFAULT) == true ) {
                 		setSetting( CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE, false );
                 	}
             	}
@@ -124,7 +130,7 @@ public class SettingsActivity extends BaseActivity {
 			TextView tv = (TextView) l.findViewById(R.id.ListTextView);
 			tv.setText( settingLabels[position] );
 			ImageView icon = (ImageView) l.findViewById(R.id.ListImageView);
-			if ( mSettings.getBoolean(settingNames[position], false) == true ) {
+			if ( mSettings.getBoolean(settingNames[position], settingDefaults[position]) == true ) {
 				icon.setImageResource( R.drawable.check_mark_pressable );
 			} else {
 				icon.setImageDrawable(null);
