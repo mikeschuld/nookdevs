@@ -32,7 +32,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.util.Log ;
+//import android.util.Log ;
 
 /*
  * The MineField class uses this class to draw itself on both the eink screen
@@ -109,7 +109,6 @@ public class MineFieldViews {
 		}
 		eink_textsize = einkCellDim * .62f ;
 		ts_textsize = tsCellDim * .62f ;
-		Log.d( this.toString(), "einkCellDim = " + einkCellDim + ",  tsCellDim = " + tsCellDim );
 	} // calculateSizes
 
 
