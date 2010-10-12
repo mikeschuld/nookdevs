@@ -37,7 +37,7 @@ import android.widget.ImageView;
 
 
 public class SettingsActivity extends MinesActivity {
-	public ListView sizes_menu ;
+	ListView sizes_menu ;
 	LayoutInflater inflater ;
     int cur_rows = 0 ;
     int cur_cols = 0 ;

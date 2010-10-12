@@ -25,7 +25,7 @@ import android.view.View.OnClickListener;
 import android.content.Intent;
 import android.content.DialogInterface;
 import android.app.AlertDialog;
-import android.util.Log;
+//import android.util.Log;
 
 
 public class MinesPlayActivity extends MinesActivity {
@@ -214,6 +214,11 @@ public class MinesPlayActivity extends MinesActivity {
     } // newGame
 
     public void clickedCell(int r,int c) {
+		// ignore clicks on already-cleared cell:
+    	if ( mineField.cellIsCleared(r,c) ) {
+    		return ;
+    	}
+    	
     	// flag mode:
     	if ( clickmode == CLICKMODE_FLAG ) {
     		mineField.toggleCellFlag(r,c);
@@ -221,16 +226,12 @@ public class MinesPlayActivity extends MinesActivity {
     		toggleClickMode();
     		return ;
     	}
+
     	// normal mode:
     	if ( mineField.cellIsFlagged(r,c) ) {
     		// ignore clicks on flagged cell
     		return ;
     	}
-    	if ( mineField.cellIsCleared(r,c) ) {
-    		// ignore clicks on already-cleared cell
-    		return ;
-    	}
-
         mineField.clearCell(r,c);
         if ( mineField.minefield_state == MineField.MINEFIELDSTATE_LOST ) {
         	gameOver();
