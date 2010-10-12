@@ -229,6 +229,7 @@ public class CrossWord extends BaseActivity {
 					}
 					touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
 					touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
+					play_submenu_scroller.fullScroll( ScrollView.FOCUS_UP );
 				}
 			}
 		});
@@ -761,6 +762,7 @@ public class CrossWord extends BaseActivity {
 		attachPuzzle(puzzle);
 		
 		//  Pop up some info about this puzzle:
+		showShortToast( activePuzzle.getFileName().replaceAll(".*/", "") );
 		showLongToast( activePuzzle.aboutThisPuzzle() );
 
 		//  Warn about unsupported features:
