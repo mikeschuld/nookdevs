@@ -28,6 +28,7 @@
             android:background="#FFFFFF" android:textColor="#000000"
             android:ellipsize="end"
             android:singleLine="true"
+            android:paddingLeft="2px"
             android:textSize="26px" />
   <TextView android:id="@+id/selected_clue_down"
             android:layout_width="fill_parent"
@@ -35,6 +36,7 @@
             android:background="#FFFFFF" android:textColor="#000000"
             android:ellipsize="end"
             android:singleLine="true"
+            android:paddingLeft="2px"
             android:textSize="26px" />
 
 </LinearLayout>

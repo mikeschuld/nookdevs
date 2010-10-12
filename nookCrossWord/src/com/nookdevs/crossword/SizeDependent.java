@@ -25,11 +25,10 @@ package com.nookdevs.crossword;
 //  nook's screen.
 //
 
-import android.app.Activity;
 //import android.util.Log;
 
 
-public class SizeDependent extends Activity {
+public class SizeDependent {
 	  // Hard-coded, based on nook hardware:
 	  static final double NOOK_SCREEN_DIMENSION = 600.0 ;  // the smaller of the two dimensions
 	  static final int EINK_WINDOW_HEIGHT = 760 ;
@@ -45,6 +44,15 @@ public class SizeDependent extends Activity {
 	  int cell_icon_circle_cursor ;
 	  int cell_icon_circle_cursor_across ;
 	  int cell_icon_circle_cursor_down ;
+	  int cell_icon_normal_wrong ;
+	  int cell_icon_circle_wrong ;
+	  int cell_icon_normal_cursor_wrong ;
+	  int cell_icon_normal_cursor_across_wrong ;
+	  int cell_icon_normal_cursor_down_wrong ;
+	  int cell_icon_circle_cursor_wrong ;
+	  int cell_icon_circle_cursor_across_wrong ;
+	  int cell_icon_circle_cursor_down_wrong ;
+	  
 	  
 	  SizeDependent(int i, int j) {
 		    int numcells ;
@@ -68,6 +76,14 @@ public class SizeDependent extends Activity {
               						R.drawable.cell_circle_cursor_40,
               						R.drawable.cell_circle_cursor_across_40,
               						R.drawable.cell_circle_cursor_down_40,
+              					    R.drawable.cell_wrong_40,
+        			  				R.drawable.cell_circle_wrong_40,
+                      				R.drawable.cell_cursor_wrong_40,
+                      				R.drawable.cell_cursor_across_wrong_40,
+                      				R.drawable.cell_cursor_down_wrong_40,
+                      				R.drawable.cell_circle_cursor_wrong_40,
+                      				R.drawable.cell_circle_cursor_across_wrong_40,
+                      				R.drawable.cell_circle_cursor_down_wrong_40,
               						} ;
 	  // 16x16 to 25x25:
 	  private int[] iconset24 = { 	R.drawable.cell_24,
@@ -78,17 +94,33 @@ public class SizeDependent extends Activity {
 									R.drawable.cell_circle_cursor_24,
 									R.drawable.cell_circle_cursor_across_24,
 									R.drawable.cell_circle_cursor_down_24,
+									R.drawable.cell_wrong_24,                           
+									R.drawable.cell_circle_wrong_24,
+									R.drawable.cell_cursor_wrong_24,                
+									R.drawable.cell_cursor_across_wrong_24,
+									R.drawable.cell_cursor_down_wrong_24,
+									R.drawable.cell_circle_cursor_wrong_24,
+									R.drawable.cell_circle_cursor_across_wrong_24,
+									R.drawable.cell_circle_cursor_down_wrong_24,
 									} ;
 	  // 26x26 and above:
 	  private int[] iconset10 = { 	R.drawable.cell_10,
-				R.drawable.cell_circle_10,
-				R.drawable.cell_cursor_10,
-				R.drawable.cell_cursor_across_10,
-				R.drawable.cell_cursor_down_10,
-				R.drawable.cell_circle_cursor_10,
-				R.drawable.cell_circle_cursor_across_10,
-				R.drawable.cell_circle_cursor_down_10,
-				} ;
+									R.drawable.cell_circle_10,
+									R.drawable.cell_cursor_10,
+									R.drawable.cell_cursor_across_10,
+									R.drawable.cell_cursor_down_10,
+									R.drawable.cell_circle_cursor_10,
+									R.drawable.cell_circle_cursor_across_10,
+									R.drawable.cell_circle_cursor_down_10,
+									R.drawable.cell_wrong_10,                           
+									R.drawable.cell_circle_wrong_10,
+									R.drawable.cell_cursor_wrong_10,                
+									R.drawable.cell_cursor_across_wrong_10,
+									R.drawable.cell_cursor_down_wrong_10,
+									R.drawable.cell_circle_cursor_wrong_10,
+									R.drawable.cell_circle_cursor_across_wrong_10,
+									R.drawable.cell_circle_cursor_down_wrong_10,
+									} ;
 
 
 	  private void pick_iconset(int n) {
@@ -110,6 +142,14 @@ public class SizeDependent extends Activity {
 		cell_icon_circle_cursor = iconset[5] ;
 		cell_icon_circle_cursor_across = iconset[6] ;
 		cell_icon_circle_cursor_down = iconset[7] ;
+		cell_icon_normal_wrong = iconset[8] ;
+		cell_icon_circle_wrong = iconset[9] ;
+		cell_icon_normal_cursor_wrong = iconset[10] ;
+		cell_icon_normal_cursor_across_wrong = iconset[11] ;
+		cell_icon_normal_cursor_down_wrong = iconset[12] ;
+		cell_icon_circle_cursor_wrong = iconset[13] ;
+		cell_icon_circle_cursor_across_wrong = iconset[14] ;
+		cell_icon_circle_cursor_down_wrong = iconset[15] ;
 	  } // pick_iconset
 
 	  private void calculate_textsize(int n) {

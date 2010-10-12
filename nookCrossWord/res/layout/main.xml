@@ -18,7 +18,40 @@
                           android:scrollbars="none" android:orientation="vertical"
                           android:background="#FFFFFF"
         >
-                  <!--  The crossword puzzle is attached in here -->
+        
+       <!--  The crossword puzzle is attached in here -->
+       
+       <!--  This spash screen stuff is removed first: -->
+       		<LinearLayout android:layout_width="fill_parent" android:layout_height="360px" android:layout_gravity="top" />
+        	<LinearLayout android:layout_width="362px" android:layout_height="42px" android:gravity="center" android:background="#000000"
+        				  android:layout_gravity="center"
+        	>
+      		<TableLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="#FFFFFF">
+      		<TableRow android:layout_width="wrap_content" android:layout_height="wrap_content">
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="C" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="R" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="O" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="S" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="S" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="W" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="O" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="R" />
+      		<TextView android:layout_width="40px" android:layout_height="40px" android:background="@drawable/cell_40"
+      			android:typeface="monospace" android:textColor="#000000" android:textSize="32px" android:gravity="center" android:text="D" />
+      		</TableRow>
+      		</TableLayout>
+      		</LinearLayout>
+   		<!-- end of startup splash screen ^^^ -->
+                  
+
         </LinearLayout>
         
         <!--   This ScrollView is used by the clues pages (the ones you get to with NOOK_PAGE_DOWN): -->
@@ -76,16 +109,26 @@
                 <Button
                 android:id="@+id/play_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/play_button_label"
+                android:textStyle="bold"
                 />                
                 <Button
                 android:id="@+id/file_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/file_button_label"
+                android:textStyle="bold"
+                />
+                <Button
+                android:id="@+id/settings_button"
+                android:layout_width="fill_parent"
+                android:layout_height="36.0px"
+                android:background="@drawable/submenu_list_selector_background"
+                android:text="@string/settings_button_label"
+                android:textStyle="bold"
                 />
 
             </LinearLayout>
@@ -97,7 +140,7 @@
 
         <!--   touchscreen_animator view 1 (Play):  -->
         
-        <ScrollView
+        <ScrollView android:id="@+id/play_submenu_scroller"
         android:orientation="vertical"
         android:layout_width="fill_parent" android:layout_height="fill_parent"
         android:background="#F0F0F0"
@@ -112,44 +155,60 @@
                 <Button
                 android:id="@+id/go_to_touchscreen_across_clues"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/across_clues_button"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/go_to_touchscreen_down_clues"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/down_clues_button"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/launchkeyboardbutton"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
-                android:background="@drawable/submenu_list_selector_background"
+                android:layout_height="36.0px"
+                android:background="@drawable/list_selector_background"
                 android:text="@string/launchkeyboardbutton_label"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/aboutthispuzzle_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/aboutthispuzzle_button_label"
+                android:textStyle="bold"
                 />
+                <!-- 
+                <Button
+                android:id="@+id/rebus_button"
+                android:layout_width="fill_parent"
+                android:layout_height="36.0px"
+                android:background="@drawable/list_selector_background"
+                android:text="@string/rebus_button_label"
+                android:textStyle="bold"
+                />
+                -->
                 <Button
                 android:id="@+id/check_solution_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/check_solution_button_label"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/hints_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/hints_button_label"
+                android:textStyle="bold"
                 />
                                                 
             </LinearLayout>
@@ -186,23 +245,26 @@
                 <Button
                 android:id="@+id/show_current_letter_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/show_current_letter"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/erase_wrong_answers_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/erase_wrong_answers"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/i_give_up_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/i_give_up"
+                android:textStyle="bold"
                 />
                 
             </LinearLayout>
@@ -230,30 +292,42 @@
                 <Button
                 android:id="@+id/open_puzzle_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/submenu_list_selector_background"
                 android:text="@string/open_puzzle"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/resume_current_puzzle_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/resume_current_puzzle"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/clear_puzzle_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/clear_puzzle"
+                android:textStyle="bold"
+                />
+                <Button
+                android:id="@+id/delete_puzzle_button"
+                android:layout_width="fill_parent"
+                android:layout_height="36.0px"
+                android:background="@drawable/list_selector_background"
+                android:text="@string/delete_puzzle"
+                android:textStyle="bold"
                 />
                 <Button
                 android:id="@+id/puzzles_help_button"
                 android:layout_width="fill_parent"
-                android:layout_height="35.0px"
+                android:layout_height="36.0px"
                 android:background="@drawable/list_selector_background"
                 android:text="@string/puzzles_help"
+                android:textStyle="bold"
                 />
             
             </LinearLayout>

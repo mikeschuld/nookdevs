@@ -9,12 +9,14 @@
 <string name="direction_button_label">Toggle Direction</string>
 <string name="across_clues_button">Across Clues</string>
 <string name="down_clues_button">Down Clues</string>
-<string name="check_solution_button_label">Check solution</string>
+<string name="rebus_button_label">Insert multiple letters</string>
+<string name="check_solution_button_label">Check Solution</string>
 <string name="show_current_letter">Show Current Letter</string>
 <string name="erase_wrong_answers">Erase Wrong Answers</string>
 <string name="i_give_up">I give up, solve the puzzle for me</string>
 <string name="open_puzzle">Open Puzzle</string>
 <string name="clear_puzzle">Clear Puzzle Answers</string>
+<string name="delete_puzzle">Delete Puzzle</string>
 <string name="clues_button">Clues</string>
 <string name="giveup_areyousure">Are you sure you want to give up?</string>
 <string name="giveup_yes">Yes, solve it for me.</string>
@@ -23,6 +25,9 @@
 <string name="clear_puzzle_areyousure">Erase all answers?</string>
 <string name="clear_puzzle_yes">Yes</string>
 <string name="clear_puzzle_no">No</string>
+<string name="delete_puzzle_areyousure">Permanently delete this puzzle?</string>
+<string name="delete_puzzle_yes">Yes</string>
+<string name="delete_puzzle_no">No</string>
 <string name="eink_across_label">Across:</string>
 <string name="eink_down_label">Down:</string>
 <string name="dir_is_across_toast">ACROSS</string>
@@ -37,10 +42,20 @@
 <string name="resume_current_puzzle">Continue Latest Puzzle</string>
 <string name="my_puzzles">My Crosswords</string>
 <string name="install_fileselector">FYI: This will work better if you install the nookdevs FileSelector package.</string>
+<string name="which_sdcard_to_use">Where do you want to load puzzles from?</string>
+<string name="internal_sdcard">Internal SD card</string>
+<string name="external_sdcard">External SD card</string>
 <string name="error_cannot_determine_latest_puzzle">Cannot determine latest puzzle.  Open a new puzzle.</string>
 <string name="puzzles_help">Help</string>
 <string name="puzzles_help_dialog_text">Puzzles Help\n\nnookCrossWord does not include any puzzles.\n\nYou must download puzzles from the internet and place them into the \&quot;my crosswords\&quot; folder on your nook.\n\nFor more information:\nhttp://code.google.com/p/nookdevs/wiki/nookCrossWordFAQ</string>
 <string name="no_wrong_answers">No wrong answers</string>
 <string name="erased_x_wrong_answers_fmt">Erased %d wrong answers</string>
 <string name="erased_one_wrong_answer">Erased 1 wrong answer</string>
+<string name="settings_button_label">Settings</string>
+<string name="hints_settings_button_label">Hints Settings</string>
+<string name="nav_settings_button_label">Cursor Navigation Settings</string>
+<string name="hints_settings_mark_wrong_answers_button_label">Mark Wrong Answers</string>
+<string name="hints_settings_freeze_right_answers_button_label">Right Answers Become Read-Only</string>
+<string name="nav_settings_cursor_wraps_label">Cursor wraps at edge of screen</string>
+<string name="nav_settings_cursor_next_clue_label">Cursor automatically jumps to next/previous clue</string>
 </resources>
