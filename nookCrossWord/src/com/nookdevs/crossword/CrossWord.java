@@ -223,13 +223,13 @@ public class CrossWord extends BaseActivity {
 								}
 						});
 						alertdialogbuilder.show();
+						touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
+						touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
+						play_submenu_scroller.fullScroll( ScrollView.FOCUS_UP );
 					} catch (Exception ex) {
 						Log.e( this.toString(), "Error: Exception trying to show dialog: " + ex );
 						ex.printStackTrace();
 					}
-					touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
-					touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
-					play_submenu_scroller.fullScroll( ScrollView.FOCUS_UP );
 				}
 			}
 		});
