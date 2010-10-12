@@ -32,7 +32,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-//import android.util.Log ;
+import android.util.Log ;
 
 /*
  * The MineField class uses this class to draw itself on both the eink screen
@@ -48,6 +48,8 @@ public class MineFieldViews {
 	private TextView statusline;
 	int rows;
 	int cols;
+	private int einkCellDim;
+	private int tsCellDim ;
 	float eink_textsize;
 	float ts_textsize;
 	MinesPlayActivity activity;
@@ -56,8 +58,8 @@ public class MineFieldViews {
 	//  We need to know how much room we have, so we pick cells that
 	//  will all fit on the screen:
 	private final static int EINK_MINEFIELD_WIDTH = 510 ;
-	private final static int TS_MINEFIELD_WIDTH = 408 ;
-	private final static int EINK_MINEFIELD_HEIGHT = 685 ;
+	private final static int TS_MINEFIELD_WIDTH = 409 ;
+	private final static int EINK_MINEFIELD_HEIGHT = 686 ;
 
 	int eink_cell_icon_unknown;
 	int eink_cell_icon_cleared;
@@ -85,9 +87,9 @@ public class MineFieldViews {
 		touchscreen_listview = (ListView) activity.findViewById(R.id.list);
 		touchscreen_listview.setAdapter(new MineFieldListAdapter(activity));
 		statusline = (TextView) activity.findViewById(R.id.einktext);
+		calculateSizes();
 		pick_iconset();
-		set_textsize();
-		buildMineFieldViews();
+		buildEinkMineFieldViews();
 		updateStatusText();
 	}
 
@@ -95,19 +97,24 @@ public class MineFieldViews {
 
 	//  The next few functions are called by our constructor:
 	
-	private void set_textsize() {
-		float einkmaxy = EINK_MINEFIELD_HEIGHT / rows * .62f ;
-		float einkmaxx = EINK_MINEFIELD_WIDTH / cols * .62f ;
+	private void calculateSizes() {
+		int einkmaxx = EINK_MINEFIELD_WIDTH / cols ;
+		int einkmaxy = EINK_MINEFIELD_HEIGHT / rows ;
 		if ( einkmaxx < einkmaxy ) {
-			eink_textsize = einkmaxx ;
+			einkCellDim = einkmaxx ;
+			tsCellDim = TS_MINEFIELD_WIDTH / cols ;
 		} else {
-			eink_textsize = einkmaxy ;
+			einkCellDim = einkmaxy ;
+			tsCellDim = ( TS_MINEFIELD_WIDTH * EINK_MINEFIELD_HEIGHT ) / ( EINK_MINEFIELD_WIDTH * rows ) ;
 		}
-		ts_textsize = TS_MINEFIELD_WIDTH / cols * .62f ;
-	} // set_textsize
+		eink_textsize = einkCellDim * .62f ;
+		ts_textsize = tsCellDim * .62f ;
+		Log.d( this.toString(), "einkCellDim = " + einkCellDim + ",  tsCellDim = " + tsCellDim );
+	} // calculateSizes
 
-	// eink:
-	private void buildMineFieldViews() {
+
+	// Draw the minefield on the eink screen:
+	private void buildEinkMineFieldViews() {
 		LayoutInflater inflater = activity.getLayoutInflater();
 		minefieldtable.removeAllViews();
 		eink_views = new TextView[rows][cols];
@@ -120,16 +127,9 @@ public class MineFieldViews {
 						R.layout.eink_cell, null);
 				cellview.setBackgroundResource(eink_cell_icon_unknown);
 				cellview.setTextSize(eink_textsize);
-				int dim;
-				int einkmaxy = EINK_MINEFIELD_HEIGHT / rows ;
-				int einkmaxx = EINK_MINEFIELD_WIDTH / cols ;
-				if ( einkmaxx < einkmaxy ) {
-					dim = einkmaxx ;
-				} else {
-					dim = einkmaxy ;
-				}
-				cellview.setMinimumHeight(dim);
-				cellview.setMinimumWidth(dim);
+
+				cellview.setMinimumHeight(einkCellDim);
+				cellview.setMinimumWidth(einkCellDim);
 				// add button to tablerow
 				tableRow.addView(cellview);
 				eink_views[r][c] = cellview;
@@ -137,7 +137,7 @@ public class MineFieldViews {
 			// add tablerow to table:
 			minefieldtable.addView(tableRow);
 		}
-	} // buildMineFieldViews
+	} // buildEinkMineFieldViews
 
 	
 	//  I'm doing all this because android won't easily scale down a background image if
@@ -170,37 +170,25 @@ public class MineFieldViews {
 		int[] eink_iconset;
 		int[] ts_iconset;
 
-		//  EINK_MINEFIELD_WIDTH
-		//  TS_MINEFIELD_WIDTH
-		
-		int einkmaxsize ;
-		int einkmaxy = EINK_MINEFIELD_HEIGHT / rows ;
-		int einkmaxx = EINK_MINEFIELD_WIDTH / cols ;
-		if ( einkmaxx < einkmaxy ) {
-			einkmaxsize = einkmaxx ;
-		} else {
-			einkmaxsize = einkmaxy ;
-		}
-		if ( einkmaxsize >= 62 ) {
+		if ( einkCellDim >= 62 ) {
 			eink_iconset = iconset62;
-		} else if ( einkmaxsize >= 51 ) {
+		} else if ( einkCellDim >= 51 ) {
 			eink_iconset = iconset51;
-		} else if ( einkmaxsize >= 42 ) {
+		} else if ( einkCellDim >= 42 ) {
 			eink_iconset = iconset42;
-		} else if ( einkmaxsize >= 34 ) {
+		} else if ( einkCellDim >= 34 ) {
 			eink_iconset = iconset34;
 		} else {
 			eink_iconset = iconset25;
 		}
 		
-		int tsmaxsize = TS_MINEFIELD_WIDTH / cols ;
-		if ( tsmaxsize >= 62 ) {
+		if ( tsCellDim >= 62 ) {
 			ts_iconset = iconset62;
-		} else if ( tsmaxsize >= 51 ) {
+		} else if ( tsCellDim >= 51 ) {
 			ts_iconset = iconset51;
-		} else if ( tsmaxsize >= 42 ) {
+		} else if ( tsCellDim >= 42 ) {
 			ts_iconset = iconset42;
-		} else if ( tsmaxsize >= 34 ) {
+		} else if ( tsCellDim >= 34 ) {
 			ts_iconset = iconset34;
 		} else {
 			ts_iconset = iconset25;
@@ -387,9 +375,8 @@ public class MineFieldViews {
 					return true;
 				}
 			});
-			int dim = TS_MINEFIELD_WIDTH / cols;
-			b.setMinimumHeight(dim);
-			b.setMinimumWidth(dim);
+			b.setMinimumHeight(tsCellDim);
+			b.setMinimumWidth(tsCellDim);
 		}
 
 		return ((View) layout);

@@ -30,7 +30,7 @@ import android.os.PowerManager;
 import android.net.Uri;
 import android.content.SharedPreferences;
 
-public class MinesActivity extends Activity {
+public abstract class MinesActivity extends Activity {
     PowerManager.WakeLock screenLock = null;
     long m_ScreenSaverDelay = 600000;  // default value; will be replaced with Nook setting
     public static String TITLE = "Mines";
