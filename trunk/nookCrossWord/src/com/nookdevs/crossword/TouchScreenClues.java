@@ -14,7 +14,6 @@
  */
 package com.nookdevs.crossword;
 
-import android.app.Activity;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.LinearLayout;
@@ -27,6 +26,7 @@ import android.view.LayoutInflater;
 import android.widget.TextView;
 import java.util.ArrayList;
 import android.graphics.Typeface;
+import android.graphics.Rect;
 import android.util.Log;
 
 //  cluepages_? are ArrayLists of ArrayLists, representing a list of clues for each page.
@@ -43,14 +43,13 @@ import android.util.Log;
 
 
 
-public class TouchScreenClues extends Activity {
+public class TouchScreenClues {
 	Puzzle puzzle ;
 	ScrollView touchscreen_clues_scroller ;
 	//LinearLayout layout ;
     TableLayout table ;
     HorizontalScrollView top_navbuttons ;
     HorizontalScrollView bottom_navbuttons ;
-
     Button buttongrid_a[][] ;
     Button buttongrid_d[][] ;
     private static final int MAX_CLUES_PER_PAGE = 10 ;
@@ -122,42 +121,34 @@ public class TouchScreenClues extends Activity {
 
     	//  Figure out which clue page we should display:
     	boolean gotit=false ;
+    	if ( dir == CrossWord.ACROSS ) {
+    		num_pages = num_pages_a ;
+    		targetclue = puzzle.getCell(row,col).acrossclue ;
+    		cluelist = cluespages_a ;
+    	} else {
+    		num_pages = num_pages_d ;
+    		targetclue = puzzle.getCell(row,col).downclue ;
+    		cluelist = cluespages_d ;
+    	}
         try {
-        	if ( dir == CrossWord.ACROSS ) {
-        		num_pages = num_pages_a ;
-        		targetclue = puzzle.getCell(row,col).acrossclue ;
-        		cluelist = cluespages_a ;
-        	} else {
-        		num_pages = num_pages_d ;
-        		targetclue = puzzle.getCell(row,col).downclue ;
-        		cluelist = cluespages_d ;
-        	}
-        	for( int n = 0 ; n < num_pages ; n++ ) {
+        	for( int n = 0 ; (n < num_pages) && (! gotit) ; n++ ) {
         		for ( Clue clue : cluelist.get(n) ) {
         			if ( clue == targetclue ) {
         				pagenum = n ; gotit=true ; break ;
         			}
         		}
-        		if (gotit) break ;
         	}
         } catch (Exception ex ) {
         	Log.e( this.toString(), "Unexpected exception: " + ex ) ;
         }
-    	
+        
     	if ( gotit ) {
     		prepare_page(dir, pagenum);
     	} else {
     		Log.e( this.toString(), "Error: could not find clue") ;
+    		return ;
     	}
     	
-    	/*
-    	// This seems to cause intermittent problems with the keyboard:
-    	if ( dir == CrossWord.ACROSS ) {
-    		touchscreen_clues_scroller.requestChildFocus( layout, buttongrid_a[row][col] ) ;
-    	} else {
-    		touchscreen_clues_scroller.requestChildFocus( layout, buttongrid_d[row][col] ) ;
-    	}
-    	*/
     } // prepare
     
     private void prepare_page(int dir, int pagenum) {
@@ -218,11 +209,8 @@ public class TouchScreenClues extends Activity {
             cellbg.setBackgroundColor( cell.shade );
             Button cellbutton = (Button) cellbg.findViewById(R.id.cellbutton);
             cellbutton.setText( cell.usertext ) ;
-            if ( cell.is_a_circle ) {
-            	cellbutton.setBackgroundResource( R.drawable.touchscreencell_circle_selector );
-            } else {
-            	cellbutton.setBackgroundResource( R.drawable.touchscreencell_selector );
-            }
+            cell.drawBackgroundIcon_TouchScreen( (View) cellbutton );
+
             int i[] = new int[3] ;
             i[0] = cell.row; i[1] = cell.col; i[2] = clue.dir;
             cellbutton.setTag( i );
@@ -248,7 +236,6 @@ public class TouchScreenClues extends Activity {
             
             //  If there are too many cells to fit on the screen, start a new row:
         	if ( cellcount >= SizeDependent.max_cells_on_touchscreen_clues_scroller ) {
-        		Log.d( this.toString(), "DEBUG: in here for clue " + clue.num );
         		table.addView(tablerow_cells);
         		tablerow_cells = (TableRow) inflater.inflate(R.layout.touchscreenclues_row_cells_nextline, null);
                 cellslayout = (LinearLayout) tablerow_cells.findViewById(R.id.cellslayout);
@@ -264,9 +251,11 @@ public class TouchScreenClues extends Activity {
     	try {
 			if ( buttongrid_a[i][j] != null ) {
 				(buttongrid_a[i][j]).setText(s);
+				puzzle.getCell(i,j).drawBackgroundIcon_TouchScreen( buttongrid_a[i][j] );
 			}
 			if ( buttongrid_d[i][j] != null ) {
 				(buttongrid_d[i][j]).setText(s);
+				puzzle.getCell(i,j).drawBackgroundIcon_TouchScreen( buttongrid_d[i][j] );
 			}
 		} catch (Exception ex) {
 			Log.e( this.toString(), "Error: unexpected exception adding text to touchscreen clues: " + ex );

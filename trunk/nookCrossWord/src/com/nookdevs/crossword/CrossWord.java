@@ -18,26 +18,19 @@
  * Written by Kevin Vajk and Hariharan Swaminathan
  */
 package com.nookdevs.crossword;
-import android.app.Activity;
 import android.os.Bundle;
-import android.database.Cursor;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.util.Log;
-import android.os.PowerManager;
-import android.net.Uri;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 import android.view.ViewGroup;
 import android.view.Gravity;
 import android.widget.Toast;
-import android.content.SharedPreferences;
 import android.view.View.OnClickListener;
 import android.view.KeyEvent;
-import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.widget.ViewAnimator;
 import android.widget.ScrollView;
@@ -49,28 +42,21 @@ import java.util.Collections;
 import java.io.*;
 
 
+
 // TODO: support rebus entries
 // TODO: this code is vulnerable to null pointer exceptions
 // TODO: when adding a Clue, make sure it's not already there
 // TODO: handle multiple puzzles in an XPF puzzle file
-// TODO: when building/loading a puzzle, I'm using exponential-time algorithms all over the place
 // TODO: get rid of methods like addClue()
 // TODO: consolidate the build/populate functions; it's very confusing
-// TODO: support entering symbols, too, and maybe numbers
 // TODO: What to put in "About this puzzle" when the puzzle has no metadata?
-// TODO: Don't save user answers if they're all blank
 // TODO: load time is *way* too slow
 // TODO: hide the keyboard when exiting
-// TODO: should I be using onKeyDown, or onKeyUp?
 // TODO: thread problem
-// TODO: <merge>?
-// TODO: hard-coded sizes in xml files (e.g. e-ink screen size) should maybe be
-//       set in SizeDependent.java.
-// TODO: can we handle accented characters in clues?
 // TODO: JNotes
 
 
-public class CrossWord extends Activity {
+public class CrossWord extends BaseActivity {
 
 	protected static String TITLE = "Crossword";
 
@@ -79,41 +65,40 @@ public class CrossWord extends Activity {
 	ScrollView eink_cluespagescroller; // The Clues View on the e-ink screen (NOOK_PAGE_DOWN)
 	ViewAnimator touchscreenanimator; // The container for menus and submenus on the touchscreen
 	LinearLayout touchscreen_clues_container; // the touchscreen clues (populated dynamically)
+	ScrollView play_submenu_scroller;
 	LinearLayout puzzlelist;              // TODO: move this to another activity, on the e-ink screen
 	LinearLayout puzzles_submenu;
+	//  The buttons that (conditionally) appear in the Puzzles sub-menu:
 	Button open_puzzle_button;
 	Button resume_current_puzzle_button;
 	Button clear_puzzle_button; 
+	Button delete_puzzle_button;
 	Button puzzles_help_button;
-	
+	//  Settings (loaded from saved settings at startup):
+	public boolean mark_wrong_answers ;
+	public boolean freeze_right_answers ;
+	public boolean cursor_wraps ;
+	public boolean cursor_next_clue ;
+
 	static final int STAYPUT = 0;
 	static final int ACROSS = 1;
 	static final int DOWN = 2;
 
-	// Yuck:
+	static final int EINK_PUZZLE_VIEWNUM = 0 ;
+	static final int EINK_CLUES_VIEWNUM = 1 ;
+	
 	static final int MAIN_MENU_VIEWNUM = 0 ;
-	static final int PLAY_SUBMENU_VIEWNUM   = 1 ;
-	static final int CLUESSCROLLERS_SUBMENU_VIEWNUM  = 2 ;
-	static final int HINTS_SUBMENU_VIEWNUM  = 3 ;
-	static final int PUZZLES_SUBMENU_VIEWNUM  = 4 ;
+	static final int PLAY_SUBMENU_VIEWNUM = 1 ;
+	static final int CLUESSCROLLERS_SUBMENU_VIEWNUM = 2 ;
+	static final int HINTS_SUBMENU_VIEWNUM = 3 ;
+	static final int PUZZLES_SUBMENU_VIEWNUM = 4 ;
 	static final int PUZZLE_LIST_SUBMENU_VIEWNUM = 5 ;
-
-	static final String CROSSWORD_PREFERENCES = "nookCrossWordPreferences" ;
-	static final String CROSSWORD_PREFERENCES_CURRENT_PUZZLE = "CURRENTPUZZLE" ;
-
-	InputMethodManager keyboardim; // the pop-up keyboard
-
-	PowerManager.WakeLock screenLock = null;
-	long m_ScreenSaverDelay = 600000; // default value; will be replaced with
-										// Nook setting
-	SharedPreferences mSettings ;
-
+	
+	static final int ACTIVITY_OPEN_PUZZLE = 0 ;
+	static final int ACTIVITY_SETTINGS = 1 ;
 
 	Puzzle activePuzzle = null ;
 
-	public static final String EXTERNAL_SD_FOLDER="/sdcard/my crosswords";
-	public static final String INTERNAL_SD_FOLDER="/system/media/sdcard/my crosswords";
-	private String m_folder;
 
 	///////////////////////////////////////////////////////////////////////////////
 
@@ -124,16 +109,10 @@ public class CrossWord extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		Button b;
-
-		// android power management screen stuff:
-		initializeScreenLock();
-
-		//  The soft keyboard:
-		keyboardim = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 		
-		//  To save/restore state and settings:
-		mSettings = getSharedPreferences( CROSSWORD_PREFERENCES, Context.MODE_PRIVATE ) ;
-		
+		//  Load the user's preferences:
+		loadGameSettings();
+
 		//  Our Views:
 		einkanimator = (ViewAnimator) findViewById(R.id.eink_animator);
 		// einkanimator switches between these views:
@@ -146,6 +125,7 @@ public class CrossWord extends Activity {
 		touchscreen_clues_container = (LinearLayout) findViewById(R.id.touchscreen_clues_container);
 		puzzlelist = (LinearLayout) findViewById(R.id.puzzlelist);
 		puzzles_submenu = (LinearLayout) findViewById(R.id.puzzles_submenu );
+		play_submenu_scroller = (ScrollView) findViewById(R.id.play_submenu_scroller);
 		//
 		
 		
@@ -160,6 +140,7 @@ public class CrossWord extends Activity {
 			  		touchscreenanimator.setDisplayedChild( PLAY_SUBMENU_VIEWNUM );
 			  	} else if ( touchscreenanimator.getDisplayedChild() == HINTS_SUBMENU_VIEWNUM ) {
 			  		touchscreenanimator.setDisplayedChild( PLAY_SUBMENU_VIEWNUM );
+			  		play_submenu_scroller.fullScroll( ScrollView.FOCUS_UP );
 			  	} else if ( touchscreenanimator.getDisplayedChild() == PUZZLE_LIST_SUBMENU_VIEWNUM ) {
 			  		touchscreenanimator.setDisplayedChild( PUZZLES_SUBMENU_VIEWNUM );
 			  	} else {
@@ -213,6 +194,7 @@ public class CrossWord extends Activity {
 		b = (Button) findViewById(R.id.launchkeyboardbutton);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				einkanimator.setDisplayedChild( EINK_PUZZLE_VIEWNUM );
 				bringUpKeyboard();
 			}
 		});
@@ -224,10 +206,29 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
-				if ( activePuzzle.isSolved() ) {
-					showLongToast( getString(R.string.you_solved_it) );
-				} else {
+				if ( ! activePuzzle.isSolved() ) {
 					showShortToast( getString(R.string.not_solved_yet) );
+				} else {
+					//showLongToast( getString(R.string.you_solved_it) );
+					try {
+						LayoutInflater inflater = getLayoutInflater();
+						TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+						dialogtextview.setText( R.string.you_solved_it);
+						AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+						alertdialogbuilder
+							.setCancelable(false)
+							.setCustomTitle( dialogtextview )
+							.setPositiveButton( R.string.ok, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+								}
+						});
+						alertdialogbuilder.show();
+					} catch (Exception ex) {
+						Log.e( this.toString(), "Error: Exception trying to show dialog: " + ex );
+						ex.printStackTrace();
+					}
+					touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
+					touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
 				}
 			}
 		});
@@ -241,21 +242,37 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
-				LayoutInflater inflater = getLayoutInflater();
-				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
-				dialogtextview.setText( activePuzzle.aboutThisPuzzle() );
-				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-		        alertdialogbuilder.setCustomTitle( dialogtextview )
-		        .setCancelable(false)
-		        .setNegativeButton( getString(R.string.ok), new DialogInterface.OnClickListener() {
-		                        public void onClick(DialogInterface dialog, int id) {
-		                        	dialog.cancel();
-		                        }
+				try {
+					LayoutInflater inflater = getLayoutInflater();
+					TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+					dialogtextview.setText( activePuzzle.aboutThisPuzzle() );
+					AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+					alertdialogbuilder.setCustomTitle( dialogtextview )
+					.setCancelable(false)
+					.setNegativeButton( getString(R.string.ok), new DialogInterface.OnClickListener() {
+					                public void onClick(DialogInterface dialog, int id) {
+					                	dialog.cancel();
+					                }
 
-		        });
-                alertdialogbuilder.show();
+					});
+					alertdialogbuilder.show();
+				} catch (Exception ex) {
+					Log.e( this.toString(), "Error: Exception trying to show dialog: " + ex );
+					ex.printStackTrace();
+				}
 			}
 		});
+		
+		/*
+		// Rebus entry button:
+		b = (Button) findViewById(R.id.rebus_button);
+		b.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				showLongToast( "Not implemented yet" );  // TODO
+			}
+		});
+		*/
+
 
 		// Hints button:
 		b = (Button) findViewById(R.id.hints_button);
@@ -302,8 +319,6 @@ public class CrossWord extends Activity {
 			    	} else {
 			    		s = String.format( getString(R.string.erased_x_wrong_answers_fmt), r) ;
 			    	}
-			        //String s = "Erased " + r + " wrong answer" ;
-			        //if ( r > 1 ) s = s + "s" ;
 			        showShortToast(s);
 			    }
 			}
@@ -316,25 +331,30 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
-				LayoutInflater inflater = getLayoutInflater();
-				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
-				dialogtextview.setText( R.string.giveup_areyousure);
-				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-				alertdialogbuilder
-					.setCancelable(false)
-					.setCustomTitle( dialogtextview )
-					.setPositiveButton( R.string.giveup_yes, new DialogInterface.OnClickListener() {
+				try {
+					LayoutInflater inflater = getLayoutInflater();
+					TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+					dialogtextview.setText( R.string.giveup_areyousure);
+					AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+					alertdialogbuilder
+						.setCancelable(false)
+						.setCustomTitle( dialogtextview )
+						.setPositiveButton( R.string.giveup_yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								activePuzzle.justSolveTheWholeThing();
+								showLongToast( getString(R.string.giveup_wedidit) );
+							}
+					})
+					.setNegativeButton( R.string.giveup_no, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							activePuzzle.justSolveTheWholeThing();
-							showLongToast( getString(R.string.giveup_wedidit) );
+							dialog.cancel();
 						}
-				})
-				.setNegativeButton( R.string.giveup_no, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-				alertdialogbuilder.show();
+					});
+					alertdialogbuilder.show();
+				} catch (Exception ex) {
+					Log.e( this.toString(), "Error: Exception trying to show dialog: " + ex );
+					ex.printStackTrace();
+				}
 			}
 		});
 		
@@ -382,24 +402,62 @@ public class CrossWord extends Activity {
 					showToast_No_Active_Puzzle();
 					return;
 				}
-				LayoutInflater inflater = getLayoutInflater();
-				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
-				dialogtextview.setText( R.string.clear_puzzle_areyousure );
-						
-				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-				alertdialogbuilder.setCustomTitle( dialogtextview )
-				  .setCancelable(false)
-				  .setPositiveButton( R.string.clear_puzzle_yes, new DialogInterface.OnClickListener() {
+				try {
+					LayoutInflater inflater = getLayoutInflater();
+					TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+					dialogtextview.setText( R.string.clear_puzzle_areyousure );
+					AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+					alertdialogbuilder.setCustomTitle( dialogtextview )
+					  .setCancelable(false)
+					  .setPositiveButton( R.string.clear_puzzle_yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								activePuzzle.clearAllAnswers();
+							}
+					})
+					  .setNegativeButton( R.string.clear_puzzle_no, new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							activePuzzle.clearAllAnswers();
+							dialog.cancel();
 						}
-				})
-				  .setNegativeButton( R.string.clear_puzzle_no, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-				alertdialogbuilder.show();
+					});
+					alertdialogbuilder.show();
+				} catch (Exception ex) {
+					Log.e( this.toString(), "Error: Exception trying to show dialog: " + ex );
+					ex.printStackTrace();
+				}
+			}
+		});
+		
+		// Delete puzzle button:
+		delete_puzzle_button = (Button) findViewById(R.id.delete_puzzle_button);
+		delete_puzzle_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				if ( activePuzzle == null ) {
+					showToast_No_Active_Puzzle();
+					return;
+				}
+				try {
+					LayoutInflater inflater = getLayoutInflater();
+					TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+					dialogtextview.setText( R.string.delete_puzzle_areyousure );
+					AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+					alertdialogbuilder.setCustomTitle( dialogtextview )
+					  .setCancelable(false)
+					  .setPositiveButton( R.string.delete_puzzle_yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								deleteActivePuzzle();
+								preparePuzzleMenu();
+							}
+					})
+					  .setNegativeButton( R.string.delete_puzzle_no, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+					});
+					alertdialogbuilder.show();
+				} catch (Exception ex) {
+					Log.e( this.toString(), "Error: Exception trying to show dialog: " + ex );
+					ex.printStackTrace();
+				}
 			}
 		});
 		
@@ -407,44 +465,42 @@ public class CrossWord extends Activity {
 		puzzles_help_button = (Button) findViewById(R.id.puzzles_help_button);
 		puzzles_help_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				LayoutInflater inflater = getLayoutInflater();
-				TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
-				dialogtextview.setText( R.string.puzzles_help_dialog_text );
-				AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
-				alertdialogbuilder.setCustomTitle( dialogtextview )
-				.setCancelable(false)
-				.setNegativeButton( getString(R.string.ok), new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-					}
-				});
-				alertdialogbuilder.show();
+				try {
+					LayoutInflater inflater = getLayoutInflater();
+					TextView dialogtextview = (TextView) inflater.inflate( R.layout.dialogtext, null );
+					dialogtextview.setText( R.string.puzzles_help_dialog_text );
+					AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder( v.getContext() );
+					alertdialogbuilder.setCustomTitle( dialogtextview )
+					.setCancelable(false)
+					.setNegativeButton( getString(R.string.ok), new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+					});
+					alertdialogbuilder.show();
+				} catch (Exception ex) {
+					Log.e( this.toString(), "Error: Exception trying to show dialog: " + ex );
+					ex.printStackTrace();
+				}
 			}
 		});
 		
-		
-		updateTitle(TITLE);
-		
-        File f = new File( EXTERNAL_SD_FOLDER);
-	    if( !f.exists()) {
-	        f = new File(INTERNAL_SD_FOLDER);
-	        if( !f.exists()) {
-	            f.mkdir();
-	        }
-	        m_folder = INTERNAL_SD_FOLDER;
-	    } else {
-	        m_folder = EXTERNAL_SD_FOLDER;
-	    }
+		// The Settings button:
+		 b = (Button) findViewById(R.id.settings_button);
+		b.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+		    	startActivityForResult( new Intent(CrossWord.this, SettingsActivity.class), ACTIVITY_SETTINGS );
+			}
+		});
+
 	} // onCreate
 
 	/////////////////////////////////////////////////
-
 
 	// onResume:
 	@Override
 	public void onResume() {
 		super.onResume();
-		acquireScreenLock();
 		
 		try {
 			updateTitle(TITLE);
@@ -466,6 +522,7 @@ public class CrossWord extends Activity {
 	public void onPause() {
 		super.onPause();
 		
+		//  Save our work:
 		try {
 			if ( activePuzzle != null ) {
 				PuzzleIO puzzleio = new PuzzleIO(this);
@@ -475,20 +532,50 @@ public class CrossWord extends Activity {
 			Log.e(this.toString(), "Error: exception saving user work: " + ex );
 		}
 				
-		releaseScreenLock();
 	} // onPause
-
-	@Override
-	public void onUserInteraction() {
-		super.onUserInteraction();
-		acquireScreenLock();
-	} // onUserInteraction
-	
 	
 	///////////////////////////////////////////////////////////////////////////////
 
+	//  This function dynamically generates the "Puzzles" submenu
+	void preparePuzzleMenu() {
+		puzzles_submenu.removeAllViews();
+		//  Open:
+		puzzles_submenu.addView(open_puzzle_button);
+		//  Resume latest:
+		if ( (activePuzzle == null) && mSettings.contains(CROSSWORD_PREFERENCES_CURRENT_PUZZLE  ) ) {
+			puzzles_submenu.addView(resume_current_puzzle_button);
+		}
+		//  Clear puzzle:
+		if ( activePuzzle != null ) {
+			puzzles_submenu.addView(clear_puzzle_button);
+		}
+		//  Delete puzzle:
+		if ( activePuzzle != null ) {
+			if ( activePuzzle.isSolved() ) {
+				puzzles_submenu.addView(delete_puzzle_button);
+			}
+		}
+		//  Help:
+		puzzles_submenu.addView(puzzles_help_button);
+	} // preparePuzzleMenu
+	
+
+	///////////////////////////////////////////////////////////////////////////////
+
+	private void loadGameSettings() {
+		mark_wrong_answers = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_MARK_WRONG_ANSWERS, false) ;
+		freeze_right_answers = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_FREEZE_RIGHT_ANSWERS, false) ;
+		cursor_wraps = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_CURSOR_WRAPS, true) ;             // <-- default true
+		cursor_next_clue = mSettings.getBoolean( CrossWord.CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE, false) ;
+	} // loadGameSettings
+	
+	///////////////////////////////////////////////////////////////////////////////
+
+	
+	//  This function is called after we've saved our work (if applicable), when
+	//  we want to wipe out the existing puzzle:
 	void destroyActivePuzzle() {
-		einkanimator.setDisplayedChild( 0 );
+		einkanimator.setDisplayedChild( EINK_PUZZLE_VIEWNUM );
 		activePuzzle = null ;
 		eink_xword_page.removeAllViews();
 		eink_cluespagescroller.removeAllViews();
@@ -514,47 +601,63 @@ public class CrossWord extends Activity {
 		//Log.d(this.toString(), "DEBUG: Leaving attachPuzzle().");
 	} // attachPuzzle
 	
-	///////////////////////////////////////////////////////////////////////////////
+	private void deleteActivePuzzle() {
+		if ( activePuzzle == null ) return ;
+		String f1 = activePuzzle.getFileName() ;
+		String f2 = f1 + ".wip" ;
+		destroyActivePuzzle();
 
-	//  This function dynamically generates the "Puzzles" submenu
-	void preparePuzzleMenu() {
-		puzzles_submenu.removeAllViews();
-		//  Open:
-		puzzles_submenu.addView(open_puzzle_button);
-		//  Resume latest:
-		if ( (activePuzzle == null) && mSettings.contains(CROSSWORD_PREFERENCES_CURRENT_PUZZLE  ) ) {
-			puzzles_submenu.addView(resume_current_puzzle_button);
+		Editor editor = mSettings.edit();
+		editor.remove( CROSSWORD_PREFERENCES_CURRENT_PUZZLE );
+		editor.commit();        
+
+		File f;		
+		try {
+			f = new File(f1);
+			f.delete();
+		} catch (Exception ex) {
+			Log.e( this.toString(), "Exception deleting puzzle: " + ex );
 		}
-		//  Clear puzzle:
-		if ( activePuzzle != null ) {
-			puzzles_submenu.addView(clear_puzzle_button);
+		try {
+			f = new File(f2);
+			f.delete();
+		} catch (Exception ex) {
+			Log.e( this.toString(), "Exception deleting puzzle WIP: " + ex );
 		}
-		//  Help:
-		puzzles_submenu.addView(puzzles_help_button);
-	} // preparePuzzleMenu
+		
+	} // deleteActivePuzzle
+	
 	
 	///////////////////////////////////////////////////////////////////////////////
 
 	@Override 
 	protected void onActivityResult(int requestCode,int resultCode,Intent data) 
 	{
-	    if( resultCode == RESULT_OK && data != null) {
-	        Bundle b = data.getExtras();
-	        if( b != null) {
-	            String file = b.getString("FILE");
-	            if( file != null) {
-	                loadCrossWord(file);
-	                if ( activePuzzle != null ) {
-	                	touchscreenanimator.setInAnimation(this, R.anim.fromleft);
-	                	touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
-	                	touchscreenanimator.setInAnimation(this, R.anim.fromright);
-	                }
-	            }
-	        }
-	    }
+		switch(requestCode) {
+		case ACTIVITY_SETTINGS:
+			loadGameSettings();
+			if ( activePuzzle != null ) activePuzzle.settingsHaveChanged();
+			break;
+		case ACTIVITY_OPEN_PUZZLE:
+			if( resultCode == RESULT_OK && data != null) {
+				Bundle b = data.getExtras();
+				if( b != null) {
+					String file = b.getString("FILE");
+					if( file != null) {
+						loadCrossWord(file);
+						if ( activePuzzle != null ) {
+							touchscreenanimator.setInAnimation(this, R.anim.fromleft);
+							touchscreenanimator.setDisplayedChild( MAIN_MENU_VIEWNUM );
+							touchscreenanimator.setInAnimation(this, R.anim.fromright);
+						}
+					}
+				}
+			}
+			break ;
+		}
 	}
 
-	boolean launchFileSelector() {
+	boolean launchFileSelector(String m_folder) {
 	    try {
 	        Intent intent = new Intent(Intent.ACTION_MAIN);
     	    intent.addCategory(Intent.ACTION_DEFAULT);
@@ -563,7 +666,7 @@ public class CrossWord extends Activity {
     	    String[] filters = {".*\\.puz", ".*\\.xml", ".*\\.xpf"};
     	    intent.putExtra("FILTER", filters);
     	    intent.putExtra("TITLE", getString(R.string.my_puzzles));
-    	    startActivityForResult(intent, 0);
+    	    startActivityForResult(intent, ACTIVITY_OPEN_PUZZLE);
     	    return true;
 	    } catch(Exception ex) {
 	        return false;
@@ -572,7 +675,16 @@ public class CrossWord extends Activity {
 	}
 		
 	void my_crosswords_file_menu() {
-	    if( launchFileSelector()) {
+		String m_folder;
+		//  Figure out where "my puzzles" lives: 
+		File f = new File( EXTERNAL_SD_FOLDER);
+		if( !f.exists()) {
+		        m_folder = INTERNAL_SD_FOLDER;
+		} else {    
+		        m_folder = EXTERNAL_SD_FOLDER;
+		}           
+		
+	    if( launchFileSelector(m_folder)) {
 	        return;
 	    }
 	    
@@ -596,7 +708,7 @@ public class CrossWord extends Activity {
         Collections.sort(filelist);
 
 		for ( String fname : filelist ) {
-			File f = new File(xworddir, fname);
+			f = new File(xworddir, fname);
 			if ( f.isFile() && ( (f.getName().toLowerCase()).endsWith(".puz") ||
 							(f.getName().toLowerCase()).endsWith(".xpf") ||
 							(f.getName().toLowerCase()).endsWith(".xml") )
@@ -702,9 +814,18 @@ public class CrossWord extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		
+		/*
+		Log.d( this.toString(), "DEBUG: KeyEvent = " + event.toString() );
+		Log.d( this.toString(), "DEBUG: Key number: " + event.getNumber() );
+		if ( event.isShiftPressed() ) {
+		    Log.d( this.toString(),  "DEBUG: SHIFT" );
+		} else {
+		    Log.d( this.toString(),  "DEBUG: Not SHIFTed" );
+		}
+		*/
+
 		// We don't handle any keys when no puzzle is loaded.
-		if (activePuzzle == null)
-			return (false);
+		if (activePuzzle == null) return (false);
 
 		try {
 			switch (keyCode) {
@@ -712,35 +833,41 @@ public class CrossWord extends Activity {
 			case NOOK_PAGE_UP_KEY_LEFT:
 			case NOOK_PAGE_UP_KEY_RIGHT:
 			case NOOK_PAGE_UP_SWIPE:
-				try {
-					int y = ((ScrollView) einkanimator.getCurrentView())
-							.getScrollY();
-					if (y == 0) {
-						einkanimator.showPrevious();
-					} else {
-						//((ScrollView) einkanimator.getCurrentView()).pageScroll(View.FOCUS_UP);
-						((ScrollView) einkanimator.getCurrentView()).scrollBy(0, -(SizeDependent.EINK_WINDOW_HEIGHT - 30) );
+				if ( einkanimator.getDisplayedChild() == EINK_CLUES_VIEWNUM ) {
+					try {
+						int y = ((ScrollView) einkanimator.getCurrentView()).getScrollY();
+						if (y == 0) {
+							einkanimator.showPrevious();
+						} else {
+							//((ScrollView) einkanimator.getCurrentView()).pageScroll(View.FOCUS_UP);
+							((ScrollView) einkanimator.getCurrentView()).scrollBy(0, -(SizeDependent.EINK_WINDOW_HEIGHT - 30) );
+						}
+					} catch (Exception ex) {
+						//einkanimator.showPrevious();
 					}
-				} catch (Exception ex) {
-					//einkanimator.showPrevious();
 				}
 				return (true);
 			case NOOK_PAGE_DOWN_KEY_LEFT:
 			case NOOK_PAGE_DOWN_KEY_RIGHT:
 			case NOOK_PAGE_DOWN_SWIPE:
-				try {
-					// If the current view is the main puzzle page, which is not
-					// a ScrollView, then this will throw an exception:
-				    //((ScrollView) einkanimator.getCurrentView()).pageScroll(View.FOCUS_DOWN);
-				    ((ScrollView) einkanimator.getCurrentView()).scrollBy(0, (SizeDependent.EINK_WINDOW_HEIGHT - 30) );
-				} catch (Exception ex) {
+				if ( einkanimator.getDisplayedChild() == EINK_PUZZLE_VIEWNUM ) {
 					einkanimator.showNext();
+				} else {
+					try {
+						//((ScrollView) einkanimator.getCurrentView()).pageScroll(View.FOCUS_DOWN);
+						((ScrollView) einkanimator.getCurrentView()).scrollBy(0, (SizeDependent.EINK_WINDOW_HEIGHT - 30) );
+					} catch (Exception ex) {
+						//einkanimator.showNext();
+					}
 				}
 				return (true);
 			case SOFT_KEYBOARD_CLEAR:
+			case KeyEvent.KEYCODE_CLEAR:
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
 				activePuzzle.setUserText(" "); // clear the cell
 				return (true);
 			case KeyEvent.KEYCODE_DEL:
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
 				activePuzzle.decrementCursor();
 				activePuzzle.setUserText(" "); // clear the cell
 				return (true);
@@ -750,36 +877,84 @@ public class CrossWord extends Activity {
 				toggleDirection_with_Toast();
 				return (true);
 			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				activePuzzle.moveCursor(ACROSS, +1);
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+				activePuzzle.incrementCursor(ACROSS);
 				activePuzzle.scroll_TouchscreenClues_to_Cursor();
 				return (true);
 			case KeyEvent.KEYCODE_DPAD_LEFT:
-				activePuzzle.moveCursor(ACROSS, -1);
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+				activePuzzle.decrementCursor(ACROSS);
 				activePuzzle.scroll_TouchscreenClues_to_Cursor();
 				return (true);
 			case KeyEvent.KEYCODE_DPAD_UP:
-				activePuzzle.moveCursor(DOWN, -1);
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+				activePuzzle.decrementCursor(DOWN);
 				activePuzzle.scroll_TouchscreenClues_to_Cursor();
 				return (true);
 			case KeyEvent.KEYCODE_DPAD_DOWN:
-				activePuzzle.moveCursor(DOWN, +1);
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+				activePuzzle.incrementCursor(DOWN);
 				activePuzzle.scroll_TouchscreenClues_to_Cursor();
 				return (true);
+			case KeyEvent.KEYCODE_AT:
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+				activePuzzle.setUserText("@");
+				activePuzzle.incrementCursor();
+				return (true);
+			/*
+			case KeyEvent.KEYCODE_PERIOD:
+				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+				activePuzzle.setUserText(".");
+				activePuzzle.incrementCursor();
+				return (true);
+			*/
 			default:
+				//  It's annoying that I have to jump through these hoops.  Isn't there a cleaner way?
+				if ( ! event.isPrintingKey() ) break ;
 				char c;
-				// TODO:
+				//  Regular letters:
 				c = event.getMatch("ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray());
-				// c = event.getDisplayLabel();
 				if (c != '\0') {
+					if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
 					activePuzzle.setUserText((c + ""));
 					activePuzzle.incrementCursor();
 					return (true);
 				}
-				/*
-				 * //String s = (event.getDisplayLabel() + "").toUpperCase();
-				 * KeyData keydata = new KeyData(); if ( event.getKeyData( keydata)
-				 * ) { activePuzzle.setUserText( 1, 1, s ); }
-				 */
+				//  Numbers and their symbols:
+				c = event.getNumber();
+				if ( c != '\0' ) {
+					String s;
+					s = "!@#$%^&*()" ;
+					if ( s.contains( "" + c) ) {
+						if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+						activePuzzle.setUserText((c + ""));
+						activePuzzle.incrementCursor();
+						return(true);
+					}
+					if ( event.isShiftPressed() ) {
+						if ( c == '1' ) c = '!' ;
+						else if ( c == '2' ) c = '@' ;
+						else if ( c == '3' ) c = '#' ;
+						else if ( c == '4' ) c = '$' ;
+						else if ( c == '5' ) c = '%' ;
+						else if ( c == '6' ) c = '^' ;
+						else if ( c == '7' ) c = '&' ;
+						else if ( c == '8' ) c = '*' ;
+						else if ( c == '9' ) c = '(' ;
+						else if ( c == '0' ) c = ')' ;
+						else if ( c == '\'' ) c = '"' ;
+						else if ( c == '/' ) c = '?' ;
+						else if ( c == '.' ) c = ':' ;  // Huh?!!!
+					}
+					s = "1234567890!@#$%^&*()?/,:;'\"+=-" ;  // for now, no . or ~
+					if ( s.contains( "" + c) ) {
+						if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
+						activePuzzle.setUserText((c + ""));
+						activePuzzle.incrementCursor();
+						return(true);
+					}
+
+				}
 				break;
 			}
 		} catch (Exception ex) {
@@ -788,25 +963,6 @@ public class CrossWord extends Activity {
 		
 		return (false);
 	} // onKeyDown
-	
-	///////////////////////////////////////////////////////////////////////////////
-
-
-	void bringUpKeyboard() {
-		
-		try {
-			keyboardim.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-		} catch (Exception ex) {
-			Log.e( this.toString(), "Error: Exception trying to bring up keyboard: " + ex  );
-			return ;
-		}
-		
-		// if we were looking at clues on the eink page, go back to the puzzle
-		// so they can see what they're typing:
-		try {
-			einkanimator.setDisplayedChild(0);
-		} catch ( Exception ex ) { }
-	} // bringUpKeyboard
 	
 	///////////////////////////////////////////////////////////////////////////////
 
@@ -902,107 +1058,6 @@ public class CrossWord extends Activity {
 	}
 	
 		
-	// /////////////////////////////////////////////////////////////////////////////
-
-	
-	public static final int SOFT_KEYBOARD_CLEAR = -13;
-	public static final int SOFT_KEYBOARD_SUBMIT = -8;
-	public static final int SOFT_KEYBOARD_CANCEL = -3;
-	public static final int SOFT_KEYBOARD_DOWN_KEY = 20;
-	public static final int SOFT_KEYBOARD_UP_KEY = 19;
-	protected static final int NOOK_PAGE_UP_KEY_RIGHT = 98;
-	protected static final int NOOK_PAGE_DOWN_KEY_RIGHT = 97;
-	protected static final int NOOK_PAGE_UP_KEY_LEFT = 96;
-	protected static final int NOOK_PAGE_DOWN_KEY_LEFT = 95;
-	protected static final int NOOK_PAGE_DOWN_SWIPE = 100;
-	protected static final int NOOK_PAGE_UP_SWIPE = 101;
-
-	// Android was designed for phones with back-lit screens; it doesn't know
-	// that the Nook's e-ink display doesn't use power when displaying a static
-	// image.
-	// So, we want to prevent android from blanking the e-ink display on us.
-	// Called from onCreate:
-	// Adapted from nookDevs code:
-	private void initializeScreenLock() {
-		PowerManager power = (PowerManager) getSystemService(POWER_SERVICE);
-		screenLock = power.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,
-				"nookactivity" + hashCode());
-		screenLock.setReferenceCounted(false);
-		String[] values = { "value" };
-		String[] fields = { "bnScreensaverDelay" };
-		Cursor c = getContentResolver().query(
-				Uri.parse("content://settings/system"), values, "name=?",
-				fields, "name");
-		if (c != null) {
-			c.moveToFirst();
-			long lvalue = c.getLong(0);
-			if (lvalue > 0) {
-				m_ScreenSaverDelay = lvalue;
-			}
-		}
-	} // initializeScreenLock
-
-	// Called from onPause:
-	private void releaseScreenLock() {
-		try {
-			if (screenLock != null) {
-				screenLock.release();
-			}
-		} catch (Exception ex) {
-			Log.e(this.toString(), "exception releasing screenLock - ", ex);
-			finish();
-		}
-	} // releaseScreenLock
-
-	// Called from onResume and onUserInteraction:
-	private void acquireScreenLock() {
-		if (screenLock != null) {
-			screenLock.acquire(m_ScreenSaverDelay);
-		}
-	} // acquireScreenLock
-
-	// Update the title bar:
-	// Taken from nookDevs common:
-	public final static String UPDATE_TITLE = "com.bravo.intent.UPDATE_TITLE";
-
-	protected void updateTitle(String title) {
-		try {
-			Intent intent = new Intent(UPDATE_TITLE);
-			String key = "apptitle";
-			intent.putExtra(key, title);
-			sendBroadcast(intent);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	} // updateTitle
-
-	// Taken from nookDevs common:
-	protected void goHome() {
-		String action = "android.intent.action.MAIN";
-		String category = "android.intent.category.HOME";
-		Intent intent = new Intent();
-		intent.setAction(action);
-		intent.addCategory(category);
-		startActivity(intent);
-	} // goHome
-
-	// Taken from nookDevs common:
-	protected void goBack() {
-		try {
-			Intent intent = new Intent();
-			if (getCallingActivity() != null) {
-				intent.setComponent(getCallingActivity());
-				startActivity(intent);
-			} else {
-				goHome();
-			}
-		} catch (Exception ex) {
-			goHome();
-		}
-	} // goBack
-
-
-	
 } // CrossWord class
 	
 	

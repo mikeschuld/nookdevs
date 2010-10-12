@@ -15,7 +15,6 @@
 package com.nookdevs.crossword;
 
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 import android.view.LayoutInflater;
@@ -25,20 +24,16 @@ import android.widget.RelativeLayout;
 import android.util.TypedValue;
 import android.util.Log;
 
+
+//  This class keeps track of what's in a cell.
+//  It also takes care of the eink view of this cell.
+//  The touchscreen views are managed in TouchScreenClues, with some help from methods here
 //  TODO: we're creating circled cells with is_a_circle=false, then changing
 //        it to true with setCircle(true).
 
-
-public class Cell extends Activity {
+public class Cell {
 	static CrossWord crossword_activity = null ; // our parent activity
     static Puzzle puzzle = null; // our parent puzzle
-    /*
-    // The Views for displaying the cell in the touchscreen Clues menus, both Across and Down:
-    LinearLayout tscellbg_a = null ;  // to change the bg color
-    LinearLayout tscellbg_d = null ;  // to change the bg color
-    private Button tscellbutton_a = null ;   // to set the cell letter
-    private Button tscellbutton_d = null ;   // to set the cell letter
-    */
     // The Views for displaying the cell on the e-ink screen:
     private LinearLayout bg = null;  // The View behind the cell, for changing the bg shade
     private RelativeLayout cv = null; // The View for the cell, e.g. for changing the bg image
@@ -50,7 +45,7 @@ public class Cell extends Activity {
     int row;
     int col;
     int number = 0;  // if non-zero, the clue number
-    boolean is_a_circle ;
+    boolean is_a_circle = false ;
     int shade = Color.WHITE ;
     // The clues we are a part of (even cells with no number will belong to two clues):
     Clue acrossclue = null ;
@@ -105,7 +100,7 @@ public class Cell extends Activity {
         cv.addView(numtv);
     } // buildNumberView
     
-    void drawCellNumber() {
+    public void drawCellNumber() {
     	if ( number == 0 ) return ;
     	if ( numtv == null ) {
     		// the first time we're called
@@ -116,7 +111,7 @@ public class Cell extends Activity {
     	}
     } // drawCellNumber
     
-    void drawCellText() {
+    private void drawCellText() {
         try {
 			if (tv != null) {
 			    tv.setText(usertext);
@@ -126,89 +121,139 @@ public class Cell extends Activity {
 		}
     } // drawCellText
     
-    /*
-    void drawTouchScreenText() {
-        if (tscellbutton_a != null) {
-            tscellbutton_a.setText(usertext);    
-        }
-        if (tscellbutton_d != null) {        
-        	tscellbutton_d.setText(usertext);
-        }
-    } // drawTouchScreenText
-    */
     
-    
-    void drawEverything() {
+    private void drawEverything() {
         //Log.d(this.toString(), "DEBUG: Entering Cell.drawEverything()...");
     	drawCellNumber();
     	drawCellText();
     	//drawTouchScreenText();
         drawBackground();
         //Log.d(this.toString(), "DEBUG: Leaving Cell.drawEverything().");
-    } // reDraw
+    } // drawEverything
 
     
-    // TODO: maybe this should filter for allowed characters?
-    void setUserText(String s) {
+    public void setUserText(String s) {
         usertext = s;
         drawCellText();
-        //drawTouchScreenText();
+        drawBackground();
     } // setUserText
     
 
+    private void drawBackgroundShade() {
+		if (isBlockedOut()) {
+		    bg.setBackgroundColor(Color.BLACK);
+		    return ;
+		}
+		bg.setBackgroundColor( shade );
+    } // drawBackgroundShade
     
     // Set the cell background image, depending on the type of cell, whether
     // or not it contains a cursor, etc
     // This function is called repeatedly during game play, whenever the
     // user's cursor moves onto or off of this cell
-    void drawBackground() {
+    private void drawBackgroundIcon() {
         //Log.d(this.toString(), "DEBUG: Entering Cell.drawBackground()...");
-    	
+    	boolean mark_answer_wrong = false ;
+    	if ( crossword_activity.mark_wrong_answers ) {
+    		mark_answer_wrong = hasWrongAnswer();
+    	}
         try {
 			if (isBlockedOut()) {
-				cv.setBackgroundColor(Color.BLACK);
-			    bg.setBackgroundColor(Color.BLACK);
 			    return ;
 			}
 			if ((puzzle.getCursorRow() == row) && (puzzle.getCursorCol() == col)) {
 				if ( is_a_circle ) {
 					if ( puzzle.direction == CrossWord.ACROSS ) {
-						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor_across );
+						if ( mark_answer_wrong ) {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor_across_wrong );
+						} else {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor_across );
+						}
 					} else if ( puzzle.direction == CrossWord.DOWN ) {
-						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor_down );
+						if ( mark_answer_wrong ) {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor_down_wrong );
+						} else {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor_down );
+						}
 					} else {
-						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor );
+						if ( mark_answer_wrong ) {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor_wrong );
+						} else {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_cursor );
+						}
 					}
 			    } else {
 					if ( puzzle.direction == CrossWord.ACROSS ) {
-						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor_across );
+						if ( mark_answer_wrong ) {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor_across_wrong );
+						} else {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor_across );
+						}
 					} else if ( puzzle.direction == CrossWord.DOWN ) {
-						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor_down );
+						if ( mark_answer_wrong ) {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor_down_wrong );
+						} else {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor_down );
+						}
 					} else {
-						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor );
+						if ( mark_answer_wrong ) {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor_wrong );
+						} else {
+							cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_cursor );
+						}
 					}
 			    }
 			} else {
 				if ( is_a_circle ) {
-					cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle );
+					if ( mark_answer_wrong ) {
+						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle_wrong );
+					} else {
+						cv.setBackgroundResource( puzzle.sizedependent.cell_icon_circle );
+					}
 			    } else {
-			        cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal );
+			    	if ( mark_answer_wrong ) {
+			    		cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal_wrong );
+			    	} else {
+			    		cv.setBackgroundResource( puzzle.sizedependent.cell_icon_normal );
+			    	}
 			    }
 			}
-			bg.setBackgroundColor( shade );
-			
-			//tscellbg_a.setBackgroundColor( shade );
-			//tscellbg_d.setBackgroundColor( shade );
 		} catch (Exception ex) {
 			Log.e(this.toString(), "Error: excepting drawing cell background: " + ex );
 		}
         //Log.d(this.toString(), "DEBUG: Leaving Cell.drawBackground().");
+    } // drawBackgroundIcon
+
+    //  Similar to the above, but called by TouchScreenClues:
+    public void drawBackgroundIcon_TouchScreen(View v) {
+    	boolean mark_answer_wrong = false ;
+        if ( crossword_activity.mark_wrong_answers ) {
+            mark_answer_wrong = hasWrongAnswer();
+        }
+	    if ( is_a_circle ) {
+	    	if ( mark_answer_wrong ) {
+	    		v.setBackgroundResource( R.drawable.touchscreencell_circle_wrong_selector );
+	    	} else {
+	    		v.setBackgroundResource( R.drawable.touchscreencell_circle_selector );
+	    	}
+	    } else {
+	    	if ( mark_answer_wrong ) {
+	    		v.setBackgroundResource( R.drawable.touchscreencell_wrong_selector );
+	    	} else {
+	    		v.setBackgroundResource( R.drawable.touchscreencell_selector );
+	    	}
+	    }
+    } // drawBackgroundIcon_TouchScreen
+
+    	
+    public void drawBackground() {
+    	drawBackgroundShade();
+    	drawBackgroundIcon();
     } // drawBackground
-    
 
     public void setCellShade( int color ) {
     	shade = color ;
-    	drawBackground();
+    	drawBackgroundShade();
     } // setCellShade
 
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -220,15 +265,6 @@ public class Cell extends Activity {
             return (bg);
     } // getEinkView
     
-    /*
-    View getTouchScreenView(int dir) {
-    	if ( dir == CrossWord.ACROSS ) {
-            return (tscellbg_a);
-    	} else {
-    		return (tscellbg_d);
-    	}
-    } // getTouchScreenView
-    */
     
     //  Called when the cursor moves off of us:
     void lostCursor() {
@@ -249,15 +285,29 @@ public class Cell extends Activity {
 
 
     // Whether or not the letter the user has entered in this cell is
-    // correct:
-    boolean hasCorrectAnswer() {
-        if (answertext.equals("")) {
-                return (false); // we're uninitialized; shouldn't happen
-        }
+    // correct.  Note that this is not quite the opposite of the
+    // hasWrongAnswer() function; an unanswered cell is considered
+    // neither wrong nor correct, just incomplete.
+    public boolean hasCorrectAnswer() {
         if ( isBlockedOut() ) {
         	return(true);
         }
         return (answertext.equals(usertext));
     } // hasCorrectAnswer
+    
+    // Whether or not the letter the user has entered in this cell is
+    // wrong.  Note that this is not quite the opposite of the
+    // hasCorrectAnswer() function; an unanswered cell is considered
+    // neither wrong nor correct, just incomplete.
+    // We use this function to flag or erase wrong answers.
+    public boolean hasWrongAnswer() {
+        if (usertext.equals("") || usertext.equals(" ")) {
+            return (false); // it's not wrong, it just doesn't exist
+        }
+        if ( isBlockedOut() ) {
+        	return(false);
+        }
+        return (! answertext.equals(usertext));
+    } // hasWrongAnswer
 
 } // class Cell

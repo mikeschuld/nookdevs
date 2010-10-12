@@ -14,7 +14,6 @@
  */
 package com.nookdevs.crossword;
 
-import android.app.Activity;
 import android.util.Log;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -29,7 +28,7 @@ import android.os.Handler;
 //import java.util.*;
 
 
-public class Puzzle extends Activity {
+public class Puzzle {
 	CrossWord crossword_activity = null ;
 	int direction = CrossWord.ACROSS ;
 	private Cell[][] cellgrid = null;
@@ -70,7 +69,6 @@ public class Puzzle extends Activity {
 		rows = tmprows ; cols = tmpcols ;
 		gridstring = tmpgridstring ;
 		has_rebus_entries = has_reebies ;
-		
 		
 		clues = new ArrayList<Clue>() ;
 		for ( Clue tmpclue : tmpclues ) {
@@ -118,7 +116,6 @@ public class Puzzle extends Activity {
 		
 		//Log.d(this.toString(), "DEBUG: Leaving Puzzle().");
 	} // Puzzle constructor
-	
 	
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -356,6 +353,7 @@ public class Puzzle extends Activity {
 		return (cursor_col);
 	} // getCursorCol
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	void setCursorPos(int i, int j) {
 		if (!positionIsValid(i, j)) {
@@ -376,56 +374,183 @@ public class Puzzle extends Activity {
 
 	// Move the cursor, adjusting as necessary so that we skip over blocked
 	// out cells, and we don't go off the edge of the puzzle.
-	// Then update our Clue views as necessary.
-	void moveCursor(int dir, int amount) {
+	private void moveCursor(int dir, int plus_or_minus) {
 		int new_cursor_row ;
 		int new_cursor_col ;
 		int delta_one ;
-		if ( amount > 0 ) {
+		
+		//  Figure out what we're doing:
+		if ( plus_or_minus > 0 ) {
 			delta_one = 1 ;
-		} else if ( amount < 0 ) {
+		} else if ( plus_or_minus < 0 ) {
 			delta_one = -1 ;
 		} else {
-			return ;  // amount==0 means STAYPUT
+			return ;  // 0 means STAYPUT
 		}
-		//  Do the requested move:
+		
+		//  Figure out where we are now:
 		new_cursor_row = getCursorRow(); new_cursor_col = getCursorCol();
+		//  Naively add/subtract 1 in that direction, and see what happens:
 		if (dir == CrossWord.ACROSS) {
-			new_cursor_col += amount ;
-		} else if (dir == CrossWord.DOWN) {
-			new_cursor_row += amount;
+			new_cursor_col += delta_one ;  // ACROSS
 		} else {
-			return;  // i.e. dir == STAYPUT; do nothing
+			new_cursor_row += delta_one ;  // DOWN
 		}
-		//  Now, if we've landed on an invalid square, skip over it:
-		while (positionIsValid(new_cursor_row, new_cursor_col)
-				&& getCell(new_cursor_row, new_cursor_col).isBlockedOut()) {
-			if (dir == CrossWord.ACROSS) {
-				new_cursor_col += delta_one ;
-			} else if (dir == CrossWord.DOWN) {
-				new_cursor_row += delta_one ;
+		
+		//  What to do if we land on an invalid square (off the edge, or blocked out):
+		if ( (! positionIsValid(new_cursor_row, new_cursor_col)) || getCell(new_cursor_row, new_cursor_col).isBlockedOut() ) {
+			if ( crossword_activity.cursor_next_clue ) {
+				Clue curClue ;
+				if ( dir == CrossWord.ACROSS ) {
+					curClue = (cellgrid[cursor_row][cursor_col]).acrossclue ;
+				} else if ( dir == CrossWord.DOWN ) {
+					curClue = (cellgrid[cursor_row][cursor_col]).downclue ;
+				} else {
+					return ;
+				}
+				if ( plus_or_minus > 0 ) {
+					// go to the first cell of this clue:
+					Clue nextClue =	getNextClue(curClue);
+					new_cursor_row = nextClue.row ; new_cursor_col = nextClue.col ;
+				} else {
+					// go to the last cell in this clue:
+					Clue nextClue = getPreviousClue( curClue );
+					int index = nextClue.cells.size() - 1 ;
+					Cell nextCell = nextClue.cells.get(index) ;
+					new_cursor_row = nextCell.row ; new_cursor_col = nextCell.col ;
+				}
+
+			} else {
+
+				// Move through any blocked-out cells:
+				while (positionIsValid(new_cursor_row, new_cursor_col)
+						&& (cellgrid[new_cursor_row][new_cursor_col]).isBlockedOut() ) {
+					if (dir == CrossWord.ACROSS) {
+						new_cursor_col += delta_one ;
+					} else if (dir == CrossWord.DOWN) {
+						new_cursor_row += delta_one ;
+					}
+				}
+				
+				// Have we gone off the edge of the screen?
+				if ( crossword_activity.cursor_wraps ) {
+					if ( plus_or_minus > 0 ) {
+						if ( new_cursor_col >= cols ) {
+							new_cursor_col = 0 ; new_cursor_row++ ;
+							if ( new_cursor_row >= rows ) new_cursor_row = 0 ;
+						}
+						else if ( new_cursor_row >= rows ) {
+							new_cursor_row = 0 ;
+							new_cursor_col++ ;
+							if ( new_cursor_col >= cols ) new_cursor_col = 0 ;
+						}
+					} else {
+						if ( new_cursor_col < 0 ) {
+							new_cursor_col = cols-1 ; new_cursor_row-- ;
+							if ( new_cursor_row < 0 ) new_cursor_row = rows-1 ;
+						} else if ( new_cursor_row < 0 ) {
+							new_cursor_row = rows-1 ; new_cursor_col-- ;
+							if ( new_cursor_col < 0 ) new_cursor_col = cols-1 ;							
+						}
+					}
+					// Now that we've jumped, again move through any blocked-out cells:
+					while (positionIsValid(new_cursor_row, new_cursor_col)
+							&& (cellgrid[new_cursor_row][new_cursor_col]).isBlockedOut() ) {
+						if (dir == CrossWord.ACROSS) {
+							new_cursor_col += delta_one ;
+						} else if (dir == CrossWord.DOWN) {
+							new_cursor_row += delta_one ;
+						}
+					}
+
+				}
 			}
 		}
+		
+		//  If we've figured out a valid destination, go there:
 		if (positionIsValid(new_cursor_row, new_cursor_col)) {
-			setCursorPos(new_cursor_row, new_cursor_col);
-			scroll_TouchscreenClues_to_Cursor();
+            setCursorPos(new_cursor_row, new_cursor_col);
+            scroll_TouchscreenClues_to_Cursor();
 		}
+
+		//  If there's nothing we can do, that's OK.  We're probably in
+		//  simple navigation mode at the edge of the screen.
+		
 	} // moveCursor
-	// After typing a letter, move the cursor once cell right or down as
-	// appropriate:
-	void incrementCursor() {
+	
+
+	// Move the cursor one cell right or down as appropriate (e.g. after
+	// typing a letter):
+	public void incrementCursor(int dir) {
+		moveCursor(dir, +1);
+	} // incrementCursor
+	public void incrementCursor() {
 		moveCursor(direction, +1);
 	} // incrementCursor
-	void decrementCursor() {
+	public void decrementCursor(int dir) {
+		moveCursor(dir, -1);
+	} // decrementCursor
+	public void decrementCursor() {
 		moveCursor(direction, -1);
 	} // decrementCursor
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	private Clue getPreviousClue(Clue thisClue) {
+		// This is painfully inefficient.  Wish I knew Java...
+		Clue prevClue = null ;
+		for ( Clue c : clues ) {
+			if ( c == thisClue ) {
+				if ( prevClue != null ) return( prevClue );
+				// If we get here, we were the first clue, so we need to find the last clue:
+				Clue res = getLastClue(thisClue.dir) ;
+				return( (res!=null) ? res : thisClue );
+			}
+			if ( c.dir == thisClue.dir ) prevClue = c ;
+		}
+		Log.e( this.toString(), "Internal error: could not find previous clue" );  // should never happen
+		return(thisClue);
+	} // getPreviousClue
+	
+	private Clue getNextClue(Clue thisClue) {
+		boolean justgotit = false ;
+		for ( Clue c : clues ) {
+			if ( c == thisClue ) {
+				justgotit = true ;
+			} else if ( justgotit == true ) {
+				if ( c.dir == thisClue.dir ) return(c);
+				break ; // no point searching through the other direction
+			}
+		}
+		//  If we get here, it was the last clue for its direction
+		//  So, go back to the beginning:
+		Clue res = getFirstClue( thisClue.dir );
+		return( (res!=null) ? res : thisClue );
+	} // getNextClue
+	
+	private Clue getFirstClue(int dir) {
+		for ( Clue c : clues ) {
+			if ( c.dir == dir ) return(c);
+		}
+		return(null);
+	} // getFirstClue
+	
+	private Clue getLastClue(int dir) {
+		Clue lastClue = null ;
+		for ( Clue c : clues ) {
+			if ( c.dir == dir ) lastClue = c ;
+		}
+		return( lastClue );
+	} // getLastClue
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	void scroll_TouchscreenClues_to_Cursor() {
-		// TODO
+		// TODO?
 	} // scroll_TouchscreenClues_to_Cursor
 
 	//  Gets the clue for this cell, or null if we're not on a numbered cell:
-	Clue getClue(int dir, int num) {
+	public Clue getClue(int dir, int num) {
 		for (Clue clue : clues) {
 			if ((clue.dir == dir) && (clue.num == num)) {
 				return (clue);
@@ -434,7 +559,7 @@ public class Puzzle extends Activity {
 		return (null);
 	} // Puzzle.getClue
 
-	String getClueText(int dir, int num) {
+	public String getClueText(int dir, int num) {
 		Clue c = getClue(dir, num);
 		if (c == null) {
 			return ("");
@@ -444,7 +569,7 @@ public class Puzzle extends Activity {
 	
 
 
-	Cell getCell(int i, int j) {
+	public Cell getCell(int i, int j) {
 		if (cellgrid == null) {
 			return (null);
 		}
@@ -457,15 +582,13 @@ public class Puzzle extends Activity {
 	} // getCell
 
 	
-	void setDirection(int d) {
+	public void setDirection(int d) {
 		direction = d ;
-
 		//  Re-draw the cursor:
 		cellgrid[cursor_row][cursor_col].drawBackground() ;
-
 	} // setDirection
 	
-	int getDirection() {
+	public int getDirection() {
 		return(direction);
 	} // getDirection
 
@@ -548,9 +671,8 @@ public class Puzzle extends Activity {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for ( int j = 0 ; j < cols ; j++ ) {
 				Cell cell = getCell(i,j);
-				if ( (! cell.usertext.equals(" ")) && (! cell.hasCorrectAnswer() )) {
+				if ( (! cell.usertext.equals(" ")) && cell.hasWrongAnswer() ) {
 					//  This cell is wrong; erase it:
-					//cell.setUserText(" ");
 					setUserText(i,j, " ");
 					r++ ;
 				}
@@ -563,9 +685,7 @@ public class Puzzle extends Activity {
 	void justSolveTheWholeThing() {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for ( int j = 0 ; j < cols ; j++ ) {
-				Cell cell = getCell(i,j);
-				//cell.setUserText( cell.answertext );
-				setUserText(i,j, cell.answertext);
+				setUserText( i, j, getCell(i,j).answertext );
 			}
 		}
 	} // justSolveTheWholeThing
@@ -575,18 +695,17 @@ public class Puzzle extends Activity {
 			for ( int j = 0 ; j < cols ; j++ ) {
 				Cell cell = getCell(i,j);
 				if ( ! cell.isBlockedOut() ) {
-					//cell.setUserText( " " );
-					setUserText(i,j, " ");
+					setUserTextUnconditionally(cell, " ");
 				}
 			}
 		}
 	} // clearAllAnswers
 	
 	//  Returns a string describing this puzzle (title, author, etc)
-	String aboutThisPuzzle() {
+	public String aboutThisPuzzle() {
 		String s;
 		if (title==null || title.equals("")) {
-			s = "CROSSWORD PUZZLE";
+			s = filename.replaceAll( ".*/", "");
 		} else {
 			//s = title.toUpperCase() + "\n\n" ;
 			s = title + "\n\n" ;
@@ -613,52 +732,70 @@ public class Puzzle extends Activity {
 	} // aboutThisPuzzle
 	
 	
-	void setUserText(int i, int j, String s) {
-		
+	//  TODO: should this filter for allowed characters?
+	private void setUserTextUnconditionally(Cell cell, String s) {
 		try {
-			Cell cell = getCell(i, j);
 			cell.setUserText(s);
 		} catch (Exception ex) {
 			Log.e( this.toString(), "Exception setting user text: " +ex );
 			return ;
 		}
-		
 		try {
-			touchscreenclues.setUserText(i,j,s);
+			touchscreenclues.setUserText(cell.row, cell.col, s);
 		} catch (Exception ex) {
 			Log.e( this.toString(), "Exception setting user text: " +ex );
 			return ;
 		}
-		
+	} // setUserTextUnconditionally
+
+	private void setUserText(int i, int j, String s) {
+		Cell cell = getCell(i, j);
+    	if ( crossword_activity.freeze_right_answers ) {
+    		if ( cell.hasCorrectAnswer() ) return ;
+    	}
+    	setUserTextUnconditionally(cell,s);
 	} // setUserText
 
-	void setUserText(String s) {
+	public void setUserText(String s) {
 		setUserText(cursor_row, cursor_col, s);
 	} // setUserText
+
+	//  Used to notify the puzzle that the user has changed settings:
+	public void settingsHaveChanged() {
+		// In case they've changed the setting to mark wrong answers, we should
+		// re-draw any cells with wrong answers:
+		for ( int i = 0 ; i < rows ; i++ ) {
+			for ( int j = 0 ; j < cols ; j++ ) {
+				if ( (cellgrid[i][j]).hasWrongAnswer() ) {
+					(cellgrid[i][j]).drawBackground() ;
+				}
+			}
+		}
+	}
 	
-	String getUserGridString() {
+	public String getUserGridString() {
 		String s = "" ;
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for ( int j = 0 ; j < cols ; j++ ) {
-				s = s + (cellgrid[i][j]).usertext;
+				s = s + ((cellgrid[i][j]).usertext).charAt(0) ;
 			}
 		}
 		return(s);
 	} // getUserGridString
 	
-	boolean hasRebusEntries() {
+	public boolean hasRebusEntries() {
 		return( has_rebus_entries );
 	} // hasRebusEntries
 	
-	boolean isSolved() {				
+	public boolean isSolved() {				
 		return( gridstring.equals( getUserGridString() ) );
 	} // isSolved
 	
-	String getFileName() {
+	public String getFileName() {
 		return( filename );
 	} // getFileName
 	
-	String getPuzzleTitle() {
+	public String getPuzzleTitle() {
 		return( title );
 	} // getPuzzleTitle
 	
