@@ -413,6 +413,7 @@ public class CrossWord extends BaseActivity {
 					  .setPositiveButton( R.string.clear_puzzle_yes, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								activePuzzle.clearAllAnswers();
+								preparePuzzleMenu();
 							}
 					})
 					  .setNegativeButton( R.string.clear_puzzle_no, new DialogInterface.OnClickListener() {
