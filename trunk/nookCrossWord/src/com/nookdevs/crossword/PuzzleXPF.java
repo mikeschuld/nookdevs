@@ -48,16 +48,18 @@ public class PuzzleXPF {
 		String publisher = "" ;
 		String copyright = "" ;
 		String date = "" ;
-		boolean has_rebus_entries = false ;
+		boolean hasRebusEntries = false ;
 		ArrayList<Clue> clues = new ArrayList<Clue>() ;
 		ArrayList<int[]> circles = new ArrayList<int[]>() ;
 		ArrayList<int[]> shades = new ArrayList<int[]>() ;
+		ArrayList<int[]> mRebusCells = new ArrayList<int[]>() ;
+		ArrayList<String> mRebusValues = new ArrayList<String>() ;
 		Stack<String> tagstack = new Stack<String>();
 		Clue latestclue = null ;
 		FileInputStream is ;
-		int shade_row = -1 ;
-		int shade_col = -1 ;
-		
+		int shade_row = -1 ; int shade_col = -1 ;
+		int rebus_row = -1 ; int rebus_col = -1 ;
+
 		//  Create an input stream from the filename:
 		try {
 	        is = new FileInputStream( puzzlefilename ) ;
@@ -122,6 +124,7 @@ public class PuzzleXPF {
 			            	circles.add( position );
 			            }
 			        } else if ( (xpp.getName()).equalsIgnoreCase("Shade") ) {
+			        	shade_row = -1 ; shade_col = -1 ;
 			            // /Puzzles/Puzzle/Shades/Shade
 			            for ( int i = 0 ; i < xpp.getAttributeCount() ; i++ ) {
 			                if ( (xpp.getAttributeName(i)).equalsIgnoreCase("Row") ) {
@@ -131,21 +134,17 @@ public class PuzzleXPF {
 			                }
 			            }
 			        } else if ( (xpp.getName()).equalsIgnoreCase("Rebus") ) {
-			        	has_rebus_entries = true ;
+			        	hasRebusEntries = true ;
+			            rebus_row = -1 ; rebus_col = -1 ;
 			            // /Puzzles/Puzzle/RebusEntries/Rebus
-			            int row = -1 ; int col = -1 ;
-			            //String shortanswer ;
 			            for ( int i = 0 ; i < xpp.getAttributeCount() ; i++ ) {
 			                if ( (xpp.getAttributeName(i)).equalsIgnoreCase("Row") ) {
-			                    row = Integer.parseInt((String)xpp.getAttributeValue(i)) - 1;
+			                    rebus_row = Integer.parseInt((String)xpp.getAttributeValue(i)) - 1;
 			                } else if ( (xpp.getAttributeName(i)).equalsIgnoreCase("Col") ) {
-			                    col = Integer.parseInt((String)xpp.getAttributeValue(i) ) - 1;
-			                } else if ( (xpp.getAttributeName(i)).equalsIgnoreCase("Short") ) {
-			                    //shortanswer = xpp.getAttributeValue(i);
+			                    rebus_col = Integer.parseInt((String)xpp.getAttributeValue(i) ) - 1;
+			                //} else if ( (xpp.getAttributeName(i)).equalsIgnoreCase("Short") ) {
+			                    //String shortanswer = xpp.getAttributeValue(i);
 			                }
-			            }
-			            if ( (row != -1) && (col != -1) ) {
-			                // TODO: Do something
 			            }
 			        } else if ( (xpp.getName()).equalsIgnoreCase("Clue") ) {
 			            // /Puzzles/Puzzle/Clues/Clue
@@ -174,7 +173,6 @@ public class PuzzleXPF {
 			    } else if(eventType == XmlPullParser.TEXT) {
 			    	String currenttag = tagstack.peek();
 
-			    	// TODO: Rebus entries
 			    	if ( currenttag.equalsIgnoreCase("Row") ) {
 			            // /Puzzles/Puzzle/Grid/Row
 			            String puzzlerow = xpp.getText();
@@ -211,6 +209,14 @@ public class PuzzleXPF {
 			    			latestclue.text = xpp.getText() ;
 			    			clues.add(latestclue);
 			    		}
+			    	} else if (currenttag.equalsIgnoreCase("Rebus") ) {
+			    		if ( (rebus_row != -1) && (rebus_col != -1) ) {
+			    			String rebusString = xpp.getText() ;
+			    			int loc[] = { rebus_row, rebus_col } ;
+			    			mRebusCells.add(loc);
+			    			mRebusValues.add(rebusString);
+			    		}
+				    	rebus_row = -1 ; rebus_col = -1 ;
 			    	} else if ( currenttag.equalsIgnoreCase("Shade") ) {
 			    		if ( (shade_row != -1) && (shade_col != -1) ) {
 			    			String colorstring = xpp.getText() ;
@@ -243,8 +249,7 @@ public class PuzzleXPF {
 			Log.e( this.toString(), "Caught exception: " + ex ) ;
 		}		
 		Puzzle puzzle = new Puzzle(mActivity, puzzlefilename, rows, cols, gridstring, circles, shades,
-								has_rebus_entries, clues, title, author, copyright, date, editor, publisher, notes ) ;
-
+								false, mRebusCells, mRebusValues, clues, title, author, copyright, date, editor, publisher, notes ) ;
 		
 		//Log.d( this.toString(), "DEBUG: Leaving loadPuzzleXPF()." );
 		return(puzzle);

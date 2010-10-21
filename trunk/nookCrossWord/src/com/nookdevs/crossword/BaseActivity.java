@@ -45,6 +45,9 @@ public abstract class BaseActivity extends Activity {
 	static final boolean CROSSWORD_PREFERENCES_CURSOR_NEXT_CLUE_DEFAULT = false ;
 	static final String CROSSWORD_PREFERENCES_CURSOR_WRAPS = "CURSOR_WRAPS" ;
 	static final boolean CROSSWORD_PREFERENCES_CURSOR_WRAPS_DEFAULT = true ;    //  <-- this one is true by default
+	
+	static final String REBUSTEXTLABEL = "REBUSTEXTLABEL" ;
+	static final String FILE = "FILE" ;
 
 	InputMethodManager keyboardim; // the pop-up keyboard
 

@@ -156,7 +156,7 @@ public class PuzzlePuz {
             }
             
             puzzle = new Puzzle(mActivity, file, mRow, mCol, mSolString, mCircles, mShades,
-            		mHasRebus, mClues, mTitle, mAuthor, mCopyRight,null,null,null, null) ;
+            		mHasRebus, null, null, mClues, mTitle, mAuthor, mCopyRight,null,null,null, null) ;
         } catch(Exception ex) {
             Log.e(this.toString(), "Error parsing file " + file + " " + ex.getMessage(), ex);
             return null;
@@ -195,6 +195,7 @@ public class PuzzlePuz {
                         len = bb.getShort(0);
                         i+=2; //skip checksum again
                         mRebusTable = new String(buffer,i,len, "Windows-1252");
+                        Log.d( this.toString(), "DEBUG: mRebusTable = \"" + mRebusTable + "\"" ) ;  // TODO: remove this
                         i+=1;// for skipping NUL.
                     }
                 } else if(keyword.equals("GEXT")) {

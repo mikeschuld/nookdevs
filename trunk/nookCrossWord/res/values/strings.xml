@@ -9,7 +9,7 @@
 <string name="direction_button_label">Toggle Direction</string>
 <string name="across_clues_button">Across Clues</string>
 <string name="down_clues_button">Down Clues</string>
-<string name="rebus_button_label">Insert multiple letters</string>
+<string name="rebus_button_label">Insert multiple letters in square</string>
 <string name="check_solution_button_label">Check Solution</string>
 <string name="show_current_letter">Show Current Letter</string>
 <string name="erase_wrong_answers">Erase Wrong Answers</string>
@@ -58,4 +58,5 @@
 <string name="hints_settings_freeze_right_answers_button_label">Right Answers Become Read-Only</string>
 <string name="nav_settings_cursor_wraps_label">Cursor wraps at edge of screen</string>
 <string name="nav_settings_cursor_next_clue_label">Cursor automatically jumps to next/previous clue</string>
+<string name="insert_rebus_prompt">Enter text to insert:</string>
 </resources>
