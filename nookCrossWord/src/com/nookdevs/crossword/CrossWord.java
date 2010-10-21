@@ -18,6 +18,7 @@
  * Written by Kevin Vajk and Hariharan Swaminathan
  */
 package com.nookdevs.crossword;
+
 import android.os.Bundle;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -47,13 +48,10 @@ import java.io.*;
 // TODO: this code is vulnerable to null pointer exceptions
 // TODO: when adding a Clue, make sure it's not already there
 // TODO: handle multiple puzzles in an XPF puzzle file
-// TODO: get rid of methods like addClue()
 // TODO: consolidate the build/populate functions; it's very confusing
-// TODO: What to put in "About this puzzle" when the puzzle has no metadata?
 // TODO: load time is *way* too slow
 // TODO: hide the keyboard when exiting
-// TODO: thread problem
-// TODO: JNotes
+// TODO: JNotes?
 
 
 public class CrossWord extends BaseActivity {
@@ -96,6 +94,7 @@ public class CrossWord extends BaseActivity {
 	
 	static final int ACTIVITY_OPEN_PUZZLE = 0 ;
 	static final int ACTIVITY_SETTINGS = 1 ;
+	static final int ACTIVITY_INSERT_REBUS = 2 ;
 
 	Puzzle activePuzzle = null ;
 
@@ -264,15 +263,19 @@ public class CrossWord extends BaseActivity {
 			}
 		});
 		
-		/*
 		// Rebus entry button:
 		b = (Button) findViewById(R.id.rebus_button);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				showLongToast( "Not implemented yet" );  // TODO
+				if (activePuzzle == null) {
+					showToast_No_Active_Puzzle();
+					return;
+				}
+				Intent intent = new Intent(CrossWord.this, InsertRebusActivity.class) ;
+				intent.putExtra(REBUSTEXTLABEL, activePuzzle.getCurrentCellUserText() );
+				startActivityForResult( intent, ACTIVITY_INSERT_REBUS );
 			}
 		});
-		*/
 
 
 		// Hints button:
@@ -488,7 +491,7 @@ public class CrossWord extends BaseActivity {
 		});
 		
 		// The Settings button:
-		 b = (Button) findViewById(R.id.settings_button);
+		b = (Button) findViewById(R.id.settings_button);
 		b.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 		    	startActivityForResult( new Intent(CrossWord.this, SettingsActivity.class), ACTIVITY_SETTINGS );
@@ -528,7 +531,7 @@ public class CrossWord extends BaseActivity {
 		try {
 			if ( activePuzzle != null ) {
 				PuzzleIO puzzleio = new PuzzleIO(this);
-				puzzleio.savePuzzleWIP( activePuzzle.getUserGridString(), activePuzzle.getFileName() );
+				puzzleio.savePuzzleWIP( activePuzzle );
 			}
 		} catch (Exception ex) {
 			Log.e(this.toString(), "Error: exception saving user work: " + ex );
@@ -578,10 +581,11 @@ public class CrossWord extends BaseActivity {
 	//  we want to wipe out the existing puzzle:
 	void destroyActivePuzzle() {
 		einkanimator.setDisplayedChild( EINK_PUZZLE_VIEWNUM );
-		activePuzzle = null ;
+		if ( activePuzzle != null ) activePuzzle.killChildThreads();
 		eink_xword_page.removeAllViews();
 		eink_cluespagescroller.removeAllViews();
 		touchscreen_clues_container.removeAllViews();
+		activePuzzle = null ;
 		System.gc();
 		updateTitle(TITLE); // Remove the title of the previous puzzle
 	} // destroyActivePuzzle
@@ -644,7 +648,7 @@ public class CrossWord extends BaseActivity {
 			if( resultCode == RESULT_OK && data != null) {
 				Bundle b = data.getExtras();
 				if( b != null) {
-					String file = b.getString("FILE");
+					String file = b.getString(FILE);
 					if( file != null) {
 						loadCrossWord(file);
 						if ( activePuzzle != null ) {
@@ -656,8 +660,18 @@ public class CrossWord extends BaseActivity {
 				}
 			}
 			break ;
+		case ACTIVITY_INSERT_REBUS:
+			if ( activePuzzle == null ) return;
+			if( resultCode == RESULT_OK && data != null) {
+				Bundle b = data.getExtras();
+				if( b != null) {
+					String s = b.getString(REBUSTEXTLABEL);
+					activePuzzle.setUserText(s);
+				}
+			}
+			break ;
 		}
-	}
+	} // onActivityResult
 
 	boolean launchFileSelector(String m_folder) {
 	    try {
@@ -737,11 +751,10 @@ public class CrossWord extends BaseActivity {
 	private void loadCrossWord( String puzzlefilename ) {
 		PuzzleIO puzzleio = new PuzzleIO(this);
 		Puzzle puzzle = null;
-		String usergridstring = null ;
 		
 		//  If another puzzle was already loaded, save our work before loading a new puzzle:
 		if ( activePuzzle != null ) {
-			puzzleio.savePuzzleWIP( activePuzzle.getUserGridString(), activePuzzle.getFileName() );
+			puzzleio.savePuzzleWIP( activePuzzle );
 		}
 		//  Wipe out the current puzzle to free up some memory:
 		destroyActivePuzzle();
@@ -753,12 +766,6 @@ public class CrossWord extends BaseActivity {
 			return;
 		}
 		
-		//  Load any work they user has already done:
-		usergridstring = puzzleio.loadPuzzleWIP( puzzlefilename ) ;
-		if ( usergridstring != null ) {
-			puzzle.setUserGridString( usergridstring );
-		}
-		
 		//  Attach it to our views:
 		attachPuzzle(puzzle);
 		
@@ -767,7 +774,7 @@ public class CrossWord extends BaseActivity {
 		showLongToast( activePuzzle.aboutThisPuzzle() );
 
 		//  Warn about unsupported features:
-		if ( puzzle.hasRebusEntries() ) {
+		if ( puzzle.hasUnsupportedFeatures() ) {
 			showLongToast( getString(R.string.warning_rebus_not_supported) );
 		}
 		
@@ -904,13 +911,11 @@ public class CrossWord extends BaseActivity {
 				activePuzzle.setUserText("@");
 				activePuzzle.incrementCursor();
 				return (true);
-			/*
 			case KeyEvent.KEYCODE_PERIOD:
 				if (einkanimator.getDisplayedChild()==EINK_CLUES_VIEWNUM) einkanimator.setDisplayedChild(EINK_PUZZLE_VIEWNUM);
 				activePuzzle.setUserText(".");
 				activePuzzle.incrementCursor();
 				return (true);
-			*/
 			default:
 				//  It's annoying that I have to jump through these hoops.  Isn't there a cleaner way?
 				if ( ! event.isPrintingKey() ) break ;

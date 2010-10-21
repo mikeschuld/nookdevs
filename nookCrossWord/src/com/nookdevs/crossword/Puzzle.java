@@ -34,7 +34,6 @@ public class Puzzle {
 	private Cell[][] cellgrid = null;
 	int rows = 0;
 	int cols = 0;
-	private String gridstring ;
 	ArrayList<Clue> clues ;
 	Thread cluesupdaterthread ;
 	Handler current_clues_handler ;
@@ -48,7 +47,9 @@ public class Puzzle {
 	int cursor_col = 0;
 	int cursor_row = 0;
 	private String filename = null ;
-	private boolean has_rebus_entries = false ;
+	private boolean usesUnsupportedFeatures = false ;
+    ArrayList<int[]> mRebusCells;
+    ArrayList<String> mRebusValues;
 	SizeDependent sizedependent = null ;
 	View grid_and_selected_clues = null; // the main eink view
 	TableLayout gridlayout; // contained in grid_and_selected_clues View
@@ -58,17 +59,16 @@ public class Puzzle {
 	TouchScreenClues touchscreenclues ;
 	
 	//  TODO: the build_Views and populate_* stuff should be merged more
-
 	
-	Puzzle(CrossWord xw, String fn, int tmprows, int tmpcols, String tmpgridstring, ArrayList<int[]> circles,
-			ArrayList<int[]> shades, boolean has_reebies, ArrayList<Clue> tmpclues, String tmptitle, String tmpauthor,
+	Puzzle(CrossWord xw, String fn, int tmprows, int tmpcols, String gridstring, ArrayList<int[]> circles,
+			ArrayList<int[]> shades, boolean uses_unsupported, ArrayList<int[]> mRebusCells, ArrayList<String> mRebusValues,
+			ArrayList<Clue> tmpclues, String tmptitle, String tmpauthor,
 			String tmpcopyright, String tmpdate, String tmpeditor, String tmppublisher, String tmpnotes ) {
 		//Log.d(this.toString(), "DEBUG: Entering Puzzle()...");
 		crossword_activity = xw ;
 		filename = fn ;
 		rows = tmprows ; cols = tmpcols ;
-		gridstring = tmpgridstring ;
-		has_rebus_entries = has_reebies ;
+		usesUnsupportedFeatures = uses_unsupported ;
 		
 		clues = new ArrayList<Clue>() ;
 		for ( Clue tmpclue : tmpclues ) {
@@ -92,6 +92,13 @@ public class Puzzle {
 
 		//  This takes a long time:
 		create_cells_and_populate_gridlayout(gridstring);
+		
+		if ( mRebusCells != null && mRebusValues != null ) {
+			for ( int c = 0 ; c < mRebusCells.size() ; c++ ) {
+				int row = mRebusCells.get(c)[0] ; int col = mRebusCells.get(c)[1];
+				cellgrid[row][col].answertext = mRebusValues.get(c);
+			}
+		}
 
 		synchronizeCellsAndClues();
 		
@@ -108,9 +115,10 @@ public class Puzzle {
 				currentCluesUpdaterThread();
 			}
 		};
-		cluesupdaterthread.start();
+		cluesupdaterthread.setDaemon(true); // automatically exit if the main thread exits
 		current_clues_handler = new Handler();
-		
+		cluesupdaterthread.start();
+
 		set_Cursor_Start_Position();
 		displayCurrentClues();
 		
@@ -168,11 +176,17 @@ public class Puzzle {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			TableRow tr = (TableRow) inflater.inflate(R.layout.eink_xwordrow, null);
 			for (int j = 0; j < cols; j++) {
+				boolean is_blocked_out ;
 				char c = gridstring.charAt( j + (i * cols) ) ;
-				Cell cell = new Cell(crossword_activity, this, i, j, c, false);
+		        if (c == '.' || c == '~' ) {
+		        	// This is a filled-in blocked-out cell:
+		        	is_blocked_out = true ;
+		        } else {
+		        	is_blocked_out = false ;
+		        }
+				Cell cell = new Cell(crossword_activity, this, i, j, (c + ""), is_blocked_out, false);
 				cellgrid[i][j] = cell;
 				tr.addView(cell.getEinkView());
-
 			}
 			gridlayout.addView(tr);
 		}
@@ -268,7 +282,7 @@ public class Puzzle {
 		int i = clue.row;
 		int j = clue.col;
 		int dir = clue.dir;
-		while( positionIsValid(i,j) && (! getCell(i,j).isBlockedOut()) ) {
+		while( positionIsValid(i,j) && (! getCell(i,j).is_blocked_out) ) {
 			celllist.add( getCell(i,j) );
 			if ( dir == CrossWord.ACROSS ) {
 				j++ ;
@@ -279,17 +293,7 @@ public class Puzzle {
 		return( celllist );
 	} // Puzzle.getCellListForClue
 
-
-	void setUserGridString(String s) {
-		//Log.d( this.toString(), "DEBUG: Entering setUserGridString()..." );
-		for ( int i = 0 ; i < rows ; i++ ) {
-			for ( int j = 0 ; j < cols ; j++ ) {
-				(cellgrid[i][j]).setUserText( "" + s.charAt( j + (i * cols) ) );
-			}
-		}
-		//Log.d( this.toString(), "DEBUG: Leaving setUserGridString()." );
-	} // setUserGridString
-		
+	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -327,7 +331,7 @@ public class Puzzle {
 	private void set_Cursor_Start_Position() {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
-				if (positionIsValid(i, j) && (!cellIsBlockedOut(i, j))) {
+				if (positionIsValid(i, j) && (! getCell(i,j).is_blocked_out )) {
 					setCursorPos(i,j);
 					return;
 				}
@@ -336,14 +340,6 @@ public class Puzzle {
 		Log.e(this.toString(), "Error: could not find any valid cells to start at");
 	} // set_Cursor_Start_Position()
 
-	boolean cellIsBlockedOut(int i, int j) {
-		Cell cell = getCell(i, j);
-		if (cell == null) {
-			Log.e(this.toString(), "Error: could not find cell at " + i + "," + j + "." );
-			return (true); // an invalid cell is blocked out, I guess
-		}
-		return (cell.isBlockedOut());
-	} // cellIsBlockedOut
 
 	int getCursorRow() {
 		return (cursor_row);
@@ -362,7 +358,7 @@ public class Puzzle {
 		}
 		Cell oldcell = getCell(cursor_row, cursor_col);
 		Cell newcell = getCell(i, j);
-		if (newcell.isBlockedOut()) {
+		if (newcell.is_blocked_out) {
 			Log.e( this.toString(), "Error: position is blocked out: " + i + "," + j );
 			return;
 		}
@@ -398,7 +394,7 @@ public class Puzzle {
 		}
 		
 		//  What to do if we land on an invalid square (off the edge, or blocked out):
-		if ( (! positionIsValid(new_cursor_row, new_cursor_col)) || getCell(new_cursor_row, new_cursor_col).isBlockedOut() ) {
+		if ( (! positionIsValid(new_cursor_row, new_cursor_col)) || getCell(new_cursor_row, new_cursor_col).is_blocked_out ) {
 			if ( crossword_activity.cursor_next_clue ) {
 				Clue curClue ;
 				if ( dir == CrossWord.ACROSS ) {
@@ -424,7 +420,7 @@ public class Puzzle {
 
 				// Move through any blocked-out cells:
 				while (positionIsValid(new_cursor_row, new_cursor_col)
-						&& (cellgrid[new_cursor_row][new_cursor_col]).isBlockedOut() ) {
+						&& (cellgrid[new_cursor_row][new_cursor_col]).is_blocked_out ) {
 					if (dir == CrossWord.ACROSS) {
 						new_cursor_col += delta_one ;
 					} else if (dir == CrossWord.DOWN) {
@@ -455,7 +451,7 @@ public class Puzzle {
 					}
 					// Now that we've jumped, again move through any blocked-out cells:
 					while (positionIsValid(new_cursor_row, new_cursor_col)
-							&& (cellgrid[new_cursor_row][new_cursor_col]).isBlockedOut() ) {
+							&& (cellgrid[new_cursor_row][new_cursor_col]).is_blocked_out ) {
 						if (dir == CrossWord.ACROSS) {
 							new_cursor_col += delta_one ;
 						} else if (dir == CrossWord.DOWN) {
@@ -580,6 +576,12 @@ public class Puzzle {
 			return (null);
 		}
 	} // getCell
+	
+	
+	public String getCurrentCellUserText() {
+		Cell cell = getCell(cursor_row, cursor_col);
+		return( cell.usertext ) ;
+	} // getCurrentCellUserText
 
 	
 	public void setDirection(int d) {
@@ -596,12 +598,20 @@ public class Puzzle {
 
 	//  We used to just call displayCurrentClues() every time the cursor moved.
 	//  The trouble is, because e-ink draws slowly, this meant that cursor
-	//  navigation felt sluggish.
+	//  navigation was very sluggish.
 	//  So, we force those requests through a background thread, which does a
 	//  little sleep first, so the user can get in several cursor moves before
 	//  the main thread has to pause to update the clues text on the e-ink.
 	
+	private boolean currentCluesUpdaterThreadTimeToDie = false ;  // set true when thread should exit
+	
 	private synchronized void currentCluesUpdaterThread() {
+		Runnable cmd = new Runnable() {
+			public void run() {
+				displayCurrentClues();
+			}
+		} ;
+
 		while(true) {
 			//  wait() until we're interrupted by the main thread:
 			try {
@@ -609,21 +619,14 @@ public class Puzzle {
 			} catch(Exception ex) {
 				Log.e(this.toString(), "Exception in wait(): " + ex );
 			}
-			//  now sleep a moment before drawing the current cell:
-			/*
-			try {
-				Thread.sleep(150); // maybe they'll move a few more cells while we sleep
-			} catch(Exception ex) {
-				Log.e(this.toString(), "Exception in sleep(): " + ex );
-				continue ;
-			}
-			*/
 			
-			current_clues_handler.post(new Runnable() {
-				public void run() {
-					displayCurrentClues();
-				}
-			});
+			if ( currentCluesUpdaterThreadTimeToDie ) {
+				return ;
+			}
+			
+			current_clues_handler.removeCallbacks(cmd);
+			current_clues_handler.postDelayed(cmd, 350);
+					
 		}
 	} // currentCluesUpdaterThread
 	
@@ -634,6 +637,12 @@ public class Puzzle {
 		//cluesupdaterthread.interrupt();
 		//Log.d( this.toString(), "Notified it." );
 	}
+	
+	public synchronized void killChildThreads() {
+		currentCluesUpdaterThreadTimeToDie = true ;
+		cluesupdaterthread.interrupt();
+	} // killChildThreads
+
 
 	// Displays the two clues in the small TextView just below the crossword
 	// grid, depending on the cursor location
@@ -694,7 +703,7 @@ public class Puzzle {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for ( int j = 0 ; j < cols ; j++ ) {
 				Cell cell = getCell(i,j);
-				if ( ! cell.isBlockedOut() ) {
+				if ( ! cell.is_blocked_out ) {
 					setUserTextUnconditionally(cell, " ");
 				}
 			}
@@ -734,6 +743,11 @@ public class Puzzle {
 	
 	//  TODO: should this filter for allowed characters?
 	private void setUserTextUnconditionally(Cell cell, String s) {
+		if ( s == null ) {
+			s = " " ;
+		} else if ( s.equals("") ) {
+			s = " ";
+		}
 		try {
 			cell.setUserText(s);
 		} catch (Exception ex) {
@@ -773,22 +787,21 @@ public class Puzzle {
 		}
 	}
 	
-	public String getUserGridString() {
-		String s = "" ;
+	public boolean hasUnsupportedFeatures() {
+		return( usesUnsupportedFeatures );
+	} // hasUnsupportedFeatures
+	
+	public boolean isSolved() {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for ( int j = 0 ; j < cols ; j++ ) {
-				s = s + ((cellgrid[i][j]).usertext).charAt(0) ;
+				Cell cell = cellgrid[i][j] ;
+				if ( cell.is_blocked_out ) continue ;
+				if ( ! cell.usertext.equals(cell.answertext) ) {
+					return(false);
+				}
 			}
 		}
-		return(s);
-	} // getUserGridString
-	
-	public boolean hasRebusEntries() {
-		return( has_rebus_entries );
-	} // hasRebusEntries
-	
-	public boolean isSolved() {				
-		return( gridstring.equals( getUserGridString() ) );
+		return(true);
 	} // isSolved
 	
 	public String getFileName() {

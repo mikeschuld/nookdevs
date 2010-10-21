@@ -46,23 +46,21 @@ public class Cell {
     int col;
     int number = 0;  // if non-zero, the clue number
     boolean is_a_circle = false ;
+    boolean is_blocked_out = false ;
     int shade = Color.WHITE ;
-    // The clues we are a part of (even cells with no number will belong to two clues):
+    // The clues we are a part of (even cells with no number will normally belong to two clues):
     Clue acrossclue = null ;
     Clue downclue = null ;
 
     
-    Cell(CrossWord xw, Puzzle parent, int myrow, int mycol, char c, boolean circ) {
+    Cell(CrossWord xw, Puzzle parent, int myrow, int mycol, String answer, boolean isBlock, boolean circ) {
     	crossword_activity = xw ;
     	row = myrow;
         col = mycol;
         puzzle = parent;
-        answertext = (c + "");
+        is_blocked_out = isBlock ;
+        answertext = answer ;
         usertext = " ";
-        if (answertext.equals(".") || answertext.equals("~")) {
-        	// This is a filled-in blocked-out cell:
-            usertext = answertext;
-        }
         is_a_circle = circ ;
         buildViews();
     } // Cell constructor
@@ -79,8 +77,11 @@ public class Cell {
             LayoutInflater inflater = crossword_activity.getLayoutInflater();
             //  The e-ink Views for this cell:
             bg = (LinearLayout) inflater.inflate(R.layout.eink_cell, null);
-            cv = (RelativeLayout) bg.findViewById(R.id.cellview);
+            bg.setMinimumHeight(puzzle.sizedependent.cellHeight);
+            bg.setMinimumWidth(puzzle.sizedependent.cellWidth);
+
             
+            cv = (RelativeLayout) bg.findViewById(R.id.cellview);
             tv = (TextView) bg.findViewById(R.id.celltext);
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.cell_textsize );
             
@@ -114,7 +115,9 @@ public class Cell {
     private void drawCellText() {
         try {
 			if (tv != null) {
+	            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.getCellTextSize(usertext.length()) );
 			    tv.setText(usertext);
+
 			}
 		} catch (Exception ex) {
 			Log.e( this.toString(), "Exception drawing cell text: " + ex );
@@ -133,14 +136,29 @@ public class Cell {
 
     
     public void setUserText(String s) {
+    	if ( (s == null) || s.length() == 0 ) {
+    		//  This should never happen!
+    		Log.e( this.toString(), "WARNING: setUserText() called incorrectly" ) ;
+    		if ( is_blocked_out ) {
+    			usertext = "." ;
+    		} else {
+    			usertext = " " ;
+    			drawCellText();
+    		}
+    		drawBackground();
+    		return ;
+    	}
         usertext = s;
         drawCellText();
         drawBackground();
     } // setUserText
-    
+    public void setUserText(char c) {
+    	setUserText( c + "" );
+    } // setUserText
+
 
     private void drawBackgroundShade() {
-		if (isBlockedOut()) {
+		if (is_blocked_out) {
 		    bg.setBackgroundColor(Color.BLACK);
 		    return ;
 		}
@@ -158,7 +176,7 @@ public class Cell {
     		mark_answer_wrong = hasWrongAnswer();
     	}
         try {
-			if (isBlockedOut()) {
+			if (is_blocked_out) {
 			    return ;
 			}
 			if ((puzzle.getCursorRow() == row) && (puzzle.getCursorCol() == col)) {
@@ -276,20 +294,12 @@ public class Cell {
     	drawBackground();
     } //
 
-    boolean isBlockedOut() {
-    	if (answertext.equals(".") || answertext.equals("~")) {
-    		return(true);
-    	}
-    	return(false);  // normal cell
-    } // isBlockedOut
-
-
     // Whether or not the letter the user has entered in this cell is
     // correct.  Note that this is not quite the opposite of the
     // hasWrongAnswer() function; an unanswered cell is considered
     // neither wrong nor correct, just incomplete.
     public boolean hasCorrectAnswer() {
-        if ( isBlockedOut() ) {
+        if ( is_blocked_out ) {
         	return(true);
         }
         return (answertext.equals(usertext));
@@ -304,7 +314,7 @@ public class Cell {
         if (usertext.equals("") || usertext.equals(" ")) {
             return (false); // it's not wrong, it just doesn't exist
         }
-        if ( isBlockedOut() ) {
+        if ( is_blocked_out ) {
         	return(false);
         }
         return (! answertext.equals(usertext));

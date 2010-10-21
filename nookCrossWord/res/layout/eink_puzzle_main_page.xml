@@ -29,6 +29,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:paddingLeft="2px"
+            android:paddingTop="5px"
             android:textSize="26px" />
   <TextView android:id="@+id/selected_clue_down"
             android:layout_width="fill_parent"

@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.widget.TextView;
 import java.util.ArrayList;
 import android.graphics.Typeface;
-import android.graphics.Rect;
 import android.util.Log;
 
 //  cluepages_? are ArrayLists of ArrayLists, representing a list of clues for each page.

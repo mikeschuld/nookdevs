@@ -30,12 +30,16 @@ package com.nookdevs.crossword;
 
 public class SizeDependent {
 	  // Hard-coded, based on nook hardware:
-	  static final double NOOK_SCREEN_DIMENSION = 600.0 ;  // the smaller of the two dimensions
-	  static final int EINK_WINDOW_HEIGHT = 760 ;
+	  static final int EINK_WINDOW_HEIGHT = 760 ;  // the size of the eink window (minus the titlebar)
+	  static final int PUZZLE_WINDOW_HEIGHT = 660 ;  // the max puzzle height, leaving room for the two textclues
+	  static final int PUZZLE_WINDOW_WIDTH = 600 ;
+	  static final int PUZZLE_WINDOW_DIMENSION = 600 ;  // the smaller of the two dimensions
 	  static final int max_cells_on_touchscreen_clues_scroller = 8 ;
 	  //  Determined dynamically, based on puzzle dimensions:
 	  float cell_textsize ;
 	  float cellnum_textsize ;
+	  int cellHeight ;  // How many pixels high we expect each cell to be
+	  int cellWidth ;   // How many pixels wide we expect each cell to be
 	  int cell_icon_normal ;
 	  int cell_icon_circle ;
 	  int cell_icon_normal_cursor ;
@@ -55,17 +59,37 @@ public class SizeDependent {
 	  
 	  
 	  SizeDependent(int i, int j) {
-		    int numcells ;
-		    // Most puzzles are square, but if not, use the larger dimension:
-		    if ( i > j ) {
-		      numcells = i ;
-		    } else {
-		      numcells = j ;
-		    }
-		    calculate_textsize(numcells);
-		    pick_iconset(numcells);
+		  int numcells ;
+		  // Most puzzles are square, but if not, use the larger dimension:
+		  if ( i > j ) {
+			  numcells = i ;
+		  } else {
+			  numcells = j ;
+		  }
+		  cellHeight = PUZZLE_WINDOW_HEIGHT / numcells ;
+		  cellWidth = PUZZLE_WINDOW_WIDTH / numcells ;
+		  calculate_textsize(numcells);
+		  pick_iconset(numcells);
 	  }  // SizeDependent constructor
 
+	  private void calculate_textsize(int n) {
+		  Double dt, dtn;
+		  dt = (PUZZLE_WINDOW_DIMENSION * .80) / n;  // * .73 allows for a square cell
+		  cell_textsize = dt.floatValue();
+		  dtn = dt * .35 ;
+		  cellnum_textsize = dtn.floatValue() ;
+	  } // calculate_textsize
+
+	  //  Returns the cell text size, based on the number of letters in the cell:
+	  float getCellTextSize( int numLetters ) {
+		  if ( numLetters <= 1 ) {
+			  return( cell_textsize );
+		  } else if ( numLetters <= 4 ) {
+			  return( cell_textsize / 2 );
+		  } else {
+			  return( cell_textsize / 4 );
+		  }
+	  } // getCellTextSize
 	  
 	  // 1x1 to 15x15:
 	  private int[] iconset40 = { 	R.drawable.cell_40,
@@ -125,7 +149,8 @@ public class SizeDependent {
 
 	  private void pick_iconset(int n) {
 		int[] iconset ;
-	    Double d = (NOOK_SCREEN_DIMENSION / n) ;
+
+		Double d = ( (PUZZLE_WINDOW_DIMENSION * 1.0) / n ) ;
 	    float iconmax = d.floatValue() ;
 	    if ( 40 <= iconmax ) {
 	    	iconset = iconset40 ;
@@ -151,13 +176,5 @@ public class SizeDependent {
 		cell_icon_circle_cursor_across_wrong = iconset[14] ;
 		cell_icon_circle_cursor_down_wrong = iconset[15] ;
 	  } // pick_iconset
-
-	  private void calculate_textsize(int n) {
-	    Double dt, dtn;
-	    dt = (600 / n) * .80;
-	    cell_textsize = dt.floatValue();
-	    dtn = dt * .35 ;
-	    cellnum_textsize = dtn.floatValue() ;
-	  } // calculate_textsize
 	
 } // SizeDependent class
