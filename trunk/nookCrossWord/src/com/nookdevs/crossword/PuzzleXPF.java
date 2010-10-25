@@ -48,7 +48,6 @@ public class PuzzleXPF {
 		String publisher = "" ;
 		String copyright = "" ;
 		String date = "" ;
-		boolean hasRebusEntries = false ;
 		ArrayList<Clue> clues = new ArrayList<Clue>() ;
 		ArrayList<int[]> circles = new ArrayList<int[]>() ;
 		ArrayList<int[]> shades = new ArrayList<int[]>() ;
@@ -134,7 +133,6 @@ public class PuzzleXPF {
 			                }
 			            }
 			        } else if ( (xpp.getName()).equalsIgnoreCase("Rebus") ) {
-			        	hasRebusEntries = true ;
 			            rebus_row = -1 ; rebus_col = -1 ;
 			            // /Puzzles/Puzzle/RebusEntries/Rebus
 			            for ( int i = 0 ; i < xpp.getAttributeCount() ; i++ ) {
@@ -249,7 +247,7 @@ public class PuzzleXPF {
 			Log.e( this.toString(), "Caught exception: " + ex ) ;
 		}		
 		Puzzle puzzle = new Puzzle(mActivity, puzzlefilename, rows, cols, gridstring, circles, shades,
-								false, mRebusCells, mRebusValues, clues, title, author, copyright, date, editor, publisher, notes ) ;
+								true, mRebusCells, mRebusValues, clues, title, author, copyright, date, editor, publisher, notes ) ;
 		
 		//Log.d( this.toString(), "DEBUG: Leaving loadPuzzleXPF()." );
 		return(puzzle);

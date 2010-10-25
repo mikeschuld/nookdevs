@@ -50,9 +50,11 @@ public class PuzzlePuz {
     private String mRebusTable;
     private String mExtrasGrid;
     private boolean mHasRebus;
+    private boolean mFormatSupportsRebus;
     private static final String LOGTAG=".Puz Parser:";
     
-    public static final int ROW_INDEX=0x2C;
+    public static final int VERSION_INDEX=0x18;
+    public static final int COL_INDEX=0x2C;
     public static final int TITLE_INDEX=0x32;
 //    public static void main(String []s ) {
 //        PuzzlePuz p = new PuzzlePuz(null);
@@ -69,20 +71,30 @@ public class PuzzlePuz {
                 return null;
             }
             RandomAccessFile fp = new RandomAccessFile(file, "r");
-            fp.seek(ROW_INDEX);
-            mRow = fp.readByte();
-            System.out.println("Rows =" + mRow);
+            fp.seek(VERSION_INDEX);
+            byte[] buffer = new byte[3];
+            fp.read(buffer, 0, 3);
+            mVersion = new String(buffer, "Windows-1252");
+            if ( mVersion.equals("1.2") || mVersion.equals("1.1") || mVersion.equals("1.0") || mVersion.startsWith("0.") ) {
+            	mFormatSupportsRebus = false ;
+            } else {
+            	//mFormatSupportsRebus = true ;
+            	mFormatSupportsRebus = false ; // TODO: finish rebus support and change this
+            }
+            fp.seek(COL_INDEX);
             mCol = fp.readByte();
-            System.out.println("Cols =" + mCol);
+            //System.out.println("Rows =" + mRow);
+            mRow = fp.readByte();
+            //System.out.println("Cols =" + mCol);
             
             mNumClues = Short.reverseBytes(fp.readShort());
-            System.out.println("NumClues =" + mNumClues);
+            //System.out.println("NumClues =" + mNumClues);
             fp.skipBytes(2);
             int scrambled = fp.readShort();
             if( scrambled != 0) {
                 Log.e(this.toString(), "File appears to be scrambled...");
             }
-            byte[] buffer = new byte[mRow * mCol];
+            buffer = new byte[mRow * mCol];
             fp.read(buffer, 0,mRow*mCol);
             mSolString = new String(buffer, "Windows-1252");
             fp.read(buffer, 0, mRow*mCol);
@@ -156,7 +168,7 @@ public class PuzzlePuz {
             }
             
             puzzle = new Puzzle(mActivity, file, mRow, mCol, mSolString, mCircles, mShades,
-            		mHasRebus, null, null, mClues, mTitle, mAuthor, mCopyRight,null,null,null, null) ;
+            		mFormatSupportsRebus, null, null, mClues, mTitle, mAuthor, mCopyRight,null,null,null, null) ;
         } catch(Exception ex) {
             Log.e(this.toString(), "Error parsing file " + file + " " + ex.getMessage(), ex);
             return null;

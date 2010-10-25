@@ -1,36 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--  The only purpose of this outer LinearLayout is to set the
-      background color of cells.  Usually it's white, but we need
-      to be able to change it to support shaded/colored cells.  -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    		android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:background="#FFFFFF" >
-
-	<!-- This relative layout describes the cell and its background image
-     	(but not its background color; the image is a transparent PNG).
-     	The background image is set at runtime, and may depend on the
-     	size of the puzzle.
-  	-->
-	<RelativeLayout
-    	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    	android:layout_centerInParent="true"
-    	android:layout_gravity="center"
-    	android:gravity="center"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
     	android:id="@+id/cellview"
     	>
     	<!-- android:background="@drawable/cell" -->
-    	
+
     	<!--  If the cell has a cell number, that view is inflated and added here at runtime  -->
 
-		<!--  The letter the user types in this cell.  (The value of textSize
-     		 will be changed at runtime depending on the size of the puzzle.) -->
+		<!--  The letter the user types in this cell.  (The value of textSize,
+			  as well as the width and height, will be changed at runtime depending
+			  on the size of the puzzle.) -->
 		<TextView xmlns:android="http://schemas.android.com/apk/res/android"
 			android:id="@+id/celltext"
     		android:textSize="32px"
     		android:typeface="monospace"
-    		android:layout_width="fill_parent"
+    		android:layout_width="wrap_content"
     		android:layout_height="wrap_content"
     		android:gravity="center"
     		android:layout_gravity="center"
@@ -39,5 +24,4 @@
     		android:ellipsize="marquee"
     		/>
 
-	</RelativeLayout>
-</LinearLayout>
+</RelativeLayout>

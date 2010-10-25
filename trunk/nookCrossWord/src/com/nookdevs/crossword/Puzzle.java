@@ -47,7 +47,7 @@ public class Puzzle {
 	int cursor_col = 0;
 	int cursor_row = 0;
 	private String filename = null ;
-	private boolean usesUnsupportedFeatures = false ;
+	private boolean formatSupportsRebus ;
     ArrayList<int[]> mRebusCells;
     ArrayList<String> mRebusValues;
 	SizeDependent sizedependent = null ;
@@ -61,14 +61,14 @@ public class Puzzle {
 	//  TODO: the build_Views and populate_* stuff should be merged more
 	
 	Puzzle(CrossWord xw, String fn, int tmprows, int tmpcols, String gridstring, ArrayList<int[]> circles,
-			ArrayList<int[]> shades, boolean uses_unsupported, ArrayList<int[]> mRebusCells, ArrayList<String> mRebusValues,
+			ArrayList<int[]> shades, boolean isrebussupported, ArrayList<int[]> mRebusCells, ArrayList<String> mRebusValues,
 			ArrayList<Clue> tmpclues, String tmptitle, String tmpauthor,
 			String tmpcopyright, String tmpdate, String tmpeditor, String tmppublisher, String tmpnotes ) {
 		//Log.d(this.toString(), "DEBUG: Entering Puzzle()...");
 		crossword_activity = xw ;
 		filename = fn ;
 		rows = tmprows ; cols = tmpcols ;
-		usesUnsupportedFeatures = uses_unsupported ;
+		formatSupportsRebus = isrebussupported ;
 		
 		clues = new ArrayList<Clue>() ;
 		for ( Clue tmpclue : tmpclues ) {
@@ -84,29 +84,26 @@ public class Puzzle {
 		if (publisher != null) publisher = tmppublisher ;
 		if (notes != null) notes = tmpnotes ;
 		
-		cellgrid = new Cell[rows][cols] ;
-		
 		sizedependent = new SizeDependent(rows, cols);
+		
+		cellgrid = new Cell[rows][cols] ;
 		
 		build_puzzle_views();
 
-		//  This takes a long time:
-		create_cells_and_populate_gridlayout(gridstring);
-		
+		create_cells(gridstring);
+		markCircleCells(circles);		
+		markShadedCells(shades);
 		if ( mRebusCells != null && mRebusValues != null ) {
 			for ( int c = 0 ; c < mRebusCells.size() ; c++ ) {
 				int row = mRebusCells.get(c)[0] ; int col = mRebusCells.get(c)[1];
 				cellgrid[row][col].answertext = mRebusValues.get(c);
 			}
 		}
-
 		synchronizeCellsAndClues();
 		
-		populate_eink_clues_page();
+		build_eink_table();
 
-		markCircleCells(circles);
-		
-		markShadedCells(shades);
+		populate_eink_clues_page();
 		
 		touchscreenclues = new TouchScreenClues(this);
 		
@@ -136,9 +133,7 @@ public class Puzzle {
 		for( int[] position : circles ) {
 			int i = position[0];
 			int j = position[1];
-			Cell cell = getCell(i,j);
-			cell.is_a_circle = true ;
-			cell.drawBackground() ;
+			getCell(i,j).is_a_circle = true ;
 		}
 	} // Puzzle.markCircleCells
 	
@@ -168,13 +163,10 @@ public class Puzzle {
 		//Log.d(this.toString(), "DEBUG: Leaving Puzzle.build_Views().");
 	} // Puzzle.build_puzzle_views
 	
-	//  This is an important function.  TODO: explain what I'm doing here.
-	//  TODO: this takes way too long.
-	private void create_cells_and_populate_gridlayout(String gridstring) {
-		//Log.d(this.toString(), "DEBUG: Entering Puzzle.create_cells_and_populate_gridlayout()...");
-		LayoutInflater inflater = crossword_activity.getLayoutInflater();
+
+	//  Create our cells (note that they don't have views yet):
+	private void create_cells(String gridstring) {
 		for ( int i = 0 ; i < rows ; i++ ) {
-			TableRow tr = (TableRow) inflater.inflate(R.layout.eink_xwordrow, null);
 			for (int j = 0; j < cols; j++) {
 				boolean is_blocked_out ;
 				char c = gridstring.charAt( j + (i * cols) ) ;
@@ -186,14 +178,23 @@ public class Puzzle {
 		        }
 				Cell cell = new Cell(crossword_activity, this, i, j, (c + ""), is_blocked_out, false);
 				cellgrid[i][j] = cell;
+			}
+		}
+	} // create_cells
+	
+	//  Build the eink table.
+	private void build_eink_table() {
+		LayoutInflater inflater = crossword_activity.getLayoutInflater();
+		for ( int i = 0 ; i < rows ; i++ ) {
+			TableRow tr = (TableRow) inflater.inflate(R.layout.eink_xwordrow, null);
+			for (int j = 0; j < cols; j++) {
+				Cell cell = cellgrid[i][j];
 				tr.addView(cell.getEinkView());
 			}
 			gridlayout.addView(tr);
 		}
-		//Log.d(this.toString(), "DEBUG: Leaving Puzzle.create_cells_and_populate_gridlayout().");
-	} // create_cells_and_populate_gridlayout
-
-	
+	}  // build_eink_table
+		
 
 	private void populate_eink_clues_page() {
 		//Log.d(this.toString(), "DEBUG: Entering Puzzle.populate_eink_clues_page()");
@@ -231,7 +232,7 @@ public class Puzzle {
 					return (clue);
 			}
 		}
-		return (null); // Should never happen
+		return (null); // Only happens on non-standard puzzles
 	} // getBestAcrossClue
 	Clue getBestDownClue(int i, int j) {
 		for (int c = i; c >= 0; c--) {
@@ -243,7 +244,7 @@ public class Puzzle {
 					return (clue);
 			}
 		}
-		return (null); // Should never happen
+		return (null); // Only happens on non-standard puzzles
 	} // getBestDownClue
 
 
@@ -255,7 +256,6 @@ public class Puzzle {
 			Cell cell = getCell( clue.row, clue.col );
 			if ( cell != null ) {
 				cell.number = clue.num ;
-				cell.drawCellNumber();
 			}
 		}
 		for ( Clue clue: clues ) {
@@ -407,15 +407,18 @@ public class Puzzle {
 				if ( plus_or_minus > 0 ) {
 					// go to the first cell of this clue:
 					Clue nextClue =	getNextClue(curClue);
-					new_cursor_row = nextClue.row ; new_cursor_col = nextClue.col ;
+					if ( nextClue != null ) {
+						new_cursor_row = nextClue.row ; new_cursor_col = nextClue.col ;
+					}
 				} else {
 					// go to the last cell in this clue:
 					Clue nextClue = getPreviousClue( curClue );
-					int index = nextClue.cells.size() - 1 ;
-					Cell nextCell = nextClue.cells.get(index) ;
-					new_cursor_row = nextCell.row ; new_cursor_col = nextCell.col ;
+					if ( nextClue != null ) {
+						int index = nextClue.cells.size() - 1 ;
+						Cell nextCell = nextClue.cells.get(index) ;
+						new_cursor_row = nextCell.row ; new_cursor_col = nextCell.col ;
+					}
 				}
-
 			} else {
 
 				// Move through any blocked-out cells:
@@ -494,6 +497,7 @@ public class Puzzle {
 	
 	private Clue getPreviousClue(Clue thisClue) {
 		// This is painfully inefficient.  Wish I knew Java...
+		if (thisClue == null) return(null);
 		Clue prevClue = null ;
 		for ( Clue c : clues ) {
 			if ( c == thisClue ) {
@@ -509,6 +513,7 @@ public class Puzzle {
 	} // getPreviousClue
 	
 	private Clue getNextClue(Clue thisClue) {
+		if (thisClue == null) return(null);
 		boolean justgotit = false ;
 		for ( Clue c : clues ) {
 			if ( c == thisClue ) {
@@ -611,7 +616,6 @@ public class Puzzle {
 				displayCurrentClues();
 			}
 		} ;
-
 		while(true) {
 			//  wait() until we're interrupted by the main thread:
 			try {
@@ -619,14 +623,11 @@ public class Puzzle {
 			} catch(Exception ex) {
 				Log.e(this.toString(), "Exception in wait(): " + ex );
 			}
-			
 			if ( currentCluesUpdaterThreadTimeToDie ) {
 				return ;
 			}
-			
 			current_clues_handler.removeCallbacks(cmd);
-			current_clues_handler.postDelayed(cmd, 350);
-					
+			current_clues_handler.postDelayed(cmd, 500);
 		}
 	} // currentCluesUpdaterThread
 	
@@ -680,7 +681,7 @@ public class Puzzle {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for ( int j = 0 ; j < cols ; j++ ) {
 				Cell cell = getCell(i,j);
-				if ( (! cell.usertext.equals(" ")) && cell.hasWrongAnswer() ) {
+				if ( (! cell.is_blocked_out) && (! cell.usertext.equals(" ")) && cell.hasWrongAnswer() ) {
 					//  This cell is wrong; erase it:
 					setUserText(i,j, " ");
 					r++ ;
@@ -748,6 +749,7 @@ public class Puzzle {
 		} else if ( s.equals("") ) {
 			s = " ";
 		}
+		//s = s.toUpperCase();
 		try {
 			cell.setUserText(s);
 		} catch (Exception ex) {
@@ -787,17 +789,48 @@ public class Puzzle {
 		}
 	}
 	
-	public boolean hasUnsupportedFeatures() {
-		return( usesUnsupportedFeatures );
-	} // hasUnsupportedFeatures
 	
+	//  Checks the user's answers to determine if the puzzle is solved.
 	public boolean isSolved() {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for ( int j = 0 ; j < cols ; j++ ) {
 				Cell cell = cellgrid[i][j] ;
 				if ( cell.is_blocked_out ) continue ;
-				if ( ! cell.usertext.equals(cell.answertext) ) {
-					return(false);
+				if (formatSupportsRebus ) {
+					if ( ! cell.usertext.equals(cell.answertext) ) {
+						return(false);
+					}
+				} else {
+					//  Old .puz formats don't support rebus entries, although the
+					//  puzzle solution might require them.  So, we have to hack it.
+					//  We only look at the user's first letter, and we translate
+					//  symbols to a corresponding letter.  (This is what AcrossLite
+					//  does, too.)
+					char c1, c2;
+					c1 = cell.usertext.charAt(0);
+					c2 = cell.answertext.charAt(0);
+					switch(c1) {
+					case '0': c1='Z'; break;
+					case '1': c1='O'; break;
+					case '2': c1='T'; break;
+					case '3': c1='T'; break;
+					case '4': c1='F'; break;
+					case '5': c1='F'; break;
+					case '6': c1='S'; break;
+					case '7': c1='S'; break;
+					case '8': c1='E'; break;
+					case '9': c1='N'; break;
+					case '@': c1='A'; break;
+					case '#': c1='H'; break;
+					case '$': c1='D'; break;
+					case '%': c1='P'; break;
+					case '&': c1='A'; break;
+					case '+': c1='P'; break;
+					case '?': c1='Q'; break;
+					}
+					if ( c1 != c2 ) {
+						return(false);
+					}
 				}
 			}
 		}
