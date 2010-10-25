@@ -497,7 +497,7 @@ public class CrossWord extends BaseActivity {
 		    	startActivityForResult( new Intent(CrossWord.this, SettingsActivity.class), ACTIVITY_SETTINGS );
 			}
 		});
-
+		
 	} // onCreate
 
 	/////////////////////////////////////////////////
@@ -665,8 +665,9 @@ public class CrossWord extends BaseActivity {
 			if( resultCode == RESULT_OK && data != null) {
 				Bundle b = data.getExtras();
 				if( b != null) {
-					String s = b.getString(REBUSTEXTLABEL);
+					String s = b.getString(REBUSTEXTLABEL).toUpperCase();
 					activePuzzle.setUserText(s);
+					activePuzzle.incrementCursor();
 				}
 			}
 			break ;
@@ -774,9 +775,9 @@ public class CrossWord extends BaseActivity {
 		showLongToast( activePuzzle.aboutThisPuzzle() );
 
 		//  Warn about unsupported features:
-		if ( puzzle.hasUnsupportedFeatures() ) {
-			showLongToast( getString(R.string.warning_rebus_not_supported) );
-		}
+		//if ( puzzle.hasUnsupportedFeatures() ) {
+		//	showLongToast( getString(R.string.warning_rebus_not_supported) );
+		//}
 		
 		//  Set this as the current puzzle:
 		setAsCurrentPuzzle( puzzlefilename );

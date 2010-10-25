@@ -66,9 +66,19 @@ public class SizeDependent {
 		  } else {
 			  numcells = j ;
 		  }
+		  //  First figure out the basic cell dimensions:
+		  //  The squares can be a bit taller than they are wide
 		  cellHeight = PUZZLE_WINDOW_HEIGHT / numcells ;
 		  cellWidth = PUZZLE_WINDOW_WIDTH / numcells ;
+		  //  In odd-shaped puzzles, don't let the cell be wider than it is tall:
+		  if ( cellWidth > cellHeight ) cellWidth = cellHeight ;
+		  //  In odd-shaped puzzles, don't let it get ridiculously tall, either:
+		  if ( cellHeight > ((cellWidth * PUZZLE_WINDOW_HEIGHT) / PUZZLE_WINDOW_WIDTH ) + 1 ) {
+			  cellHeight = cellWidth * PUZZLE_WINDOW_HEIGHT / PUZZLE_WINDOW_WIDTH ;
+		  }
+		  //  Now calculate the size of the text to put in the cells:
 		  calculate_textsize(numcells);
+		  //  And figure out which background icons we can use:
 		  pick_iconset(numcells);
 	  }  // SizeDependent constructor
 
