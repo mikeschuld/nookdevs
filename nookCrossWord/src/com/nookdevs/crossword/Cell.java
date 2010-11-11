@@ -66,10 +66,12 @@ public class Cell {
     } // Cell constructor
     
 
+    //  This needs to be called before the views have been created
     public void setCellShade( int color ) {
-    	is_shaded = true ;
     	shade = color ;
-    	if (bg != null) drawBackgroundShade();
+    	if ( color != Color.WHITE ) {
+    		is_shaded = true ;
+    	}
     } // setCellShade
 
     
@@ -141,7 +143,7 @@ public class Cell {
     private void drawCellText() {
         try {
 			if (tv != null) {
-				tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.getCellTextSize(usertext.length()) );
+				tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.getEinkCellTextSize(usertext.length()) );
 			    tv.setText(usertext);
 			}
 		} catch (Exception ex) {
@@ -161,7 +163,9 @@ public class Cell {
 
     //  This only needs to be called once
     private void drawBackgroundShade() {
-		bg.setBackgroundColor( shade );
+		if (bg != null) {
+			bg.setBackgroundColor( shade );
+		}
     } // drawBackgroundShade
 
     //////////////////////////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,7 @@
 <string name="down_clues_button">Down Clues</string>
 <string name="rebus_button_label">Insert multiple letters in square</string>
 <string name="check_solution_button_label">Check Solution</string>
-<string name="show_current_letter">Show Current Letter</string>
+<string name="show_current_letter">Show Current Square\'s Answer</string>
 <string name="erase_wrong_answers">Erase Wrong Answers</string>
 <string name="i_give_up">I give up, solve the puzzle for me</string>
 <string name="open_puzzle">Open Puzzle</string>

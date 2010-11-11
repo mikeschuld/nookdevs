@@ -34,7 +34,8 @@ public class Puzzle {
 	private Cell[][] cellgrid = null;
 	int rows = 0;
 	int cols = 0;
-	ArrayList<Clue> clues ;
+	ArrayList<Clue> acrossClues ;
+	ArrayList<Clue> downClues ;
 	Thread cluesupdaterthread ;
 	Handler current_clues_handler ;
 	private String notes = "";
@@ -69,44 +70,52 @@ public class Puzzle {
 		filename = fn ;
 		rows = tmprows ; cols = tmpcols ;
 		formatSupportsRebus = isrebussupported ;
-		
-		clues = new ArrayList<Clue>() ;
-		for ( Clue tmpclue : tmpclues ) {
-			clues.add(tmpclue);
-		}
-		Collections.sort(clues);  // they have to be in order!
-		
+		//  Store the metadata:
 		if (title != null) title = tmptitle ;
 		if (author != null) author = tmpauthor ;
 		if (copyright != null) copyright = tmpcopyright ;
 		if (date != null) date = tmpdate ;
 		if (editor != null) editor = tmpeditor ;
 		if (publisher != null) publisher = tmppublisher ;
-		if (notes != null) notes = tmpnotes ;
+		if (notes != null) notes = tmpnotes ;		
 		
-		sizedependent = new SizeDependent(rows, cols);
 		
+		//  Populate a grid of cells:
 		cellgrid = new Cell[rows][cols] ;
-		
-		build_puzzle_views();
-
 		create_cells(gridstring);
-		markCircleCells(circles);		
-		markShadedCells(shades);
+		setCircleCells(circles);		
+		setShadedCells(shades);
 		if ( mRebusCells != null && mRebusValues != null ) {
 			for ( int c = 0 ; c < mRebusCells.size() ; c++ ) {
 				int row = mRebusCells.get(c)[0] ; int col = mRebusCells.get(c)[1];
 				cellgrid[row][col].answertext = mRebusValues.get(c);
 			}
 		}
+		//  Process the clues:
+		acrossClues = new ArrayList<Clue>() ;
+		downClues = new ArrayList<Clue>() ;
+		for ( Clue tmpclue : tmpclues ) {
+			if ( tmpclue.dir == CrossWord.ACROSS ) {
+				acrossClues.add(tmpclue);
+			} else if ( tmpclue.dir == CrossWord.DOWN ) {
+				downClues.add(tmpclue);
+			}
+		}
+		Collections.sort(acrossClues);  // they have to be in order!
+		Collections.sort(downClues);  // they have to be in order!
+		//  Match cells with clues and vice versa:
 		synchronizeCellsAndClues();
-		
-		build_eink_table();
 
-		populate_eink_clues_page();
-		
+		//  Set parameters which depend on the puzzle size:
+		sizedependent = new SizeDependent(rows, cols);
+
+		//  Build our eink Views:
+		build_puzzle_views();
+
+		//  Prepare the touchscreen clues data structures:
 		touchscreenclues = new TouchScreenClues(this);
 		
+		//  Launch our background thread:
 		cluesupdaterthread = new Thread() {
 			public void run() {
 				currentCluesUpdaterThread();
@@ -116,6 +125,7 @@ public class Puzzle {
 		current_clues_handler = new Handler();
 		cluesupdaterthread.start();
 
+		//  Set the initial cursor position:
 		set_Cursor_Start_Position();
 		displayCurrentClues();
 		
@@ -127,44 +137,11 @@ public class Puzzle {
 	//
 	//  These functions are called when the puzzle is initially loaded.
 	//
+	//  They populate our data structures for Cells and Clues.
+	//
 	
-	private void markCircleCells(ArrayList<int[]> circles) {
-		if ( circles == null ) return ;
-		for( int[] position : circles ) {
-			int i = position[0];
-			int j = position[1];
-			getCell(i,j).is_a_circle = true ;
-		}
-	} // Puzzle.markCircleCells
-	
-	private void markShadedCells(ArrayList<int[]> shades) {
-		if (shades == null) return ;
-		for ( int shade[] : shades ) {
-			int i = shade[0];
-			int j = shade[1];
-			int color = shade[2];
-			getCell(i,j).setCellShade( color );	
-		}
-	} // markShadedCells
-
-	// This method creates the Views our puzzle method draws into.
-	// Note that these are not visible until the main program which calls
-	// us decides to "attach" them to the screen.
-	private void build_puzzle_views() {
-		//Log.d(this.toString(), "DEBUG: Entering Puzzle.build_Views()...");
-		LayoutInflater inflater = crossword_activity.getLayoutInflater();
-		grid_and_selected_clues = (View) inflater.inflate(
-				R.layout.eink_puzzle_main_page, null);
-		gridlayout = (TableLayout) grid_and_selected_clues
-				.findViewById(R.id.xwordgrid);
-		selected_clue_a = (TextView) grid_and_selected_clues.findViewById(R.id.selected_clue_across);
-		selected_clue_d = (TextView) grid_and_selected_clues.findViewById(R.id.selected_clue_down);
-		einkcluespage = (TextView) inflater.inflate(R.layout.eink_cluespage, null);
-		//Log.d(this.toString(), "DEBUG: Leaving Puzzle.build_Views().");
-	} // Puzzle.build_puzzle_views
-	
-
-	//  Create our cells (note that they don't have views yet):
+	//  Based on the grid definition string, create our cells and put them in the cellgrid
+	//  (note that they don't have views yet):
 	private void create_cells(String gridstring) {
 		for ( int i = 0 ; i < rows ; i++ ) {
 			for (int j = 0; j < cols; j++) {
@@ -182,85 +159,45 @@ public class Puzzle {
 		}
 	} // create_cells
 	
-	//  Build the eink table.
-	private void build_eink_table() {
-		LayoutInflater inflater = crossword_activity.getLayoutInflater();
-		for ( int i = 0 ; i < rows ; i++ ) {
-			TableRow tr = (TableRow) inflater.inflate(R.layout.eink_xwordrow, null);
-			for (int j = 0; j < cols; j++) {
-				Cell cell = cellgrid[i][j];
-				tr.addView(cell.getEinkView());
-			}
-			gridlayout.addView(tr);
+	private void setCircleCells(ArrayList<int[]> circles) {
+		if ( circles == null ) return ;
+		for( int[] position : circles ) {
+			int i = position[0];
+			int j = position[1];
+			getCell(i,j).is_a_circle = true ;
 		}
-	}  // build_eink_table
-		
-
-	private void populate_eink_clues_page() {
-		//Log.d(this.toString(), "DEBUG: Entering Puzzle.populate_eink_clues_page()");
-		String s = "";
-		if ( (notes != null) && (! notes.equals("")) ) {
-			s = s + notes + "\n\n" ;
+	} // Puzzle.markCircleCells
+	
+	private void setShadedCells(ArrayList<int[]> shades) {
+		if (shades == null) return ;
+		for ( int shade[] : shades ) {
+			int i = shade[0];
+			int j = shade[1];
+			int color = shade[2];
+			getCell(i,j).setCellShade( color );	
 		}
-		s = s + "Across\n\n";
-		for (Clue clue : clues) {
-			if (clue.dir == CrossWord.ACROSS) {
-				s = s + clue.num + ". " + clue.text + " (" + (clue.numcells ) + ")" + "\n";
-			}
-		}
-		s = s + "\n\n";
-		s = s + "Down\n\n";
-		for (Clue clue : clues) {
-			if (clue.dir == CrossWord.DOWN) {
-				s = s + clue.num + ". " + clue.text + " (" + (clue.numcells) + ")" + "\n";
-			}
-		}
-		einkcluespage.setText(s);
-		//Log.d(this.toString(), "DEBUG: Leaving Puzzle.populate_eink_clues_page()");
-	} // populate_eink_clues_page
-
-	// These two methods return the "best" clue for a given grid location.
-	// For example, for a typical crossword puzzle, the "best" clues for
-	// row=0,col=2 are probably across:1,down:3.
-	Clue getBestAcrossClue(int i, int j) {
-		for (int c = j; c >= 0; c--) {
-			Clue clue;
-			int n = getCell(i, c).number ;
-			if (n != 0) {
-				clue = getClue(CrossWord.ACROSS, n);
-				if (clue != null)
-					return (clue);
-			}
-		}
-		return (null); // Only happens on non-standard puzzles
-	} // getBestAcrossClue
-	Clue getBestDownClue(int i, int j) {
-		for (int c = i; c >= 0; c--) {
-			Clue clue;
-			int n = getCell(c, j).number ;
-			if (n != 0) {
-				clue = getClue(CrossWord.DOWN, n);
-				if (clue != null)
-					return (clue);
-			}
-		}
-		return (null); // Only happens on non-standard puzzles
-	} // getBestDownClue
-
+	} // markShadedCells
+	
 
 	private void synchronizeCellsAndClues() {
 		//Log.d( this.toString(), "DEBUG: Entering synchronizeCellsAndClues()..." );
-		//  For each clue, find the cell it starts at, and set that cell's number
-		//  to the clue number:
-		for ( Clue clue : clues ) {
-			Cell cell = getCell( clue.row, clue.col );
-			if ( cell != null ) {
-				cell.number = clue.num ;
+		for( int c = 0 ; c < 2 ; c++ ) {
+			ArrayList<Clue> clues ;
+			if ( c == 0 ) {
+				clues = acrossClues ;
+			} else {
+				clues = downClues ;
 			}
-		}
-		for ( Clue clue: clues ) {
-			clue.cells = getCellListForClue(clue) ;
-			clue.numcells = clue.cells.size();
+			for ( Clue clue : clues ) {
+				//  For each clue, find the cell it starts at, and set that cell's number
+				//  to the clue number:
+				Cell cell = getCell( clue.row, clue.col );
+				if ( cell != null ) {
+					cell.number = clue.num ;
+				}
+				//  For each clue, figure out which cells it "owns":
+				assignCellListForClue(clue) ;
+			}
 		}
 		//  For each cell, find the clue it "belongs" to, and set its two
 		//  clue variables to point to this clue:
@@ -275,9 +212,38 @@ public class Puzzle {
 		}
 		//Log.d( this.toString(), "DEBUG: Leaving synchronizeCellsAndClues()." );
 	} // Puzzle.synchronizeCellsAndClues
+
 	
-	//  For a clue, return the list of cells which its answer go into
-	ArrayList<Cell> getCellListForClue( Clue clue ) {
+	// These two methods return the "best" clue for a given grid location.
+	// For example, for a typical crossword puzzle, the "best" clues for
+	// row=0,col=2 are probably across:1,down:3.
+	private Clue getBestAcrossClue(int i, int j) {
+		for (int c = j; c >= 0; c--) {
+			Clue clue;
+			int n = getCell(i, c).number ;
+			if (n != 0) {
+				clue = getClue(CrossWord.ACROSS, n);
+				if (clue != null)
+					return (clue);
+			}
+		}
+		return (null); // Only happens on non-standard puzzles
+	} // getBestAcrossClue
+	private Clue getBestDownClue(int i, int j) {
+		for (int c = i; c >= 0; c--) {
+			Clue clue;
+			int n = getCell(c, j).number ;
+			if (n != 0) {
+				clue = getClue(CrossWord.DOWN, n);
+				if (clue != null)
+					return (clue);
+			}
+		}
+		return (null); // Only happens on non-standard puzzles
+	} // getBestDownClue
+	
+	//  For a clue, assign the list of cells which its answer goes into
+	private void assignCellListForClue( Clue clue ) {
 		ArrayList<Cell> celllist = new ArrayList<Cell>() ;
 		int i = clue.row;
 		int j = clue.col;
@@ -290,11 +256,68 @@ public class Puzzle {
 				i++ ;
 			}
 		}
-		return( celllist );
-	} // Puzzle.getCellListForClue
+		clue.cells = celllist ;
+		clue.numcells = clue.cells.size();				
+	} // Puzzle.assignCellListForClue
 
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// This method creates the Views our puzzle method draws into.
+	// Note that these are not visible until the main program which calls
+	// us decides to "attach" them to the screen.
+	
+	private void build_puzzle_views() {
+		//Log.d(this.toString(), "DEBUG: Entering Puzzle.build_Views()...");
+		LayoutInflater inflater = crossword_activity.getLayoutInflater();
+		grid_and_selected_clues = (View) inflater.inflate(
+				R.layout.eink_puzzle_main_page, null);
+		gridlayout = (TableLayout) grid_and_selected_clues
+				.findViewById(R.id.xwordgrid);
+		selected_clue_a = (TextView) grid_and_selected_clues.findViewById(R.id.selected_clue_across);
+		selected_clue_d = (TextView) grid_and_selected_clues.findViewById(R.id.selected_clue_down);
+		einkcluespage = (TextView) inflater.inflate(R.layout.eink_cluespage, null);
+		//  Build the eink table:
+		for ( int i = 0 ; i < rows ; i++ ) {
+			TableRow tr = (TableRow) inflater.inflate(R.layout.eink_xwordrow, null);
+			for (int j = 0; j < cols; j++) {
+				Cell cell = cellgrid[i][j];
+				tr.addView(cell.getEinkView());
+			}
+			gridlayout.addView(tr);
+		}
+		//  The e-ink clues page:
+		populate_eink_clues_page();
+		//Log.d(this.toString(), "DEBUG: Leaving Puzzle.build_Views().");
+	} // Puzzle.build_puzzle_views		
+
+	private void populate_eink_clues_page() {
+		//Log.d(this.toString(), "DEBUG: Entering Puzzle.populate_eink_clues_page()");
+		StringBuilder s = new StringBuilder( "" );
+		if ( (notes != null) && (! notes.equals("")) ) {
+			s.append( notes );
+			s.append( "\n\n" );
+		}
+		s.append( "Across\n\n" );
+		for (Clue clue : acrossClues) {
+			s.append( clue.num + ". " );
+			s.append( clue.text );
+			s.append( " (" + clue.numcells );
+			s.append( ")\n" );
+		}
+		s.append(  "\n\nDown\n\n" ) ;
+		for (Clue clue : downClues) {
+			s.append( clue.num + ". " );
+			s.append( clue.text );
+			s.append( " (" + clue.numcells );
+			s.append( ")\n" );
+		}
+		einkcluespage.setText(s);
+		//Log.d(this.toString(), "DEBUG: Leaving Puzzle.populate_eink_clues_page()");
+	} // populate_eink_clues_page
+
+	
+	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	
@@ -495,54 +518,45 @@ public class Puzzle {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private Clue getPreviousClue(Clue thisClue) {
-		// This is painfully inefficient.  Wish I knew Java...
+	private Clue getPreviousClue(Clue thisClue) {		
 		if (thisClue == null) return(null);
-		Clue prevClue = null ;
-		for ( Clue c : clues ) {
-			if ( c == thisClue ) {
-				if ( prevClue != null ) return( prevClue );
-				// If we get here, we were the first clue, so we need to find the last clue:
-				Clue res = getLastClue(thisClue.dir) ;
-				return( (res!=null) ? res : thisClue );
-			}
-			if ( c.dir == thisClue.dir ) prevClue = c ;
+		ArrayList<Clue> clues ;
+		if ( thisClue.dir == CrossWord.ACROSS ) {
+			clues = acrossClues ;
+		} else {
+			clues = downClues ;
 		}
-		Log.e( this.toString(), "Internal error: could not find previous clue" );  // should never happen
-		return(thisClue);
+		int index ;
+		index = clues.indexOf(thisClue);
+		if ( index < 0 ) return( thisClue ); // shouldn't happen
+		if ( index > 0 ) {
+			// Return the previous clue in the list:
+			return( clues.get(index - 1) );
+		} else {
+			// We were the first clue, so go to the end of the list:
+			return( clues.get( clues.size() - 1 ) );
+		}
 	} // getPreviousClue
 	
 	private Clue getNextClue(Clue thisClue) {
 		if (thisClue == null) return(null);
-		boolean justgotit = false ;
-		for ( Clue c : clues ) {
-			if ( c == thisClue ) {
-				justgotit = true ;
-			} else if ( justgotit == true ) {
-				if ( c.dir == thisClue.dir ) return(c);
-				break ; // no point searching through the other direction
-			}
+		ArrayList<Clue> clues ;
+		if ( thisClue.dir == CrossWord.ACROSS ) {
+			clues = acrossClues ;
+		} else {
+			clues = downClues ;
 		}
-		//  If we get here, it was the last clue for its direction
-		//  So, go back to the beginning:
-		Clue res = getFirstClue( thisClue.dir );
-		return( (res!=null) ? res : thisClue );
+		int index ;
+		index = clues.indexOf(thisClue);
+		if ( index < 0 ) return( thisClue ); // shouldn't happen
+		if ( index < clues.size() ) {
+			// Return the next clue in the list:
+			return( clues.get(index + 1) );
+		} else {
+			// We were the last clue, so go back to the beginning:
+			return( clues.get(0) );
+		}
 	} // getNextClue
-	
-	private Clue getFirstClue(int dir) {
-		for ( Clue c : clues ) {
-			if ( c.dir == dir ) return(c);
-		}
-		return(null);
-	} // getFirstClue
-	
-	private Clue getLastClue(int dir) {
-		Clue lastClue = null ;
-		for ( Clue c : clues ) {
-			if ( c.dir == dir ) lastClue = c ;
-		}
-		return( lastClue );
-	} // getLastClue
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -550,10 +564,16 @@ public class Puzzle {
 		// TODO?
 	} // scroll_TouchscreenClues_to_Cursor
 
-	//  Gets the clue for this cell, or null if we're not on a numbered cell:
+	//  Look up a clue by clue number:
 	public Clue getClue(int dir, int num) {
+		ArrayList<Clue> clues ;
+		if ( dir == CrossWord.ACROSS ) {
+			clues = acrossClues ;
+		} else {
+			clues = downClues ;
+		}
 		for (Clue clue : clues) {
-			if ((clue.dir == dir) && (clue.num == num)) {
+			if ( clue.num == num ) {
 				return (clue);
 			}
 		}
@@ -604,9 +624,11 @@ public class Puzzle {
 	//  We used to just call displayCurrentClues() every time the cursor moved.
 	//  The trouble is, because e-ink draws slowly, this meant that cursor
 	//  navigation was very sluggish.
-	//  So, we force those requests through a background thread, which does a
-	//  little sleep first, so the user can get in several cursor moves before
-	//  the main thread has to pause to update the clues text on the e-ink.
+	//  So, we force those requests through a background thread.
+	//  The command to draw the clues is run with a delay, so that if the user
+	//  presses the arrow key several times in a row, they can get in several
+	//  cursor moves before the main thread has to pause to update the clues
+	//  text on the e-ink.
 	
 	private boolean currentCluesUpdaterThreadTimeToDie = false ;  // set true when thread should exit
 	
@@ -627,7 +649,7 @@ public class Puzzle {
 				return ;
 			}
 			current_clues_handler.removeCallbacks(cmd);
-			current_clues_handler.postDelayed(cmd, 500);
+			current_clues_handler.postDelayed(cmd, 300);
 		}
 	} // currentCluesUpdaterThread
 	

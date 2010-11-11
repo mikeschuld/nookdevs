@@ -46,10 +46,7 @@ public class PuzzlePuz {
     private ArrayList<int[]> mShades;
     private ArrayList<int[]> mRebusCells;
     private ArrayList<String> mRebusValues;
-    private String mRebus;
-    private String mRebusTable;
     private String mExtrasGrid;
-    private boolean mHasRebus;
     private boolean mFormatSupportsRebus;
     private static final String LOGTAG=".Puz Parser:";
     
@@ -78,15 +75,14 @@ public class PuzzlePuz {
             if ( mVersion.equals("1.2") || mVersion.equals("1.1") || mVersion.equals("1.0") || mVersion.startsWith("0.") ) {
             	mFormatSupportsRebus = false ;
             } else {
-            	//mFormatSupportsRebus = true ;
-            	mFormatSupportsRebus = false ; // TODO: finish rebus support and change this
+            	mFormatSupportsRebus = true ;
             }
             fp.seek(COL_INDEX);
             mCol = fp.readByte();
-            //System.out.println("Rows =" + mRow);
-            mRow = fp.readByte();
             //System.out.println("Cols =" + mCol);
-            
+            mRow = fp.readByte();
+            //System.out.println("Rows =" + mRow);
+
             mNumClues = Short.reverseBytes(fp.readShort());
             //System.out.println("NumClues =" + mNumClues);
             fp.skipBytes(2);
@@ -168,14 +164,17 @@ public class PuzzlePuz {
             }
             
             puzzle = new Puzzle(mActivity, file, mRow, mCol, mSolString, mCircles, mShades,
-            		mFormatSupportsRebus, null, null, mClues, mTitle, mAuthor, mCopyRight,null,null,null, null) ;
+            		mFormatSupportsRebus, mRebusCells, mRebusValues, mClues, mTitle, mAuthor, mCopyRight,null,null,null, mNotes) ;
         } catch(Exception ex) {
             Log.e(this.toString(), "Error parsing file " + file + " " + ex.getMessage(), ex);
             return null;
         }
         return puzzle;
     }
+    
     private void loadExtraFields(byte[] buffer, int c) {
+    	int[][] mGridRebusLocations = null ;
+    	String mRebusTableString = null ;
         try {
             int i = c;
             while( i < buffer.length) {
@@ -185,63 +184,73 @@ public class PuzzlePuz {
                 bb.put(buffer[i++]); 
                 bb.put(buffer[i++]); 
                 int size = bb.getShort(0); 
-                if( keyword != null && keyword.equals("GRBS")) {
+                i+=2;  // skip checksum
+                
+                if( keyword != null && keyword.equals("GRBS") && (size == mRow*mCol) ) {
                     //load rebus table
-                    // skip checksum value
-                    i+=2;
-                    int len= mRow*mCol;
-                    int csum=0;
-                    for( int k=0; k< len; k++) {
-                        csum += buffer[i+k];
+                	mGridRebusLocations = new int [mCol][mRow];
+                    ByteBuffer b = ByteBuffer.allocate(1);
+                    b.order(ByteOrder.LITTLE_ENDIAN);
+                    for(int x = 0; x < mCol ; x++) {
+                    	for(int y = 0 ; y < mRow; y++) {
+                    		b.clear();
+                    		b.put( buffer[ i + (x + mCol*y) ] );
+                    		mGridRebusLocations[x][y]  = (int)b.get(0) ;
+                    	}
                     }
-                    if( csum !=0) {
-                        mRebus = new String( buffer, i, mRow*mCol, "Windows-1252");
-                        i+=len;
-                        mHasRebus = true;
-                        i+=1; //Nul 
-                        i+=4; //RTBL keyword
-                        bb = ByteBuffer.allocate(2); 
-                        bb.order(ByteOrder.LITTLE_ENDIAN); 
-                        bb.put(buffer[i++]); 
-                        bb.put(buffer[i++]);
-                        len = bb.getShort(0);
-                        i+=2; //skip checksum again
-                        mRebusTable = new String(buffer,i,len, "Windows-1252");
-                        Log.d( this.toString(), "DEBUG: mRebusTable = \"" + mRebusTable + "\"" ) ;  // TODO: remove this
-                        i+=1;// for skipping NUL.
-                    }
+                    i+=size;
+                    i+=1; //Null
+                } else if(keyword.equals("RTBL")) {
+                	mRebusTableString = new String( buffer, i, size, "Windows-1252");
+                    i+=size;
+                    i+=1; //Null
                 } else if(keyword.equals("GEXT")) {
-                    i+=2; //Checksum
-                    int len = mRow*mCol;
-                    mExtrasGrid = new String( buffer,i, len,"Windows-1252");
+                    mExtrasGrid = new String( buffer,i, size,"Windows-1252");
                     mCircles = new ArrayList<int[]>();
-                    for(int k=0; k< len; k++) {
+                    for(int k=0; k< size; k++) {
                         int c1 = buffer[k+i];
-                        if( c1 !=0) {
+                        if( (c1 & 0x80) !=0) {
                             int [] pos = new int[2];
                             pos[0] = (k)/mRow;
                             pos[1] = (k) - pos[0]*mRow;
                             mCircles.add(pos);
                         }
                     }
-                    i+=len;
+                    i+=size;
                     i++; //Null
                 } else if(keyword.equals("RUSR")) {
-                    i+=2;//checksum
                     i+=size;
                     i+=1; //Null
                 } else if( keyword.equals("LTIM")) {
-                    i+= 2; //checksum
                     i+= size;
                     i+=1; //Null
                 }
                 else {
                     Log.e(LOGTAG, "Unknown section in file. Ignoring... " + keyword);
-                    i+=2; //assuming same structure as others.
+                    //assuming same structure as others.
                     i+=size;
                     i+=1;
                 }
-              
+            }
+            // If there were any rebus entries, interpret them:
+            if ( mRebusTableString != null && mGridRebusLocations != null ) {
+            	mRebusCells = new ArrayList<int[]>() ;
+            	mRebusValues = new ArrayList<String>() ;
+            	String[] tokens = mRebusTableString.split(";");
+            	for( String token : tokens ) {
+            		String numString = token.substring(0,2).trim();
+            		int rebusKeyNum = Integer.parseInt(numString) + 1 ;
+                	String rebusString = token.substring(3);
+                    for(int x = 0; x < mCol ; x++) {
+                    	for(int y = 0 ; y < mRow; y++) {
+                    		if ( mGridRebusLocations[x][y] == rebusKeyNum ) {
+                    			int loc[] = { y, x } ; // row,col
+                    			mRebusCells.add(loc);                           
+                    			mRebusValues.add(rebusString);                  
+                    		}
+                    	}
+                    }
+            	}
             }
         } catch(Exception ex) {
             Log.e(LOGTAG, "Exception while reading extra data:"+ex.getMessage(), ex);
