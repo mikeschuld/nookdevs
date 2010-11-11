@@ -35,6 +35,9 @@ public class SizeDependent {
 	  static final int PUZZLE_WINDOW_WIDTH = 600 ;
 	  static final int PUZZLE_WINDOW_DIMENSION = 600 ;  // the smaller of the two dimensions
 	  static final int max_cells_on_touchscreen_clues_scroller = 8 ;
+	  int touchscreenCellHeight = 50 ;
+	  int touchscreenCellWidth = 50 ;
+	  float touchscreen_cell_textsize = 30.0f ;
 	  //  Determined dynamically, based on puzzle dimensions:
 	  float cell_textsize ;
 	  float cellnum_textsize ;
@@ -77,29 +80,49 @@ public class SizeDependent {
 			  cellHeight = cellWidth * PUZZLE_WINDOW_HEIGHT / PUZZLE_WINDOW_WIDTH ;
 		  }
 		  //  Now calculate the size of the text to put in the cells:
-		  calculate_textsize(numcells);
+		  calculate_eink_textsize(numcells);
 		  //  And figure out which background icons we can use:
 		  pick_iconset(numcells);
 	  }  // SizeDependent constructor
 
-	  private void calculate_textsize(int n) {
+	  //  Calculate the text size to use, based on the puzzle dimension:
+	  private void calculate_eink_textsize(int n) {
 		  Double dt, dtn;
 		  dt = (PUZZLE_WINDOW_DIMENSION * .80) / n;  // * .73 allows for a square cell
 		  cell_textsize = dt.floatValue();
 		  dtn = dt * .35 ;
 		  cellnum_textsize = dtn.floatValue() ;
-	  } // calculate_textsize
+	  } // calculate_eink_textsize
+
+	  //  Calculates how to scale down the text size for cells with more than
+	  //  one letter in them
+	  private float computeRebusTextSize( float origTextSize, int numLetters ) {
+		  if ( numLetters <= 1 ) {
+			  return( origTextSize );
+		  } else if ( numLetters == 2 ) {
+			  return( origTextSize * 0.7f );
+		  } else if ( numLetters <= 4 ) {
+			  return( origTextSize / 2 );
+		  } else if ( numLetters == 5 ) {
+			  return( origTextSize * 0.4f );
+		  } else if ( numLetters == 6 ) {
+			  return( origTextSize * 0.3f );
+		  } else {
+			  return( origTextSize / 4 );
+		  }
+	  } // computeRebusTextSize
 
 	  //  Returns the cell text size, based on the number of letters in the cell:
-	  float getCellTextSize( int numLetters ) {
-		  if ( numLetters <= 1 ) {
-			  return( cell_textsize );
-		  } else if ( numLetters <= 4 ) {
-			  return( cell_textsize / 2 );
-		  } else {
-			  return( cell_textsize / 4 );
-		  }
+	  float getEinkCellTextSize( int numLetters ) {
+		  return( computeRebusTextSize(cell_textsize, numLetters) ) ;
 	  } // getCellTextSize
+	  
+	  //  Returns the cell text size, based on the number of letters in the cell:
+	  float getTouchScreenCellTextSize( int numLetters ) {
+		  return( computeRebusTextSize(touchscreen_cell_textsize, numLetters) ) ;
+	  } // getCellTextSize
+
+	  
 	  
 	  // 1x1 to 15x15:
 	  private int[] iconset40 = { 	R.drawable.cell_40,

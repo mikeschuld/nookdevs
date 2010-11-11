@@ -27,15 +27,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import android.graphics.Typeface;
 import android.util.Log;
+import android.util.TypedValue;
 
 //  cluepages_? are ArrayLists of ArrayLists, representing a list of clues for each page.
+//
 //  The buttongrid[][] arrays are mostly full of nulls.
-//  They contain only the currently visible buttons.
+//  They contain only the currently visible buttons at a given time.
+//
 //  When the user types a letter into a crossword cell, we
 //  are called, and we check this grid in order to update
-//  the button text if it's showing.
-
-
+//  the button text, but only if it's displayed at the time.
 //
 // 		touchscreen_clues_scroller.requestChildFocus( touchscreenclues, button ) ;
 
@@ -80,8 +81,15 @@ public class TouchScreenClues {
     	int pagenum = 0 ;
     	cluelist.add( new ArrayList<Clue>() ) ;
     	int cluesonthispage = 0 ;
-    	for ( Clue clue: puzzle.clues ) {
-    		if ( clue.dir != dir ) continue ;
+    	
+		ArrayList<Clue> clues ;
+		if ( dir == CrossWord.ACROSS ) {
+			clues = puzzle.acrossClues ;
+		} else {
+			clues = puzzle.downClues ;
+		}
+
+    	for ( Clue clue: clues ) {
     		if ( cluesonthispage > MAX_CLUES_PER_PAGE ) {
     			pagenum++ ; cluesonthispage=0 ;
     			cluelist.add( new ArrayList<Clue>() ) ;
@@ -207,7 +215,11 @@ public class TouchScreenClues {
             LinearLayout cellbg = (LinearLayout) inflater.inflate(R.layout.touchscreenclues_cell, null);
             cellbg.setBackgroundColor( cell.shade );
             Button cellbutton = (Button) cellbg.findViewById(R.id.cellbutton);
+            cellbutton.setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.getTouchScreenCellTextSize(cell.usertext.length()) );
             cellbutton.setText( cell.usertext ) ;
+            cellbutton.setWidth( puzzle.sizedependent.touchscreenCellWidth );
+            cellbutton.setHeight( puzzle.sizedependent.touchscreenCellHeight );
+            //  Call on the Cell class to draw our background based on the cell's contents:
             cell.drawBackgroundIcon_TouchScreen( (View) cellbutton );
 
             int i[] = new int[3] ;

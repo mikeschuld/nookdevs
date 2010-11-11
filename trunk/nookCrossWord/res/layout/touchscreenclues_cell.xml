@@ -8,8 +8,8 @@
         android:textSize="30px"
         android:textColor="#000000"
         android:typeface="monospace"
+        android:ellipsize="marquee"
         android:background="@drawable/touchscreencell_selector"
-        
 />
 
 </LinearLayout>
