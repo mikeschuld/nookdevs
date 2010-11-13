@@ -107,7 +107,6 @@ public class CrossWord extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		Button b;
 		
 		//  Load the user's preferences:
 		loadGameSettings();
@@ -129,8 +128,7 @@ public class CrossWord extends BaseActivity {
 		
 		
 		// Touchscreen back button:
-		b = (Button) findViewById(R.id.back);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.back)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromleft);
 			  	if ( touchscreenanimator.getDisplayedChild() == MAIN_MENU_VIEWNUM ) {
@@ -150,8 +148,7 @@ public class CrossWord extends BaseActivity {
 		});
 
 		// Play button:
-		b = (Button) findViewById(R.id.play_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.play_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (activePuzzle == null) {
 					showToast_No_Active_Puzzle();
@@ -164,8 +161,7 @@ public class CrossWord extends BaseActivity {
 		
 		
 		// Across clues button:
-		b = (Button) findViewById(R.id.go_to_touchscreen_across_clues);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.go_to_touchscreen_across_clues)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (activePuzzle == null) {
 					showToast_No_Active_Puzzle();
@@ -177,8 +173,7 @@ public class CrossWord extends BaseActivity {
 			}
 		});
 		// Down clues button:
-		b = (Button) findViewById(R.id.go_to_touchscreen_down_clues);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.go_to_touchscreen_down_clues)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (activePuzzle == null) {
 					showToast_No_Active_Puzzle();
@@ -190,16 +185,14 @@ public class CrossWord extends BaseActivity {
 			}
 		});
 		// Button to launch the keyboard:
-		b = (Button) findViewById(R.id.launchkeyboardbutton);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.launchkeyboardbutton)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				einkanimator.setDisplayedChild( EINK_PUZZLE_VIEWNUM );
 				bringUpKeyboard();
 			}
 		});
 		// Check answer button:
-		b = (Button) findViewById(R.id.check_solution_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.check_solution_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if ( activePuzzle == null ) {
 					showToast_No_Active_Puzzle();
@@ -235,8 +228,7 @@ public class CrossWord extends BaseActivity {
 
 
 		// About this puzzle button:
-		b = (Button) findViewById(R.id.aboutthispuzzle_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.aboutthispuzzle_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (activePuzzle == null) {
 					showToast_No_Active_Puzzle();
@@ -264,8 +256,7 @@ public class CrossWord extends BaseActivity {
 		});
 		
 		// Rebus entry button:
-		b = (Button) findViewById(R.id.rebus_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.rebus_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (activePuzzle == null) {
 					showToast_No_Active_Puzzle();
@@ -279,8 +270,7 @@ public class CrossWord extends BaseActivity {
 
 
 		// Hints button:
-		b = (Button) findViewById(R.id.hints_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.hints_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if (activePuzzle == null) {
 					showToast_No_Active_Puzzle();
@@ -292,8 +282,7 @@ public class CrossWord extends BaseActivity {
 		});
 		
 		// The current letter hint button:
-		b = (Button) findViewById(R.id.show_current_letter_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.show_current_letter_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if ( activePuzzle == null ) {
 					showToast_No_Active_Puzzle();
@@ -306,8 +295,7 @@ public class CrossWord extends BaseActivity {
 			}
 		});
 		// A hint/cheat which erases all the user's incorrect answers:
-		b = (Button) findViewById(R.id.erase_wrong_answers_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.erase_wrong_answers_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if ( activePuzzle == null ) {
 					showToast_No_Active_Puzzle();
@@ -328,8 +316,7 @@ public class CrossWord extends BaseActivity {
 			}
 		});
 		// The hint/cheat button to just solve the entire puzzle:
-		b = (Button) findViewById(R.id.i_give_up_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.i_give_up_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				if ( activePuzzle == null ) {
 					showToast_No_Active_Puzzle();
@@ -364,8 +351,7 @@ public class CrossWord extends BaseActivity {
 		
 
 		// The Puzzles ("File") button:
-		b = (Button) findViewById(R.id.file_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.file_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				preparePuzzleMenu();
 				touchscreenanimator.setInAnimation(v.getContext(), R.anim.fromright);
@@ -491,8 +477,7 @@ public class CrossWord extends BaseActivity {
 		});
 		
 		// The Settings button:
-		b = (Button) findViewById(R.id.settings_button);
-		b.setOnClickListener(new OnClickListener() {
+		((Button) findViewById(R.id.settings_button)).setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 		    	startActivityForResult( new Intent(CrossWord.this, SettingsActivity.class), ACTIVITY_SETTINGS );
 			}
