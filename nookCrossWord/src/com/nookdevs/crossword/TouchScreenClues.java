@@ -261,10 +261,12 @@ public class TouchScreenClues {
     	
     	try {
 			if ( buttongrid_a[i][j] != null ) {
+				(buttongrid_a[i][j]).setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.getTouchScreenCellTextSize(s.length()) );
 				(buttongrid_a[i][j]).setText(s);
 				puzzle.getCell(i,j).drawBackgroundIcon_TouchScreen( buttongrid_a[i][j] );
 			}
 			if ( buttongrid_d[i][j] != null ) {
+				(buttongrid_d[i][j]).setTextSize(TypedValue.COMPLEX_UNIT_PX, puzzle.sizedependent.getTouchScreenCellTextSize(s.length()) );
 				(buttongrid_d[i][j]).setText(s);
 				puzzle.getCell(i,j).drawBackgroundIcon_TouchScreen( buttongrid_d[i][j] );
 			}

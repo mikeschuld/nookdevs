@@ -828,29 +828,29 @@ public class Puzzle {
 					//  We only look at the user's first letter, and we translate
 					//  symbols to a corresponding letter.  (This is what AcrossLite
 					//  does, too.)
-					char c1, c2;
-					c1 = cell.usertext.charAt(0);
-					c2 = cell.answertext.charAt(0);
-					switch(c1) {
-					case '0': c1='Z'; break;
-					case '1': c1='O'; break;
-					case '2': c1='T'; break;
-					case '3': c1='T'; break;
-					case '4': c1='F'; break;
-					case '5': c1='F'; break;
-					case '6': c1='S'; break;
-					case '7': c1='S'; break;
-					case '8': c1='E'; break;
-					case '9': c1='N'; break;
-					case '@': c1='A'; break;
-					case '#': c1='H'; break;
-					case '$': c1='D'; break;
-					case '%': c1='P'; break;
-					case '&': c1='A'; break;
-					case '+': c1='P'; break;
-					case '?': c1='Q'; break;
+					char cuser, cuseralt, canswer;
+					cuser = cell.usertext.charAt(0); cuseralt = cuser;
+					canswer = cell.answertext.charAt(0);
+					switch(cuser) {
+					case '0': cuseralt='Z'; break;
+					case '1': cuseralt='O'; break;
+					case '2': cuseralt='T'; break;
+					case '3': cuseralt='T'; break;
+					case '4': cuseralt='F'; break;
+					case '5': cuseralt='F'; break;
+					case '6': cuseralt='S'; break;
+					case '7': cuseralt='S'; break;
+					case '8': cuseralt='E'; break;
+					case '9': cuseralt='N'; break;
+					case '@': cuseralt='A'; break;
+					case '#': cuseralt='H'; break;
+					case '$': cuseralt='D'; break;
+					case '%': cuseralt='P'; break;
+					case '&': cuseralt='A'; break;
+					case '+': cuseralt='P'; break;
+					case '?': cuseralt='Q'; break;
 					}
-					if ( c1 != c2 ) {
+					if ( (cuser != canswer) && (cuseralt != canswer) ) {
 						return(false);
 					}
 				}
