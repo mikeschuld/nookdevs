@@ -541,9 +541,7 @@ public class CrossWord extends BaseActivity {
 		}
 		//  Delete puzzle:
 		if ( activePuzzle != null ) {
-			if ( activePuzzle.isSolved() ) {
-				puzzles_submenu.addView(delete_puzzle_button);
-			}
+			puzzles_submenu.addView(delete_puzzle_button);
 		}
 		//  Help:
 		puzzles_submenu.addView(puzzles_help_button);
