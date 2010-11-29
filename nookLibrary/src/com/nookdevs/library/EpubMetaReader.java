@@ -17,9 +17,7 @@ package com.nookdevs.library;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -165,21 +163,18 @@ public class EpubMetaReader {
                     }
                     if (name.equals("meta") && !(seriesTag && seriesIdx)) {
                         int count = parser.getAttributeCount();
+                        Map<String, String> meta = new HashMap<String, String>();
                         for (int i = 0; i < count; i++) {
-                            String attr = parser.getAttributeName(i);
-                            String val = parser.getAttributeValue(i);
-                            if (attr.equals("name") && val.equals("calibre:series")) {
+                            meta.put(parser.getAttributeName(i), parser.getAttributeValue(i));
+                        }
+                        if (meta.containsKey("name") && meta.containsKey("content")) {
+                            if (meta.get("name").equals("calibre:series")) {
                                 seriesTag = true;
-                                i++;
-                                attr = parser.getAttributeName(i);
-                                val = parser.getAttributeValue(i);
-                                m_File.setSeries(val);
-                                m_File.addKeywords(val);
-                                break;
-                            } else if (attr.equals("name") && val.equals("calibre:series_index")) {
-                                i++;
-                                attr = parser.getAttributeName(i);
-                                idx = parser.getAttributeValue(i);
+                                String series = meta.get("content");
+                                m_File.setSeries(series);
+                                m_File.addKeywords(series);
+                            } else if (meta.get("name").equals("calibre:series_index")) {
+                                idx = meta.get("content");
                                 int dot = idx.indexOf('.');
                                 if (dot != -1) {
                                     idx = idx.substring(0, dot);
@@ -188,7 +183,6 @@ public class EpubMetaReader {
                                     idx = "0" + idx;
                                 }
                                 seriesIdx = true;
-                                break;
                             }
                         }
                     }
