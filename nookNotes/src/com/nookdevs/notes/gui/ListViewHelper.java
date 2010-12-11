@@ -74,7 +74,7 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
      */
     protected static final int ITEM_HEIGHT = 60;
     /** The maximum height of the items area of a page in pixels. */
-    protected static final int MAX_PAGE_HEIGHT = 635;
+    protected static final int MAX_PAGE_HEIGHT = 634;
     /** The number of items shown per page. */
     protected static final int ITEMS_PER_PAGE =
         (MAX_PAGE_HEIGHT - 1) / (ITEM_HEIGHT + 1);  // + divider

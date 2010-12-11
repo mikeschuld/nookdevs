@@ -104,7 +104,7 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
             if (height == null) {  // not cached?
                 // prepare item for display, measure its height...
                 View vItem = createItemView(i, item);
-                vItem.measure(NookSpecifics.EINK_WIDTH, MAX_PAGE_HEIGHT);
+                vItem.measure(NookSpecifics.EINK_WIDTH, MAX_PAGE_HEIGHT - 2);
                 height = vItem.getMeasuredHeight();
 
                 // cache the height...
@@ -112,15 +112,17 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
                 values.put(Notes.KEY_ITEM_HEIGHT, height);
                 cr.update(NotesUris.itemHeightUri(mNoteId, i), values, null, null);
             }
+            height += 1;  // for one divider
 
             // update data structure...
-            if (pageHeight > 0 && pageHeight + height >= MAX_PAGE_HEIGHT) {
+            if (pageHeight > 0 && pageHeight + height >= MAX_PAGE_HEIGHT - 1) {
+                // NOTE: "- 1" considers the bottom-most "divider".
                 if (!mFirstItemsInPages.get(mFirstItemsInPages.size() - 1).equals(i)) {
                     mFirstItemsInPages.add(i);
                 }
                 pageHeight = height;
             } else {
-                pageHeight += height;
+                pageHeight += height;  // 1 for the divider
             }
             if (mFirstItemsInPages.size() == 1) firstPageHeight += height;
         }
