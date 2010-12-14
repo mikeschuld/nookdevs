@@ -388,7 +388,7 @@ public class NotesSQLite extends Notes
                 values.remove(KEY_NOTE_ORDER_VIEWED);
                 String title = values.getAsString(KEY_NOTE_TITLE);
                 if (TextUtils.isEmpty(title) || title.matches("\\s+")) {
-                    values.remove(KEY_NOTE_TITLE);
+                    values.put(KEY_NOTE_TITLE, "");
                 }
 
                 try {
@@ -453,7 +453,7 @@ public class NotesSQLite extends Notes
                         values.put(KEY_ITEM_HEIGHT, (Integer) null);
                         String text = values.getAsString(KEY_ITEM_TEXT);
                         if (TextUtils.isEmpty(text) || text.matches("\\s+")) {
-                            values.remove(KEY_ITEM_TEXT);
+                            values.put(KEY_ITEM_TEXT, "");
                         }
                         count =
                             mDatabase.update(
