@@ -35,7 +35,25 @@ public abstract class BaseActivity extends Activity
 {
     ///////////////////////////////////////// ATTRIBUTES //////////////////////////////////////////
 
-    //................................................................................... constants
+    //............................................................................ public constants
+
+    /**
+     * Shared preferences key for a <code>boolean</code>-type value specifying whether to replace
+     * umlauts in text input.
+     */
+    @NotNull public static String PKEY_REPLACE_UMLAUTS = "replaceUmlauts";
+    /**
+     * Shared preferences key for a <code>boolean</code>-type value specifying whether to replace
+     * symbols in text input.
+     */
+    @NotNull public static String PKEY_REPLACE_SYMBOLS = "replaceSymbols";
+    /**
+     * Shared preferences key for a <code>boolean</code>-type value specifying whether to enable
+     * markup in note items.
+     */
+    @NotNull public static String PKEY_REPLACE_MARKUP = "replaceMarkup";
+
+    //......................................................................... protected constants
 
     /** Result code indicating an error performing the activity. */
     protected static final int RESULT_ERROR = RESULT_FIRST_USER;
@@ -52,16 +70,6 @@ public abstract class BaseActivity extends Activity
      * list of notes ((one of the <code>NoteListItemsProvider.SORT_BY_*</code> constants).
      */
     @NotNull protected static final String PKEY_NOTES_SORT_BY = "notesSortBy";
-    /**
-     * Shared preferences key for a <code>boolean</code>-type value specifying whether to replace
-     * umlauts in text input.
-     */
-    @NotNull public static String PKEY_REPLACE_UMLAUTS = "replaceUmlauts";
-    /**
-     * Shared preferences key for a <code>boolean</code>-type value specifying whether to replace
-     * symbols in text input.
-     */
-    @NotNull public static String PKEY_REPLACE_SYMBOLS = "replaceSymbols";
 
     /**
      * The default screensaver delay/screen lock period in milliseconds.  Used if fetching the
@@ -127,7 +135,7 @@ public abstract class BaseActivity extends Activity
                 Settings.System.getLong(getContentResolver(), SYSTEM_SETTINGS_SCREENSAVER_DELAY);
             if (mScreenSaverDelay <= 0) mScreenSaverDelay = DEFAULT_SCREENSAVER_DELAY;
         } catch (Settings.SettingNotFoundException e) {
-            Log.v(mLogTag, "Failed to fetch screensaver delay system setting!");
+            Log.v(mLogTag, "Failed to fetch screen saver delay system setting!");
         }
 
         // lock screen for a while...

@@ -156,8 +156,12 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
         View vItem = inflater.inflate(R.layout.items_list_item_note_items, mvMain, false);
         TextView vTitle = (TextView) vItem.findViewById(R.id.items_list_title);
         String text = item.getText();
-        vTitle.setText(
-            TextUtils.isEmpty(text) ? mActivity.getString(R.string.item_list_no_text) : text);
+        if (TextUtils.isEmpty(text)) {
+            vTitle.setText(
+                styleItemText("_" + mActivity.getString(R.string.item_list_no_text) + "_"));
+        } else {
+            vTitle.setText(isMarkupEnabled() ? styleItemText(text) : text);
+        }
         int checked = item.getChecked();
         if (checked == Notes.ITEM_CHECKED_CHECKED) {
             vItem.findViewById(R.id.items_list_checked).setVisibility(View.VISIBLE);

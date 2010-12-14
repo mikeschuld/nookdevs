@@ -38,6 +38,7 @@
     <string-array name="main_settings_submenu">
         <item>Replace umlauts on input</item>
         <item>Replace symbols on input</item>
+        <item>Enable markup in items</item>
     </string-array>
     <string-array name="note_view_menu">
         <item>Add item</item>
@@ -181,6 +182,12 @@
             following replacements: “-&gt;” &#x2192; “&#x2192;”, “--” &#x2192; “&#x2015;”.  If a
             replacement is unwanted in a given situation, press backspace once immediately after in
             order to revert it.
+        </item>
+        <item>
+            Additionally, limited markup in notes\' items can be enabled via the “Settings”
+            menu.  With this option set, “*...*” will yield bold text and “_..._” italics.  In
+            order to use a literal asterisk or underscore with this option set, enter two of them
+            in sequence.
         </item>
     </string-array>
 

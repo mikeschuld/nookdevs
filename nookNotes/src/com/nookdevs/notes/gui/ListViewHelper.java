@@ -21,6 +21,11 @@
 package com.nookdevs.notes.gui;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +33,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.nookdevs.notes.NookNotes;
 import com.nookdevs.notes.R;
+import com.nookdevs.notes.activity.BaseActivity;
 import com.nookdevs.notes.data.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -493,5 +500,77 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
         vTitle.setText(title != null ? title : item.toString());
         vSubTitle.setText(item.getListSubTitle(mActivity));
         return vItem;
+    }
+
+    /**
+     * Returns whether markup is enabled.
+     *
+     * @return <code>true</code> if markup is enabled, <code>false</code> otherwise
+     *
+     * @see BaseActivity#PKEY_REPLACE_MARKUP
+     * @see #styleItemText(String)
+     */
+    protected boolean isMarkupEnabled() {
+        SharedPreferences prefs =
+            mActivity.getSharedPreferences(NookNotes.class.getSimpleName(),
+                                           Context.MODE_PRIVATE);
+        return prefs.getBoolean(BaseActivity.PKEY_REPLACE_MARKUP, false);
+    }
+
+    /**
+     * Creates a {@link android.text.SpannableString} representing an item's text with mark-up
+     * applied.  Supports "<code>*...*</code>" for bold text, and "<code>_..._</code>" for italics.
+     *
+     * @param itemText the item's text
+     * @return the item's text, styled
+     */
+    @NotNull
+    protected static SpannableString styleItemText(@NotNull String itemText) {
+        // remove non-quoted asterisks and underscores from the item text...
+        String[] tokens = itemText.split("\\*\\*");
+        StringBuilder sb = new StringBuilder(itemText.length());
+        for (int i = 0; i < tokens.length; i++) {
+            if (i > 0 || "**".equals(itemText)) sb.append("*");
+            sb.append(tokens[i].replace("*", ""));
+        }
+        String firstPass = sb.toString();
+        tokens = firstPass.split("__");
+        sb.replace(0, sb.length(), "");  // reset builder w/o reallocation
+        for (int i = 0; i < tokens.length; i++) {
+            if (i > 0 || "__".equals(firstPass)) sb.append("_");
+            sb.append(tokens[i].replace("_", ""));
+        }
+        itemText = itemText.replaceAll("(\\*\\*|__)", "X");
+
+        // create the spannable...
+        SpannableString spannable = new SpannableString(sb.toString());
+        int bold = -1, italic = -1;
+        for (int i = 0, j = 0; i < itemText.length(); i++) {
+            final char ch = itemText.charAt(i);
+            if (ch == '*') {
+                if (bold < 0) {
+                    bold = j;
+                } else {
+                    spannable.setSpan(new StyleSpan(Typeface.BOLD), bold, j, 0);
+                    bold = -1;
+                }
+            } else if (ch == '_') {
+                if (italic < 0) {
+                    italic = j;
+                } else {
+                    spannable.setSpan(new StyleSpan(Typeface.ITALIC), italic, j, 0);
+                    italic = -1;
+                }
+            } else {
+                j++;
+            }
+        }
+        if (bold >= 0) {
+            spannable.setSpan(new StyleSpan(Typeface.BOLD), bold, spannable.length(), 0);
+        }
+        if (italic >= 0) {
+            spannable.setSpan(new StyleSpan(Typeface.ITALIC), italic, spannable.length(), 0);
+        }
+        return spannable;
     }
 }
