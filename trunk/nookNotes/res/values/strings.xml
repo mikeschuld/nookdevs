@@ -93,11 +93,11 @@
     <!-- list view in general... -->
     <string name="items_list_title">Items</string>
     <plurals name="items_list_header_text">
-        <item quantity="one">Displaying item %d of %3$d.</item>
-        <item quantity="other">Displaying items %d to %d of %d.</item>
+        <item quantity="one">Displaying item %1$d of %3$d.</item>
+        <item quantity="other">Displaying items %1$d to %2$d of %3$d.</item>
     </plurals>
     <string name="items_list_header_none">No items found.</string>
-    <string name="items_list_header_page">%d|%d</string>
+    <string name="items_list_header_page">%1$d|%1$d</string>
 
     <!-- texts... -->
     <string name="notes_usage_hint">
@@ -185,9 +185,10 @@
         </item>
         <item>
             Additionally, limited markup in notes\' items can be enabled via the “Settings”
-            menu.  With this option set, “*...*” will yield bold text and “_..._” italics.  In
-            order to use a literal asterisk or underscore with this option set, enter two of them
-            in sequence.
+            menu.  With the “Enable markup in items” option set, text surrounded by asterisks will
+            be made bold, text enclosed by underscores will be displayed in italics.  In order to
+            create a literal asterisk or underscore with this option set, enter two of the
+            respective characters in sequence.
         </item>
     </string-array>
 
