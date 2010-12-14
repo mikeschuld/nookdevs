@@ -465,6 +465,11 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
                     prefs.edit().putBoolean(PKEY_REPLACE_SYMBOLS, !b).commit();
                     break;
                 }
+                case 2: {  // "Enable markup in items"
+                    boolean b = prefs.getBoolean(PKEY_REPLACE_MARKUP, false);
+                    prefs.edit().putBoolean(PKEY_REPLACE_MARKUP, !b).commit();
+                    break;
+                }
 
                 default:
                     assert false : "Unexpected settings index: " + position + "!";
@@ -663,6 +668,8 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
             (prefs.getBoolean(PKEY_REPLACE_UMLAUTS, false) ? R.drawable.check_mark_pressable : -1);
         icons[1] =
             (prefs.getBoolean(PKEY_REPLACE_SYMBOLS, false) ? R.drawable.check_mark_pressable : -1);
+        icons[2] =
+            (prefs.getBoolean(PKEY_REPLACE_MARKUP, false) ? R.drawable.check_mark_pressable : -1);
         return icons;
     }
 }
