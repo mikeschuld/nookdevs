@@ -455,19 +455,19 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         } else if (mSubMenuSettingsAdapter.equals(adapterView.getAdapter())) {
             SharedPreferences prefs = getPreferences(MODE_PRIVATE);
             switch (position) {
-                case 0: {  // "Replace umlauts on input"
+                case 0: {  // "Enable markup in items"
+                    boolean b = prefs.getBoolean(PKEY_REPLACE_MARKUP, false);
+                    prefs.edit().putBoolean(PKEY_REPLACE_MARKUP, !b).commit();
+                    break;
+                }
+                case 1: {  // "Replace umlauts on input"
                     boolean b = prefs.getBoolean(PKEY_REPLACE_UMLAUTS, false);
                     prefs.edit().putBoolean(PKEY_REPLACE_UMLAUTS, !b).commit();
                     break;
                 }
-                case 1: {  // "Replace symbols on input"
+                case 2: {  // "Replace symbols on input"
                     boolean b = prefs.getBoolean(PKEY_REPLACE_SYMBOLS, false);
                     prefs.edit().putBoolean(PKEY_REPLACE_SYMBOLS, !b).commit();
-                    break;
-                }
-                case 2: {  // "Enable markup in items"
-                    boolean b = prefs.getBoolean(PKEY_REPLACE_MARKUP, false);
-                    prefs.edit().putBoolean(PKEY_REPLACE_MARKUP, !b).commit();
                     break;
                 }
 
@@ -665,11 +665,11 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         int[] icons = new int[3];
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         icons[0] =
-            (prefs.getBoolean(PKEY_REPLACE_UMLAUTS, false) ? R.drawable.check_mark_pressable : -1);
-        icons[1] =
-            (prefs.getBoolean(PKEY_REPLACE_SYMBOLS, false) ? R.drawable.check_mark_pressable : -1);
-        icons[2] =
             (prefs.getBoolean(PKEY_REPLACE_MARKUP, false) ? R.drawable.check_mark_pressable : -1);
+        icons[1] =
+            (prefs.getBoolean(PKEY_REPLACE_UMLAUTS, false) ? R.drawable.check_mark_pressable : -1);
+        icons[2] =
+            (prefs.getBoolean(PKEY_REPLACE_SYMBOLS, false) ? R.drawable.check_mark_pressable : -1);
         return icons;
     }
 }
