@@ -252,7 +252,19 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         mvButtonUp.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(@NotNull View view) {
-                mListViewHelper.changeSelection(ListViewHelper.SELECT_FIRST_IN_PAGE);
+                // sanity checks...
+                int idx = mListViewHelper.getSelectedIndex();
+                if (idx < 0) return false;
+
+                // determine context...
+                int page = mListViewHelper.getPage();
+                int firstInPage = mListViewHelper.firstItemInPage(page);
+
+                if (firstInPage == idx) {
+                    mListViewHelper.changeSelection(ListViewHelper.SELECT_PREV_PAGE);
+                } else {
+                    mListViewHelper.changeSelection(ListViewHelper.SELECT_FIRST_IN_PAGE);
+                }
                 return true;
             }
         });
@@ -265,6 +277,25 @@ public class NookNotes extends BaseActivity implements AdapterView.OnItemClickLi
         mvButtonDown.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(@NotNull View view) {
+                // sanity checks...
+                int idx = mListViewHelper.getSelectedIndex();
+                if (idx < 0) return false;
+
+                // determine context...
+                int page = mListViewHelper.getPage();
+                int lastInPage;
+                boolean onLastPage = (page + 1 < mListViewHelper.pageCount());
+                if (onLastPage) {
+                    lastInPage = mListViewHelper.firstItemInPage(page + 1) - 1;
+                } else {
+                    lastInPage = mNotesProvider.getItemCount() - 1;
+                }
+
+                // select the last item on the current page, or the last item on the next page
+                // if already there...
+                if (lastInPage == idx) {
+                    mListViewHelper.changeSelection(ListViewHelper.SELECT_NEXT_PAGE);
+                }
                 mListViewHelper.changeSelection(ListViewHelper.SELECT_LAST_IN_PAGE);
                 return true;
             }

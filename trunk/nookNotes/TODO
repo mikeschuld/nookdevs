@@ -4,7 +4,6 @@ IMMEDIATE
 
 FEATURES
 
-- make long-press on the main view's up/down buttons move to the previous/next page (and select the top-/bottom-most item there again)
 - make long-tapping left/right on the soft keyboard go the the next/previous word, up/down to top/bottom
 
 COSMETICS

@@ -251,15 +251,30 @@ public class NoteView
         mvButtonUp.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(@NotNull View view) {
-                if (mvButtonSelection.isChecked()) {  // move item to the start of the page
-                    int idx = mListViewHelper.getSelectedIndex();
-                    if (idx > 0) {
-                        int firstInPage =
-                            mListViewHelper.firstItemInPage(mListViewHelper.getPage());
-                        if (firstInPage != idx) changeSelectedItemIndex(firstInPage);
+                // sanity checks...
+                int idx = mListViewHelper.getSelectedIndex();
+                if (idx < 0) return false;
+
+                // determine context...
+                int page = mListViewHelper.getPage();
+                int firstInPage = mListViewHelper.firstItemInPage(page);
+
+                if (mvButtonSelection.isChecked()) {
+                    // move item to the start of the page, or the start of the previous page if
+                    // already there...
+                    if (firstInPage != idx) {
+                        changeSelectedItemIndex(firstInPage);
+                    } else if (page > 0) {
+                        changeSelectedItemIndex(mListViewHelper.firstItemInPage(page - 1));
                     }
-                } else {  // select previous item
-                    mListViewHelper.changeSelection(ListViewHelper.SELECT_FIRST_IN_PAGE);
+                } else {
+                    // select the first item on the current page, or the first item on the previous
+                    // page if already there...
+                    if (firstInPage == idx) {
+                        mListViewHelper.changeSelection(ListViewHelper.SELECT_PREV_PAGE);
+                    } else {
+                        mListViewHelper.changeSelection(ListViewHelper.SELECT_FIRST_IN_PAGE);
+                    }
                 }
                 return true;
             }
@@ -278,19 +293,34 @@ public class NoteView
         mvButtonDown.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(@NotNull View view) {
-                if (mvButtonSelection.isChecked()) {  // move item to the end of the page
-                    int idx = mListViewHelper.getSelectedIndex();
-                    if (idx >= 0) {
-                        int lastInPage;
-                        int page = mListViewHelper.getPage();
-                        if (page + 1 < mListViewHelper.pageCount()) {
-                            lastInPage = mListViewHelper.firstItemInPage(page + 1) - 1;
-                        } else {
-                            lastInPage = mItemsProvider.getItemCount() - 1;
-                        }
-                        if (lastInPage != idx) changeSelectedItemIndex(lastInPage);
+                // sanity checks...
+                int idx = mListViewHelper.getSelectedIndex();
+                if (idx < 0) return false;
+
+                // determine context...
+                int page = mListViewHelper.getPage();
+                int lastInPage;
+                boolean onLastPage = (page + 1 < mListViewHelper.pageCount());
+                if (onLastPage) {
+                    lastInPage = mListViewHelper.firstItemInPage(page + 1) - 1;
+                } else {
+                    lastInPage = mItemsProvider.getItemCount() - 1;
+                }
+
+                if (mvButtonSelection.isChecked()) {
+                    // move item to the end of the page, or the end of the next page if already
+                    // there...
+                    if (lastInPage != idx) {
+                        changeSelectedItemIndex(lastInPage);
+                    } else if (!onLastPage) {
+                        changeSelectedItemIndex(mListViewHelper.lastInPageIndex(page + 1));
                     }
-                } else {  // select previous item
+                } else {
+                    // select the last item on the current page, or the last item on the next page
+                    // if already there...
+                    if (lastInPage == idx) {
+                        mListViewHelper.changeSelection(ListViewHelper.SELECT_NEXT_PAGE);
+                    }
                     mListViewHelper.changeSelection(ListViewHelper.SELECT_LAST_IN_PAGE);
                 }
                 return true;
