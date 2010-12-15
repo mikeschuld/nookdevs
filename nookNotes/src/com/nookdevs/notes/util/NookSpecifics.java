@@ -84,10 +84,15 @@ public abstract class NookSpecifics
     /** "Down" button on the soft keyboard. */
     public static final int KEY_SOFT_DOWN = 20;
 
-    //.............................................................................. system setting
+    //............................................................................. system settings
 
     /**
      * The {@link android.provider.Settings.System} key for the B&amp;N-specific screensaver delay.
      */
     @NotNull public static final String SYSTEM_SETTINGS_SCREENSAVER_DELAY = "bnScreensaverDelay";
+
+    //............................................................................... miscellaneous
+
+    /** The (minimum) duration of a long click (in milliseconds). */
+    public static final int LONG_CLICK_DURATION = 750;  // ms
 }

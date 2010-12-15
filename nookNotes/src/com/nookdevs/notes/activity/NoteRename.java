@@ -31,6 +31,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.nookdevs.notes.R;
+import com.nookdevs.notes.gui.EditingUtils;
 import com.nookdevs.notes.provider.Note;
 import com.nookdevs.notes.provider.Notes;
 import com.nookdevs.notes.provider.NotesUris;
@@ -117,11 +118,9 @@ public class NoteRename extends BaseActivity implements View.OnKeyListener
                          int keyCode,
                          @NotNull KeyEvent ev)
     {
+        if (EditingUtils.handleDefaultKeys(vTitle, ev)) return true;
         if (ev.getAction() == KeyEvent.ACTION_UP) {
             switch (keyCode) {
-                case NookSpecifics.KEY_SOFT_CLEAR:
-                    vTitle.setText("");
-                    return true;
                 case NookSpecifics.KEY_SOFT_CANCEL:
                     setResult(RESULT_CANCELED);
                     finish();
