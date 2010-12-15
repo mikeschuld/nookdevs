@@ -85,6 +85,10 @@
     <string name="item_list_no_text">(no text)</string>
     <string name="item_text_prompt">Item:</string>
     <string name="delete_item_message">Do you really want to delete the selected item?</string>
+    <string name="sort_items_title">Sort Items?</string>
+    <string name="sort_items_message">
+        Do you really want to sort the note\'s items?
+    </string>
     <string name="clear_items_title">Clear Items?</string>
     <string name="clear_items_message">
         Do you really want to delete all of the note\'s items?

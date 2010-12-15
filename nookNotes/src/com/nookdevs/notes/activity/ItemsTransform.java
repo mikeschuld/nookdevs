@@ -58,40 +58,35 @@ public class ItemsTransform extends BaseActivity
 
         super.onCreate(savedInstanceState);
 
-        // do transform...
+        // do transform (with confirmation)...
+        int resIdTitle = -1, resIdMessage = -1;
         if (isSortItemsAlphabeticallyUri(uri) ||
             isSortItemsByCheckedUri(uri) ||
             isReverseItemsUri(uri))
         {
-            if (getContentResolver().update(uri, null, null, null) > 0) {
-                setResult(RESULT_OK);
-            } else {
-                setResult(RESULT_ERROR);
-            }
-        } else if (isClearItemsUri(uri)) {  // this needs to be confirmed
-            DialogInterface.OnClickListener yes = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int which) {
-                    dialogInterface.dismiss();
-                    if (getContentResolver().update(uri, null, null, null) > 0) {
-                        setResult(RESULT_OK);
-                    } else {
-                        setResult(RESULT_ERROR);
-                    }
-                    finish();
-                }
-            };
-            DialogInterface.OnClickListener no = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int which) {
-                    dialogInterface.dismiss();
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
-            };
-            confirm(R.string.clear_items_title, R.string.clear_items_message, yes, no);
-            return;
+            resIdTitle = R.string.sort_items_title;
+            resIdMessage = R.string.sort_items_message;
+        } else if (isClearItemsUri(uri)) {
+            resIdTitle = R.string.clear_items_title;
+            resIdMessage = R.string.clear_items_message;
         }
-        finish();
+        DialogInterface.OnClickListener yes = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                dialogInterface.dismiss();
+                boolean ok = getContentResolver().update(uri, null, null, null) > 0;
+                setResult(ok ? RESULT_OK : RESULT_ERROR);
+                finish();
+            }
+        };
+        DialogInterface.OnClickListener no = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                dialogInterface.dismiss();
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        };
+        confirm(resIdTitle, resIdMessage, yes, no);
     }
 }
