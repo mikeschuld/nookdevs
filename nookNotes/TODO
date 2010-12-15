@@ -2,8 +2,6 @@ ISSUES
 
 IMMEDIATE
 
-- change long-press "Add item" to insert below the currently-selected item rather than at the very end of the list
-
 FEATURES
 
 - make long-press on the main view's up/down buttons move to the previous/next page (and select the top-/bottom-most item there again)

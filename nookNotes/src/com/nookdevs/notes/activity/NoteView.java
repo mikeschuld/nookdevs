@@ -503,9 +503,10 @@ public class NoteView
         if (mvMenuMain.equals(adapterView)) {  // main menu?
             switch (position) {
                 case 0:  // "Add"
-                    // add at bottom
-                    startActivityForResult(new Intent(Intent.ACTION_INSERT, itemsUri(mNoteId)),
-                                           REQUEST_ADD_ITEM);
+                    // add below selection...
+                    startActivityForResult(
+                        new Intent(Intent.ACTION_INSERT, singleItemUri(mNoteId, idx + 1)),
+                        REQUEST_ADD_ITEM);
                     return true;
                 case 3:  // "Delete"
                     if (idx < 0) break;
