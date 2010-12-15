@@ -59,6 +59,7 @@
         <item>Sort by check marks</item>
         <item>Reverse</item>
         <item>Clear</item>
+        <item>Delete checked items</item>
     </string-array>
 
     <!-- notes... -->
@@ -92,6 +93,10 @@
     <string name="clear_items_title">Clear Items?</string>
     <string name="clear_items_message">
         Do you really want to delete all of the note\'s items?
+    </string>
+    <string name="delete_checked_items_title">Delete Checked Items?</string>
+    <string name="delete_checked_items_message">
+        Do you really want to delete all of the note\'s checked items?
     </string>
 
     <!-- list view in general... -->

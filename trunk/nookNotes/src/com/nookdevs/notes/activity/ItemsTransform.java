@@ -69,6 +69,9 @@ public class ItemsTransform extends BaseActivity
         } else if (isClearItemsUri(uri)) {
             resIdTitle = R.string.clear_items_title;
             resIdMessage = R.string.clear_items_message;
+        } else if (isDeleteCheckedItemsUri(uri)) {
+            resIdTitle = R.string.delete_checked_items_title;
+            resIdMessage = R.string.delete_checked_items_message;
         }
         DialogInterface.OnClickListener yes = new DialogInterface.OnClickListener() {
             @Override
