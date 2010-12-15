@@ -38,6 +38,11 @@ public abstract class BaseActivity extends Activity
     //............................................................................ public constants
 
     /**
+     * Shared preferences key for a <code>boolean</code>-type value specifying whether to enable
+     * markup in note items.
+     */
+    @NotNull public static String PKEY_REPLACE_MARKUP = "replaceMarkup";
+    /**
      * Shared preferences key for a <code>boolean</code>-type value specifying whether to replace
      * umlauts in text input.
      */
@@ -47,11 +52,6 @@ public abstract class BaseActivity extends Activity
      * symbols in text input.
      */
     @NotNull public static String PKEY_REPLACE_SYMBOLS = "replaceSymbols";
-    /**
-     * Shared preferences key for a <code>boolean</code>-type value specifying whether to enable
-     * markup in note items.
-     */
-    @NotNull public static String PKEY_REPLACE_MARKUP = "replaceMarkup";
 
     //......................................................................... protected constants
 

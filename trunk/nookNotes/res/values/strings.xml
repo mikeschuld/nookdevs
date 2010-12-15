@@ -36,9 +36,9 @@
         <item>Sort by title</item>
     </string-array>
     <string-array name="main_settings_submenu">
+        <item>Enable markup in items</item>
         <item>Replace umlauts on input</item>
         <item>Replace symbols on input</item>
-        <item>Enable markup in items</item>
     </string-array>
     <string-array name="note_view_menu">
         <item>Add item</item>
