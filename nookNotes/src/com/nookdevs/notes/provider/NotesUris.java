@@ -38,7 +38,7 @@ public abstract class NotesUris
 {
     ///////////////////////////////////////// ATTRIBUTES //////////////////////////////////////////
 
-    //................................................................ access-restricted attributes
+    //........................................................................ protected attributes
 
     /**
      * The content URI of the application's content and thus
@@ -68,15 +68,17 @@ public abstract class NotesUris
     static final int URI_ITEMS_ALL_REVERSE = 7;
     /** URI matcher constant for URIs for clearing the items of a note. */
     static final int URI_ITEMS_ALL_CLEAR = 8;
+    /** URI matcher constant for URIs for deleting all checked items of a note. */
+    static final int URI_ITEMS_ALL_DELETE_CHECKED = 9;
     /** URI matcher constant indicating that a URI refers to a single of a note's items. */
-    static final int URI_ITEMS_SINGLE = 9;
+    static final int URI_ITEMS_SINGLE = 10;
     /** URI matcher constant for URIs for moving an item of a note, i.e., changing its index. */
-    static final int URI_ITEMS_SINGLE_MOVE = 10;
+    static final int URI_ITEMS_SINGLE_MOVE = 11;
     /**
      * URI matcher constant for URIs for updating an item's cached display height without
      * "touching" the note.
      */
-    static final int URI_ITEMS_SINGLE_HEIGHT = 11;
+    static final int URI_ITEMS_SINGLE_HEIGHT = 12;
 
     /** A URI matcher matching URIs of the applications. */
     @NotNull static final UriMatcher uriMatcher;
@@ -97,6 +99,8 @@ public abstract class NotesUris
                           URI_ITEMS_ALL_SORT_CHECKED);
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/reverse", URI_ITEMS_ALL_REVERSE);
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/clear", URI_ITEMS_ALL_CLEAR);
+        uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/delete_checked",
+                          URI_ITEMS_ALL_DELETE_CHECKED);
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/#", URI_ITEMS_SINGLE);
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/#/move/#", URI_ITEMS_SINGLE_MOVE);
         uriMatcher.addURI(CONTENT_URI.getHost(), "notes/#/items/#/height",
@@ -116,7 +120,7 @@ public abstract class NotesUris
     public static boolean isNotesUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 1 && res <= 11);
+        return (res >= 1 && res <= 12);
     }
 
     /**
@@ -130,7 +134,7 @@ public abstract class NotesUris
     public static boolean isSingleNoteUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 2 && res <= 11);
+        return (res >= 2 && res <= 12);
     }
 
     /**
@@ -155,11 +159,11 @@ public abstract class NotesUris
     public static boolean isItemsUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 4 && res <= 11);
+        return (res >= 4 && res <= 12);
     }
 
     /**
-     * Returns whether a given URI is an URI for sorting the items of a note alphabetically.
+     * Returns whether a given URI is a URI for sorting the items of a note alphabetically.
      *
      * @param uri the URI in question (may be <code>null</code>)
      * @return <code>true</code> if the URI is for sorting items, <code>false</code> otherwise
@@ -169,7 +173,7 @@ public abstract class NotesUris
     }
 
     /**
-     * Returns whether a given URI is an URI for sorting the items of a note by their "checked"
+     * Returns whether a given URI is a URI for sorting the items of a note by their "checked"
      * attribute.
      *
      * @param uri the URI in question (may be <code>null</code>)
@@ -180,7 +184,7 @@ public abstract class NotesUris
     }
 
     /**
-     * Returns whether a given URI is an URI for reversing the items of a note.
+     * Returns whether a given URI is a URI for reversing the items of a note.
      *
      * @param uri the URI in question (may be <code>null</code>)
      * @return <code>true</code> if the URI is for reversing items, <code>false</code> otherwise
@@ -190,13 +194,24 @@ public abstract class NotesUris
     }
 
     /**
-     * Returns whether a given URI is an URI for clearing the items of a note.
+     * Returns whether a given URI is a URI for clearing the items of a note.
      *
      * @param uri the URI in question (may be <code>null</code>)
      * @return <code>true</code> if the URI is for clearing items, <code>false</code> otherwise
      */
     public static boolean isClearItemsUri(@Nullable Uri uri) {
         return (uri != null && uriMatcher.match(uri) == URI_ITEMS_ALL_CLEAR);
+    }
+
+    /**
+     * Returns whether a given URI is a URI for deleting all checked items of a note.
+     *
+     * @param uri the URI in question (may be <code>null</code>)
+     * @return <code>true</code> if the URI is for deleting all checked items, <code>false</code>
+     *         otherwise
+     */
+    public static boolean isDeleteCheckedItemsUri(@Nullable Uri uri) {
+        return (uri != null && uriMatcher.match(uri) == URI_ITEMS_ALL_DELETE_CHECKED);
     }
 
     /**
@@ -209,7 +224,7 @@ public abstract class NotesUris
     public static boolean isSingleItemUri(@Nullable Uri uri) {
         if (uri == null) return false;
         int res = uriMatcher.match(uri);
-        return (res >= 9 && res <= 11);
+        return (res >= 10 && res <= 12);
     }
 
     /**
@@ -331,6 +346,19 @@ public abstract class NotesUris
     @NotNull
     public static Uri clearItemsUri(int noteId) {
         if (noteId >= 0) return Uri.withAppendedPath(itemsUri(noteId), "clear");
+        return notesUri();
+    }
+
+    /**
+     * Returns a URI for deleting all checked items of a note.  Falls back to a URI for all notes
+     * if <code>noteId</code> is lower than 0.
+     *
+     * @param noteId the ID of the note for which to return an items URI
+     * @return an items URI for the note
+     */
+    @NotNull
+    public static Uri deleteCheckedItemsUri(int noteId) {
+        if (noteId >= 0) return Uri.withAppendedPath(itemsUri(noteId), "delete_checked");
         return notesUri();
     }
 

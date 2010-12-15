@@ -407,7 +407,8 @@ public class NotesSQLite extends Notes
             case URI_ITEMS_ALL_SORT_ALPHA:
             case URI_ITEMS_ALL_SORT_CHECKED:
             case URI_ITEMS_ALL_REVERSE:
-            case URI_ITEMS_ALL_CLEAR: {
+            case URI_ITEMS_ALL_CLEAR:
+            case URI_ITEMS_ALL_DELETE_CHECKED: {
                 int noteId = noteIdOfUri(uri);
 
                 try {
@@ -427,6 +428,10 @@ public class NotesSQLite extends Notes
                     } else if (isClearItemsUri(uri)) {
                         mDatabase.execSQL("DELETE FROM " + TABLE_ITEMS + " " +
                                           "WHERE " + KEY_ITEM_NOTE_ID + "=" + noteId + ";");
+                    } else if (isDeleteCheckedItemsUri(uri)) {
+                        mDatabase.execSQL("DELETE FROM " + TABLE_ITEMS + " " +
+                                          "WHERE " + KEY_ITEM_NOTE_ID + "=" + noteId + " AND " +
+                                              KEY_ITEM_CHECKED + "=" + ITEM_CHECKED_CHECKED + ";");
                     }
 
                     mDatabase.setTransactionSuccessful();

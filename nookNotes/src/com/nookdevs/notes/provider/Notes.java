@@ -123,6 +123,7 @@ public abstract class Notes extends ContentProvider
             case NotesUris.URI_ITEMS_ALL_SORT_CHECKED:
             case NotesUris.URI_ITEMS_ALL_REVERSE:
             case NotesUris.URI_ITEMS_ALL_CLEAR:
+            case NotesUris.URI_ITEMS_ALL_DELETE_CHECKED:
                 return CONTENT_TYPE_ITEMS;
             case NotesUris.URI_ITEMS_SINGLE:
             case NotesUris.URI_ITEMS_SINGLE_MOVE:

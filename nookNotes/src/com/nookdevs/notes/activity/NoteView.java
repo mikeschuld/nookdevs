@@ -97,7 +97,8 @@ public class NoteView
         R.drawable.menu_icon_transform_sort_alpha_pressable,
         R.drawable.menu_icon_transform_sort_checked_pressable,
         R.drawable.menu_icon_transform_reverse_pressable,
-        R.drawable.menu_icon_transform_clear_pressable
+        R.drawable.menu_icon_transform_clear_pressable,
+        R.drawable.menu_icon_transform_delete_checked
     };
 
     //....................................................................................... views
@@ -464,6 +465,9 @@ public class NoteView
             }
         } else if (mSubMenuTransformAdapter.equals(adapterView.getAdapter())) {
             // "Transform list" sub-menu
+            if (idx < 0) {  // list already empty: simply return to the main menu
+                mvButtonBack.performClick();
+            }
             switch (position) {
                 case 0:  // "Sort alphabetically"
                     startActivity(new Intent(Intent.ACTION_EDIT,
@@ -476,11 +480,10 @@ public class NoteView
                     startActivity(new Intent(Intent.ACTION_EDIT, reverseItemsUri(mNoteId)));
                     break;
                 case 3:  // "Clear"
-                    if (idx < 0) {  // list already empty: simply return to the main menu
-                        mvButtonBack.performClick();
-                    } else {
-                        startActivity(new Intent(Intent.ACTION_EDIT, clearItemsUri(mNoteId)));
-                    }
+                    startActivity(new Intent(Intent.ACTION_EDIT, clearItemsUri(mNoteId)));
+                    break;
+                case 4:  // "Delete checked items"
+                    startActivity(new Intent(Intent.ACTION_EDIT, deleteCheckedItemsUri(mNoteId)));
                     break;
 
                 default:
