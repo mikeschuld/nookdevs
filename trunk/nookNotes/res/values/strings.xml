@@ -172,7 +172,19 @@
         </item>
         <item>
             In order to have a list of items sorted both alphabetically and by check marks, sort
-            alphabetically first and by check marks second.
+            alphabetically first and by check marks afterwards.
+        </item>
+        <item>
+            Limited markup in notes\' items can be enabled via the “Settings” menu. With the
+            “Enable markup in items” option set, the following markup characters will format text
+            surrounded by them: asterisks for bold, tildes for italics, underscores for underlined,
+            hashes for a mono-space font.  Literal markup characters can be created by placing two
+            of them in succession.
+        </item>
+        <item>
+            Markup (if enabled) not explicitly terminated will extend to the end of an item\'s
+            text.  If you want to, e.g., make an entire item bold, you can thus simply start its
+            text with an asterisk (and don\'t need a terminating one at the end).
         </item>
         <item>
             You can have __APPNAME__ replace certain sequences of characters on input; replacements
@@ -182,13 +194,6 @@
             following replacements: “-&gt;” &#x2192; “&#x2192;”, “--” &#x2192; “&#x2015;”.  If a
             replacement is unwanted in a given situation, press backspace once immediately after in
             order to revert it.
-        </item>
-        <item>
-            Additionally, limited markup in notes\' items can be enabled via the “Settings”
-            menu.  With the “Enable markup in items” option set, text surrounded by asterisks will
-            be made bold, text enclosed by underscores will be displayed in italics.  In order to
-            create a literal asterisk or underscore with this option set, enter two of the
-            respective characters in sequence.
         </item>
     </string-array>
 

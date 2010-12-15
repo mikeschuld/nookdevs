@@ -158,8 +158,9 @@ public class ItemsListViewHelper extends ListViewHelper<Item>
         String text = item.getText();
         if (TextUtils.isEmpty(text)) {
             vTitle.setText(
-                styleItemText("_" + mActivity.getString(R.string.item_list_no_text) + "_"));
+                styleItemText("~" + mActivity.getString(R.string.item_list_no_text) + "~"));
         } else {
+            assert text != null;
             vTitle.setText(isMarkupEnabled() ? styleItemText(text) : text);
         }
         int checked = item.getChecked();

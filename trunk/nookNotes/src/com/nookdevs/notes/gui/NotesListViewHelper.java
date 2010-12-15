@@ -97,9 +97,12 @@ public class NotesListViewHelper extends ListViewHelper<Note>
         LayoutInflater inflater = mActivity.getLayoutInflater();
         View vItem = inflater.inflate(R.layout.items_list_item_notes, mvMain, false);
         TextView vTitle = (TextView) vItem.findViewById(R.id.items_list_title);
-        String title = note.getListTitle(mActivity);
-        vTitle.setText(
-            TextUtils.isEmpty(title) ? mActivity.getString(R.string.note_list_no_title) : title);
+        if (TextUtils.isEmpty(note.getTitle())) {
+            vTitle.setText(
+                styleItemText("~" + mActivity.getString(R.string.note_list_no_title) + "~"));
+        } else {
+            vTitle.setText(note.getListTitle(mActivity));
+        }
         TextView vSubTitle = (TextView) vItem.findViewById(R.id.items_list_subtitle);
         View vCompletionBar = vItem.findViewById(R.id.completion_bar);
         if (checked + unchecked > 0) {  // show completion bar if there are checkable items
