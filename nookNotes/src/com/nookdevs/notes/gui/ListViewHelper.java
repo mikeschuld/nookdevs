@@ -20,12 +20,16 @@
 
 package com.nookdevs.notes.gui;
 
+import java.util.regex.Pattern;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -149,6 +153,9 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
 
     /** The index (in {@link #mItems}) of the list item being displayed (0-based). */
     protected int mSelectedItem;
+
+    /** Regular expression pattern matching any markup in markup-supporting text strings. */
+    @NotNull private static final Pattern REGEX_ANY_MARKUP = Pattern.compile("[*~_#]");
 
     /////////////////////////////////////////// METHODS ///////////////////////////////////////////
 
@@ -518,33 +525,42 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
     }
 
     /**
-     * Creates a {@link android.text.SpannableString} representing an item's text with mark-up
-     * applied.  Supports "<code>*...*</code>" for bold text, and "<code>_..._</code>" for italics.
+     * <p>Creates a {@link android.text.SpannableString} representing an item's text with markup
+     * applied.  Supports "<code>*...*</code>" for bold, "<code>~...~</code>" for italic,
+     * "<code>_..._</code>" for underlined, and "<code>#...#</code>" for mono-spaced text.</p>
+     *
+     * <p>May return a {@link CharSequence} other than a {@link android.text.SpannableString} if
+     * styling is not necessary with the particular text.</p>
      *
      * @param itemText the item's text
-     * @return the item's text, styled
+     * @return the item's text, styled, if necessary
      */
     @NotNull
-    protected static SpannableString styleItemText(@NotNull String itemText) {
-        // remove non-quoted asterisks and underscores from the item text...
-        String[] tokens = itemText.split("\\*\\*");
-        StringBuilder sb = new StringBuilder(itemText.length());
-        for (int i = 0; i < tokens.length; i++) {
-            if (i > 0 || "**".equals(itemText)) sb.append("*");
-            sb.append(tokens[i].replace("*", ""));
+    protected static CharSequence styleItemText(@NotNull String itemText) {
+        // take a shortcut if there is there are no markup characters whatsoever in the text...
+        if (!REGEX_ANY_MARKUP.matcher(itemText).find()) return itemText;
+
+        // remove non-escaped markup from the item text...
+        String plainText = itemText;
+        StringBuilder sb = new StringBuilder(plainText.length());
+        for (char markup : new char[] { '*', '~', '_', '#' }) {
+            sb.replace(0, sb.length(), "");  // reset builder w/o reallocation
+            /*
+             * NOTE: We avoid some special cases WRT String.split() by simply surrounding the text
+             *       with non-markup characters which will eventually be stripped off again.
+             */
+            String[] tokens = ("X" + plainText + "X").split(Pattern.quote("" + markup + markup));
+            for (int i = 0; i < tokens.length; i++) {
+                if (i > 0) sb.append(markup);
+                sb.append(tokens[i].replace("" + markup, ""));
+            }
+            plainText = sb.toString().substring(1, sb.length() - 1);
+            itemText = itemText.replace("" + markup + markup, "X");
         }
-        String firstPass = sb.toString();
-        tokens = firstPass.split("__");
-        sb.replace(0, sb.length(), "");  // reset builder w/o reallocation
-        for (int i = 0; i < tokens.length; i++) {
-            if (i > 0 || "__".equals(firstPass)) sb.append("_");
-            sb.append(tokens[i].replace("_", ""));
-        }
-        itemText = itemText.replaceAll("(\\*\\*|__)", "X");
 
         // create the spannable...
-        SpannableString spannable = new SpannableString(sb.toString());
-        int bold = -1, italic = -1;
+        SpannableString spannable = new SpannableString(plainText);
+        int bold = -1, italic = -1, underline = -1, mono = -1;
         for (int i = 0, j = 0; i < itemText.length(); i++) {
             final char ch = itemText.charAt(i);
             if (ch == '*') {
@@ -554,22 +570,43 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
                     spannable.setSpan(new StyleSpan(Typeface.BOLD), bold, j, 0);
                     bold = -1;
                 }
-            } else if (ch == '_') {
+            } else if (ch == '~') {
                 if (italic < 0) {
                     italic = j;
                 } else {
                     spannable.setSpan(new StyleSpan(Typeface.ITALIC), italic, j, 0);
                     italic = -1;
                 }
+            } else if (ch == '_') {
+                if (underline < 0) {
+                    underline = j;
+                } else {
+                    spannable.setSpan(new UnderlineSpan(), underline, j, 0);
+                    underline = -1;
+                }
+            } else if (ch == '#') {
+                if (mono < 0) {
+                    mono = j;
+                } else {
+                    spannable.setSpan(new TypefaceSpan("monospace"), mono, j, 0);
+                    mono = -1;
+                }
             } else {
                 j++;
             }
         }
+        // finish any markup spans not explicitly terminated...
         if (bold >= 0) {
             spannable.setSpan(new StyleSpan(Typeface.BOLD), bold, spannable.length(), 0);
         }
         if (italic >= 0) {
             spannable.setSpan(new StyleSpan(Typeface.ITALIC), italic, spannable.length(), 0);
+        }
+        if (underline >= 0) {
+            spannable.setSpan(new UnderlineSpan(), underline, spannable.length(), 0);
+        }
+        if (mono >= 0) {
+            spannable.setSpan(new TypefaceSpan("monospace"), mono, spannable.length(), 0);
         }
         return spannable;
     }
