@@ -204,6 +204,11 @@
             replacement is unwanted in a given situation, press backspace once immediately after in
             order to revert it.
         </item>
+        <item>
+            When editing text, long-pressing the left/right keys on the soft keyboard will go to
+            the previous/next word, long-pressing the up/down keys will go to the start/end of the
+            text.
+        </item>
     </string-array>
 
     <!-- permissions... -->

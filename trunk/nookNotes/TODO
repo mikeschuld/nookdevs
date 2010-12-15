@@ -4,8 +4,6 @@ IMMEDIATE
 
 FEATURES
 
-- make long-tapping left/right on the soft keyboard go the the next/previous word, up/down to top/bottom
-
 COSMETICS
 
 - change pagination dots to be in style with B&N apps (fill only the current page; affects nookLibrary as well)
