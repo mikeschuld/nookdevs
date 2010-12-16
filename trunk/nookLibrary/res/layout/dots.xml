@@ -7,64 +7,66 @@
 	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="14px" android:gravity="center_horizontal">
 
-		<!-- 10 filled dots... -->
-		<ImageView android:tag="dot_filled_0" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_1" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_2" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_3" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_4" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_5" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_6" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_7" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_8" android:src="@drawable/dot_filled"
-			android:layout_width="15px" android:layout_height="14px"
-			android:visibility="gone" />
-		<ImageView android:tag="dot_filled_9" android:src="@drawable/dot_filled"
+        <!-- 9 empty dots... -->
+        <ImageView android:tag="dot_empty_0" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_1" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_2" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_3" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_4" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_5" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_6" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_7" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+        <ImageView android:tag="dot_empty_8" android:src="@drawable/dot_empty"
+                   android:layout_width="15px" android:layout_height="14px"
+                   android:visibility="gone" />
+
+		<!-- 1 filled dot... -->
+		<ImageView android:tag="dot_filled" android:src="@drawable/dot_filled"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
 
 		<!-- 9 empty dots... -->
-		<ImageView android:tag="dot_empty_0" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_9" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_1" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_10" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_2" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_11" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_3" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_12" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_4" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_13" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_5" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_14" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_6" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_15" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_7" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_16" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
-		<ImageView android:tag="dot_empty_8" android:src="@drawable/dot_empty"
+		<ImageView android:tag="dot_empty_17" android:src="@drawable/dot_empty"
 			android:layout_width="15px" android:layout_height="14px"
 			android:visibility="gone" />
 
