@@ -147,6 +147,13 @@ public class NotesSQLite extends Notes
     protected static int SORT_CHECKED = 1;
     /** Constant indicating to {@link #sortItems(int, int)} to sort by "checked" attribute. */
     protected static int SORT_ALPHA = 2;
+    /**
+     * Constant indicating to {@link #sortItems(int, int)} to not actually change the order of
+     * items.  In this mode of operation, only {@link #KEY_ITEM_INDEX} will be updated based on the
+     * items' current order, which may be desirable or even necessary after some prior
+     * modifications.
+     */
+    protected static int SORT_KEEP = 3;
 
     //................................................................................... internals
 
@@ -432,6 +439,7 @@ public class NotesSQLite extends Notes
                         mDatabase.execSQL("DELETE FROM " + TABLE_ITEMS + " " +
                                           "WHERE " + KEY_ITEM_NOTE_ID + "=" + noteId + " AND " +
                                               KEY_ITEM_CHECKED + "=" + ITEM_CHECKED_CHECKED + ";");
+                        sortItems(noteId, SORT_KEEP);  // update index attribute
                     }
 
                     mDatabase.setTransactionSuccessful();
@@ -743,7 +751,7 @@ public class NotesSQLite extends Notes
                         return res;
                     }
                 });
-            } else {
+            } else if (type != SORT_KEEP) {
                 throw new IllegalArgumentException("Illegal sort type: " + type + "!");
             }
 
