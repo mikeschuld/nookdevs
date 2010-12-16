@@ -478,7 +478,7 @@ public abstract class ListViewHelper<T extends ListItem> implements ListItemsCli
             for (int i = 0; i < mPageCount; i++) {
                 vDots.addView(
                     inflater.inflate(
-                        i <= mCurrentPage ? R.layout.pagination_dot_filled
+                        i == mCurrentPage ? R.layout.pagination_dot_filled
                                           : R.layout.pagination_dot_empty,
                         vDots,
                         false));

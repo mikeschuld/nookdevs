@@ -6,7 +6,6 @@ FEATURES
 
 COSMETICS
 
-- change pagination dots to be in style with B&N apps (fill only the current page; affects nookLibrary as well)
 - disable menu and other buttons context-dependently?
 - make the menu scrollbars look like the B&N ones
 
