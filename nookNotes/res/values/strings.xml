@@ -164,7 +164,9 @@
         <item>
             Long-tap up/down arrows to jump to the top/bottom of the current page.  This works in
             both the list of notes and when viewing an individual note, and even when reordering
-            items.
+            items.  If the top-/bottom-most note/item is already selected when long-tapping the
+            up/down arrow, respectively, the top-/bottom-most note/item on the previous/next page
+            will be selected, which enables speedier paging (if done repeatedly).
         </item>
         <item>
             Long-tap “Add item” to insert an item at the end of the list rather than be prompted
