@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -119,24 +123,26 @@ public class OtherBooks extends SQLiteOpenHelper {
         try {
             String[] values = m_DeleteBooks.toArray(new String[1]);
             String whereclause = "";
-            for (int i = 0; i < values.length; i++) {
-                if (i == 0) {
-                    if( path)
-                        whereclause += "path=?";
-                    else
-                        whereclause +="id=?";
-                } else {
-                    if(path)
-                        whereclause += " or path=?";
-                    else
-                        whereclause +="or id=?";
+            for( int start=0; start < values.length; start+=200) { 
+                for (int i = start; i < values.length && i < start+200; i++) {
+                    if (i == 0) {
+                        if( path)
+                            whereclause += "path=?";
+                        else
+                            whereclause +="id=?";
+                    } else {
+                        if(path)
+                            whereclause += " or path=?";
+                        else
+                            whereclause +="or id=?";
+                    }
                 }
+                m_Db.beginTransaction();
+                int rows = m_Db.delete("BOOKS", whereclause, values);
+                Log.i("OtherBooks", "Rows deleted =" + rows);
+                m_Db.setTransactionSuccessful();
+                m_Db.endTransaction();
             }
-            m_Db.beginTransaction();
-            int rows = m_Db.delete("BOOKS", whereclause, values);
-            Log.i("OtherBooks", "Rows deleted =" + rows);
-            m_Db.setTransactionSuccessful();
-            m_Db.endTransaction();
         } catch (Exception ex) {
             Log.e("OtherBooks", "Exception deleting books", ex);
             m_Db.endTransaction();
@@ -144,7 +150,6 @@ public class OtherBooks extends SQLiteOpenHelper {
         }
         return true;
     }
-    
     public void addBookToDB(ScannedFile file) {
         try {
             ContentValues values = new ContentValues();
@@ -159,7 +164,7 @@ public class OtherBooks extends SQLiteOpenHelper {
             if (file.getCreatedDate() != null) {
                 values.put("created", file.getCreatedDate().getTime());
             }
-            values.put("desc", file.getDescription());
+            values.put("desc", file.getDescription(true));
             List<String> titles = file.getTitles();
             String title = "";
             for (int i = 0; i < titles.size(); i++) {
@@ -185,12 +190,117 @@ public class OtherBooks extends SQLiteOpenHelper {
             m_Db.insert("BOOKS", null, values);
             m_Db.setTransactionSuccessful();
             m_Db.endTransaction();
+            file.setDescription(null);
+            file.setBookInDB(true);
+            file.clearKeywords();
         } catch (Exception ex) {
             Log.e("OtherBooks", "Error adding books to DB");
             m_Db.endTransaction();
         }
     }
+    public void updateCover(ScannedFile file) {
+        try {
+            if (m_Db == null || m_Db.isReadOnly()) {
+                if( m_Db != null) m_Db.close();
+                m_Db = getWritableDatabase();
+            }
+            ContentValues values = new ContentValues();
+            values.put("cover", file.getCover());
+            String whereClause = " path=?";
+            String [] whereArgs = new String[1];
+            whereArgs[0] = file.getPathName();
+            m_Db.beginTransaction();
+            m_Db.update("BOOKS", values, whereClause, whereArgs);
+            m_Db.setTransactionSuccessful();
+        } catch(Exception ex) {
+            Log.e("OtherBooks", "Exception updating book cover info", ex);
+        } finally {
+            if( m_Db != null)
+                m_Db.endTransaction();
+        }
+    }
+    public Vector<String> searchDescription( String keyword) {
+        Vector<String> str = new Vector<String>();
+        try {
+            if (m_Db == null) {
+                m_Db = getReadableDatabase();
+            }
+            String selection;
+            selection = "where desc like '%" + keyword + "%'";
+            String sql =
+                "select path from books " + selection;
+            Cursor cursor = m_Db.rawQuery(sql, null);
+            cursor.moveToFirst();
+            while( !cursor.isAfterLast()) {
+                str.add(cursor.getString(0));
+                cursor.moveToNext();
+            }
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("OtherBooks", "Exception searching Other books description ", ex);
+        }
+        return str;
+    }
+    public void getKeywords(String path, List<String> keywords) {
+        String keywordStr = getKeywordsString( path);
+        try {
+            if (keywordStr != null) {
+                if (keywordStr != null) {
+                    StringTokenizer token = new StringTokenizer(keywordStr, ",");
+                    while (token.hasMoreTokens()) {
+                        String keyword = token.nextToken();
+                        if( !keywords.contains(keyword))
+                            keywords.add(keyword);
+                    }
+                }
+            }
+        } catch(Exception ex) {
+            Log.e("OtherBooks", "Exception loading  books keywords List for " + path, ex);
+        }
+    }    
+    public String getKeywordsString(String path) {
+        String keywordStr=null;
+        try {
+            if (m_Db == null) {
+                m_Db = getReadableDatabase();
+            }
+            String selection;
+            String[] selectionArgs = null;
+            selection = " where path=?";
+            selectionArgs = new String[1];
+            selectionArgs[0] = path;
+            String sql =
+                "select keywords from books "+ selection;
+            Cursor cursor = m_Db.rawQuery(sql, selectionArgs);
+            cursor.moveToFirst();
+            if(!cursor.isAfterLast())
+                keywordStr = cursor.getString(0);
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("OtherBooks", "Exception loading books keywords Str for " + path , ex);
+        }
+        return keywordStr;
+    }
+
     
+    public String getDescription(String path) {
+        String desc=null;
+        try {
+            if (m_Db == null) {
+                m_Db = getReadableDatabase();
+            }
+            String query =
+                "select desc from books where path=" + path;
+            Cursor cursor = m_Db.rawQuery(query, null);
+            cursor.moveToFirst();
+            if(!cursor.isAfterLast())
+                desc = cursor.getString(0);
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("FictionwiseBooks", "Exception querying book desc", ex);
+        }
+        return desc;
+    }
     private List<ScannedFile> getBooksFromDB() {
         try {
             if (m_Db == null) {
@@ -256,18 +366,18 @@ public class OtherBooks extends SQLiteOpenHelper {
                     String auth = token.nextToken();
                     sf.addContributor(auth, "");
                 }
-                String desc = cursor.getString(4);
-                if (desc != null) {
-                    sf.setDescription(desc);
-                }
-                String keywords = cursor.getString(5);
-                if (keywords != null) {
-                    token = new StringTokenizer(keywords, ",");
-                    while (token.hasMoreTokens()) {
-                        String keyword = token.nextToken();
-                        sf.addKeywords(keyword);
-                    }
-                }
+//                String desc = cursor.getString(4);
+//                if (desc != null) {
+//                    sf.setDescription(desc);
+//                }
+//                String keywords = cursor.getString(5);
+//                if (keywords != null) {
+//                    token = new StringTokenizer(keywords, ",");
+//                    while (token.hasMoreTokens()) {
+//                        String keyword = token.nextToken();
+//                        sf.addKeywords(keyword);
+//                    }
+//                }
                 sf.setSeries(cursor.getString(11));
                 cursor.moveToNext();
             }
@@ -278,7 +388,7 @@ public class OtherBooks extends SQLiteOpenHelper {
             }
             Log.i("OtherBooks", " adding books from db - count = " + m_Files.size());
             Log.i("OtherBooks", " count of books already updated = " + m_UpdatedFiles.size());
-            nookLib.updatePageView(m_Files);
+            if( nookLib != null) nookLib.updatePageView(m_Files);
             m_Files.clear();
             updateLastScan();
         } catch (Exception ex) {
@@ -365,8 +475,10 @@ public class OtherBooks extends SQLiteOpenHelper {
     public void getOtherBooks() {
         try {
             m_ArchivedFiles.clear();
-            m_ScannerNotifier = new MediaScannerNotifier(nookLib);
-            getBooksFromDB();
+            if( nookLib != null) {
+                m_ScannerNotifier = new MediaScannerNotifier(nookLib);
+                getBooksFromDB();
+            }
             File file = new File(nookBaseActivity.SDFOLDER);
             File external = new File(nookBaseActivity.EXTERNAL_SDFOLDER);
             FileFilter filter = new FileFilter() {
@@ -393,12 +505,14 @@ public class OtherBooks extends SQLiteOpenHelper {
             };
             retrieveFiles(file, filter);
             retrieveFiles(external, filter);
-            if (m_Files.size() > 0) {
+            if (m_Files.size() > 0 && nookLib != null) {
                 nookLib.updatePageView(m_Files);
                 m_Files.clear();
             }
-            m_ScannerNotifier.waitForCompletion();
-            m_UpdatedFiles.clear();
+            if( nookLib != null) {
+                m_ScannerNotifier.waitForCompletion();
+                m_UpdatedFiles.clear();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -421,7 +535,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                 String ext = file.getAbsolutePath().toLowerCase();
                 ext = ext.substring(ext.lastIndexOf('.') + 1);
                 if ("pdb".equals(ext)) {
-                    m_ScannerNotifier.scanFile(file.getAbsolutePath());
+                    m_ScannerNotifier.addFile(file.getAbsolutePath());
                 } else {
                     ScannedFile file1 = new ScannedFile(file.getAbsolutePath());
                     file1.setLastAccessedDate(new Date(file.lastModified()));
@@ -433,7 +547,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                         continue;
                     } else
                         m_Files.add(file1);
-                    if (m_Files.size() % 100 == 0) {
+                    if (m_Files.size() % 100 == 0 && nookLib != null) {
                         nookLib.updatePageView(m_Files);
                         m_Files.clear();
                     }
@@ -442,64 +556,127 @@ public class OtherBooks extends SQLiteOpenHelper {
         }
         return;
     }
-    
+    public void updatePageNumbers(final List<ScannedFile> files) {
+        Runnable thrd1 = new Runnable() {
+            public void run() {
+                m_ScannerNotifier = new MediaScannerNotifier(nookLib, true);
+                for(ScannedFile f:files) {
+                    if( f.matchSubject("B&N") || ( f.getBookID() ==null && "pdb".equals(f.getType()))) {
+                        continue;
+                    }
+                    m_ScannerNotifier.addFile( f.getPathName());
+                }
+            }
+        };
+        ( new Thread(thrd1)).start();
+        Runnable thrd = new Runnable() {
+            public void run() {
+                m_ScannerNotifier.waitForCompletion();
+                m_ScannerNotifier.setPagesOnly(false);
+                nookLib.refreshPage();
+            }
+        };
+        ( new Thread(thrd)).start();
+    }
 }
 
 class MediaScannerNotifier implements MediaScannerConnectionClient {
     private MediaScannerConnection mConnection;
-    private boolean mConnected = false;
     private int mReqCount = 0;
     private ArrayList<String> mWaitList = new ArrayList<String>(10);
     private ArrayList<ScannedFile> mFiles = new ArrayList<ScannedFile>(10);
     private NookLibrary mNookLib;
+    private boolean mOnlyPages=false;
     
+    public synchronized void addFile(String path) {
+        mReqCount++;
+        mWaitList.add(path);
+    }
     public synchronized void scanFile(String path) {
         if (path == null) { return; }
-        mReqCount++;
-        if (mConnected) {
+        if (mConnection.isConnected()) {
             String mime = "ebook/";
             String ext = path.substring(path.lastIndexOf(".") + 1).toLowerCase();
             mime += ext;
             mConnection.scanFile(path, mime);
-        } else {
-            mWaitList.add(path);
-        }
+        } 
     }
-    
+    public void setPagesOnly(boolean b) {
+        mOnlyPages = b;
+        
+    }
     public MediaScannerNotifier(NookLibrary context) {
+        this(context, false);
+    }
+    public MediaScannerNotifier(NookLibrary context, boolean onlyPages) {
         mConnection = new MediaScannerConnection(context, this);
         mConnection.connect();
         mNookLib = context;
+        mOnlyPages=onlyPages;
     }
     
     public void onMediaScannerConnected() {
-        mConnected = true;
-        for (String path : mWaitList) {
-            scanFile(path);
+        if(mReqCount >0) {
+            mReqCount--;
+            String s = mWaitList.remove(0);
+            scanFile(s);
         }
-        mWaitList.clear();
+    }
+    public void connect() {
+        mConnection.connect();
     }
     
     public void onScanCompleted(String path, Uri arg1) {
+        if( arg1 ==null) return;
         String ext = path.toLowerCase();
-        if (!ext.endsWith("pdb")) { return; }
-        ScannedFile file = new ScannedFile(path);
-        String[] columns = {
-            "title", "authors", "ean", "publisher", "date_published"
+        if (!mOnlyPages && !ext.endsWith("pdb")) { return; }
+        ScannedFile file = null;
+        if( mOnlyPages)
+            file = ScannedFile.getFile(path);
+        else
+            file = new ScannedFile(path);
+        String[] columns;
+        String[] columns2 = { "current_page", "total_pages" };
+        String[] columns1 = {
+            "title", "authors", "ean", "publisher", "date_published", "current_page", "total_pages"
         };
+        if( mOnlyPages) {
+            columns = columns2;
+        } else {
+            columns = columns1;
+        }
         Cursor dbCursor = mNookLib.getContentResolver().query(arg1, columns, null, null, null);
         dbCursor.moveToFirst();
+        if( mOnlyPages) {
+            file.setCurrentPage(dbCursor.getInt(0));
+            file.setTotalPages(dbCursor.getInt(1));
+            dbCursor.close();
+            synchronized (this) {
+                if( mReqCount >0) {
+                    mReqCount--;
+                    String s = mWaitList.remove(0);
+                    scanFile(s);
+                }
+            }
+            return;
+        }
         file.setTitle(dbCursor.getString(0));
         file.addContributor(dbCursor.getString(1), "");
         file.setEan(dbCursor.getString(2));
         file.setPublisher(dbCursor.getString(3));
         file.setPublishedDate(new Date(dbCursor.getLong(4)));
+        file.setCurrentPage(dbCursor.getInt(5));
+        file.setTotalPages(dbCursor.getInt(6));
         file.updateLastAccessDate();
         file.setBookInDB(false);
         dbCursor.close();
         mFiles.add(file);
         synchronized (this) {
-            mReqCount--;
+            if( mReqCount >0)   {
+                mReqCount--;
+                String s = mWaitList.remove(0);
+                scanFile(s);
+            }
         }
     }
     
@@ -511,7 +688,10 @@ class MediaScannerNotifier implements MediaScannerConnectionClient {
                 
             }
         }
-        mNookLib.updatePageView(mFiles);
-        mFiles.clear();
+        mConnection.disconnect();
+        if( !mOnlyPages) {
+            mNookLib.updatePageView(mFiles);
+            mFiles.clear();
+        }
     }
 }

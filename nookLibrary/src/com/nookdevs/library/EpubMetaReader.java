@@ -40,22 +40,18 @@ public class EpubMetaReader {
     public static final String SERIES_INDEX = "series_index";
     public static final String DATE = "date";
     public static final String ISBN = "ISBN";
-    String[] entries = {
+    private static String[] entries = {
         TITLE, CREATOR, PUBLISHER, DESCRIPTION, SUBJECT, IDENTIFIER, SERIES, SERIES_INDEX
     };
     
     private static List<String> m_ValidEntries;
-    ScannedFile m_File;
-    
-    public EpubMetaReader(ScannedFile file) {
-        m_File = file;
+    static {
         if (m_ValidEntries == null) {
             m_ValidEntries = Arrays.asList(entries);
-        }
-        parse();
-    }
+        } 
+    } 
     
-    public boolean loadCover() {
+    public static boolean loadCover(ScannedFile m_File) {
         ZipFile zip = null;
         try {
             zip = new ZipFile(m_File.getPathName());
@@ -93,12 +89,20 @@ public class EpubMetaReader {
                 }
             }
         } catch (Exception ex) {
+            Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
             return false;
+        } finally {
+            try {
+                if( zip != null)
+                    zip.close();
+            } catch(Exception ex) {
+                Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
+            }
         }
         return false;
     }
     
-    private boolean parse() {
+    public static boolean parse(ScannedFile m_File) {
         String path = m_File.getPathName();
         if (path == null) { return false; }
         File file = new File(path);
@@ -172,7 +176,7 @@ public class EpubMetaReader {
                                 seriesTag = true;
                                 String series = meta.get("content");
                                 m_File.setSeries(series);
-                                m_File.addKeywords(series);
+                                m_File.addKeywords(series,true);
                             } else if (meta.get("name").equals("calibre:series_index")) {
                                 idx = meta.get("content");
                                 int dot = idx.indexOf('.');
@@ -200,13 +204,13 @@ public class EpubMetaReader {
                     } else if (name.equals(DESCRIPTION)) {
                         m_File.setDescription(text);
                     } else if (name.equals(SUBJECT)) {
-                        m_File.addKeywords(text);
+                        m_File.addKeywords(text,true);
                     } else if (name.equals(IDENTIFIER)) {
                         m_File.setEan(text);
                     } else if (name.equals(SERIES)) {
                         seriesTag = true;
                         m_File.setSeries(text);
-                        m_File.addKeywords(text);
+                        m_File.addKeywords(text,true);
                     } else if (name.equals(SERIES_INDEX)) {
                         idx = text;
                         int dot = idx.indexOf('.');
@@ -224,8 +228,15 @@ public class EpubMetaReader {
                 m_File.setSeries(m_File.getSeries() + " " + idx + "-");
             }
         } catch (Exception ex) {
-            Log.e("EpuBMetaReader", "Exception parsing metadata", ex);
+            Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
             return false;
+        } finally {
+            try {
+                if( zip != null)
+                    zip.close();
+            } catch(Exception ex) {
+                Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
+            }
         }
         return true;
         
