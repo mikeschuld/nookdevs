@@ -15,7 +15,9 @@
 
 package com.nookdevs.common;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 
@@ -168,7 +170,43 @@ public class nookBaseActivity extends Activity {
             m_AlertDialog.dismiss();
         }
     }
-    
+    protected Intent getReadingNow() {
+        Intent intent = null;
+        try {
+            Cursor c =
+                getContentResolver().query(Uri.parse(READING_NOW_URL), null, null, null, null);
+            if (c != null) {
+                c.moveToFirst();
+                byte[] data = c.getBlob(0);
+                c.close();
+                c.deactivate();
+                if (data == null) { return null; }
+                DataInputStream din = new DataInputStream(new ByteArrayInputStream(data));
+                intent = new Intent();
+                String tmp = din.readUTF();
+                intent.setAction(tmp);
+                tmp = din.readUTF();
+                String tmp1 = din.readUTF();
+                if (tmp != null && tmp.length() > 0) {
+                    Uri uri = Uri.parse(tmp);
+                    if (tmp1 != null && tmp1.length() > 0) {
+                        intent.setDataAndType(uri, tmp1);
+                    } else {
+                        intent.setData(uri);
+                    }
+                }
+                byte b = din.readByte();
+                if (b > 0) {
+                    tmp = din.readUTF();
+                    tmp1 = din.readUTF();
+                    intent.putExtra(tmp, tmp1);
+                }
+            }
+        } catch (Exception ex) {
+            intent = null;
+        }
+        return intent;
+    }
     protected void updateReadingNow(Intent intent) {
         try {
             ContentValues values = new ContentValues();
@@ -263,6 +301,9 @@ public class nookBaseActivity extends Activity {
                 }
                 c.moveToNext();
                 m_DeviceName = c.getString(0);
+                if ( m_DeviceName == null || m_DeviceName.trim().equals("")) {
+                    m_DeviceName="My Nook";
+                }
                 c.moveToNext();
                 long lvalue = c.getLong(0);
                 if (lvalue > 0) {
