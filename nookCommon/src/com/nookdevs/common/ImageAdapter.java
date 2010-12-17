@@ -14,6 +14,7 @@
  */
 package com.nookdevs.common;
 
+import java.io.File;
 import java.util.Vector;
 
 import android.content.Context;
