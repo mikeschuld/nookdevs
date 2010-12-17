@@ -26,25 +26,22 @@ import com.bravo.ecm.service.ScannedFile;
 import com.bravo.util.AdobeNativeInterface;
 
 public class PdfMetaReader {
-    ScannedFile m_File;
-    Context m_Context;
-    public PdfMetaReader(Context context, ScannedFile file, boolean quick) {
+    private static Context m_Context;
+    public static void setContext(Context context) {
         m_Context = context;
-        m_File = file;
-        readMetadata(quick);
     }
     
-    private boolean readMetadata(boolean quick) {
+    public static boolean readMetadata(ScannedFile m_File) {
         try {
-            if (quick) {
-                int ret = AdobeNativeInterface.openPDF(m_File.getPathName());
-                if (ret != 0) { return false; }
-                m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
-                m_File.addContributor(AdobeNativeInterface.getMetaData("DC.creator"), "");
-                m_File.setPublisher(AdobeNativeInterface.getMetaData("DC.publisher"));
-                m_File.setEan(AdobeNativeInterface.getMetaData("DC.identifier"));
-                AdobeNativeInterface.closePDF();
-            } else {
+//            if (quick) {
+//                int ret = AdobeNativeInterface.openPDF(m_File.getPathName());
+//                if (ret != 0) { return false; }
+//                m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
+//                m_File.addContributor(AdobeNativeInterface.getMetaData("DC.creator"), "");
+//                m_File.setPublisher(AdobeNativeInterface.getMetaData("DC.publisher"));
+//                m_File.setEan(AdobeNativeInterface.getMetaData("DC.identifier"));
+//                AdobeNativeInterface.closePDF();
+//            } else {
                 FileDescriptor fd = m_Context.getContentResolver().openAssetFileDescriptor(
                                     Uri.fromFile(new File(m_File.getPathName())),"r").getFileDescriptor();
                 PDFDocument doc = new PDFDocument(fd,"","");
@@ -78,10 +75,10 @@ public class PdfMetaReader {
                     String tmp = xml.substring(idx1+14, idx2);
                     StringTokenizer token = new StringTokenizer(tmp,";,\n");
                     while( token.hasMoreTokens()) {
-                        m_File.addKeywords( token.nextToken());
+                        m_File.addKeywords( token.nextToken(),true);
                     }
                 } 
-            }
+      //      }
         } catch (Throwable e) {
             Log.e("PDFMetaReader", e.getMessage(), e);
             return false;

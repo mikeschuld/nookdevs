@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -78,6 +79,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
     protected HashMap<String, ScannedFile> m_BookIdMap = new HashMap<String, ScannedFile>();
     private static String m_BaseDir;
     protected static boolean m_Auth = false;
+    protected static String m_library;
     
     static {
         try {
@@ -108,6 +110,7 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
         ConnManagerParams.setMaxTotalConnections(params, 100);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         httpClient = new DefaultHttpClient(params);
+        m_library = nookLib.getString(R.string.fictionwise);
     }
     
     private boolean authenticate() {
@@ -161,13 +164,14 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             if (idx2 == -1) { return false; }
             keyword = bookData.substring(idx1 + 1, idx2);
             file.addKeywords(keyword);
-            file.addKeywords(nookLib.getString(R.string.fictionwise));
+            file.setLibrary(m_library);
             idx1 = bookData.indexOf("Add to Cart", idx2);
             if (idx1 == -1) { return false; }
             idx2 = bookData.indexOf("<p>", idx1);
             idx1 = bookData.indexOf("</p>", idx2 + 3);
             desc = bookData.substring(idx2 + 3, idx1);
             file.setDescription(desc);
+            addBookToDB(file);
             return true;
         } catch (Exception ex) {
             Log.e("FictionwiseBooks", "exception during authentication", ex);
@@ -412,7 +416,114 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
         }
         return true;
     }
-    
+    public void getKeywords(String ean, List<String> keywords) {
+        String keywordStr = getKeywordsString( ean);
+        try {
+            if (keywordStr != null) {
+                if (keywordStr != null) {
+                    StringTokenizer token = new StringTokenizer(keywordStr, ",");
+                    while (token.hasMoreTokens()) {
+                        String keyword = token.nextToken();
+                        if( !keywords.contains(keyword))
+                            keywords.add(keyword);
+                    }
+                }
+            }
+        } catch(Exception ex) {
+            Log.e("FictionwiseBooks", "Exception loading  books keywords List for " + ean, ex);
+        }
+    }    
+    public String getKeywordsString(String ean) {
+        String keywordStr=null;
+        try {
+            if (m_Db == null) {
+                m_Db = getReadableDatabase();
+            }
+            String selection;
+            String[] selectionArgs = null;
+            selection = " where ean=?";
+            selectionArgs = new String[1];
+            selectionArgs[0] = ean;
+            String sql =
+                "select keywords from books "+ selection;
+            Cursor cursor = m_Db.rawQuery(sql, selectionArgs);
+            cursor.moveToFirst();
+            if(!cursor.isAfterLast())
+                keywordStr = cursor.getString(0);
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("FictionwiseBooks", "Exception loading books keywords Str for " + ean , ex);
+        }
+        return keywordStr;
+    }
+    public void updateCover(ScannedFile file) {
+        try {
+            if (m_Db == null || m_Db.isReadOnly()) {
+                if(m_Db != null) m_Db.close();
+                m_Db = getWritableDatabase();
+            }
+            ContentValues values = new ContentValues();
+            values.put("cover", file.getCover());
+            String whereClause = " path=?";
+            String [] whereArgs = new String[1];
+            whereArgs[0] = file.getPathName();
+            m_Db.beginTransaction();
+            m_Db.update("BOOKS", values, whereClause, whereArgs);
+            m_Db.setTransactionSuccessful();
+        } catch(Exception ex) {
+            Log.e("fictionwiseBooks", "Exception updating book cover info", ex);
+        } finally {
+            if( m_Db != null) 
+                m_Db.endTransaction();
+        }
+    }
+    public Vector<String> searchDescription( String keyword) {
+        Vector<String> str = new Vector<String>();
+        try {
+            if (m_Db == null) {
+                m_Db = getReadableDatabase();
+            }
+            String selection;
+            selection = "where desc like '%" + keyword +"%'";
+            String sql =
+                "select ean from books " + selection;
+            Cursor cursor = m_Db.rawQuery(sql, null);
+            cursor.moveToFirst();
+            while( !cursor.isAfterLast()) {
+                str.add(cursor.getString(0));
+                cursor.moveToNext();
+            }
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("BNBooks", "Exception searching fictionwise books description ", ex);
+        }
+        return str;
+    }
+    public String getDescription(String ean) {
+        String desc=null;
+        boolean createddb=false;
+        try {
+            if (m_Db == null) {
+                m_Db = getReadableDatabase();
+                createddb=true;
+            }
+            String query =
+                "select desc from books";
+            Cursor cursor = m_Db.rawQuery(query, null);
+            cursor.moveToFirst();
+            if(!cursor.isAfterLast())
+                desc = cursor.getString(0);
+        } catch(Exception ex) {
+            Log.e("FictionwiseBooks", "Exception querying book desc", ex);
+        } 
+        finally {
+            if( createddb) {
+                m_Db.close();
+                m_Db=null;
+            }
+        }
+        return desc;
+    }
     protected void getBooksfromDB() {
         try {
             m_Files.clear();
@@ -463,18 +574,19 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
                     String auth = token.nextToken();
                     sf.addContributor(auth, "");
                 }
-                String desc = cursor.getString(4);
-                if (desc != null) {
-                    sf.setDescription(desc);
-                }
-                String keywords = cursor.getString(5);
-                if (keywords != null) {
-                    token = new StringTokenizer(keywords, ",");
-                    while (token.hasMoreTokens()) {
-                        String keyword = token.nextToken();
-                        sf.addKeywords(keyword);
-                    }
-                }
+//                String desc = cursor.getString(4);
+//                if (desc != null) {
+//                    sf.setDescription(desc);
+//                }
+//                String keywords = cursor.getString(5);
+//                if (keywords != null) {
+//                    token = new StringTokenizer(keywords, ",");
+//                    while (token.hasMoreTokens()) {
+//                        String keyword = token.nextToken();
+//                        sf.addKeywords(keyword);
+//                    }
+//                }
+                sf.setLibrary(m_library);
                 sf.setSeries(cursor.getString(11));
                 sf.setBookInDB(true);
                 cursor.moveToNext();
@@ -556,6 +668,9 @@ public class FictionwiseBooks extends SQLiteOpenHelper {
             m_Db.beginTransaction();
             m_Db.insert("BOOKS", null, values);
             m_Db.setTransactionSuccessful();
+            file.setBookInDB(true);
+            file.setDescription(null);
+            file.clearKeywords();
         } catch (Exception ex) {
             Log.e("FictionwiseBooks", "exception while adding user info", ex);
         } finally {

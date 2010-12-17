@@ -119,6 +119,10 @@ public class PageViewHelper {
         }
         initPage();
     }
+    private boolean m_ShowPageNumbers=false;
+    public void setShowPageNumbers(boolean flag) {
+        m_ShowPageNumbers = flag;
+    }
     public void setFolders(String[] files) {
         m_Folders = files;
     }
@@ -190,21 +194,21 @@ public class PageViewHelper {
     }
 
     public void gotoPage(int page) {
-        if (m_CurrentPage == page) { return; }
-        m_CurrentPage = page;
+       // if (m_CurrentPage == page) { return; }
+       m_CurrentPage = page;
         int currentOffset = (page - 1) * ITEMS_PER_PAGE;
         int i = 0;
         for (; i < ITEMS_PER_PAGE && (currentOffset + i) < m_NumItems; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
-                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
-                m_Authors[i].setText(file.getTitle());
-                m_BookNames[i].setText(file.getAuthor());
+         //   if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
+         //       || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+         //       m_Authors[i].setText(file.getTitle());
+         //       m_BookNames[i].setText(file.getAuthor());
 
-            } else {
+         //   } else {
                 m_BookNames[i].setText(file.getTitle());
-                m_Authors[i].setText(file.getAuthor());
-            }
+                m_Authors[i].setText(file.getAuthor(m_ShowPageNumbers));
+         //    }
         }
         for (; i < ITEMS_PER_PAGE; i++) {
             m_BookNames[i].setText("");
@@ -283,30 +287,22 @@ public class PageViewHelper {
         int currentOffset = (m_CurrentPage - 1) * ITEMS_PER_PAGE;
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
-                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
-                m_Authors[i].setText(file.getTitle());
-                m_BookNames[i].setText(file.getAuthor());
+          //  if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
+          //      || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+          //      m_Authors[i].setText(file.getTitle());
+          //      m_BookNames[i].setText(file.getAuthor());
 
-            } else {
+          //  } else {
                 m_BookNames[i].setText(file.getTitle());
-                m_Authors[i].setText(file.getAuthor());
-            }
+                m_Authors[i].setText(file.getAuthor(m_ShowPageNumbers));
+          //  }
         }
         updateHeader();
         updateFooter();
     }
 
     public void update() {
-        if (m_CurrentItem > 0) {
-            ScannedFile file = getCurrent();
-            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
-                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
-                m_Authors[m_CurrentItem - 1].setText(file.getTitle());
-            } else {
-                m_BookNames[m_CurrentItem - 1].setText(file.getTitle());
-            }
-        }
+        gotoItem( getCurrentIndex());
     }
 
     private void clearData() {
@@ -333,15 +329,15 @@ public class PageViewHelper {
         int i = 0;
         for (; i < ITEMS_PER_PAGE && (currentOffset + i) < m_NumItems; i++) {
             ScannedFile file = m_Files.get(currentOffset + i);
-            if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
-                || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
-                m_Authors[i].setText(file.getTitle());
-                m_BookNames[i].setText(file.getAuthor());
-
-            } else {
+         //   if (ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR
+         //       || ScannedFile.getSortType() == ScannedFile.SORT_BY_AUTHOR_LAST) {
+         //       m_Authors[i].setText(file.getTitle());
+         //       m_BookNames[i].setText(file.getAuthor());
+         //       
+         //   } else {
                 m_BookNames[i].setText(file.getTitle());
-                m_Authors[i].setText(file.getAuthor());
-            }
+                m_Authors[i].setText(file.getAuthor(m_ShowPageNumbers));
+         //   }
         }
         if (m_CurrentItem > i) {
             m_Dividers[m_CurrentItem].setVisibility(View.INVISIBLE);

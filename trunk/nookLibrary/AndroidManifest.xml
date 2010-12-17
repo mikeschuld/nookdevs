@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.nookdevs.library" android:versionCode="13"
-	android:versionName="0.1.3">
+	package="com.nookdevs.library" android:versionCode="14" android:versionName="0.1.4">
 	<application android:icon="@drawable/select_mybooks"
 		android:label="@string/app_name">
 		<activity android:name=".NookLibrary" android:label="@string/app_name"
@@ -11,6 +10,13 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
+		<service android:name="BooksService" android:process=":booksservice" >
+			<intent-filter>
+				<action
+					android:name="com.nookdevs.library.BooksService" />
+			</intent-filter>
+		</service>
+		
 	</application>
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.INTERNET" />

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -166,7 +167,8 @@ public class BNBooks {
         if (refresh && !m_Context.waitForNetwork(lock)) {
             refresh = false;
         }
-        m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+        if( m_Db == null)
+            m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
         // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
         // SQLiteDatabase.OPEN_READONLY);
         if ((refresh || !m_DeviceRegistered)&& !m_Auth) {
@@ -196,9 +198,17 @@ public class BNBooks {
             }
         }
         // m_FilesDb.close();
-        m_Db.close();
-        m_Db = null;
         return m_Books;
+    }
+    public void clear() {
+        if( m_Books != null)
+            m_Books.clear();
+    }
+    public void close() {
+        if( m_Db != null) {
+            m_Db.close();
+            m_Db=null;
+        }
     }
     
     public ScannedFile getBook(ScannedFile file) {
@@ -212,7 +222,8 @@ public class BNBooks {
         if( !m_DeviceRegistered) return null;
         m_DownloadEan = file.getEan();
         m_DownloadBook = file;
-        m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+        if( m_Db == null)
+            m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
         // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
         // SQLiteDatabase.OPEN_READONLY);
         m_Sync = false;
@@ -229,7 +240,6 @@ public class BNBooks {
         download();
         m_DownloadDone.block();
         // m_FilesDb.close();
-        m_Db.close();
         return m_DownloadBook;
     }
     
@@ -389,6 +399,112 @@ public class BNBooks {
     public List<ScannedFile> getArchived() {
         return m_ArchivedBooks;
     }
+    public Vector<String> searchDescription( String keyword) {
+        Vector<String> str = new Vector<String>();
+        try {
+            if (m_Db == null) {
+                m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+            }
+            String selection;
+            String[] selectionArgs = null;
+            selection = "where synopsis like '%" + keyword + "%' or editorial_reviews like '%" + keyword +"%'";
+            String sql =
+                "select ean, synopsis,editorial_reviews from "
+                    + PRODUCT_TABLE + " A " + selection;
+            Cursor cursor = m_Db.rawQuery(sql, null);
+            cursor.moveToFirst();
+            while( !cursor.isAfterLast()) {
+                str.add(cursor.getString(0));
+                cursor.moveToNext();
+            }
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("BNBooks", "Exception searching BN books description " + keyword , ex);
+        }
+        return str;
+    }
+    public void getKeywords(String ean, List<String> keywords) {
+        String keywordStr = getKeywordsString( ean);
+        try {
+            if (keywordStr != null) {
+                JSONArray array = new JSONArray(keywordStr);
+                int sz = array.length();
+                for (int i = 0; i < sz; i++) {
+                    JSONObject object = array.getJSONObject(i);
+                    String keyword = object.optString("name");
+                    if( !keywords.contains(keyword))
+                        keywords.add(keyword);
+                }
+            }
+        } catch(Exception ex) {
+            Log.e("BNBooks", "Exception loading BN books keywords List " + ean, ex);
+        }
+    }    
+    public String getKeywordsString(String ean) {
+        String keywordStr=null;
+        try {
+            if (m_Db == null) {
+                m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+            }
+            String selection;
+            String[] selectionArgs = null;
+            selection = " where ean=?";
+            selectionArgs = new String[1];
+            selectionArgs[0] = ean;
+            String sql =
+                "select categories from "+ PRODUCT_TABLE + selection;
+            Cursor cursor = m_Db.rawQuery(sql, selectionArgs);
+            cursor.moveToFirst();
+            if( !cursor.isAfterLast())
+                keywordStr = cursor.getString(0);
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("BNBooks", "Exception loading BN books keywords " + ean, ex);
+        }
+        return keywordStr;
+    }
+    public String getDescription( String ean) {
+        String desc=null;
+        try {
+            if (m_Db == null) {
+                m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+            }
+            String selection;
+            String[] selectionArgs = null;
+            selection = "where ean=? and ean = product_ean";
+            selectionArgs = new String[1];
+            selectionArgs[0] = ean;
+            String sql =
+                "select synopsis, editorial_reviews,lending_state,lendee, lender from "
+                    + PRODUCT_TABLE + " A ," + PRODUCT_STATE_TABLE + " B " + selection;
+            Cursor cursor = m_Db.rawQuery(sql, selectionArgs);
+            cursor.moveToFirst();
+            String lendState = cursor.getString(2);
+            String lendMessage=null;
+            desc = cursor.getString(0);
+            if( LENT.equals(lendState)) {
+                lendMessage = "On Loan to " + cursor.getString(3);
+                desc =lendMessage + "<br>" + desc;
+                
+            } else if (BORROWED.equals(lendState)) {
+                lendMessage = "Borrowed from " + cursor.getString(4);
+                desc =lendMessage + "<br>" + desc;
+            }
+            String reviews = cursor.getString(1);
+            if (reviews != null) {
+                JSONArray array = new JSONArray(reviews);
+                int sz = array.length();
+                for (int i = 0; i < sz; i++) {
+                    desc += "<br>";
+                    desc += array.optString(i);
+                }
+            }
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("BNBooks", "Exception loading BN books description ", ex);
+        } 
+        return desc;
+    }
     
     private void loadBooksData(String ean) {
         try {
@@ -453,25 +569,28 @@ public class BNBooks {
                 }
                 if (titles.contains("Merriam-Webster's Pocket Dictionary")) {
                     if (!addToList) {
-                        m_Books.remove(file);
+                        if( archived) {
+                            m_ArchivedBooks.remove(file);
+                        } else
+                            m_Books.remove(file);
                     }
                     cursor.moveToNext();
                     continue;
                 }
                 file.setTitles(title);
-                String keywordData = cursor.getString(5);
+             //   String keywordData = cursor.getString(5);
                 String contributorData = cursor.getString(4);
-                String desc = cursor.getString(3);
-                String reviews = cursor.getString(6);
-                if (reviews != null) {
-                    array = new JSONArray(reviews);
-                    sz = array.length();
-                    for (int i = 0; i < sz; i++) {
-                        desc += "<br>";
-                        desc += array.optString(i);
-                    }
-                }
-                file.setDescription(desc);
+               // String desc = cursor.getString(3);
+               // String reviews = cursor.getString(6);
+               // if (reviews != null) {
+               //     array = new JSONArray(reviews);
+               //     sz = array.length();
+               //     for (int i = 0; i < sz; i++) {
+               //         desc += "<br>";
+               //         desc += array.optString(i);
+               //     }
+               // }
+               // file.setDescription(desc);
                 if (contributorData != null) {
                     array = new JSONArray(contributorData);
                     sz = array.length();
@@ -486,15 +605,15 @@ public class BNBooks {
                         file.addContributor(firstName, lastName);
                     }
                 }
-                if (keywordData != null) {
-                    array = new JSONArray(keywordData);
-                    sz = array.length();
-                    for (int i = 0; i < sz; i++) {
-                        JSONObject object = array.getJSONObject(i);
-                        String keyword = object.optString("name");
-                        file.addKeywords(keyword);
-                    }
-                }
+//                if (keywordData != null) {
+//                    array = new JSONArray(keywordData);
+//                    sz = array.length();
+//                    for (int i = 0; i < sz; i++) {
+//                        JSONObject object = array.getJSONObject(i);
+//                        String keyword = object.optString("name");
+//                        file.addKeywords(keyword);
+//                    }
+//                }
                 String type = cursor.getString(0);
                 if (type != null) {
                     file.addKeywords(type);
@@ -524,11 +643,11 @@ public class BNBooks {
                     file.setStatus(ARCHIVED);
                 } else if (LENT.equals(lendState)) {
                     file.setStatus(LENT);
-                    String lendMessage = "On Loan to " + cursor.getString(14);
-                    file.setDescription(lendMessage + "<br>" + file.getDescription());
+        //            String lendMessage = "On Loan to " + cursor.getString(14);
+         //           file.setDescription(lendMessage + "<br>" + file.getDescription());
                 } else if (BORROWED.equals(lendState)) {
-                    String lendMessage = "Borrowed from " + cursor.getString(15);
-                    file.setDescription(lendMessage + "<br>" + file.getDescription());
+           //         String lendMessage = "Borrowed from " + cursor.getString(15);
+           //         file.setDescription(lendMessage + "<br>" + file.getDescription());
                     file.setStatus(BORROWED);
                 } else if (file.getPathName() == null || file.getPathName().equals("")) {
                     file.setStatus(DOWNLOAD);
@@ -545,7 +664,7 @@ public class BNBooks {
                 } else {
                     file.setSample(false);
                 }
-                file.addKeywords("B&N");
+                file.setLibrary("B&N");
                 if (addToList) {
                     m_Books.add(file);
                 }
@@ -560,13 +679,34 @@ public class BNBooks {
             Log.e("BNBooks", "Exception loading BN books", ex);
         }
     }
-    
+    public void updatePageNumbers() {
+        try {
+            String[] columns = {
+                "local_product_ean", "downloaded_path", "current_page", "total_pages"
+            };
+            String selection;
+            String[] selectionArgs = null;
+            selection = null;
+            Cursor cursor = m_Db.query(LOCAL_PRODUCT_STATE_TABLE, columns, selection, selectionArgs, null, null, null);
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                ScannedFile file = ScannedFile.getFile(cursor.getString(1));
+                if( file == null) continue;
+                file.setCurrentPage( cursor.getInt(2));
+                file.setTotalPages( cursor.getInt(3));
+                cursor.moveToNext();
+            }
+            cursor.close();
+        } catch(Exception ex) {
+            Log.e("BNBooks", "Exception loading BN books", ex);
+        }
+    }
     private void loadLocalBooks() {
         try {
             m_Books = new ArrayList<ScannedFile>(50);
             m_ArchivedBooks.clear();
             String[] columns = {
-                "local_product_ean", "downloaded_path"
+                "local_product_ean", "downloaded_path", "current_page", "total_pages"
             };
             String selection;
             String[] selectionArgs = null;
@@ -575,6 +715,8 @@ public class BNBooks {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 ScannedFile file = new ScannedFile(cursor.getString(1), false);
+                file.setCurrentPage( cursor.getInt(2));
+                file.setTotalPages( cursor.getInt(3));
                 file.setEan(cursor.getString(0));
                 m_Books.add(file);
                 m_EanMap.put(file.getEan(), file);

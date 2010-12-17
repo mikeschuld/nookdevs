@@ -88,6 +88,7 @@ public class Smashwords extends FictionwiseBooks {
         ConnManagerParams.setMaxTotalConnections(params, 100);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         httpClient = new DefaultHttpClient(params);
+        m_library = nookLib.getString(R.string.smashwords);
     }
     
     public static String getBaseDir() {
@@ -153,7 +154,7 @@ public class Smashwords extends FictionwiseBooks {
                         if (file != null) {
                             file.setBookInDB(false);
                             file.setStatus(BNBooks.DOWNLOAD);
-                            file.addKeywords(nookLib.getString(R.string.smashwords));
+                            file.setLibrary( m_library);
                             file.setCreatedDate(new Date());
                             m_Files.add(file);
                         }
