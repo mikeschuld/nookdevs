@@ -64,7 +64,7 @@
     <setup/>
 
     <!-- dependencies on other sub-projects... -->
-    <path id="android.libraries.src">
+    <path id="project.libraries.src">
         <pathelement location="../nookCommon/src"/>
         <pathelement location="../nookDependency/src"/>
     </path>
