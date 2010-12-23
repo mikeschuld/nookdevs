@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Utility class for text editors.
  *
- * @author Marco Götze
+ * @author Marco Goetze
  */
 public class EditingUtils
 {
