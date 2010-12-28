@@ -106,7 +106,7 @@
         <item quantity="other">Displaying items %1$d to %2$d of %3$d.</item>
     </plurals>
     <string name="items_list_header_none">No items found.</string>
-    <string name="items_list_header_page">%1$d|%1$d</string>
+    <string name="items_list_header_page">%1$d|%2$d</string>
 
     <!-- texts... -->
     <string name="notes_usage_hint">
