@@ -579,7 +579,6 @@ public class OtherBooks extends SQLiteOpenHelper {
         ( new Thread(thrd)).start();
     }
 }
-
 class MediaScannerNotifier implements MediaScannerConnectionClient {
     private MediaScannerConnection mConnection;
     private int mReqCount = 0;
