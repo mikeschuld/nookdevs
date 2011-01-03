@@ -1,4 +1,4 @@
-/* 
+/*
 /*
  * Copyright 2010 nookDevs
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,7 @@ import android.app.Dialog;
 import android.content.*;
 import android.content.SharedPreferences.Editor;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.*;
@@ -163,7 +164,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     private static final String PREFS_KEY_SCREENSAVER_FOLDER_NAME = "SCREENSAVER_FOLDER_NAME";
     private boolean m_ShowPageNumbers=true;
     private boolean m_PageNumbersUpdated=false;
-    
+
     public Handler getHandler() {
         return m_Handler;
     }
@@ -509,12 +510,12 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             } else {
                 m_PageNumbersUpdated=false;
             }
-        }  
+        }
         if( m_PrevIntent != null) {
             Intent tmp = getReadingNow();
             String data = tmp.getDataString();
             if( data != null && data.startsWith("file:///data/data/com.nookdevs.library/files/MyBooks")) {
-                updateReadingNow(m_PrevIntent);  
+                updateReadingNow(m_PrevIntent);
             }
         }
         super.onResume();
@@ -1379,28 +1380,6 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
             if (path == null) { return; }
             Intent intent = new Intent("com.bravo.intent.action.VIEW");
-                // generate a screen saver image depicting recent covers, if the corresponding
-                // properties are set...
-            SharedPreferences prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
-            String screenSaverFolderName =prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "")
-                          .replaceAll("[\\s/\\\\]+", " ").trim();
-            int screenSaverLimit = prefs.getInt("SCREENSAVER_COVER_LIMIT", 5);
-            if (screenSaverFolderName.length() > 0 && screenSaverLimit > 0) {
-                // NOTE: Choose a random name for the cover, else the screen saver app will cache
-                //       the image by name and not notice its being replaced.
-                File screenSaverImage =
-                      new File("/system/media/sdcard/my screensavers/" +
-                          screenSaverFolderName.replaceAll("[\\s/\\\\]+", " ")
-                          .replaceAll("^\\s+|\\s+$", "") + "/cover.jpg");
-                String coverImage = file.getCover();
-                if (coverImage != null && !coverImage.startsWith("http://")) {
-                    screenSaverImage.getParentFile().mkdir();
-                    createScreenSaverCover(new File(coverImage), screenSaverImage,
-                    Math.min(screenSaverLimit, 5));
-                }
-            }
-   
-            
             String mimetype = "application/";
             int idx = path.lastIndexOf('.');
             // File file1 = new File(path);
@@ -1436,51 +1415,76 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             file.updateLastAccessDate();
             try {
                 startActivity(intent);
-                return;
             } catch (ActivityNotFoundException ex) {
                 Log.i(LOGTAG, "Error while attempting to start reader App", ex);
                 Toast.makeText(this, R.string.reader_not_found, Toast.LENGTH_LONG).show();
             }
-        }
-    }
-    private void createScreenSaverCover(File currentCoverFile, File destinationFile, int limit) {
-       // determine further covers to display underneath the current cover...
-       List<File> coverFiles = new ArrayList<File>(limit);
-       coverFiles.add(currentCoverFile);
-       Iterator<ScannedFile> it;
-       if (ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {  // shortcut: use pre-sorted
-           it = pageViewHelper.getFiles().iterator();
-       } else {  // if the page view is not sorted by latest, sort so manually
-           Comparator<ScannedFile> c = new Comparator<ScannedFile>() {
-              public int compare(ScannedFile sf1, ScannedFile sf2) {
-                    Date d1 = sf1.getLastAccessedDate();
-                    Date d2 = sf2.getLastAccessedDate();
-                    if (d1 != null && d2 != null) {
-                        return -d1.compareTo(d2);
-                    } else if (d1 != null) {
-                        return -1;
-                    } else if (d2 != null) {
-                        return 1;
-                    }
-                        return 0;
-                    }
-            };
-            Collection<ScannedFile> books = new TreeSet<ScannedFile>(c);
-            books.addAll(pageViewHelper.getFiles());
-            it = books.iterator();
-        }
-        while (coverFiles.size() < limit && it.hasNext()) {
-            String coverFile = it.next().getCover();
-            if (coverFile != null && !coverFile.equals(currentCoverFile.getPath())) {
-                coverFiles.add(new File(coverFile));
+
+            // generate a screen saver image depicting recent covers, if the corresponding
+            // properties are set...
+            SharedPreferences prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+            String screenSaverFolderName =prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "")
+                .replaceAll("[\\s/\\\\]+", " ").trim();
+            int screenSaverLimit = prefs.getInt("SCREENSAVER_COVER_LIMIT", 5);
+            if (screenSaverFolderName.length() > 0 && screenSaverLimit > 0) {
+                // NOTE: Choose a random name for the cover, else the screen saver app will cache
+                //       the image by name and not notice its being replaced.
+                File screenSaverImage =
+                    new File("/system/media/sdcard/my screensavers/" +
+                             screenSaverFolderName.replaceAll("[\\s/\\\\]+", " ")
+                                 .replaceAll("^\\s+|\\s+$", "") + "/cover.jpg");
+                String coverImage = file.getOriginalCover();
+                if (coverImage != null && !coverImage.startsWith("http://")) {
+                    screenSaverImage.getParentFile().mkdir();
+                    createScreenSaverOfCovers(new File(coverImage),
+                                              screenSaverImage,
+                                              Math.min(screenSaverLimit, 5));
+                }
             }
         }
-        // run the screen saver image generation in an AsyncTask...
-        ScreenSaverImageGenerationTask t =
-                   new ScreenSaverImageGenerationTask(getApplicationContext(), destinationFile);
-                t.doInBackground(coverFiles.toArray(new File[coverFiles.size()]));
     }
-    
+
+    private void createScreenSaverOfCovers(File currentCoverFile, File destinationFile, int limit) {
+        // determine further covers to display underneath the current cover...
+        List<File> coverFiles = new ArrayList<File>(limit);
+        coverFiles.add(currentCoverFile);
+        Iterator<ScannedFile> it;
+
+        // sort the list of books by access date...
+        Comparator<ScannedFile> c = new Comparator<ScannedFile>() {
+           public int compare(ScannedFile sf1, ScannedFile sf2) {
+               Date d1 = sf1.getLastAccessedDate();
+               Date d2 = sf2.getLastAccessedDate();
+               if (d1 != null && d2 != null) {
+                   return -d1.compareTo(d2);
+               } else if (d1 != null) {
+                   return -1;
+               } else if (d2 != null) {
+                   return 1;
+               }
+               return 0;
+           }
+        };
+        Collection<ScannedFile> books = new TreeSet<ScannedFile>(c);
+        books.addAll(pageViewHelper.getFiles());
+        it = books.iterator();
+
+        // determine the covers to be included in the screen saver of covers...
+        while (coverFiles.size() < limit && it.hasNext()) {
+           String coverFile = it.next().getOriginalCover();
+           if (coverFile != null && !coverFile.equals(currentCoverFile.getPath())) {
+               coverFiles.add(new File(coverFile));
+           }
+        }
+
+        // run the screen saver image generation in an AsyncTask...
+        Thread t =
+            new ScreenSaverImageGenerationThread(getApplicationContext(),
+                                                 destinationFile,
+                                                 coverFiles.toArray(new File[coverFiles.size()]));
+        t.start();
+    }
+
     // from kbs - trook.projectsource code.
     private final void pageUp() {
         if (m_DetailsPage != null) {
@@ -1660,7 +1664,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     class PageTask extends AsyncTask<Void,Void,Void> {
         boolean resume=true;
         public PageTask() {
-            
+
         }
         public PageTask(boolean val) {
             resume=val;
@@ -1816,7 +1820,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
         } else {
             return m_OtherBooks.getKeywordsString(file.getPathName());
-        } 
+        }
     }
     public void updateCover(ScannedFile file) {
         if (file.matchSubject("B&N")) {
@@ -1856,14 +1860,14 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             } catch(Exception ex) {
                 Log.e(LOGTAG, "onServiceConnected", ex);
             }
-            
+
         }
 
         public void onServiceDisconnected(ComponentName arg0) {
             mService=null;
-            
+
         }
-        
+
     };
     private ConditionVariable metadataLock = new ConditionVariable();
     private IBooksServiceCallback.Stub mCallback = new IBooksServiceCallback.Stub() {
@@ -1913,7 +1917,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
         }
     };
-    
+
     public List<String> getAvailableKeywords() {
         List<String> keywords = new ArrayList<String>(1000);
         for( ScannedFile f: m_Files) {
@@ -1948,7 +1952,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                     return;
                 }
             }
-            List<String> books = new ArrayList<String>(10); 
+            List<String> books = new ArrayList<String>(10);
             int size=0;
             synchronized(m_Files) {
                 size=m_Files.size();
