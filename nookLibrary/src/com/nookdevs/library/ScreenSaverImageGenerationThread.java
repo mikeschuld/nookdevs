@@ -22,15 +22,13 @@ import java.io.FileOutputStream;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.*;
-import android.os.AsyncTask;
 import android.util.Log;
 
 /**
- * <p>{@link android.os.AsyncTask} generating a screen saver image displaying the covers of
- * recently-accessed books.  To this end, the task's {@link #doInBackground(java.io.File...)}
- * method has to be called with an array of cover file paths, in decreasing order of access times
- * (i.e., the most-recently-accessed book's cover first).  The up to five first covers will be
- * considered.  If there is an error processing any of the files, the task will abort without
+ * <p>Thread fpr generating a screen saver image displaying the covers of recently-accessed books.
+ * To this end, its constructor takes an array of cover file paths, in increasing order of access
+ * times (i.e., the most-recently-accessed book's cover first).  The up to five first covers will
+ * be considered.  If there is an error processing any of the files, the task will abort without
  * generating a screen saver file.</p>
  *
  * <p>The generated image will sport the most-recently-accessed book's cover in the center,
@@ -38,18 +36,26 @@ import android.util.Log;
  * amount.  Any further covers will be arranged behind it, again rotated slightly, and made
  * slightly lighter, in the following order: top-left, bottom-right, top-right, bottom-left.</p>
  *
+ * <p>Does not derive from <code>AsyncTask</code> as there are issues with executing multiple
+ * instances of the same class in Android 1.5.</p>
+ *
  * @author Marco Götze
  */
-public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Integer>
+public class ScreenSaverImageGenerationThread extends Thread
 {
     /** The task's context. */
     protected final Context m_context;
     /** The (JPEG) out-file to generate. */
     protected final File m_outFile;
+    /**
+     * Array of cover files from which to generate the screen saver image (should be in
+     * increasing order of access time).
+     */
+    protected final File[] m_inFiles;
 
-    /** The width of the image to generate */
+    /** The width of the image to generate. */
     private static final int WIDTH  = 600;
-    /** The height of the image to generate */
+    /** The height of the image to generate. */
     private static final int HEIGHT = 800;
     /**
      * The maximum width of a cover on the generated image.  Covers will be down-scaled to this
@@ -83,22 +89,38 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
     private static final String LOGTAG = "nookLibrary";
 
     /**
-     * Creates a {@link com.nookdevs.library.ScreenSaverImageGenerationTask}.
+     * Creates a {@link ScreenSaverImageGenerationThread}.
      *
      * @param context the task's context
-     * @param outFile the JPEG out-file to generate
+     * @param outFile the (JPEG) out-file to generate
+     * @param inFiles the cover files from which to generate the screen saver image (should be in
+     *                increasing order of access time)
      */
-    public ScreenSaverImageGenerationTask(Context context, File outFile) {
+    public ScreenSaverImageGenerationThread(Context context, File outFile, File[] inFiles) {
         m_context = context;
         m_outFile = outFile;
+        m_inFiles = inFiles;
     }
 
     /** {@inheritDoc} */
     @Override
-    protected Integer doInBackground(File... files) {
-        if (files.length < 1) {
+    public void run() {
+        if (generateScreenSaverImage()) {
+            // notify the screen saver application of the change...
+            m_context.sendBroadcast(
+                new Intent("com.bravo.intent.action.SCREENSAVER_FOLDER_CHANGED"));
+        }
+    }
+
+    /**
+     * Generates the screen saver image.
+     *
+     * @return <code>true</code> on success, <code>false</code> otherwise
+     */
+    protected boolean generateScreenSaverImage() {
+        if (m_inFiles.length < 1) {
             Log.e(LOGTAG, "Expecting at least one argument!");
-            return 0;
+            return false;
         }
 
         // initialize the bitmap to be created...
@@ -107,14 +129,14 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
         Paint paint = new Paint(0);
         // NOTE: For the background color, we generally prefer white, but if the image is expected
         //       to be covered more or less completely, fill in the gaps using gray.
-        paint.setColor(files.length > 4 ? Color.GRAY : Color.WHITE);
+        paint.setColor(m_inFiles.length > 4 ? Color.GRAY : Color.WHITE);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawRect(0, 0, WIDTH, HEIGHT, paint);
 
         // draw covers on the bitmap...
-        for (int i = Math.min(files.length - 1, 4); i >= 0; i--) {
+        int firstIdx = Math.min(m_inFiles.length - 1, 4);
+        for (int i = firstIdx; i >= 0; i--) {
             // determine location and rotation...
-            super.publishProgress();
             int x, y;
             float r;
             switch (i) {
@@ -124,13 +146,13 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
                     r = -MAX_DEGREES + (float) (Math.random() * 2 * MAX_DEGREES);
                     break;
                 case 1:  // previous cover: slightly rotated counter-clockwise, towards upper left
-                    x = (files.length > 3 ? WIDTH / 4 : WIDTH * 3 / 10);
-                    y = (files.length > 3 ? HEIGHT / 4 : HEIGHT * 3 / 10);
+                    x = (m_inFiles.length > 3 ? WIDTH / 4 : WIDTH * 3 / 10);
+                    y = (m_inFiles.length > 3 ? HEIGHT / 4 : HEIGHT * 3 / 10);
                     r = -MAX_DEGREES - (float) (Math.random() * MAX_DEGREES);
                     break;
                 case 2:  // two books back: slightly rotated clockwise, towards lower right
-                    x = (files.length > 3 ? WIDTH * 3 / 4 : WIDTH * 7 / 10);
-                    y = (files.length > 3 ? HEIGHT * 3 / 4 : HEIGHT * 7 / 10);
+                    x = (m_inFiles.length > 3 ? WIDTH * 3 / 4 : WIDTH * 7 / 10);
+                    y = (m_inFiles.length > 3 ? HEIGHT * 3 / 4 : HEIGHT * 7 / 10);
                     r = MAX_DEGREES + (float) (Math.random() * MAX_DEGREES);
                     break;
                 case 3:  // three books back: slightly rotated counter-clockwise, towards lower left
@@ -151,23 +173,21 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
             }
 
             // load the cover...
-            super.publishProgress();
-            Bitmap cover = BitmapFactory.decodeFile(files[i].getPath());
+            Bitmap cover = BitmapFactory.decodeFile(m_inFiles[i].getPath());
             if (cover == null) {
                 Log.e(LOGTAG,
-                      "Failed to decode cover \"" + files[i] +
-                      "\" for screen saver image generation!");
-                return 0;
+                      "Failed to decode cover \"" + m_inFiles[i] + "\" for screen saver image " +
+                          "generation!");
+                return false;
             }
             int w = cover.getWidth();
             int h = cover.getHeight();
             if (w == 0 || h == 0) {
-                Log.e(LOGTAG, "Cover \"" + files[i] + "\" has invalid dimensions!");
-                return 0;
+                Log.e(LOGTAG, "Cover \"" + m_inFiles[i] + "\" has invalid dimensions!");
+                return false;
             }
 
             // determine the cover's display size on the screen saver image...
-            super.publishProgress();
             float scale = 1.0f;
             if (w > MAX_WIDTH || h > MAX_HEIGHT) {  // downscale if too large
                 if (w * 1.0f / h > MAX_WIDTH * 1.0f / MAX_HEIGHT) {
@@ -184,7 +204,6 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
             }
 
             // draw the cover...
-            super.publishProgress();
             Matrix matrix = new Matrix();
             matrix.postTranslate(-(w / 2), -(h / 2));
             matrix.postScale(scale, scale);
@@ -194,9 +213,9 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
             matrix.postTranslate(x, y);
             paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
             canvas.drawBitmap(cover, matrix, paint);
+            cover.recycle();
 
             // draw a border around the cover...
-            super.publishProgress();
             paint.setColor(Color.BLACK);
             paint.setStyle(Paint.Style.STROKE);
             canvas.setMatrix(matrix);
@@ -204,7 +223,6 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
 
             // make the older covers slightly lighter...
             if (i > 0) {
-                super.publishProgress();
                 paint.setColor(Color.WHITE);
                 paint.setAlpha((int) (Math.min(0.1f * i, 0.3f) * 255));
                 paint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -215,18 +233,14 @@ public class ScreenSaverImageGenerationTask extends AsyncTask<File, Integer, Int
         }
 
         // save the screen saver image...
-        super.publishProgress();
         try {
             screenSaverImage.compress(Bitmap.CompressFormat.JPEG, 97,
                                       new FileOutputStream(m_outFile));
+            screenSaverImage.recycle();
         } catch (FileNotFoundException e) {
             Log.e(LOGTAG, "Error saving screen saver image \"" + m_outFile + "\"!", e);
         }
 
-        // update the screen saver...
-        super.publishProgress();
-        m_context.sendBroadcast(new Intent("com.bravo.intent.action.SCREENSAVER_FOLDER_CHANGED"));
-
-        return files.length;
+        return true;
     }
 }
