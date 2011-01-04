@@ -829,18 +829,10 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
         // gallery...
         if (m_Cover != null && !m_Cover.startsWith("http://")) {
             try {
-                // if there is an "orig" cover file newer than the non-"orig" file, re-evaluate
-                // the original by replacing the non-"orig" file with the "orig" one...
-                File f = new File(m_Cover);
-                File orig = new File(originalCover(cover));
-                if (orig.isFile() && orig.lastModified() > f.lastModified()) {
-                    f.delete();
-                    orig.renameTo(f);
-                }
-
                 // check file size...
+                File f = new File(m_Cover);
                 if (f.length() < 100000) {
-                    return;  // abort if sufficiently small
+                    return;  // file size sufficiently small: abort
                 }
 
                 // determine scaled-down dimensions...
@@ -848,21 +840,22 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 options.inJustDecodeBounds = true;
                 FileInputStream fin = new FileInputStream(m_Cover);
                 BitmapFactory.decodeStream(fin, null, options);
+                fin.close();
                 final int MAX_WIDTH = 100;
                 final int MAX_HEIGHT = 144;
-                if (options.outHeight * options.outWidth >= MAX_HEIGHT * MAX_WIDTH) {
-                    boolean scaleByHeight =
-                        options.outWidth * 1.0f / options.outHeight < MAX_WIDTH * 1.0f / MAX_HEIGHT;
-                    double sampleSize =
-                        scaleByHeight ? options.outHeight / MAX_HEIGHT
-                                      : options.outWidth / MAX_WIDTH;
-                    options.inSampleSize = (int)
-                        Math.pow(2.0, Math.floor(Math.log(sampleSize) / Math.log(2.0)));
-                    if (options.inSampleSize == 1) return;
-                }  else {
-                    return;
+                if (options.outHeight * options.outWidth < MAX_HEIGHT * MAX_WIDTH) {
+                    return;  // dimensions sufficiently small: abort
                 }
-                fin.close();
+                boolean scaleByHeight =
+                    options.outWidth * 1.0f / options.outHeight < MAX_WIDTH * 1.0f / MAX_HEIGHT;
+                double sampleSize =
+                    scaleByHeight ? options.outHeight / MAX_HEIGHT
+                                  : options.outWidth / MAX_WIDTH;
+                options.inSampleSize = (int)
+                    Math.pow(2.0, Math.floor(Math.log(sampleSize) / Math.log(2.0)));
+                if (options.inSampleSize == 1) {
+                    return;  // down-sampling would be moot: abort
+                }
 
                 // replace the cover image file with a scaled-down one, retaining the original
                 // renamed as "FILE.orig.EXTENSION", for this is required for the "screen saver
@@ -873,6 +866,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                 Bitmap img = BitmapFactory.decodeStream(fin, null, options);
                 fin.close();
                 // create a backup of the original...
+                File orig = new File(originalCover(cover));
                 orig.delete();
                 f.renameTo(orig);
                 // write/encode the scaled-down cover...
