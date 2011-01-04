@@ -89,14 +89,14 @@ public class EpubMetaReader {
                 }
             }
         } catch (Exception ex) {
-            Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
+            Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName()+ " " + " -Ignoring.");
             return false;
         } finally {
             try {
                 if( zip != null)
                     zip.close();
             } catch(Exception ex) {
-                Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
+                Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName()+ " " + " -Ignoring.");
             }
         }
         return false;
@@ -228,14 +228,14 @@ public class EpubMetaReader {
                 m_File.setSeries(m_File.getSeries() + " " + idx + "-");
             }
         } catch (Exception ex) {
-            Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
+            Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName()+ " " + " -Ignoring.");
             return false;
         } finally {
             try {
                 if( zip != null)
                     zip.close();
             } catch(Exception ex) {
-                Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName(), ex);
+                Log.e("EpuBMetaReader", "Exception parsing metadata for " + m_File.getPathName()+ " " + " -Ignoring.");
             }
         }
         return true;
