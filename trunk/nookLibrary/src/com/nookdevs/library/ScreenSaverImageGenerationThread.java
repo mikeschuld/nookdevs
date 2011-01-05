@@ -203,7 +203,7 @@ public class ScreenSaverImageGenerationThread extends Thread
                 }
             }
 
-            // draw the cover...
+            // define the transformation matrix for the cover...
             Matrix matrix = new Matrix();
             matrix.postTranslate(-(w / 2), -(h / 2));
             matrix.postScale(scale, scale);
@@ -211,6 +211,19 @@ public class ScreenSaverImageGenerationThread extends Thread
                 matrix.postRotate(r);
             }
             matrix.postTranslate(x, y);
+
+            // draw a shadow unter the cover...
+            paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+            paint.setColor(Color.BLACK);
+            paint.setAlpha((int) ((0.5f + Math.min(0.1f * i, 0.3f)) * 255));
+            paint.setStyle(Paint.Style.STROKE);
+            float sw = 20 * Math.max(w * scale / MAX_WIDTH, h * scale / MAX_HEIGHT);
+            paint.setStrokeWidth(sw);
+            canvas.setMatrix(matrix);
+            canvas.drawRect(sw, sw, w, h, paint);
+
+            // draw the cover...
+            canvas.setMatrix(null);
             paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
             canvas.drawBitmap(cover, matrix, paint);
             cover.recycle();
