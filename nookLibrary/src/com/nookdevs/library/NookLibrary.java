@@ -1939,6 +1939,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     }
     public synchronized void updateMetaData(boolean retry, int start) {
         try {
+            boolean attempted=false;
             if( mService == null) {
                 metadataLock.close();
                 bindService(new Intent(BooksService.class.getName()), mConnection, BIND_AUTO_CREATE);
@@ -1965,6 +1966,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 ScannedFile f = m_Files.get(end);
                 if( !f.getBookInDB()) {
                     total++;
+                    attempted=true;
                     books.add(f.getPathName());
                     if( total == 10) {
                         mService.setData(books, start, end);
@@ -1976,6 +1978,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             }
             if( books.size() >0) {
                 mService.setData(books, start, end);
+            }
+            if( !attempted && start ==0) {
+                m_LocalScanDone.open();
             }
         } catch(Throwable t) {
             try {
