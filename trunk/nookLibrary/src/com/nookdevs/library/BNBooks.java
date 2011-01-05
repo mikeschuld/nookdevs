@@ -99,10 +99,21 @@ public class BNBooks {
             if (arg1 == null) {
                 path = null;
             } else {
-                path = arg1.getStringExtra(path);
+                try {
+                    path = arg1.getStringExtra(path);
+                } catch(Throwable ex) {
+                    path=null;
+                    Log.w("Exception downloading book ", ex);
+                }
             }
             if (path == null) {
-                String ex = arg1.getStringExtra("exception");
+                String ex = null;
+                try {
+                    arg1.getStringExtra("exception");
+                } catch(Throwable exception) {
+                    ex=null;
+                    Log.w("Exception downloading book ", ex);
+                }
                 if( ex != null && ex.contains("already downloaded")) {
                     if( m_DownloadBook.getPathName() != null) {
                         path = m_DownloadBook.getPathName();
