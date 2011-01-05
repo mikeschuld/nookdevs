@@ -215,7 +215,7 @@ public class ScreenSaverImageGenerationThread extends Thread
             // draw a shadow unter the cover...
             paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
             paint.setColor(Color.BLACK);
-            paint.setAlpha((int) ((0.5f + Math.min(0.1f * i, 0.3f)) * 255));
+            paint.setAlpha((int) ((0.7f - Math.min(0.1666f * i, 0.5f)) * 255));
             paint.setStyle(Paint.Style.STROKE);
             float sw = 20 * Math.max(w * scale / MAX_WIDTH, h * scale / MAX_HEIGHT);
             paint.setStrokeWidth(sw);
