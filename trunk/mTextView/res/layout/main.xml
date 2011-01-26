@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<!-- The e-ink display: -->
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="600px" android:layout_height="760px">
+		<TextView android:id="@+id/text"
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:background="@color/pagecolor" android:textColor="@color/textcolor"
+			android:gravity="top|left"
+			android:selectAllOnFocus="false"
+			android:singleLine="false"
+			android:scrollHorizontally="false"
+			android:scrollbars="none"
+			android:ellipsize="none"
+			android:inputType="textMultiLine"
+			android:cursorVisible="false"
+			android:text=" "
+			android:textSize="30px"
+			android:lines="20"
+		/>
+	</LinearLayout>
+
+	<!--  The touchscreen: -->
+	<LinearLayout android:id="@+id/touchscreen"
+		android:layout_width="480px" android:layout_height="144px"
+		android:background="#808080" android:scrollbars="none"
+		android:orientation="horizontal">
+
+		<!--  The back button: -->
+		<Button android:id="@+id/back" android:layout_width="35.0px"
+			android:layout_height="fill_parent" android:background="@drawable/back_button" />
+
+		<ViewAnimator android:id="@+id/touchscreen_animator"
+			android:background="#D0D0D0"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+			<!--  View 0:  Our menus: -->
+			<ViewAnimator android:id="@+id/nookMenuAnimator"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+			/>
+
+			<!--   View 1:  the GoTo seekbar:  -->
+			<LinearLayout android:id="@+id/goto_seekbar_container"
+				android:orientation="vertical"
+				android:background="#F0F0F0"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:gravity="center_vertical">
+				<TextView android:id="@+id/goto_seekbar_text"
+					android:gravity="center" android:layout_gravity="center_horizontal"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:textSize="20dip"
+					android:textColor="#000000"
+					android:text=" "
+					android:paddingBottom="15px"
+				/>
+				<SeekBar android:id="@+id/goto_seekbar"
+					android:progress="0" android:max="100"
+					android:paddingLeft="30px" android:paddingRight="30px"
+					android:layout_width="fill_parent" android:layout_height="wrap_content" />
+			</LinearLayout>
+
+		</ViewAnimator>
+
+	</LinearLayout>
+
+
+</LinearLayout>
