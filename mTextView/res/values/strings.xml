@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">mTextView</string>
+    <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_file_launch_fileselector_button_label">Click here to select a file to open...</string>
+    <string name="launchkeyboardbutton_label">Keyboard</string>
+    <string name="file_button_label">File</string>
+    <string name="settings_button_label">Preferences</string>
+    <string name="my_documents">My Documents</string>
+    <string name="new_file_button_label">New</string>
+    <string name="open_file_button_label">Open</string>
+    <string name="open_file_recent_folder_button_label">Open from Recent Folder</string>
+    <string name="save_file_button_label">Save</string>
+    <string name="save_as_file_button_label">Save As</string>
+    <string name="search_button_label">Find</string>
+    <string name="find_next_button_label">Find next</string>
+    <string name="find_prev_button_label">Find previous</string>
+    <string name="find_new_button_label">New search</string>
+    <string name="search_wrapped_to_start">Continuing from top</string>
+    <string name="search_wrapped_to_end">Continuing from bottom</string>
+    <string name="search_complete">Search complete</string>
+    <string name="search_no_match">Search term not found</string>
+    <string name="goto_button_label">Go to</string>
+    <string name="fontsizebutton_label">Text size</string>
+    <string name="fontnamebutton_label">Text font</string>
+    <string name="showscrollbarbutton_label">Toggle Scroll Bar Visibility</string>
+    <string name="save_as_filename_prompt">Filename:</string>
+    <string name="error_file_open_failed">Error: could not open file</string>
+    <string name="error_file_save_failed">Error: could not save file</string>
+    <string name="file_exists_confirm_overwrite">File already exists!  Overwrite it?</string>
+    <string name="confirm_discard_changes">Discard changes?</string>
+    <string name="file_has_been_modified_fmt">%s has been modified.</string>
+    <string name="untitled">Untitled</string>
+    <string name="search_term_prompt">Find:</string>
+</resources>

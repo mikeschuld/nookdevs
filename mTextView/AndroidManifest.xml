@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.nookdevs.mtextview"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <activity android:name=".ViewerActivity"
+        		  android:theme="@android:style/Theme.NoTitleBar"
+                  android:label="@string/app_name">
+                  <!--
+        		  android:launchMode="singleInstance"
+        		  -->
+            <intent-filter>
+            	<category android:name="android.intent.category.DEFAULT" />
+            	<action android:name="com.bravo.intent.action.VIEW"/>
+            	<data android:scheme="file" />
+            	<data android:scheme="content" />
+            	<data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SearchTermDialog"
+       			  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:label="@string/app_name">
+        </activity>
+    </application>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+</manifest>

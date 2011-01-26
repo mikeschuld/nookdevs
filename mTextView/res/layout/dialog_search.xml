@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ 			 android:orientation="vertical"
+				android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+  <!--  Eink:  -->
+  <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="600px" android:layout_height="760px">
+
+    <LinearLayout android:id="@+id/dialog"
+                  android:layout_width="fill_parent" android:layout_height="wrap_content"
+                  android:layout_alignParentBottom="true"
+                  android:paddingLeft="10px" android:paddingRight="10px"
+                  android:orientation="vertical"
+                  android:background="#c8c8c8">
+
+        <!-- prompt... -->
+        <TextView
+                  android:layout_width="fill_parent" android:layout_height="wrap_content"
+                  android:layout_marginLeft="10px" android:layout_marginRight="10px"
+                  android:layout_marginTop="5px" android:layout_marginBottom="5px"
+                  android:textStyle="bold" android:textSize="20px" android:textColor="#333333"
+                  android:text="@string/search_term_prompt"/>
+
+        <!-- input field... -->
+        <EditText android:id="@+id/search_term_input"
+                  android:layout_width="fill_parent" android:layout_height="wrap_content"
+                  android:layout_marginLeft="10px" android:layout_marginRight="10px"
+                  android:layout_marginTop="5px" android:layout_marginBottom="10px"
+                  android:padding="10px"
+                  android:singleLine="true"
+                  android:textSize="24sp" android:textColor="#000000"
+                  android:imeOptions="actionDone|flagNoEnterAction"/>
+
+    </LinearLayout>
+
+    <!-- divider... -->
+    <ImageView android:id="@+id/dialog_divider"
+               android:layout_width="fill_parent" android:layout_height="10px"
+               android:layout_above="@id/dialog"
+               android:background="@drawable/dialog_gradient"/>
+
+  </RelativeLayout>
+
+  <!--  TouchScreen: -->  
+  <LinearLayout android:id="@+id/touchscreen"
+                  android:layout_width="480px" android:layout_height="144px"
+                  android:background="#C0C0C0" android:scrollbars="none"
+                  android:orientation="vertical">
+  		<Button android:id="@+id/launchkeyboard"
+  		        android:layout_width="fill_parent"
+                android:layout_height="36.0px"
+                android:background="@drawable/list_selector_background"
+                android:text="@string/launchkeyboardbutton_label"
+                android:textStyle="bold"
+		/>
+  </LinearLayout>
+	
+  
+</LinearLayout>
