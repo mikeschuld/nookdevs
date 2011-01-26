@@ -1387,6 +1387,20 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             // File file1 = new File(path);
             // file1.setLastModified(System.currentTimeMillis());
             String ext = path.substring(idx + 1).toLowerCase();
+            //  For text files, launch mTextView, if it's installed:
+            if ("txt".equals(ext)) {
+                try {
+                    File tfile = new File(path);
+                    intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.ACTION_DEFAULT);
+                    intent.setComponent(new ComponentName("com.nookdevs.mtextview", "com.nookdevs.mtextview.ViewerActivity"));
+                    intent.setData(Uri.fromFile(tfile));
+                    startActivity(intent);
+                    return;
+                } catch (Exception ex) {
+                    intent = new Intent("com.bravo.intent.action.VIEW");
+                }
+            }
             if ("txt".equals(ext) || "html".equals(ext) || "htm".equals(ext)) {
                 // try nookBrowser first
                 try {
