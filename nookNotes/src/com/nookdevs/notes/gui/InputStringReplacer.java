@@ -32,11 +32,16 @@ import org.jetbrains.annotations.NotNull;
 
 
 /**
- * {@link android.text.TextWatcher} replacing predefined strings to the left of the cursor in an
+ * <p>{@link android.text.TextWatcher} replacing predefined strings to the left of the cursor in an
  * input field upon character-yielding key presses, and reverting the replacement when the
  * backspace (del) key is pressed after such a replacement.  To this end, an instance of the class
  * needs to be registered with an {@link android.widget.EditText} via
- * {@link android.widget.EditText#addTextChangedListener(android.text.TextWatcher)}.
+ * {@link android.widget.EditText#addTextChangedListener(android.text.TextWatcher)}.</p>
+ *
+ * <p>It also applies some additional replacement logic in any case, namely, the removal of
+ * whitespace at the start of the text field and the suppression of subsequent spaces, the latter
+ * primarily to work around an issue with the soft keyboard where imprecise tapping can lead to
+ * entire sequences of spaces being inserted unintentionally.</p>
  *
  * @author Marco Goetze
  */
@@ -199,6 +204,20 @@ public class InputStringReplacer implements TextWatcher
                                                                    replaced,
                                                                    replacement);
                         break;
+                    }
+                }
+
+                // remove leading space, multiple spaces (the latter to work around an issue with
+                // the soft keyboard where sloppy tapping may lead to a sequence of spaces being
+                // inserted all at once...
+                if (cursorPos > 0) {
+                    char prev = beforeCursor.charAt(beforeCursor.length() - 1);
+                    if (prev == ' ' &&
+                        (cursorPos == 1 || beforeCursor.charAt(beforeCursor.length() - 2) == ' '))
+                    {
+                        editable.replace(Math.max(cursorPos - 2, 0), cursorPos,
+                                         cursorPos == 1 ? "" : " ");
+                        mLastReplacement = null;
                     }
                 }
             }
