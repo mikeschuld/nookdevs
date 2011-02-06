@@ -61,8 +61,14 @@
 		<ListView android:id="@+id/list" android:layout_width="fill_parent"
 			android:layout_height="fill_parent" android:divider="#808080"
 			android:dividerHeight="1.0px" android:choiceMode="singleChoice"
-			android:scrollbars="vertical" android:scrollbarStyle="insideOverlay"
-			android:scrollbarSize="20.0px" android:minHeight="250.0px"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbarSize="20px"
+            android:scrollbarThumbVertical="@drawable/scrollbar_thumb"
+            android:scrollbarTrackVertical="@drawable/scrollbar_track"
+            android:scrollbarThumbHorizontal="@drawable/scrollbar_thumb"
+            android:scrollbarTrackHorizontal="@drawable/scrollbar_track"
+            android:minHeight="250.0px"
 			android:fadingEdge="none" android:background="#C8C8C8"
 			android:listSelector="@android:color/transparent">
 		</ListView>
@@ -70,8 +76,14 @@
 		<ListView android:id="@+id/sublist" android:layout_width="fill_parent"
 			android:layout_height="fill_parent" android:divider="#808080"
 			android:dividerHeight="1.0px" android:choiceMode="singleChoice"
-			android:scrollbars="vertical" android:scrollbarStyle="insideOverlay"
-			android:scrollbarSize="20.0px" android:minHeight="250.0px"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbarSize="20px"
+            android:scrollbarThumbVertical="@drawable/scrollbar_thumb"
+            android:scrollbarTrackVertical="@drawable/scrollbar_track"
+            android:scrollbarThumbHorizontal="@drawable/scrollbar_thumb"
+            android:scrollbarTrackHorizontal="@drawable/scrollbar_track"
+            android:minHeight="250.0px"
 			android:fadingEdge="none" android:background="#C8C8C8"
 			android:listSelector="@android:color/transparent">
 		</ListView>
