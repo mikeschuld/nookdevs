@@ -86,8 +86,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     protected static final int REFRESH = 6;
     protected static final int VIEW_BY = 7;
     protected static final int SHOW_ARCHIVED = 8;
-    protected static final int SCREENSAVER = 9;
-    protected static final int PAGE_NUMBERS = 10;
+    protected static final int PAGE_NUMBERS = 9;
+    protected static final int SCREENSAVER = 10;
     protected static final int HELP = 11;
     protected static final int CLOSE = 12;
     protected static final int LOCAL_BOOKS = 0;
@@ -111,7 +111,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     private int[] icons =
         {
             -1, R.drawable.submenu_image, R.drawable.search_image, R.drawable.covers_image, R.drawable.submenu_image,
-            R.drawable.submenu_image, R.drawable.submenu_image, -1, -1, -1, -1, -1, -1, -1, -1,-1
+            R.drawable.submenu_image, R.drawable.submenu_image, R.drawable.submenu_image, -1, -1,
+            R.drawable.submenu_image, -1, -1
         };
 
     private int[] subicons = {
@@ -122,6 +123,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     };
     private int[] refreshicons = {
         -1, -1, -1
+    };
+    private int[] screensavericons = {
+        R.drawable.submenu_image, -1, -1, -1
     };
     private ListView lview;
     private ListView submenu;
@@ -137,16 +141,19 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     IconArrayAdapter<CharSequence> m_SortAdapter = null;
     IconArrayAdapter<CharSequence> m_ViewAdapter = null;
     IconArrayAdapter<CharSequence> m_RefreshAdapter = null;
+    IconArrayAdapter<CharSequence> m_ScreenSaverAdapter = null;
     IconArrayAdapter<CharSequence> m_LibsAdapter = null;
     ArrayAdapter<CharSequence> m_ShowAdapter = null;
     ArrayAdapter<String> m_AuthorAdapter = null;
     List<CharSequence> m_SortMenuValues = null;
     List<CharSequence> m_ViewMenuValues = null;
+    List<CharSequence> m_ScreenSaverMenuValues = null;
     ConnectivityManager.WakeLock m_Lock;
     protected List<CharSequence> m_ShowValues = null;
     protected List<String> m_AuthorValues = null;
     int m_ShowIndex = 0;
     int m_AuthorIndex = 0;
+    int m_ScreenSaverImageCount = 0;
     ImageButton m_CoverBtn = null;
     TextView m_Details = null;
     ScrollView m_DetailsScroll = null;
@@ -162,6 +169,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
     private TextView m_GalleryTitle;
     private Intent m_PrevIntent = null;
     private static final String PREFS_KEY_SCREENSAVER_FOLDER_NAME = "SCREENSAVER_FOLDER_NAME";
+    private static final String PREFS_KEY_SCREENSAVER_IMAGE_COUNT = "SCREENSAVER_IMAGE_COUNT";
     private boolean m_ShowPageNumbers=true;
     private boolean m_PageNumbersUpdated=false;
 
@@ -363,6 +371,14 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_ViewAdapter = new IconArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem, m_ViewMenuValues, viewicons);
         m_ViewAdapter.setImageField(R.id.ListImageView);
         m_ViewAdapter.setTextField(R.id.ListTextView);
+        menuitems = getResources().getTextArray(R.array.screensavermenu);
+        m_ScreenSaverMenuValues = Arrays.asList(menuitems);
+        m_ScreenSaverAdapter =
+            new IconArrayAdapter<CharSequence>(lview.getContext(), R.layout.listitem, m_ScreenSaverMenuValues, screensavericons);
+        m_ScreenSaverAdapter.setImageField(R.id.ListImageView);
+        m_ScreenSaverAdapter.setTextField(R.id.ListTextView);
+        m_ScreenSaverAdapter.setSubTextField(R.id.ListSubTextView);
+        updateScreenSaverMenuItem();
         WebView web = new WebView(this);
         lview.setAdapter(m_ListAdapter);
         lview.setOnItemClickListener(this);
@@ -403,12 +419,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
         m_BNBooks = new BNBooks(this);
         m_Archive.setVisibility(View.INVISIBLE);
         SharedPreferences prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
-        String screenSaverName =
-        prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "(disabled)")
-                      .replaceAll("[\\s/\\\\]+", " ")
-                         .trim();
-        m_ListAdapter.setSubText(SCREENSAVER, screenSaverName);
-        m_ShowPageNumbers = prefs.getBoolean( "PAGE_NUMBERS", true);
+        m_ShowPageNumbers = prefs.getBoolean("PAGE_NUMBERS", true);
         m_ListAdapter.setSubText(PAGE_NUMBERS, m_ShowPageNumbers?getString(R.string.on):getString(R.string.off));
         ConnectivityManager cmgr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         m_Lock = cmgr.newWakeLock(1, "NookLibrary.scanTask" + hashCode());
@@ -743,12 +754,13 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                         screenSaverName = screenSaverName.replaceAll("[\\s/\\\\]+", " ").trim();
                         if (!screenSaverName.equals("")) {
                             prefs.putString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, screenSaverName);
-                            m_ListAdapter.setSubText(SCREENSAVER, screenSaverName);
+                            m_ScreenSaverAdapter.setSubText(0, screenSaverName);
                         } else {
                             prefs.remove(PREFS_KEY_SCREENSAVER_FOLDER_NAME);
-                            m_ListAdapter.setSubText(SCREENSAVER, "(disabled)");
+                            m_ScreenSaverAdapter.setSubText(0, "(disabled)");
                         }
                         prefs.commit();
+                        updateScreenSaverMenuItem();
                     } else if (keyCode == SOFT_KEYBOARD_CANCEL) {
                         m_Dialog.cancel();
                     }
@@ -839,7 +851,8 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             txt.setText(R.string.cover_screensaver_name);
             SharedPreferences prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
             keyword.setText(prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "")
-                                                            .replaceAll("[\\s/\\\\]+", " ").trim());
+                                 .replaceAll("[\\s/\\\\]+", " ")
+                                 .trim());
             keyword.requestFocus();
             keyword.setOnKeyListener(m_ScreenSaverFolderNameInputListener);
         } else {
@@ -998,6 +1011,20 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 } else {
                     queryFolders(position);
                 }
+            } else if (m_SubMenuType == SCREENSAVER) {
+                if (position == 0) {  // edit screen saver folder name
+                    displayDialog(SCREENSAVER);
+                    return;
+                } else {  // change image count
+                    m_ScreenSaverImageCount = -1 + (2 * position);
+                    for (int i = 1; i <= 3; i++) {
+                        screensavericons[i] = (i == position ? R.drawable.check_image : -1);
+                    }
+                    Editor prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE).edit();
+                    prefs.putInt(PREFS_KEY_SCREENSAVER_IMAGE_COUNT, m_ScreenSaverImageCount);
+                    prefs.commit();
+                    updateScreenSaverMenuItem();
+                }
             } else if (m_SubMenuType == ADD_LIB_MENU) {
                 displayDialog(position);
             } else if( m_SubMenuType == VIEW_BY) {
@@ -1147,9 +1174,35 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 loadCovers(true);
                 closeAlert();
                 break;
-            case SCREENSAVER:
-                displayDialog(SCREENSAVER);
+            case SCREENSAVER: {
+                if( m_View !=0) {
+                    displayAlert();
+                    break;
+                }
+                SharedPreferences prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+                String screenSaverName =
+                    prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "(disabled)")
+                         .replaceAll("[\\s/\\\\]+", " ")
+                         .trim();
+                m_ScreenSaverAdapter.setSubText(0, screenSaverName);
+                int n = prefs.getInt(PREFS_KEY_SCREENSAVER_IMAGE_COUNT, 5);
+                for (int i = 1; i <= 3; i++) {
+                    screensavericons[i] = -1;
+                }
+                if (n == 1) {
+                    screensavericons[1] = R.drawable.check_image;
+                } else if (n == 3) {
+                    screensavericons[2] = R.drawable.check_image;
+                } else if (n == 5) {
+                    screensavericons[3] = R.drawable.check_image;
+                }
+                m_ScreenSaverAdapter.setIcons(screensavericons);
+                submenu.setAdapter(m_ScreenSaverAdapter);
+                animator.setInAnimation(this, R.anim.fromright);
+                animator.showNext();
+                m_SubMenuType = SCREENSAVER;
                 break;
+            }
             case PAGE_NUMBERS:
                 m_ShowPageNumbers = !m_ShowPageNumbers;
                 Editor e = getSharedPreferences(PREF_FILE, MODE_PRIVATE).edit();
@@ -1439,22 +1492,22 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             // generate a screen saver image depicting recent covers, if the corresponding
             // properties are set...
             SharedPreferences prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
-            String screenSaverFolderName =prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "")
-                .replaceAll("[\\s/\\\\]+", " ").trim();
-            int screenSaverLimit = prefs.getInt("SCREENSAVER_COVER_LIMIT", 5);
-            if (screenSaverFolderName.length() > 0 && screenSaverLimit > 0) {
+            String screenSaverFolderName = prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "")
+                                                .replaceAll("[\\s/\\\\]+", " ")
+                                                .trim();
+            int n = prefs.getInt(PREFS_KEY_SCREENSAVER_IMAGE_COUNT, 5);
+            if (screenSaverFolderName.length() > 0 && n > 0) {
                 // NOTE: Choose a random name for the cover, else the screen saver app will cache
                 //       the image by name and not notice its being replaced.
                 File screenSaverImage =
-                    new File("/system/media/sdcard/my screensavers/" +
-                             screenSaverFolderName.replaceAll("[\\s/\\\\]+", " ")
-                                 .replaceAll("^\\s+|\\s+$", "") + "/cover.jpg");
+                    new File("/system/media/sdcard/my screensavers/" + screenSaverFolderName +
+                             "/cover.jpg");
                 String coverImage = file.getOriginalCover();
                 if (coverImage != null && !coverImage.startsWith("http://")) {
                     screenSaverImage.getParentFile().mkdir();
                     createScreenSaverOfCovers(new File(coverImage),
                                               screenSaverImage,
-                                              Math.min(screenSaverLimit, 5));
+                                              Math.min(n, 5));
                 }
             }
         }
@@ -1499,6 +1552,19 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                                                  destinationFile,
                                                  coverFiles.toArray(new File[coverFiles.size()]));
         t.start();
+    }
+
+    private void updateScreenSaverMenuItem() {
+        SharedPreferences prefs = getSharedPreferences(PREF_FILE, MODE_PRIVATE);
+        String name = prefs.getString(PREFS_KEY_SCREENSAVER_FOLDER_NAME, "")
+                           .replaceAll("[\\s/\\\\]+", " ")
+                           .trim();
+        int n = prefs.getInt(PREFS_KEY_SCREENSAVER_IMAGE_COUNT, 5);
+        m_ListAdapter.setSubText(
+            SCREENSAVER,
+            name.length() > 0
+                ? getResources().getQuantityString(R.plurals.cover_images, n, String.valueOf(n))
+                : "off");
     }
 
     // from kbs - trook.projectsource code.
