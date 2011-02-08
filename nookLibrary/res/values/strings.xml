@@ -35,6 +35,10 @@
 	<string name="all">All</string>
 	<string name="delete">Delete</string>
 	<string name="confirm">Are you Sure? Make sure there is a backup.</string>
+    <plurals name="cover_images">
+        <item quantity="one">%s cover</item>
+        <item quantity="other">%s covers</item>
+    </plurals>
 
 	<string-array name="mainmenu">
 		<item>View Details</item>
@@ -46,8 +50,8 @@
 		<item>Refresh</item>
 		<item>View By</item>
 		<item>Show Archived</item>
-		<item>Screen Saver</item>
-		<item>Show Progress</item>
+        <item>Show Progress</item>
+        <item>Screen Saver</item>
 		<item>Help</item>
 		<item>Close</item>
 	</string-array>
@@ -67,6 +71,12 @@
 		<item>Local Books</item>
 		<item>B&amp;N Books</item>
 	</string-array>
+    <string-array name="screensavermenu">
+        <item>Name</item>
+        <item>1 Cover</item>
+        <item>3 Covers</item>
+        <item>5 Covers</item>
+    </string-array>
 	<string name="not_allowed_error">This is only allowed in Books mode.</string>
 	<string name="cover_flow_error">This is not allowed in TAGS mode.</string>
 	<string name="not_valid_error">Operation is not valid for the file type.</string>

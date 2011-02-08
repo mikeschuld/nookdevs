@@ -68,12 +68,12 @@ public class ScreenSaverImageGenerationThread extends Thread
      */
     private static final int MAX_HEIGHT = HEIGHT * 3 / 4;
     /**
-     * The minimum width of a cover on the generated image.  Covers will be up-scaled to this size,
+     * The minimum width of a cover on the generated image.  Covers will be upscaled to this size,
      * if necessary.
      */
     private static final int MIN_WIDTH = MAX_WIDTH / 3;
     /**
-     * The minimum height of a cover on the generated image.  Covers will be up-scaled to this
+     * The minimum height of a cover on the generated image.  Covers will be upscaled to this
      * size, if necessary.
      */
     private static final int MIN_HEIGHT = MAX_HEIGHT / 3;
@@ -84,6 +84,8 @@ public class ScreenSaverImageGenerationThread extends Thread
      * is greater than this by a constant factor.
      */
     private static final int MAX_DEGREES = 3;
+    /** The maximum upscaling factor when rendering single covers. */
+    private static final float MAX_UPSCALE_SINGLE = 1.333f;
 
     /** The log tag to use. */
     private static final String LOGTAG = "nookLibrary";
@@ -126,6 +128,113 @@ public class ScreenSaverImageGenerationThread extends Thread
         // initialize the bitmap to be created...
         Bitmap screenSaverImage = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(screenSaverImage);
+
+        // render the screen saver image...
+        boolean ok;
+        if (m_inFiles.length == 1)
+            ok = renderSingleCover(canvas);
+        else
+            ok = renderMultipleCovers(canvas);
+        if (!ok) return false;
+
+        // save the screen saver image...
+        try {
+            screenSaverImage.compress(Bitmap.CompressFormat.JPEG, 97,
+                                      new FileOutputStream(m_outFile));
+            screenSaverImage.recycle();
+        } catch (FileNotFoundException e) {
+            Log.e(LOGTAG, "Error saving screen saver image \"" + m_outFile + "\"!", e);
+        }
+
+        return true;
+    }
+
+    /**
+     * Renders a screen saver image of a single cover, which is displayed centered and upscaled
+     * (if necessary) to by a certain factor at most.  The cover files are taken from
+     * {@link #m_inFiles}, which is assumed to hold at least one file.
+     *
+     * @param canvas the canvas (of width {@link #WIDTH} and height {@link #HEIGHT}) to which to
+     *               render
+     * @return <code>true</code> on success, <code>false</code> otherwise
+     */
+    protected boolean renderSingleCover(Canvas canvas) {
+        assert m_inFiles.length >= 1;
+        assert canvas.getWidth() == WIDTH && canvas.getHeight() == HEIGHT;
+
+        // paint the background...
+        Paint paint = new Paint(0);
+        paint.setColor(Color.WHITE);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawRect(0, 0, WIDTH, HEIGHT, paint);
+
+        // load the cover...
+        Bitmap cover = BitmapFactory.decodeFile(m_inFiles[0].getPath());
+        if (cover == null) {
+            Log.e(LOGTAG,
+                  "Failed to decode cover \"" + m_inFiles[0] + "\" for screen saver image " +
+                  "generation!");
+            return false;
+        }
+        int w = cover.getWidth();
+        int h = cover.getHeight();
+        if (w == 0 || h == 0) {
+            Log.e(LOGTAG, "Cover \"" + m_inFiles[0] + "\" has invalid dimensions!");
+            return false;
+        }
+
+        // determine the cover's location and display size on the screen saver image...
+        int x = WIDTH / 2;
+        int y = HEIGHT / 2;
+        float scale = 1.0f;
+        if (w > WIDTH || h > HEIGHT) {  // downscale if too large
+            if (w * 1.0f / h > WIDTH * 1.0f / HEIGHT) {
+                scale = WIDTH * 1.0f / w;
+            } else {
+                scale = HEIGHT * 1.0f / h;
+            }
+        } else if (w < WIDTH && h < HEIGHT) {  // upscale somewhat if too small
+            if (w * 1.0f / h > WIDTH * 1.0f / HEIGHT) {
+                scale = Math.min(MAX_UPSCALE_SINGLE * w, WIDTH) / w;
+            } else {
+                scale = Math.min(MAX_UPSCALE_SINGLE * h, HEIGHT) / h;
+            }
+        }
+
+        // define the transformation matrix for the cover...
+        Matrix matrix = new Matrix();
+        matrix.postTranslate(-(w / 2), -(h / 2));
+        matrix.postScale(scale, scale);
+        matrix.postTranslate(x, y);
+
+        // draw the cover...
+        canvas.setMatrix(null);
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+        canvas.drawBitmap(cover, matrix, paint);
+        cover.recycle();
+
+        // draw a border around the cover...
+        paint.setColor(Color.BLACK);
+        paint.setStyle(Paint.Style.STROKE);
+        canvas.setMatrix(matrix);
+        canvas.drawRect(0, 0, w, h, paint);
+
+        return true;
+    }
+
+    /**
+     * Renders a screen saver image of multiple covers.  The cover files are taken from
+     * {@link #m_inFiles}, which is assumed to hold at least one file.
+     *
+     * @param canvas the canvas (of width {@link #WIDTH} and height {@link #HEIGHT}) to which to
+     *               render
+     * @return <code>true</code> on success, <code>false</code> otherwise
+     */
+    protected boolean renderMultipleCovers(Canvas canvas) {
+        assert m_inFiles.length >= 1;
+        assert canvas.getWidth() == WIDTH && canvas.getHeight() == HEIGHT;
+
+        // paint the background...
         Paint paint = new Paint(0);
         // NOTE: For the background color, we generally prefer white, but if the image is expected
         //       to be covered more or less completely, fill in the gaps using gray.
@@ -212,7 +321,7 @@ public class ScreenSaverImageGenerationThread extends Thread
             }
             matrix.postTranslate(x, y);
 
-            // draw a shadow unter the cover...
+            // draw a shadow under the cover...
             paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
             paint.setColor(Color.BLACK);
             paint.setAlpha((int) ((0.7f - Math.min(0.1666f * i, 0.5f)) * 255));
@@ -243,15 +352,6 @@ public class ScreenSaverImageGenerationThread extends Thread
             }
 
             canvas.setMatrix(null);
-        }
-
-        // save the screen saver image...
-        try {
-            screenSaverImage.compress(Bitmap.CompressFormat.JPEG, 97,
-                                      new FileOutputStream(m_outFile));
-            screenSaverImage.recycle();
-        } catch (FileNotFoundException e) {
-            Log.e(LOGTAG, "Error saving screen saver image \"" + m_outFile + "\"!", e);
         }
 
         return true;
