@@ -1,8 +1,14 @@
 package com.bravo.util;
 
+import android.util.Log;
+
 public class AdobeNativeInterface {
     static {
-        System.loadLibrary("pdfhost");
+        try {
+            System.loadLibrary("pdfhost");
+        } catch(Exception ex) {
+            Log.w("AdobeNativeInterface", ex);
+        }
     }
     
     public static native void cancelProcessing();
@@ -121,5 +127,8 @@ public static synchronized native  int setPassHash(String[]s1, String[] s2);
 public static synchronized native  void setViewportSize(int x, int y);
 
 public static synchronized native  void startAnnotation();
+
+public static synchronized native int openEpib(String s);
+public static synchronized native void setVideo(String s, int i1,int i2, int i3, int i4, int i5);
 
 }
