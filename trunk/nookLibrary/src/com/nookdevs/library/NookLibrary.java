@@ -1962,7 +1962,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             synchronized(m_Files) {
                 size = m_Files.size();
             }
-            if( end != m_Files.size()) {
+            if( end != size) {
                 final int end1 = end;
                 Runnable r = new Runnable() {
                     public void run() {
@@ -1974,7 +1974,7 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 finished=true;
             }
             synchronized(m_Files) {
-                l = m_Files.subList( start, end);
+                l = new ArrayList<ScannedFile>(m_Files.subList( start, end));
             }
             int i=0;
             for( ScannedFile f:l) {
