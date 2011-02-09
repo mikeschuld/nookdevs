@@ -121,24 +121,24 @@ public class OtherBooks extends SQLiteOpenHelper {
     }
     private boolean deleteBooks(boolean path) {
         try {
-            String[] values = m_DeleteBooks.toArray(new String[1]);
             String whereclause = "";
-            for( int start=0; start < values.length; start+=200) { 
-                for (int i = start; i < values.length && i < start+200; i++) {
+            int size=m_DeleteBooks.size();
+            for( int start=0; start < size; start+=200) { 
+                for (int i = start; i < size && i < start+200; i++) {
                     if (i == 0) {
                         if( path)
-                            whereclause += "path=?";
+                            whereclause += "path=" + m_DeleteBooks.get(i);
                         else
-                            whereclause +="id=?";
+                            whereclause +="id=" + m_DeleteBooks.get(i);
                     } else {
                         if(path)
-                            whereclause += " or path=?";
+                            whereclause += " or path=" + m_DeleteBooks.get(i);
                         else
-                            whereclause +="or id=?";
+                            whereclause +="or id="+m_DeleteBooks.get(i);
                     }
                 }
                 m_Db.beginTransaction();
-                int rows = m_Db.delete("BOOKS", whereclause, values);
+                int rows = m_Db.delete("BOOKS", whereclause, null);
                 Log.i("OtherBooks", "Rows deleted =" + rows);
                 m_Db.setTransactionSuccessful();
                 m_Db.endTransaction();
