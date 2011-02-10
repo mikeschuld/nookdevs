@@ -175,41 +175,46 @@ public class BNBooks {
     }
     
     public List<ScannedFile> getBooks(boolean refresh) {
-        if (refresh && !m_Context.waitForNetwork(lock)) {
-            refresh = false;
-        }
-        if( m_Db == null)
-            m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
-        // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
-        // SQLiteDatabase.OPEN_READONLY);
-        if ((refresh || !m_DeviceRegistered)&& !m_Auth) {
-            if (!authenticate()) {
-                System.out.println("Not authenticated...");
+        try {
+            if (refresh && !m_Context.waitForNetwork(lock)) {
                 refresh = false;
-            } 
-        }
-        if (refresh) {
-            m_SyncDone.close();
-            m_Sync = true;
-            registerSyncReceiver();
-            m_TimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    BNBooks.this.cancel();
-                }
-            };
-            m_Timer.schedule(m_TimerTask, TIMEOUT);
-            sync();
-            m_SyncDone.block();
-        } else {
-            if( m_DeviceRegistered) {
-                loadBooksData();
-            } else {
-                System.out.println("Device not registered!!");
             }
+            if( m_Db == null)
+                m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+            // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
+            // SQLiteDatabase.OPEN_READONLY);
+            if ((refresh || !m_DeviceRegistered)&& !m_Auth) {
+                if (!authenticate()) {
+                    System.out.println("Not authenticated...");
+                    refresh = false;
+                } 
+            }
+            if (refresh) {
+                m_SyncDone.close();
+                m_Sync = true;
+                registerSyncReceiver();
+                m_TimerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        BNBooks.this.cancel();
+                    }
+                };
+                m_Timer.schedule(m_TimerTask, TIMEOUT);
+                sync();
+                m_SyncDone.block();
+            } else {
+                if( m_DeviceRegistered) {
+                    loadBooksData();
+                } else {
+                    System.out.println("Device not registered!!");
+                }
+            }
+            // m_FilesDb.close();
+            return m_Books;
+        } finally {
+            if(lock.isHeld()) 
+                lock.release();
         }
-        // m_FilesDb.close();
-        return m_Books;
     }
     public void clear() {
         if( m_Books != null)
@@ -223,35 +228,43 @@ public class BNBooks {
     }
     
     public ScannedFile getBook(ScannedFile file) {
-        if (!m_Context.waitForNetwork(lock)) { return null; }
-        if (!m_Auth && !authenticate()) {
-            if (lock.isHeld()) {
+        try {
+            if (!m_Context.waitForNetwork(lock)) { return null; }
+            if (!m_Auth && !authenticate()) {
+                if (lock.isHeld()) {
+                    lock.release();
+                }
+                return null;
+            }
+            if( !m_DeviceRegistered) {
+                return null;
+            }
+            m_DownloadEan = file.getEan();
+            m_DownloadBook = file;
+            if( m_Db == null)
+                m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+            // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
+            // SQLiteDatabase.OPEN_READONLY);
+            m_Sync = false;
+            m_DownloadDone.close();
+            registerDownloadReceiver();
+            m_TimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    BNBooks.this.cancel();
+                }
+                
+            };
+            m_Timer.schedule(m_TimerTask, TIMEOUT);
+            download();
+            m_DownloadDone.block();
+            // m_FilesDb.close();
+            return m_DownloadBook;
+        } finally {
+            if( lock.isHeld()) {
                 lock.release();
             }
-            return null;
         }
-        if( !m_DeviceRegistered) return null;
-        m_DownloadEan = file.getEan();
-        m_DownloadBook = file;
-        if( m_Db == null)
-            m_Db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
-        // m_FilesDb = SQLiteDatabase.openDatabase(FILES_DB, null,
-        // SQLiteDatabase.OPEN_READONLY);
-        m_Sync = false;
-        m_DownloadDone.close();
-        registerDownloadReceiver();
-        m_TimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                BNBooks.this.cancel();
-            }
-            
-        };
-        m_Timer.schedule(m_TimerTask, TIMEOUT);
-        download();
-        m_DownloadDone.block();
-        // m_FilesDb.close();
-        return m_DownloadBook;
     }
     
     public void cancel() {
