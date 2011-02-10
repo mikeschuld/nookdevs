@@ -177,7 +177,7 @@
     <title>nookNotes</title>
     <link type="application/vnd.android.package-archive"
           href="http://nookdevs.googlecode.com/files/nookNotes.apk"/>
-    <version>0.7.1</version>
+    <version>0.7.2</version>
     <pkg>com.nookdevs.notes</pkg>
     <id>http://nookdevs.googlecode.com/files/nookNotes.apk</id>
     <content type="text">Simple note-taking application.  Notes are made up of individual items which can optionally be check-marked.</content>
