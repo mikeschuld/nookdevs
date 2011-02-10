@@ -649,14 +649,19 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
             public void run() {
                 m_BNBooksLock.close();
                 List<ScannedFile> files = m_BNBooks.getBooks(type == BN_BOOKS || type == ALL_BOOKS);
-                if( files != null) {
-                    for (ScannedFile file : files) {
-                        if( file == null) continue;
-                        file.loadCover(m_Lock);
+                try {
+                    if( files != null) {
+                        for (ScannedFile file : files) {
+                            if( file == null) continue;
+                            file.loadCover(m_Lock);
+                        }
                     }
+                } catch(Exception ex) {
+                    
+                } finally {
+                    if( m_Lock.isHeld())
+                        m_Lock.release();
                 }
-                if( m_Lock.isHeld())
-                    m_Lock.release();
                 updatePageView(files);
                 m_BNBooks.clear();
                 m_BNBooksLock.open();
