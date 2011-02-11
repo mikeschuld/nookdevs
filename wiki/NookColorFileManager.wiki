@@ -15,7 +15,9 @@ Main Features
 
 ·       Search for books using keywords and description.
 
-·       Access network shares
+·       Access network shares.
+
+·       View ratings and reviews for sideloaded books.
 
 There is a Help menu option in the app that has additional details.
 
