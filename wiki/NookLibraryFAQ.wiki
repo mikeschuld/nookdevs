@@ -1,4 +1,13 @@
 #labels Featured
+0.1.5 version -
+
+What's new?
+
+Cover Screensaver option has 3 settings to select nbr. of covers to display.
+
+bug fixes
+
+
 0.1.4 version-
 
 What's new?
