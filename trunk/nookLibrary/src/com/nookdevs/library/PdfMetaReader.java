@@ -33,15 +33,13 @@ public class PdfMetaReader {
     
     public static boolean readMetadata(ScannedFile m_File) {
         try {
-//            if (quick) {
-//                int ret = AdobeNativeInterface.openPDF(m_File.getPathName());
-//                if (ret != 0) { return false; }
-//                m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
-//                m_File.addContributor(AdobeNativeInterface.getMetaData("DC.creator"), "");
-//                m_File.setPublisher(AdobeNativeInterface.getMetaData("DC.publisher"));
-//                m_File.setEan(AdobeNativeInterface.getMetaData("DC.identifier"));
-//                AdobeNativeInterface.closePDF();
-//            } else {
+                int ret = AdobeNativeInterface.openPDF(m_File.getPathName());
+                if (ret != 0) { return false; }
+                m_File.setTitle(AdobeNativeInterface.getMetaData("DC.title"));
+                m_File.addContributor(AdobeNativeInterface.getMetaData("DC.creator"), "");
+                m_File.setPublisher(AdobeNativeInterface.getMetaData("DC.publisher"));
+                m_File.setEan(AdobeNativeInterface.getMetaData("DC.identifier"));
+                AdobeNativeInterface.closePDF();
                 FileDescriptor fd = m_Context.getContentResolver().openAssetFileDescriptor(
                                     Uri.fromFile(new File(m_File.getPathName())),"r").getFileDescriptor();
                 PDFDocument doc = new PDFDocument(fd,"","");
@@ -78,7 +76,6 @@ public class PdfMetaReader {
                         m_File.addKeywords( token.nextToken(),true);
                     }
                 } 
-      //      }
         } catch (Throwable e) {
             Log.e("PDFMetaReader", e.getMessage(), e);
             return false;
