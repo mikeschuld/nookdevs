@@ -60,12 +60,17 @@ public class PageViewHelper {
     private Comparator<ScannedFile> m_FileComparator = new Comparator<ScannedFile>() {
 
         public int compare(ScannedFile arg0, ScannedFile arg1) {
+            if( ScannedFile.isSortReversed()) {
+                ScannedFile t = arg0;
+                arg0= arg1;
+                arg1 = t;
+            }
             if( arg0 == null)
                 return -1;
             if( arg1 == null)
                 return 1;
             String s1 = arg0.getPathName();
-            String s2 = arg0.getPathName();
+            String s2 = arg1.getPathName();
             File f1,f2;
             if( s1.charAt(0) == '[') {
                 s1 = s1.substring(1,s1.length()-1);
