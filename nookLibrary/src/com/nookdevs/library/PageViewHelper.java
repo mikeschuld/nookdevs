@@ -96,7 +96,7 @@ public class PageViewHelper {
             }
             if( ScannedFile.getSortType() == ScannedFile.SORT_BY_LATEST) {
                 long d1 = f1.lastModified();
-                long  d2 = f1.lastModified();
+                long  d2 = f2.lastModified();
                 if(d1 > d2) return -1;
                 else if( d1 == d2) return 0;
                 else return 1;
