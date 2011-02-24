@@ -86,7 +86,7 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
     public static void setSortReversed(boolean reversed) {
         m_SortReversed=reversed;
     }
-    public boolean isSortReversed() {
+    public static boolean isSortReversed() {
         return m_SortReversed;
     }
 
