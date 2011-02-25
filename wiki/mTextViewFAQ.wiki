@@ -1,0 +1,19 @@
+#summary mTextView FAQ
+
+0.0.1 initial version
+
+= Introduction =
+
+This is a plug-in to allow you to read text files on your nook.
+
+= Dependencies =
+
+You must be running the latest version of nookLibrary.
+
+Your text files must end with a *.txt* filename extension.
+
+= How to use =
+
+You should not add mTextView to the launcher menu.
+
+Just side-load text files onto your nook just like any other book.  When you open them from nookLibrary, nookLibrary will launch mTextView to view the file.
