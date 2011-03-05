@@ -282,9 +282,17 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                     }
                     try {
                         if ((new File(name)).exists()) {
-                            setCover(name);
-                            m_NookLibrary.updateCover(this);
-                            return true;
+                            Bitmap myBitmap;
+                            try {
+                                myBitmap = BitmapFactory.decodeFile(name);
+                            } catch(Throwable err) {
+                                myBitmap=null;
+                            }
+                            if( myBitmap != null && myBitmap.getWidth() >0) {
+                                setCover(name);
+                                m_NookLibrary.updateCover(this);
+                                return true;
+                            }
                         }
                         if( lock != null && !lock.isHeld()) {
                             boolean ret =m_NookLibrary.waitForNetwork(lock);
@@ -293,6 +301,10 @@ public class ScannedFile implements Parcelable, Comparable<ScannedFile>, Seriali
                         DefaultHttpClient httpClient = new DefaultHttpClient();
                         HttpGet request = new HttpGet(getCover());
                         HttpResponse response = httpClient.execute(request);
+                        String type = response.getEntity().getContentType().getValue();
+                        if( type != null && (type.contains("htm") || type.contains("txt"))) {
+                           return false;
+                        }
                         BufferedInputStream bis = new BufferedInputStream(response.getEntity().getContent(), 1024);
                         FileOutputStream fout = new FileOutputStream(new File(name));
                         byte[] buffer = new byte[1024];

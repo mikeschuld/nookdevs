@@ -1170,6 +1170,9 @@ public class NookLibrary extends nookBaseActivity implements OnItemClickListener
                 m_ShowIndex = 0;
                 m_AuthorIndex = 0;
                 m_SearchView = false;
+                m_LocalScanDone.close();
+                updateMetaData(true,0);
+                m_LocalScanDone.block();
                 m_ListAdapter.setSubText(AUTHORS, m_AuthorValues.get(0));
                 m_ListAdapter.setSubText(SHOW, (String) m_ShowValues.get(0));
                 m_ListAdapter.setSubText(SEARCH, " ");
