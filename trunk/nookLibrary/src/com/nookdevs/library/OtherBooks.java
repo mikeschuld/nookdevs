@@ -134,7 +134,7 @@ public class OtherBooks extends SQLiteOpenHelper {
                         if(path)
                             whereclause += " or path=" + m_DeleteBooks.get(i);
                         else
-                            whereclause +="or id="+m_DeleteBooks.get(i);
+                            whereclause +=" or id="+m_DeleteBooks.get(i);
                     }
                 }
                 m_Db.beginTransaction();

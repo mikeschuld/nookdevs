@@ -67,7 +67,7 @@ public class BNBooks {
     public static final String DOWNLOAD = "DOWNLOAD";
     public static final String DOWNLOAD_IN_PROGRESS = "DOWNLOADING";
     public static final String AUTH_URL = "https://cart2.barnesandnoble.com/services/service.asp";
-    public static final long TIMEOUT = 300000;
+    public static final long TIMEOUT = 20000;
     private List<ScannedFile> m_Books = null;
     private List<ScannedFile> m_ArchivedBooks = new ArrayList<ScannedFile>(10);
     private ScannedFile m_DownloadBook = null;
@@ -109,10 +109,17 @@ public class BNBooks {
             if (path == null) {
                 String ex = null;
                 try {
-                    arg1.getStringExtra("exception");
+                    Object data = arg1.getSerializableExtra("exception");
+                    if( data instanceof Throwable) {
+                        Log.w("Exception downloading book ", (Throwable)data);
+                        ex = ((Throwable)data).getMessage().toLowerCase();
+                    }
+                    else { 
+                        Log.w("Exception downloading book ", data.toString());
+                        ex = data.toString().toLowerCase();
+                    }
                 } catch(Throwable exception) {
                     ex=null;
-                    Log.w("Exception downloading book ", ex);
                 }
                 if( ex != null && ex.contains("already downloaded")) {
                     if( m_DownloadBook.getPathName() != null) {
@@ -159,8 +166,18 @@ public class BNBooks {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             // download progress
+            m_TimerTask.cancel();
             m_DownloadBook.setStatus(DOWNLOAD_IN_PROGRESS + " " + ((int) (arg1.getFloatExtra("percent", 0) * 100))
                 / 100.0);
+            m_TimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    System.out.println("BNCall Timed out...");
+                    BNBooks.this.cancel();
+                }
+                
+            };
+            m_Timer.schedule(m_TimerTask, TIMEOUT*3);
         }
     };
     
@@ -196,6 +213,7 @@ public class BNBooks {
                 m_TimerTask = new TimerTask() {
                     @Override
                     public void run() {
+                        System.out.println("BNCall Timed out...");
                         BNBooks.this.cancel();
                     }
                 };
@@ -251,11 +269,12 @@ public class BNBooks {
             m_TimerTask = new TimerTask() {
                 @Override
                 public void run() {
+                    System.out.println("BNCall Timed out...");
                     BNBooks.this.cancel();
                 }
                 
             };
-            m_Timer.schedule(m_TimerTask, TIMEOUT);
+            m_Timer.schedule(m_TimerTask, TIMEOUT*3);
             download();
             m_DownloadDone.block();
             // m_FilesDb.close();
@@ -304,8 +323,9 @@ public class BNBooks {
     }
     
     private static boolean authenticate() {
+        SQLiteDatabase db = null;
         try {
-            SQLiteDatabase db = SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
+            db=SQLiteDatabase.openDatabase(APP_DB, null, SQLiteDatabase.OPEN_READONLY);
             String user = "";
             String pass = "";
             String devId = "";
@@ -331,24 +351,31 @@ public class BNBooks {
                 return false;
             }
             m_DeviceRegistered=true;
-            url += "emailAddress=" + user + "&";
-            url += "acctPassword" + pass;
-            url += "&devId=" + devId;
-            URL aURL = new URL(url);
-            URLConnection conn = aURL.openConnection();
-            conn.connect();
-            BufferedInputStream is = new BufferedInputStream(conn.getInputStream(), 100);
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = is.read(buffer)) >= 0) {
-                buffer[len] = '\0';
-                System.out.print(new String(buffer));
-            }
+//            url += "emailAddress=" + user + "&";
+//            url += "acctPassword" + pass;
+//            url += "&devId=" + devId;
+//            URL aURL = new URL(url);
+//            URLConnection conn = aURL.openConnection();
+//            conn.connect();
+          //  BufferedInputStream is = new BufferedInputStream(conn.getInputStream(), 100);
+          //  byte[] buffer = new byte[1024];
+          //  int len;
+          //  while ((len = is.read(buffer)) >= 0) {
+          //      buffer[len] = '\0';
+          //      System.out.print(new String(buffer));
+          //  }
             db.close();
             m_Auth=true;
             return true;
         } catch (Exception ex) {
             Log.w("Exception during authenticate", ex);
+            if( db != null) {
+                try {
+                    db.close();
+                } catch(Exception ex1) {
+                    
+                }
+            }
             return false;
         }
     }
@@ -715,7 +742,10 @@ public class BNBooks {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 ScannedFile file = ScannedFile.getFile(cursor.getString(1));
-                if( file == null) continue;
+                if( file == null) {
+                    cursor.moveToNext();
+                    continue;
+                }
                 file.setCurrentPage( cursor.getInt(2));
                 file.setTotalPages( cursor.getInt(3));
                 cursor.moveToNext();
