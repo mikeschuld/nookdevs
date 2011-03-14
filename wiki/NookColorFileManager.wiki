@@ -1,5 +1,6 @@
 #labels Featured
-<h2>File Manager App 1.0 </h2> available in android market now.
+<h2>File Manager App 1.0 </h2> 
+<b>available in android market now.</b> - You will have to uninstall and then install from the market.
 
 File Manager is a NOOKColor optimized app to browse media and external sd card folders, cut, copy and delete files.
 
