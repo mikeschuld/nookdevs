@@ -22,18 +22,13 @@ When the app is launched it will display a screen with a folder for each shelf i
 
 Menu Options
 
-You can launch the main menu by clicking on the menu button ( ), which is a soft button located in the bottom status bar to the right of Quick Nav Arrow.
+You can launch the main menu by clicking on the menu button, which is a soft button located in the bottom status bar to the right of Quick Nav Arrow.
 
-Pressing on the menu button from the main screen of Auto Shelves app will launch the following options menu:
-
-
- 
 
 Add Shelf
 
 Add Shelf option is for creating new shelves.
 
- 
 
 Sort Options
 
@@ -46,17 +41,14 @@ Auto Shelve Books
 This will run the auto shelving process for all books in the library. You can select the steps to run from the panel displayed. A sample screen is given below. This process will take some time to complete depending on the number of books in your library. You will be notified when it completes.
 
 
- 
-
 Text Size
 
 This controls the size of text throughout the application.
 
- 
 
 Context Menu
 
-Context menu for each shelf/book can be accessed by long pressing on the icon. This menu will have the options specific to the item. 
+Context menu for each shelf/book can be accessed by long pressing on the icon. This menu will have options specific to the item. 
 
 Auto Shelve Books
 
