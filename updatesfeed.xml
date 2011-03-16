@@ -44,12 +44,12 @@
   <entry>
     <title>nookLibrary Debug</title>
     <link type="application/vnd.android.package-archive"
-          href="http://nookdevs.googlecode.com/files/nookLibrary-0.1.7.apk"/>
-    <id>http://nookdevs.googlecode.com/files/nookLibrary-0.1.7.apk</id>
+          href="http://nookdevs.googlecode.com/files/nookLibrary-debug.apk"/>
+    <id>http://nookdevs.googlecode.com/files/nookLibrary-debug.apk</id>
     <version>0.1.7</version>
     <pkg>com.nookdevs.library</pkg>
     <content type="text">Browse, sort and search books on the Nook. 
-       version 0.1.7 -  More bug fixes.
+       Not stable! 
     </content>
   </entry>
 
