@@ -151,7 +151,7 @@ public class PageViewHelper {
                         public boolean accept(File dir, String file) {
                             File f1 = new File(dir, file);
                             if( f1.isDirectory()) return true;
-                            int idx = file.indexOf('.');
+                            int idx = file.lastIndexOf('.');
                             String ext = file.substring(idx+1);
                             for (String type: EXTS) {
                                 if( ext.equalsIgnoreCase(type)) {
