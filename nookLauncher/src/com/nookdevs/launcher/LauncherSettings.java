@@ -440,14 +440,19 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         m_AddAppLayout.removeAllViews();
-        final LayoutInflater inflater = getLayoutInflater();
-        final List<ResolveInfo> apps = manager.queryIntentActivities(mainIntent, 0);
+        LayoutInflater inflater = getLayoutInflater();
+        List<ResolveInfo> apps = manager.queryIntentActivities(mainIntent, 0);
+        mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_HOME);
+        apps.addAll( manager.queryIntentActivities(mainIntent, 0));
         try {
             for (ResolveInfo ri : apps) {
                 String name = ri.activityInfo.name;
                 if (m_LauncherApps.contains(name) && !name.equals(FOLDER_APP)) {
                     continue;
                 }
+                if( name.equals("com.nookdevs.launcher.NookLauncher"))
+                    continue;
                 RelativeLayout addApp = (RelativeLayout) inflater.inflate(R.layout.addapp, m_AddAppLayout, false);
                 AppImageButton btn = (AppImageButton) addApp.getChildAt(0);
                 TextView txt = (TextView) addApp.getChildAt(1);
@@ -708,7 +713,7 @@ public class LauncherSettings extends nookBaseActivity implements Gallery.OnItem
                     }
                 }
 
-                m_DBHelper.updateIcon(appName,folder,imageUri, resid, m_CurrentFolder);
+                m_DBHelper.updateIcon(appName,folder,imageUri, resid, m_CurrentFolder-1);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
