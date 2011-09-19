@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Button Swapper</string>
+    <string name="nextpage">Next Page</string>
+    <string name="prevpage">Previous Page</string>
+    <string name="instructions">Configure your Nook\'s hardware page-turn buttons with the touch screen interface, below.\n\nYou will need to reboot before your changes take effect.\n\n~</string>
+	<string name="toggle_topleft_label">Swap</string>
+	<string name="toggle_bottomleft_label">Swap</string>
+	<string name="toggle_topright_label">Swap</string>
+	<string name="toggle_bottomright_label">Swap</string>
+	<string name="restore_defaults_label">Restore Defaults</string>
+	<string name="ok">OK</string>
+	<string name="error_instructions">ERROR\n\nYou do not have permissions to change the button mappings.\n\nTo correct this, you will need to use adb:\n\n</string>
+</resources>
